@@ -1,0 +1,7 @@
+org.springframework.context.ApplicationContextInitializer=\
+com.alipay.sofa.tracer.boot.initializer.SofaTracerInitializer
+
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.alipay.sofa.tracer.boot.configuration.SofaTracerAutoConfiguration,\
+com.alipay.sofa.tracer.boot.springmvc.configuration.OpenTracingSpringMvcAutoConfiguration,\
+com.alipay.sofa.tracer.boot.zipkin.configuration.ZipkinSofaTracerAutoConfiguration
