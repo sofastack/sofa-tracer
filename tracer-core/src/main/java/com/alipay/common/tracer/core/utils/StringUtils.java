@@ -86,7 +86,7 @@ public class StringUtils {
     }
 
     /**
-     * 将map转成string并在每一个 key 添加指定的前缀, 如{"k1":"v1", "k2":"v2"} => prefex_k1=v1&prefex_k2=v2&
+     * 将map转成string并在每一个 key 添加指定的前缀, 如{"k1":"v1", "k2":"v2"} == prefex_k1=v1&prefex_k2=v2&
      */
     public static String mapToStringWithPrefix(Map<String, String> map, String prefix) {
         StringBuilder sb = new StringBuilder(XStringBuilder.DEFAULT_BUFFER_SIZE);
@@ -108,7 +108,7 @@ public class StringUtils {
     }
 
     /**
-     * 将map转成string, 如{"k1":"v1", "k2":"v2"} => k1=v1&k2=v2&
+     * 将map转成string, 如{"k1":"v1", "k2":"v2"} == k1=v1&k2=v2&
      */
     public static String mapToString(Map<String, String> map) {
         StringBuilder sb = new StringBuilder(XStringBuilder.DEFAULT_BUFFER_SIZE);
