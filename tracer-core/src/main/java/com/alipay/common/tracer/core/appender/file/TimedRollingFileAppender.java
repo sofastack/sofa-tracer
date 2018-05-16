@@ -84,16 +84,16 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
                                                             0);
 
     /**
-     * @param file
-     * @param append
+     * @param file 文件名
+     * @param append 是否累加
      */
     public TimedRollingFileAppender(String file, boolean append) {
         this(file, DEFAULT_BUFFER_SIZE, append, DEFAULT_ROLLING_PATTERN);
     }
 
     /**
-     * @param file
-     * @param datePattern
+     * @param file 文件
+     * @param datePattern 日期格式
      */
     public TimedRollingFileAppender(String file, String datePattern) {
         this(file, DEFAULT_BUFFER_SIZE, true, datePattern);
@@ -105,19 +105,19 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
     }
 
     /**
-     * @param file
-     * @param bufferSize
-     * @param append
+     * @param file 文件
+     * @param bufferSize 缓冲区大小
+     * @param append 是否追加,默认是
      */
     public TimedRollingFileAppender(String file, int bufferSize, boolean append) {
         this(file, bufferSize, append, DEFAULT_ROLLING_PATTERN);
     }
 
     /**
-     * @param file
-     * @param bufferSize
-     * @param append
-     * @param datePatternParam
+     * @param file 文件
+     * @param bufferSize 缓冲区大小
+     * @param append 是否追加,默认是
+     * @param datePatternParam 日期格式
      */
     public TimedRollingFileAppender(String file, int bufferSize, boolean append,
                                     String datePatternParam) {
@@ -136,7 +136,7 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
     /**
      * 判断是否应该现在进行 RollOver
      *
-     * @return
+     * @return true 现在进行 RollOver
      */
     public boolean shouldRollOverNow() {
         long n = System.currentTimeMillis();
@@ -342,16 +342,16 @@ class RollingCalendar extends GregorianCalendar {
     }
 
     /**
-     * @param now
-     * @return
+     * @param now 日期
+     * @return 下一个整数日期
      */
     public long getNextCheckMillis(Date now) {
         return getNextCheckDate(now).getTime();
     }
 
     /**
-     * @param now
-     * @return
+     * @param now 当前
+     * @return 下一个周期日周期
      */
     public Date getNextCheckDate(Date now) {
         this.setTime(now);

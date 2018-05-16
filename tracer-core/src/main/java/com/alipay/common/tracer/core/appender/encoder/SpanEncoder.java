@@ -35,6 +35,7 @@ public interface SpanEncoder<T extends Span> {
      *
      * @param span 要被格式化输出的上下文
      * @throws IOException 文件输出异常
+     * @return 返回格式化输出的字符串
      */
     String encode(T span) throws IOException;
 }

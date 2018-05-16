@@ -297,10 +297,11 @@ public class SofaTracerSpan implements Span {
 
     /***
      *
-     * @param errorType error 描述:timeout_error/biz_error...
-     * @param context 记录的上下文信息
-     * @param e 异常信息
-     * @param errorSources 故障源 trade|rpc
+     * @param errorType errorType error 描述:timeout_error/biz_error...
+     * @param context context 记录的上下文信息
+     * @param e e 异常信息
+     * @param errorSourceApp errorSources 故障源 trade|rpc
+     * @param errorSources errorSources 故障源数组
      */
     public void reportError(String errorType, Map<String, String> context, Throwable e,
                             String errorSourceApp, String... errorSources) {

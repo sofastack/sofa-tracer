@@ -24,12 +24,12 @@ package com.alipay.common.tracer.core.utils;
  */
 public class CommonUtils {
 
-    /**
+    /***
      * 取数值
-     *
-     * @param num        数字
+     * @param num  数字
      * @param defaultInt 默认值
-     * @return int
+     * @param <T> 类型 Number
+     * @return Number
      */
     public static <T extends Number> T parseNum(T num, T defaultInt) {
         return num == null ? defaultInt : num;

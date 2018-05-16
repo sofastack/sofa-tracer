@@ -42,7 +42,7 @@ public abstract class AbstractSequencer implements Sequencer {
      * Create with the specified buffer size and wait strategy.
      *
      * @param bufferSize   The total number of entries, must be a positive power of 2.
-     * @param waitStrategy
+     * @param waitStrategy waitStrategy
      */
     public AbstractSequencer(int bufferSize, WaitStrategy waitStrategy) {
         if (bufferSize < 1) {

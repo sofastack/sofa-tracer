@@ -149,6 +149,7 @@ public abstract class AbstractTracer {
 
     /***
      * 客户端接收响应
+     * @param resultCode 结果码
      */
     public void clientReceive(String resultCode) {
         //客户端
@@ -171,6 +172,7 @@ public abstract class AbstractTracer {
 
     /**
      * 收到请求
+     * @return SofaTracerSpan
      */
     public SofaTracerSpan serverReceive() {
         return this.serverReceive(null);
@@ -178,6 +180,8 @@ public abstract class AbstractTracer {
 
     /**
      * 收到请求
+     * @param sofaTracerSpanContext 要恢复的上下文
+     * @return SofaTracerSpan
      */
     public SofaTracerSpan serverReceive(SofaTracerSpanContext sofaTracerSpanContext) {
         SofaTracerSpan sofaTracerSpanServer = null;
@@ -224,6 +228,7 @@ public abstract class AbstractTracer {
 
     /**
      * 请求处理完成
+     * @param resultCode 结果码
      */
     public void serverSend(String resultCode) {
         try {
@@ -260,6 +265,8 @@ public abstract class AbstractTracer {
 
     /***
      * 当发生错误进行补救,从根节点重新计数开始
+     * @param bizBaggage 业务透传
+     * @param sysBaggage 系统透传
      * @return 从根节点开始的上下文
      */
     protected SofaTracerSpan errorRecover(Map<String, String> bizBaggage,

@@ -26,7 +26,7 @@ import com.alipay.common.tracer.core.utils.StringUtils;
  * {@link io.opentracing.References}
  *
  * @author yangguanchao
- * @date 2017/06/17
+ * @since  2017/06/17
  */
 public class SofaTracerSpanReferenceRelationship {
 

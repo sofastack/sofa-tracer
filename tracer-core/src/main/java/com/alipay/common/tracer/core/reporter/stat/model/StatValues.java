@@ -60,6 +60,7 @@ public class StatValues {
      * 打印完毕后对槽清空
      * 由于在打印期间值可能已经被更新，所以传入需要被clear的数值数组，减去已被打印的值
      * (所有操作需满足CAS机制)
+     *  @param toBeClear long 数组
      */
     public void clear(long[] toBeClear) {
         long[] current;
@@ -77,7 +78,7 @@ public class StatValues {
      * 这里可以直接get并返回，返回的值肯定不会改变
      * 因为任何对values这个原子的改变都是直接覆盖数组的引用地址
      * 而不会更新数组中的值
-     * @return
+     * @return long 数组
      */
     public long[] getCurrentValue() {
         return values.get();

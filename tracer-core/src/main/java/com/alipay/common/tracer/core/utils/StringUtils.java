@@ -86,7 +86,10 @@ public class StringUtils {
     }
 
     /**
-     * 将map转成string并在每一个 key 添加指定的前缀, 如{"k1":"v1", "k2":"v2"} == prefex_k1=v1&prefex_k2=v2&
+     * 将map转成string并在每一个 key 添加指定的前缀, 如{"k1":"v1", "k2":"v2"} => prefex_k1=v1&prefex_k2=v2&
+     * @param map 要映射的集合
+     * @param prefix 前缀
+     * @return 字符串
      */
     public static String mapToStringWithPrefix(Map<String, String> map, String prefix) {
         StringBuilder sb = new StringBuilder(XStringBuilder.DEFAULT_BUFFER_SIZE);
@@ -109,6 +112,8 @@ public class StringUtils {
 
     /**
      * 将map转成string, 如{"k1":"v1", "k2":"v2"} == k1=v1&k2=v2&
+     * @param map 要映射的集合
+     * @return 字符串
      */
     public static String mapToString(Map<String, String> map) {
         StringBuilder sb = new StringBuilder(XStringBuilder.DEFAULT_BUFFER_SIZE);
@@ -128,6 +133,8 @@ public class StringUtils {
 
     /**
      * 由string转成map, 函数 mapToString 的逆过程
+     * @param str 字符串
+     * @param map 映射的集合
      */
     public static void stringToMap(String str, Map<String, String> map) {
 
@@ -177,11 +184,11 @@ public class StringUtils {
     }
 
     /**
-     * @param items
-     * @param separator
-     * @param prefix
-     * @param postfix
-     * @return
+     * @param items 列表
+     * @param separator 分隔符
+     * @param prefix 前缀
+     * @param postfix 后缀
+     * @return 字符串
      */
     public static String arrayToString(Object[] items, char separator, String prefix, String postfix) {
         String emptyArrayString = (EMPTY_STRING + prefix) + postfix;

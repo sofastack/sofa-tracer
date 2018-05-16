@@ -123,7 +123,7 @@ public abstract class AbstractRollingFileAppender implements TraceAppender {
     /**
      * 是否现在马上进行滚动
      *
-     * @return
+     * @return true: 是
      */
     protected abstract boolean shouldRollOverNow();
 

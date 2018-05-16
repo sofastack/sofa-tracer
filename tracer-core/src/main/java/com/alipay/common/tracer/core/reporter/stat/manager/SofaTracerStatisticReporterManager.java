@@ -81,8 +81,8 @@ public class SofaTracerStatisticReporterManager {
 
     /***
      * 根据名称获取统计 Reporter 实例
-     * @param statTracerName
-     * @return
+     * @param statTracerName 统计日志 tracer 名称
+     * @return 统计实现
      */
     public SofaTracerStatisticReporter getStatTracer(String statTracerName) {
         if (StringUtils.isBlank(statTracerName)) {

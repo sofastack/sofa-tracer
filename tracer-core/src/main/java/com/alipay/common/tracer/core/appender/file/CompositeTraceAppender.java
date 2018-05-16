@@ -33,23 +33,23 @@ public class CompositeTraceAppender implements TraceAppender {
     private Map<String, TraceAppender> traceAppenders = new ConcurrentHashMap<String, TraceAppender>();
 
     /**
-     * @param logName
-     * @return
+     * @param logName 日志名
+     * @return 输出实例
      */
     public TraceAppender getAppender(String logName) {
         return traceAppenders.get(logName);
     }
 
     /**
-     * @param logName
-     * @param traceAppender
+     * @param logName 日志名
+     * @param traceAppender 输出实例
      */
     public void putAppender(String logName, TraceAppender traceAppender) {
         traceAppenders.put(logName, traceAppender);
     }
 
     /**
-     * @throws IOException
+     * @throws IOException 异常
      */
     @Override
     public void flush() throws IOException {
@@ -59,8 +59,8 @@ public class CompositeTraceAppender implements TraceAppender {
     }
 
     /**
-     * @param log
-     * @throws IOException
+     * @param log 内容
+     * @throws IOException 异常
      */
     @Override
     public void append(String log) throws IOException {
