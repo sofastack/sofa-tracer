@@ -70,7 +70,7 @@ public interface Sequenced {
      * available.
      *
      * @return the claimed sequence value
-     * @throws InsufficientCapacityException
+     * @throws InsufficientCapacityException InsufficientCapacityException
      */
     long tryNext() throws InsufficientCapacityException;
 
@@ -82,14 +82,14 @@ public interface Sequenced {
      *
      * @param n the number of sequences to claim
      * @return the claimed sequence value
-     * @throws InsufficientCapacityException
+     * @throws InsufficientCapacityException InsufficientCapacityException
      */
     long tryNext(int n) throws InsufficientCapacityException;
 
     /**
      * Publishes a sequence. Call when the event has been filled.
      *
-     * @param sequence
+     * @param sequence sequence
      */
     void publish(long sequence);
 

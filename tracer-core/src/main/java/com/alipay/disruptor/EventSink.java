@@ -95,6 +95,7 @@ public interface EventSink<E> {
      * @param arg2       A user supplied argument.
      * @param <A>        A user supplied argument.
      * @param <B>        B user supplied argument.
+     * @param <C>        C user supplied argument.
      * @see #publishEvent(EventTranslator)
      */
     <A, B, C> void publishEvent(EventTranslatorThreeArg<E, A, B, C> translator, A arg0, B arg1,

@@ -114,7 +114,7 @@ public final class Util {
     /**
      * Gets the address value for the memory that backs a direct byte buffer.
      *
-     * @param buffer
+     * @param buffer buffer
      * @return The system address for the buffers
      */
     public static long getAddressFromDirectByteBuffer(ByteBuffer buffer) {

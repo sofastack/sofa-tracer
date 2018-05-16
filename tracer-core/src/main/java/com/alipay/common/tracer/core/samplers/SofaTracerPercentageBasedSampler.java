@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * SofaTracerPercentageBasedSampler
  *
  * @author yangguanchao
- * @date 2017/06/19
+ * @since  2017/06/19
  */
 public class SofaTracerPercentageBasedSampler implements Sampler {
 

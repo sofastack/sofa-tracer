@@ -27,9 +27,10 @@ import com.alipay.disruptor.Sequence;
  * </code></pre>
  */
 public interface EventProcessorFactory<T> {
+
     /**
      * Create a new event processor that gates on <code>barrierSequences</code>.
-     *
+     * @param ringBuffer ringBuffer
      * @param barrierSequences the sequences to gate on
      * @return a new EventProcessor that gates on <code>barrierSequences</code> before processing events
      */
