@@ -138,16 +138,16 @@ public class SofaTracerConfiguration {
     }
 
     /**
-     * @param key
-     * @param value
+     * @param key 关键字
+     * @param value 值
      */
     public static void setProperty(String key, Integer value) {
         properties.put(key, value);
     }
 
     /**
-     * @param key
-     * @param value
+     * @param key 关键字
+     * @param value 值
      */
     public static void setProperty(String key, Map<String, String> value) {
         properties.put(key, value);
@@ -157,7 +157,7 @@ public class SofaTracerConfiguration {
      * 获取配置项
      *
      * @param key 配置项的 key
-     * @return
+     * @return 属性值
      */
     public static String getProperty(String key) {
         return getProperty(key, StringUtils.EMPTY_STRING);
@@ -177,9 +177,9 @@ public class SofaTracerConfiguration {
     }
 
     /**
-     * @param key
-     * @param defaultValue
-     * @return
+     * @param key 关键字
+     * @param defaultValue 默认值
+     * @return 整数
      */
     public static Integer getIntegerDefaultIfNull(String key, Integer defaultValue) {
         Integer value = getInteger(key);
@@ -187,8 +187,8 @@ public class SofaTracerConfiguration {
     }
 
     /**
-     * @param key
-     * @return
+     * @param key 关键字
+     * @return map
      */
     public static Map<String, String> getMapEmptyIfNull(String key) {
         if (properties.containsKey(key)) {

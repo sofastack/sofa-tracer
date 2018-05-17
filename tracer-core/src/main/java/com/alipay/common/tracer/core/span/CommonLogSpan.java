@@ -63,7 +63,7 @@ public class CommonLogSpan extends SofaTracerSpan {
 
     /**
      * 往 Slots 中增加一项需要打印的内容
-     * @param slot
+     * @param slot 槽位
      */
     public void addSlot(String slot) {
         if (slot == null) {

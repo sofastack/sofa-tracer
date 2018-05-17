@@ -90,7 +90,7 @@ public class TracerUtils {
     /**
      * 系统穿透数据长度可以通过不同的-D来设置
      *
-     * @return
+     * @return 整数值
      */
     public static int getSysBaggageMaxLength() {
         if (TRACER_SYSTEM_PENETRATE_ATTRIBUTE_MAX_LENGTH < 0) {
@@ -133,7 +133,7 @@ public class TracerUtils {
      * 在 Mac 环境下，JDK6，JDK7，JDK8 都可以跑过。
      * 在 Linux 环境下，JDK6，JDK7，JDK8 尝试过，可以运行通过。
      *
-     * @return
+     * @return 进程 ID
      */
     public static String getPID() {
         String processName = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
@@ -246,9 +246,9 @@ public class TracerUtils {
     /**
      * 从 Map 中获取一个 value，如果获取出来是 null，则返回一个空字符串
      *
-     * @param map
-     * @param key
-     * @return
+     * @param map 要映射的 map
+     * @param key 关键字
+     * @return 字符串
      */
     public static String getEmptyStringIfNull(Map<String, String> map, String key) {
         String value = map.get(key);
@@ -258,7 +258,7 @@ public class TracerUtils {
     /**
      * 将一个 Host 地址转换成一个 16 进制数字
      *
-     * @param host
+     * @param host 主机地址
      * @return 将一个 Host 地址转换成一个 16 进制数字
      */
     public static String hostToHexString(String host) { //NOPMD

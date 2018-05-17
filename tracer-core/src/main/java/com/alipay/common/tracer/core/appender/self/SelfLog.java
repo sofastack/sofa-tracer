@@ -47,8 +47,8 @@ public class SelfLog {
     }
 
     /**
-     * @param log
-     * @param e
+     * @param log 日志内容
+     * @param e 异常
      */
     public static void error(String log, Throwable e) {
         try {
@@ -95,6 +95,7 @@ public class SelfLog {
      * 打印错误日志，附加当前线程的 TraceId
      *
      * @param log 错误消息
+     * @param traceId traceId
      */
     public static void errorWithTraceId(String log, String traceId) {
         doLog(log, ERROR_PREFIX + "[" + traceId + "]");

@@ -81,7 +81,11 @@ public class DiskReporterImpl extends AbstractDiskReporter {
     /***
      *
      * @param digestLogType 日志类型
+     * @param digestRollingPolicy 滚动策略
+     * @param digestLogReserveConfig 保留天数配置
+     * @param contextEncoder 日志输出编码
      * @param statReporter 用户需要提供统计实现
+     * @param logNameKey 日志文件配置关键字
      */
     public DiskReporterImpl(String digestLogType, String digestRollingPolicy,
                             String digestLogReserveConfig, SpanEncoder contextEncoder,

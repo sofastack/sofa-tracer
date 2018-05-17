@@ -27,7 +27,7 @@ public interface SequenceBarrier {
      * @return the sequence up to which is available
      * @throws AlertException       if a status change has occurred for the Disruptor
      * @throws InterruptedException if the thread needs awaking on a condition variable.
-     * @throws TimeoutException
+     * @throws TimeoutException     TimeoutException
      */
     long waitFor(long sequence) throws AlertException, InterruptedException, TimeoutException;
 

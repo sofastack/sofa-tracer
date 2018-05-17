@@ -38,7 +38,7 @@ public class TracerDaemon implements Runnable {
     /**
      * 注册被监听的 Appender
      *
-     * @param traceAppender
+     * @param traceAppender 输出实现
      */
     public static void watch(TraceAppender traceAppender) {
         watchedAppenders.add(traceAppender);

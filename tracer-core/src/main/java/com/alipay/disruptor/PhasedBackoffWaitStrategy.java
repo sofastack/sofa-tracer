@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Phased wait strategy for waiting {@link EventProcessor}s on a barrier.</p>
- * <p>
+ *
  * <p>This strategy can be used when throughput and low-latency are not as important as CPU resource.
  * Spins, then yields, then waits using the configured fallback WaitStrategy.</p>
  */
@@ -37,7 +37,11 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy {
     }
 
     /**
-     * Block with wait/notifyAll semantics
+     *  Block with wait/notifyAll semantics
+     * @param spinTimeout spinTimeout
+     * @param yieldTimeout yieldTimeout
+     * @param units units
+     * @return PhasedBackoffWaitStrategy
      */
     public static PhasedBackoffWaitStrategy withLock(long spinTimeout, long yieldTimeout,
                                                      TimeUnit units) {
@@ -47,6 +51,10 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy {
 
     /**
      * Block with wait/notifyAll semantics
+     * @param spinTimeout spinTimeout
+     * @param yieldTimeout yieldTimeout
+     * @param units units
+     * @return PhasedBackoffWaitStrategy
      */
     public static PhasedBackoffWaitStrategy withLiteLock(long spinTimeout, long yieldTimeout,
                                                          TimeUnit units) {
@@ -56,6 +64,10 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy {
 
     /**
      * Block by sleeping in a loop
+     * @param spinTimeout spinTimeout
+     * @param yieldTimeout yieldTimeout
+     * @param units units
+     * @return PhasedBackoffWaitStrategy
      */
     public static PhasedBackoffWaitStrategy withSleep(long spinTimeout, long yieldTimeout,
                                                       TimeUnit units) {
