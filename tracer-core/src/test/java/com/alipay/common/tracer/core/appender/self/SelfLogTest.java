@@ -59,6 +59,7 @@ public class SelfLogTest extends AbstractTestBase {
      */
     @Test
     public void testErrorForLogE() throws Exception {
+        System.err.println("testErrorForLogE");
         SelfLog.error("Error info", new RuntimeException("RunTimeException"));
         Thread.sleep(8000);
 
@@ -72,6 +73,7 @@ public class SelfLogTest extends AbstractTestBase {
      */
     @Test
     public void testErrorWithTraceIdForLogE() throws Exception {
+        System.err.println("testErrorForLogE");
         SelfLog.errorWithTraceId("error Info ", "traceid");
         Thread.sleep(8000);
         List<String> logs = FileUtils.readLines(new File(TracerLogRootDeamon.LOG_FILE_DIR
