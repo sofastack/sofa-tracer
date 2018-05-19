@@ -38,7 +38,7 @@ SOFATracer 可以将链路跟踪数据远程上报到开源产品 [Zipkin](https
 
 ## 三、快速开始
 
-请查看文档中的[快速开始]()来了解如何快速上手使用 SOFATracer。
+请查看文档中的[快速开始](https://github.com/alipay/sofa-tracer/wiki/QuickStart)来了解如何快速上手使用 SOFATracer。
 
 ## 四、如何贡献
 
@@ -48,7 +48,7 @@ SOFATracer 的编译环境的要求为 JDK7 或者 JDK8，需要采用 [Apache M
 
 ## 五、示例
 
-在此工程的 `sofatracer-samples` 目录下的是 SOFATracer 的示例工程，分别为：
+在此工程的 `tracer-samples` 目录下的是 SOFATracer 的示例工程，分别为：
 
 * [SOFATracer 示例工程（基于 Spring MVC 示例落地日志）](./tracer-samples/tracer-sample-with-springmvc)
 * [SOFATracer 示例工程（基于 Spring MVC 示例远程上报 Zipkin）](./tracer-samples/tracer-sample-with-zipkin)
@@ -56,7 +56,7 @@ SOFATracer 的编译环境的要求为 JDK7 或者 JDK8，需要采用 [Apache M
  
 ## 六、文档
 
-请参考 [WIKI 中的 SOFATracer 的文档](https://github.com/alipay/sofa-tracer/wiki/SOFATracer-%E4%BB%8B%E7%BB%8D)。
+请参考 [WIKI 中的 SOFATracer 的文档](https://github.com/alipay/sofa-tracer/wiki)。
 
 
 
