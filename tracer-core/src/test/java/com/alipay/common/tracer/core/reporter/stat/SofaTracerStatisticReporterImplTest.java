@@ -18,6 +18,7 @@ package com.alipay.common.tracer.core.reporter.stat;
 
 import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
 import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
@@ -52,8 +53,7 @@ public class SofaTracerStatisticReporterImplTest {
 
     @Before
     public void init() {
-        //        statAppender = SofaTracerStatisticReporterCycleTimesManager
-        //            .getSofaTracerStatisticReporterManager(CYCLE_IN_SECONDS);
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL, "");
     }
 
     @After
