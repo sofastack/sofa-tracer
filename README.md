@@ -48,7 +48,7 @@ SOFATracer 的编译环境的要求为 JDK7 或者 JDK8，需要采用 [Apache M
 
 ## 五、示例
 
-在此工程的 `sofatracer-samples` 目录下的是 SOFATracer 的示例工程，分别为：
+在此工程的 `tracer-samples` 目录下的是 SOFATracer 的示例工程，分别为：
 
 * [SOFATracer 示例工程（基于 Spring MVC 示例落地日志）](./tracer-samples/tracer-sample-with-springmvc)
 * [SOFATracer 示例工程（基于 Spring MVC 示例远程上报 Zipkin）](./tracer-samples/tracer-sample-with-zipkin)
