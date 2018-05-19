@@ -102,7 +102,7 @@ public class SofaTracerStatisticReporterImplTest {
         }
 
         // 此时应该发生过下标切换
-        Thread.sleep((int) (CYCLE_IN_SECONDS * 1200));
+        Thread.sleep((int) (CYCLE_IN_SECONDS * 1800));
         //发生打印过了
         Assert.assertEquals(0, statReporter.getStatData().size());
         Assert.assertEquals(SofaTracerStatisticReporterManager.CLEAR_STAT_KEY_THRESHOLD,
