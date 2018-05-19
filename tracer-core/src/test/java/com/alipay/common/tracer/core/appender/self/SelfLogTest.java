@@ -47,7 +47,7 @@ public class SelfLogTest extends AbstractTestBase {
 
     @After
     public void after() throws Exception {
-        Thread.sleep(3000);
+        Thread.sleep(5000);
         File file = new File(logDirectoryPath + File.separator + SelfLog.SELF_LOG_FILE);
         if (file.exists()) {
             FileUtils.writeStringToFile(file, "");
@@ -60,7 +60,7 @@ public class SelfLogTest extends AbstractTestBase {
     @Test
     public void testErrorForLogE() throws Exception {
         SelfLog.error("Error info", new RuntimeException("RunTimeException"));
-        Thread.sleep(4000);
+        Thread.sleep(8000);
 
         List<String> logs = FileUtils.readLines(new File(TracerLogRootDeamon.LOG_FILE_DIR
                                                          + File.separator + SelfLog.SELF_LOG_FILE));
@@ -73,7 +73,7 @@ public class SelfLogTest extends AbstractTestBase {
     @Test
     public void testErrorWithTraceIdForLogE() throws Exception {
         SelfLog.errorWithTraceId("error Info ", "traceid");
-        Thread.sleep(4000);
+        Thread.sleep(8000);
         List<String> logs = FileUtils.readLines(new File(TracerLogRootDeamon.LOG_FILE_DIR
                                                          + File.separator + SelfLog.SELF_LOG_FILE));
         assertTrue(logs.toString(), logs.size() > 0);
@@ -87,7 +87,7 @@ public class SelfLogTest extends AbstractTestBase {
         SelfLog.error("Error info");
         SelfLog.error("Error", new RuntimeException("error"));
 
-        Thread.sleep(4000);
+        Thread.sleep(8000);
 
         List<String> logs = FileUtils.readLines(new File(TracerLogRootDeamon.LOG_FILE_DIR
                                                          + File.separator + SelfLog.SELF_LOG_FILE));
