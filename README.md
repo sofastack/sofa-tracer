@@ -56,7 +56,7 @@ SOFATracer 的编译环境的要求为 JDK7 或者 JDK8，需要采用 [Apache M
  
 ## 六、文档
 
-请参考 [WIKI 中的 SOFATracer 的文档]()。
+请参考 [WIKI 中的 SOFATracer 的文档](https://github.com/alipay/sofa-tracer/wiki/SOFATracer-%E4%BB%8B%E7%BB%8D)。
 
 
 
