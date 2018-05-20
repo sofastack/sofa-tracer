@@ -105,7 +105,8 @@ public class SelfLogTest extends AbstractTestBase {
         //clear
         Field fieldAsync = SelfLog.class.getDeclaredField("selfLogAppenderManager");
         fieldAsync.setAccessible(true);
-        AsyncCommonAppenderManager selfLogAppenderManager = new AsyncCommonAppenderManager(1024, SelfLog.SELF_LOG_FILE);
+        AsyncCommonAppenderManager selfLogAppenderManager = new AsyncCommonAppenderManager(1024,
+            SelfLog.SELF_LOG_FILE);
         selfLogAppenderManager.start("SelfLogAppender");
         fieldAsync.set(null, selfLogAppenderManager);
     }
