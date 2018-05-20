@@ -90,6 +90,7 @@ public class SofaTracerStatisticReporterImplTest {
         };
         //注册
         SofaTracerStatisticReporterCycleTimesManager.registerStatReporter(statReporter);
+        Thread.sleep(2000);
 
         //        statAppender.addStatReporter(statReporter);
 
