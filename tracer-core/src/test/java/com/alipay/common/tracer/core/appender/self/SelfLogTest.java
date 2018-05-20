@@ -17,6 +17,7 @@
 package com.alipay.common.tracer.core.appender.self;
 
 import com.alipay.common.tracer.core.appender.TracerLogRootDeamon;
+import com.alipay.common.tracer.core.appender.manager.AsyncCommonAppenderManager;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -24,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
@@ -43,11 +45,12 @@ public class SelfLogTest extends AbstractTestBase {
         if (file.exists()) {
             FileUtils.writeStringToFile(file, "");
         }
+        reflectSelfLog();
     }
 
     @After
     public void after() throws Exception {
-        Thread.sleep(3000);
+        Thread.sleep(5000);
         File file = new File(logDirectoryPath + File.separator + SelfLog.SELF_LOG_FILE);
         if (file.exists()) {
             FileUtils.writeStringToFile(file, "");
@@ -96,5 +99,15 @@ public class SelfLogTest extends AbstractTestBase {
             stringBuilder.append("\n" + logs.get(i));
         }
         assertTrue(stringBuilder.toString(), logs.size() > 0);
+    }
+
+    private static void reflectSelfLog() throws NoSuchFieldException, IllegalAccessException {
+        //clear
+        Field fieldAsync = SelfLog.class.getDeclaredField("selfLogAppenderManager");
+        fieldAsync.setAccessible(true);
+        AsyncCommonAppenderManager selfLogAppenderManager = new AsyncCommonAppenderManager(1024,
+            SelfLog.SELF_LOG_FILE);
+        selfLogAppenderManager.start("SelfLogAppender");
+        fieldAsync.set(null, selfLogAppenderManager);
     }
 }

@@ -18,6 +18,7 @@ package com.alipay.common.tracer.core.reporter.stat;
 
 import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
 import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
@@ -52,8 +53,7 @@ public class SofaTracerStatisticReporterImplTest {
 
     @Before
     public void init() {
-        //        statAppender = SofaTracerStatisticReporterCycleTimesManager
-        //            .getSofaTracerStatisticReporterManager(CYCLE_IN_SECONDS);
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL, "");
     }
 
     @After
@@ -90,6 +90,7 @@ public class SofaTracerStatisticReporterImplTest {
         };
         //注册
         SofaTracerStatisticReporterCycleTimesManager.registerStatReporter(statReporter);
+        Thread.sleep(2000);
 
         //        statAppender.addStatReporter(statReporter);
 
@@ -102,7 +103,7 @@ public class SofaTracerStatisticReporterImplTest {
         }
 
         // 此时应该发生过下标切换
-        Thread.sleep((int) (CYCLE_IN_SECONDS * 1200));
+        Thread.sleep((int) (CYCLE_IN_SECONDS * 5000));
         //发生打印过了
         Assert.assertEquals(0, statReporter.getStatData().size());
         Assert.assertEquals(SofaTracerStatisticReporterManager.CLEAR_STAT_KEY_THRESHOLD,
