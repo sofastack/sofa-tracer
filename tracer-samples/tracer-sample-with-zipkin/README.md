@@ -44,7 +44,7 @@
 1. 配置 `com.alipay.sofa.tracer.zipkin.enabled=true` 激活 SOFATracer 数据上报到 [Zipkin](https://zipkin.io/)。
 2. 配置 Zipkin Server 端的地址 `com.alipay.sofa.tracer.zipkin.baseUrl=http://${ip}:${port}`。
 
-配置好上述两个项目后，即激活了远程上报的能力。本示例中已经搭建好的 Zipkin Server 端地址是 `http://zipkin-cloud-3.inc.alipay.net:9411`。
+配置好上述两个项目后，即激活了远程上报的能力。本示例中已经搭建好的 Zipkin Server 端地址是 `http://zipkin-cloud-3.host.net:9411`。
 
 ## 运行
 
@@ -68,6 +68,6 @@
 
 ## 查看 Zipkin 服务端展示
 
-打开 Zipkin 服务端界面，假设我们部署的 Zipkin 服务端的地址是 `http://zipkin-cloud-3.inc.alipay.net:9411/`，打开 URL 并搜索 `zipkin`(由于我们本地访问的地址是 localhost:8080/zipkin)，可以看到展示的链路图。
+打开 Zipkin 服务端界面，假设我们部署的 Zipkin 服务端的地址是 `http://zipkin-cloud-3.host.net:9411`，打开 URL 并搜索 `zipkin`(由于我们本地访问的地址是 localhost:8080/zipkin)，可以看到展示的链路图。
 
 
