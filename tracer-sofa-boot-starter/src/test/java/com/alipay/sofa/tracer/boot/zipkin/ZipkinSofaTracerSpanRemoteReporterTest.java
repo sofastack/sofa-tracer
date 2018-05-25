@@ -56,7 +56,7 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         ZipkinSofaTracerRestTemplateCustomizer restTemplateCustomizer = new ZipkinSofaTracerRestTemplateCustomizer(
             zipkinProperties);
         restTemplateCustomizer.customize(restTemplate);
-        String baseUrl = "http://zipkin-cloud-3.inc.alipay.net:9411";
+        String baseUrl = "http://zipkin-cloud-3.inc.host.net:9411";
         int flushInterval = 1;
         SpanReportListener spanReportListener = new ZipkinSofaTracerSpanRemoteReporter(
             restTemplate, baseUrl, flushInterval);
