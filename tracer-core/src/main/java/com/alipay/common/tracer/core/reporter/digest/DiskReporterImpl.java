@@ -157,6 +157,30 @@ public class DiskReporterImpl extends AbstractDiskReporter {
         }
     }
 
+    public AtomicBoolean getIsDigestFileInited() {
+        return isDigestFileInited;
+    }
+
+    public String getDigestLogType() {
+        return digestLogType;
+    }
+
+    public String getDigestRollingPolicy() {
+        return digestRollingPolicy;
+    }
+
+    public String getDigestLogReserveConfig() {
+        return digestLogReserveConfig;
+    }
+
+    public SpanEncoder getContextEncoder() {
+        return contextEncoder;
+    }
+
+    public String getLogNameKey() {
+        return logNameKey;
+    }
+
     /***
      * 磁盘文件初始化创建完成
      */
