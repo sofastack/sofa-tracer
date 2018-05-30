@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DiskReporterImpl extends AbstractDiskReporter {
 
     /***
-     * 标识初始状态: lazy 初始化磁盘文件,用到在初始化
+     * 标识初始状态: lazy 初始化磁盘文件,用到在初始化,注意并发初始化逻辑
      */
     private final AtomicBoolean         isDigestFileInited = new AtomicBoolean(false);
 
@@ -126,18 +126,7 @@ public class DiskReporterImpl extends AbstractDiskReporter {
     @Override
     public void digestReport(SofaTracerSpan span) {
         //lazy 初始化
-        if (this.isDigestFileInited.compareAndSet(false, true)) {
-            if (StringUtils.isNotBlank(logNameKey)) {
-                String currentDigestLogReserveConfig = SofaTracerConfiguration
-                    .getLogReserveConfig(logNameKey);
-                if (!currentDigestLogReserveConfig.equals(digestLogReserveConfig)) {
-                    SelfLog.info("the lognamekey : " + logNameKey
-                                 + " take effect. the old logreserveconfig is "
-                                 + digestLogReserveConfig + " and "
-                                 + "the new logreverseconfig is " + currentDigestLogReserveConfig);
-                    digestLogReserveConfig = currentDigestLogReserveConfig;
-                }
-            }
+        if (!this.isDigestFileInited.get()) {
             this.initDigestFile();
         }
         AsyncCommonDigestAppenderManager asyncDigestManager = SofaTracerDigestReporterAsyncManager
@@ -157,10 +146,49 @@ public class DiskReporterImpl extends AbstractDiskReporter {
         }
     }
 
+    public AtomicBoolean getIsDigestFileInited() {
+        return isDigestFileInited;
+    }
+
+    public String getDigestLogType() {
+        return digestLogType;
+    }
+
+    public String getDigestRollingPolicy() {
+        return digestRollingPolicy;
+    }
+
+    public String getDigestLogReserveConfig() {
+        return digestLogReserveConfig;
+    }
+
+    public SpanEncoder getContextEncoder() {
+        return contextEncoder;
+    }
+
+    public String getLogNameKey() {
+        return logNameKey;
+    }
+
     /***
      * 磁盘文件初始化创建完成
      */
-    private void initDigestFile() {
+    private synchronized void initDigestFile() {
+        if (this.isDigestFileInited.get()) {
+            //double check init
+            return;
+        }
+        if (StringUtils.isNotBlank(logNameKey)) {
+            String currentDigestLogReserveConfig = SofaTracerConfiguration
+                .getLogReserveConfig(logNameKey);
+            if (!currentDigestLogReserveConfig.equals(digestLogReserveConfig)) {
+                SelfLog.info("the lognamekey : " + logNameKey
+                             + " take effect. the old logreserveconfig is "
+                             + digestLogReserveConfig + " and " + "the new logreverseconfig is "
+                             + currentDigestLogReserveConfig);
+                digestLogReserveConfig = currentDigestLogReserveConfig;
+            }
+        }
         TraceAppender digestTraceAppender = LoadTestAwareAppender
             .createLoadTestAwareTimedRollingFileAppender(this.digestLogType,
                 this.digestRollingPolicy, this.digestLogReserveConfig);
@@ -171,5 +199,7 @@ public class DiskReporterImpl extends AbstractDiskReporter {
             asyncDigestManager.addAppender(this.digestLogType, digestTraceAppender,
                 this.contextEncoder);
         }
+        //已经存在或者首次创建
+        this.isDigestFileInited.set(true);
     }
 }
