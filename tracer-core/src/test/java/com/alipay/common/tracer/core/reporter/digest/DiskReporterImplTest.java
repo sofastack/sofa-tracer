@@ -16,14 +16,26 @@
  */
 package com.alipay.common.tracer.core.reporter.digest;
 
+import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.appender.self.SelfLog;
+import com.alipay.common.tracer.core.base.AbstractTestBase;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.reporter.stat.SofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.core.tracertest.type.TracerTestLogEnum;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -36,7 +48,7 @@ import static org.mockito.Mockito.mock;
  * @version 1.0
  * @since <pre>五月 25, 2018</pre>
  */
-public class DiskReporterImplTest {
+public class DiskReporterImplTest extends AbstractTestBase {
 
     private String            clientLogType             = "client-log-disk-report.log";
 
@@ -135,20 +147,51 @@ public class DiskReporterImplTest {
 
     /**
      * Method: initDigestFile()
+     * fix Concurrent
      */
     @Test
-    public void testInitDigestFile() throws Exception {
-
-        /* 
-        try { 
-           Method method = DiskReporterImpl.getClass().getMethod("initDigestFile"); 
-           method.setAccessible(true); 
-           method.invoke(<Object>, <Parameters>); 
-        } catch(NoSuchMethodException e) { 
-        } catch(IllegalAccessException e) { 
-        } catch(InvocationTargetException e) { 
-        } 
-        */
+    public void testFixInitDigestFile() throws Exception {
+        //should be only one item log
+        SelfLog.warn("SelfLog init success!!!");
+        int nThreads = 30;
+        ExecutorService executor = new ThreadPoolExecutor(nThreads, nThreads, 0L,
+            TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+        for (int i = 0; i < nThreads; i++) {
+            Runnable worker = new WorkerInitThread(this.clientReporter, "" + i);
+            executor.execute(worker);
+        }
+        Thread.sleep(6 * 1000);
+        //未控制并发初始化时,report span 会报错;修复方法即初始化未完成时,其他线程需要等待初始化完成
+        List<String> contents = FileUtils.readLines(new File(logDirectoryPath + File.separator
+                                                             + "tracer-self.log"));
+        assertTrue("Actual concurrent init file size = " + contents.size(), contents.size() == 1);
     }
 
+    class WorkerInitThread implements Runnable {
+
+        private DiskReporterImpl reporter;
+
+        private String           command;
+
+        public WorkerInitThread(DiskReporterImpl reporter, String s) {
+            this.command = s;
+            this.reporter = reporter;
+        }
+
+        @Override
+        public void run() {
+            processCommand();
+        }
+
+        private void processCommand() {
+            SofaTracerSpan span = new SofaTracerSpan(mock(SofaTracer.class),
+                System.currentTimeMillis(), "open", SofaTracerSpanContext.rootStart(), null);
+            this.reporter.digestReport(span);
+        }
+
+        @Override
+        public String toString() {
+            return this.command;
+        }
+    }
 }
