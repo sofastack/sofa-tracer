@@ -50,6 +50,34 @@ spring.application.name=SOFATracerSpringMVC
 logging.path=./logs
 ```
 
+## 添加一个最简单的 Controller
+
+在工程代码中，添加一个最简单的 Controller，例如：
+
+```java
+@RestController
+public class SampleRestController {
+
+    private static final String TEMPLATE = "Hello, %s!";
+
+    private final AtomicLong    counter  = new AtomicLong();
+
+    /***
+     * http://localhost:8080/springmvc
+     * @param name name
+     * @return map
+     */
+    @RequestMapping("/springmvc")
+    public Map<String, Object> springmvc(@RequestParam(value = "name", defaultValue = "SOFATracer SpringMVC DEMO") String name) {
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        resultMap.put("success", true);
+        resultMap.put("id", counter.incrementAndGet());
+        resultMap.put("content", String.format(TEMPLATE, name));
+        return resultMap;
+    }
+}
+```
+
 ## 运行
 
 可以将工程导入到 IDE 中运行生成的工程里面中的 `main` 方法（一般上在 XXXApplication 这个类中）启动应用，也可以直接在该工程的根目录下运行 `mvn spring-boot:run`，将会在控制台中看到启动打印的日志：
