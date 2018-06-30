@@ -1,6 +1,6 @@
-# 使用 SOFATracer 远程汇报数据到 Zipkin
+# 使用 SOFATracer记录 RPC
 
-本示例演示如何在集成了 SOFATracer 的应用，通过配置 SOFATracer 将链路数据远程汇报到 [Zipkin](https://zipkin.io/)。
+本示例引入 SOFABoot 基础依赖管控，并且引入 SOFATracer ，演示如何记录 SOFARPC 调用信息.
 
 ## 环境准备
 
@@ -8,66 +8,100 @@
 - JDK7 或 JDK8
 - 需要采用 Apache Maven 3.2.5 或者以上的版本来编译
 
-## 引入 SOFATracer
+## 引入 SOFABoot
 
-在工程中添加 SOFATracer 依赖：
+在创建好一个 Spring Boot 的工程之后，接下来就需要引入 SOFABoot 的依赖，首先，需要将上文中生成的 Spring Boot 工程的 `zip` 包解压后，修改 Maven 项目的配置文件 `pom.xml`，将
 
+```xml
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>${spring.boot.version}</version>
+    <relativePath/>
+</parent>
 ```
+
+替换为：
+
+```xml
+<parent>
+    <groupId>com.alipay.sofa</groupId>
+    <artifactId>sofaboot-dependencies</artifactId>
+    <version>2.3.2</version>
+</parent>
+```
+
+然后，添加一个 SOFATracer 依赖：
+
+```xml
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>tracer-sofa-boot-starter</artifactId>
 </dependency>
 ```
-## 启动 Zipkin 服务端
 
-启动 Zipkin 服务端用于接收 SOFATracer 汇报的链路数据，并做展示。Zipkin Server 的搭建可以[参考此文档](https://zipkin.io/)进行配置和服务端的搭建。
+最后，在工程的 `application.properties` 文件下添加一个 SOFATracer 要使用的参数，包括`spring.application.name` 用于标示当前应用的名称；`logging.path` 用于指定日志的输出目录。
 
-## 配置 Zipkin 依赖
-
-考虑到 Zipkin 的数据上报能力不是 SOFATracer 默认开启的能力，所以期望使用 SOFATracer 做数据上报时，需要添加如下的 Zipkin 数据汇报的依赖：
-
-```xml
- <dependency>
-    <groupId>io.zipkin.java</groupId>
-    <artifactId>zipkin</artifactId>
-    <version>1.19.2</version>
-</dependency>
-<dependency>
-    <groupId>io.zipkin.reporter</groupId>
-    <artifactId>zipkin-reporter</artifactId>
-    <version>0.6.12</version>
-</dependency>
 ```
-
-## 启用 SOFATracer 汇报数据到 Zipkin
-
-1. 配置 `com.alipay.sofa.tracer.zipkin.enabled=true` 激活 SOFATracer 数据上报到 [Zipkin](https://zipkin.io/)。
-2. 配置 Zipkin Server 端的地址 `com.alipay.sofa.tracer.zipkin.baseUrl=http://${ip}:${port}`。
-
-配置好上述两个项目后，即激活了远程上报的能力。本示例中已经搭建好的 Zipkin Server 端地址是 `http://zipkin-cloud-3.inc.alipay.net:9411`。
+# Application Name
+spring.application.name=SOFATracerRPC
+# logging path
+logging.path=./logs
+```
 
 ## 运行
 
-可以将工程导入到 IDE 中运行生成的工程里面中的 `main` 方法（一般上在 XXXApplication 这个类中）启动应用，也可以直接在该工程的根目录下运行 `mvn spring-boot:run`，将会在控制台中看到启动日志：
+可以将工程导入到 IDE 中运行生成的工程里面中的 `main` 方法（DirectClientApplication 这个类中）启动应用，将会在控制台中看到启动打印的日志：
 
 ```
-2018-05-12 13:12:05.868  INFO 76572 --- [ost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'SpringMvcSofaTracerFilter' to urls: [/*]
-2018-05-12 13:12:06.543  INFO 76572 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/zipkin]}" onto public java.util.Map<java.lang.String, java.lang.Object> com.alipay.sofa.tracer.examples.zipkin.controller.SampleRestController.zipkin(java.lang.String)
-2018-05-12 13:12:07.164  INFO 76572 --- [           main] s.b.c.e.t.TomcatEmbeddedServletContainer : Tomcat started on port(s): 8080 (http)
+2018-06-30 21:37:36.899  INFO 40179 --- [           main] o.s.c.support.DefaultLifecycleProcessor  : Starting beans in phase 0
+2018-06-30 21:37:37.297  INFO 40179 --- [           main] s.b.c.e.t.TomcatEmbeddedServletContainer : Tomcat started on port(s): 8081 (http)
+2018-06-30 21:37:37.302  INFO 40179 --- [           main] c.a.s.t.e.s.d.DirectClientApplication    : Started DirectClientApplication in 8.766 seconds (JVM running for 9.887)
+invoke result:direct
+direct invoke success
 ```
 
-可以通过在浏览器中输入 [http://localhost:8080/zipkin](http://localhost:8080/zipkin) 来访问 REST 服务，结果类似如下：
 
-```json
-{
-	content: "Hello, SOFATracer Zipkin Remote Report!",
-	id: 1,
-	success: true
-}
+## 查看日志
+
+在上面的 `application.properties` 里面，我们配置的日志打印目录是 `./logs` 即当前应用的根目录（我们可以根据自己的实践需要配置），在当前工程的根目录下可以看到类似如下结构的日志文件：
+
+```
+./logs
+├── spring.log
+└── tracelog
+    ├── rpc-client-digest.log
+    ├── rpc-client-stat.log
+    ├── rpc-server-digest.log
+    └── rpc-server-stat.log
+
 ```
 
-## 查看 Zipkin 服务端展示
+只要发起 rpc 调用, SOFATracer 会记录每一次访问的摘要日志.
 
-打开 Zipkin 服务端界面，假设我们部署的 Zipkin 服务端的地址是 `http://zipkin-cloud-3.inc.alipay.net:9411/`，打开 URL 并搜索 `zipkin`(由于我们本地访问的地址是 localhost:8080/zipkin)，可以看到展示的链路图。
+客户端摘要日志
 
+```java
+{"timestamp":"2018-06-30 21:37:37.569","tracerId":"1e1bcdcf1530365857309100140179","spanId":"0","span.kind":"client","local.app":"SOFATracerRPC","protocol":"bolt","service":"com.alipay.sofa.tracer.examples.sofarpc.direct.DirectService:1.0","method":"sayDirect","current.thread.name":"main","invoke.type":"sync","router.record":"DIRECT","remote.ip":"127.0.0.1:12200","local.client.ip":"127.0.0.1","result.code":"00","req.serialize.time":"41","resp.deserialize.time":"59","resp.size":"170","req.size":"582","client.conn.time":"0","client.elapse.time":"104","local.client.port":"63803","baggage":""}
 
+```
+
+客户端统计日志
+
+```java
+{"time":"2018-06-30 21:38:33.977","stat.key":{"method":"sayDirect","local.app":"SOFATracerRPC","service":"com.alipay.sofa.tracer.examples.sofarpc.direct.DirectService:1.0"},"count":1,"total.cost.milliseconds":259,"success":"Y"}
+
+```
+
+服务端摘要日志
+
+```java
+{"timestamp":"2018-06-30 21:37:37.562","tracerId":"1e1bcdcf1530365857309100140179","spanId":"0","span.kind":"server","service":"com.alipay.sofa.tracer.examples.sofarpc.direct.DirectService:1.0","method":"sayDirect","remote.ip":"127.0.0.1","remote.app":"SOFATracerRPC","protocol":"bolt","local.app":"SOFATracerRPC","current.thread.name":"SOFA-SEV-BOLT-BIZ-12200-5-T1","result.code":"00","server.pool.wait.time":"2","biz.impl.time":"0","resp.serialize.time":"1","req.deserialize.time":"5","resp.size":"170","req.size":"582","baggage":""}
+
+```
+
+服务端统计日志
+
+```java
+{"time":"2018-06-30 21:38:33.977","stat.key":{"method":"sayDirect","local.app":"SOFATracerRPC","remote.app":"SOFATracerRPC","service":"com.alipay.sofa.tracer.examples.sofarpc.direct.DirectService:1.0"},"count":1,"total.cost.milliseconds":4,"success":"Y"}
+```
