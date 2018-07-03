@@ -16,6 +16,7 @@
         <module>tracer-sample-with-springmvc</module>
         <module>tracer-sample-with-zipkin</module>
         <module>tracer-sample-with-slf4j</module>
+        <module>tracer-sample-with-sofarpc</module>
     </modules>
 
     <properties>
