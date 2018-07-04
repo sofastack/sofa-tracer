@@ -19,7 +19,7 @@
         <module>tracer-core</module>
         <module>tracer-extensions</module>
         <module>sofa-tracer-plugins/sofa-tracer-springmvc-plugin</module>
-        <module>sofatracer-all</module>
+        <module>tracer-all</module>
         <module>tracer-sofa-boot-starter</module>
         <module>tracer-samples</module>
         <module>tracer-test/core-test</module>
@@ -88,7 +88,7 @@
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
-                <artifactId>sofatracer-all</artifactId>
+                <artifactId>tracer-all</artifactId>
                 <version>${sofa.tracer.version}</version>
             </dependency>
             <dependency>
