@@ -19,6 +19,7 @@ package com.alipay.common.tracer.core.appender.manager;
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.MicroTimestamp;
 
 import java.io.File;
 
@@ -49,7 +50,7 @@ public class ManagerTestUtil {
         SofaTracerSpanContext spanContext = new SofaTracerSpanContext("traceID" + sequence,
             "spanId", "parentId", false);
         SofaTracerSpan span = new SofaTracerSpan(new SofaTracer.Builder("tracerType").build(),
-            System.currentTimeMillis(), "callServiceName", spanContext, null);
+            MicroTimestamp.INSTANCE.currentMicroSeconds(), "callServiceName", spanContext, null);
         span.setLogType("logType" + sequence);
 
         return span;

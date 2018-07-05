@@ -25,6 +25,7 @@ import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
 import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.core.tracertest.encoder.ServerSpanEncoder;
+import com.alipay.common.tracer.core.utils.MicroTimestamp;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.tag.Tags;
 import org.apache.commons.io.FileUtils;
@@ -113,6 +114,8 @@ public class SofaTracerSpanTest extends AbstractTestBase {
         assertEquals(span.getTagsWithBool(), cloneSpan.getTagsWithBool());
         assertEquals(span.getStartTime(), cloneSpan.getStartTime());
         assertEquals(span.getEndTime(), cloneSpan.getEndTime());
+        assertEquals(span.getStartTimeMillis(), cloneSpan.getStartTimeMillis());
+        assertEquals(span.getEndTimeMillis(), cloneSpan.getEndTimeMillis());
         assertEquals(span.getLogs(), cloneSpan.getLogs());
         assertEquals(span.getLogType(), cloneSpan.getLogType());
         assertEquals(span.getOperationName(), cloneSpan.getOperationName());
@@ -122,7 +125,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
 
     @Test
     public void testConstructSpan() throws Exception {
-        long startTime = 111;
+        long startTime = 1111;
         String traceId = "traceId";
         String spanId = "spanId";
         SofaTracerSpanContext sofaTracerSpanContext = new SofaTracerSpanContext(traceId, spanId,
@@ -131,7 +134,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
         tags.put("key", "value");
         SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(this.sofaTracer, startTime,
             "testConstructSpan", sofaTracerSpanContext, tags);
-        sofaTracerSpan.finish(222);
+        sofaTracerSpan.finish(2222);
         //test
         SofaTracerSpanContext context = (SofaTracerSpanContext) sofaTracerSpan.context();
         assertEquals(sofaTracerSpanContext, context);
@@ -141,8 +144,11 @@ public class SofaTracerSpanTest extends AbstractTestBase {
         //
         assertEquals("testConstructSpan", sofaTracerSpan.getOperationName());
         //
-        assertEquals(111, sofaTracerSpan.getStartTime());
-        assertEquals(222 - 111, sofaTracerSpan.getDurationMicroseconds());
+        assertEquals(1111 / 1000, sofaTracerSpan.getStartTimeMillis());
+        assertEquals(2222 / 1000, sofaTracerSpan.getEndTimeMillis());
+        assertEquals(1111, sofaTracerSpan.getStartTime());
+        assertEquals(2222, sofaTracerSpan.getEndTime());
+        assertEquals(2222 - 1111, sofaTracerSpan.getDurationMicroseconds());
 
     }
 
@@ -209,10 +215,13 @@ public class SofaTracerSpanTest extends AbstractTestBase {
     @Test
     public void testWithTimestampDurationEndTimeMinusStartTime() {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testWithTimestamp")
-            .withStartTimestamp(111).start();
-        span.finish(999);
-        assertEquals(111, span.getStartTime());
-        assertEquals(999 - 111, span.getDurationMicroseconds());
+            .withStartTimestamp(1111).start();
+        span.finish(9999);
+        assertEquals(1111, span.getStartTime());
+        assertEquals(9999, span.getEndTime());
+        assertEquals(1111 / 1000, span.getStartTimeMillis());
+        assertEquals(9999 / 1000, span.getEndTimeMillis());
+        assertEquals(9999 - 1111, span.getDurationMicroseconds());
     }
 
     /**
@@ -222,7 +231,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
     public void testFinish() throws Exception {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testWithTimestamp")
             .withStartTimestamp(111).start();
-        long endTime = System.currentTimeMillis();
+        long endTime = MicroTimestamp.INSTANCE.currentMicroSeconds();
         span.finish();
         assertTrue("\nEndtime : " + endTime + ", Duration :" + span.getDurationMicroseconds(),
             111 < span.getDurationMicroseconds() && span.getDurationMicroseconds() < endTime);
@@ -237,7 +246,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
             .withStartTimestamp(111).start();
         //close
         span.close();
-        long endTime = System.currentTimeMillis();
+        long endTime = MicroTimestamp.INSTANCE.currentMicroSeconds();
         assertTrue("\nEndtime : " + endTime + ", Duration :" + span.getDurationMicroseconds(),
             111 < span.getDurationMicroseconds() && span.getDurationMicroseconds() < endTime);
     }
@@ -248,7 +257,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
     @Test
     public void testLogEventType() throws Exception {
         List<String> valueStr = Arrays.asList("value0", "value1", "value2");
-        long beginTime = System.currentTimeMillis();
+        long beginTime = MicroTimestamp.INSTANCE.currentMicroSeconds();
         sofaTracerSpan.log(valueStr.get(0));
         sofaTracerSpan.log(valueStr.get(1));
         sofaTracerSpan.log(valueStr.get(2));
@@ -259,7 +268,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
             Object value = logData.getFields().get(LogData.EVENT_TYPE_KEY);
             assertTrue(valueStr.contains(value));
             long time = logData.getTime();
-            assertTrue(beginTime <= time && time <= System.currentTimeMillis());
+            assertTrue(beginTime <= time && time <= MicroTimestamp.INSTANCE.currentMicroSeconds());
         }
         //
         logDataList.clear();
@@ -520,7 +529,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
             spanIdBuilder.toString(), "");
         sofaTracerSpanContext.addBizBaggage(baggage);
         SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(this.sofaTracer,
-            System.currentTimeMillis(), "open", sofaTracerSpanContext, null);
+            MicroTimestamp.INSTANCE.currentMicroSeconds(), "open", sofaTracerSpanContext, null);
         //
         SofaTracerSpan thisAsParentSpan = sofaTracerSpan.getThisAsParentWhenExceedLayer();
         assertEquals("\n" + sofaTracerSpanContext, SofaTracer.ROOT_SPAN_ID, thisAsParentSpan
@@ -540,7 +549,8 @@ public class SofaTracerSpanTest extends AbstractTestBase {
     public void testTags() throws Exception {
 
         SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(this.sofaTracer,
-            System.currentTimeMillis(), "open", SofaTracerSpanContext.rootStart(), null);
+            MicroTimestamp.INSTANCE.currentMicroSeconds(), "open",
+            SofaTracerSpanContext.rootStart(), null);
         sofaTracerSpan.setTag("key", "");
         assertTrue(sofaTracerSpan.getTagsWithStr().size() == 0);
 

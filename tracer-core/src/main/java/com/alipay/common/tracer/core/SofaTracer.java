@@ -29,6 +29,7 @@ import com.alipay.common.tracer.core.samplers.SamplingStatus;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.span.SofaTracerSpanReferenceRelationship;
 import com.alipay.common.tracer.core.utils.AssertUtils;
+import com.alipay.common.tracer.core.utils.MicroTimestamp;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.References;
 import io.opentracing.Span;
@@ -285,7 +286,8 @@ public class SofaTracer implements Tracer {
                 sofaTracerSpanContext = this.createRootSpanContext();
             }
 
-            long begin = this.startTime > 0 ? this.startTime : System.currentTimeMillis();
+            long begin = this.startTime > 0 ? this.startTime : MicroTimestamp.INSTANCE
+                .currentMicroSeconds();
             SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(SofaTracer.this, begin,
                 this.references, this.operationName, sofaTracerSpanContext, this.tags);
             return sofaTracerSpan;

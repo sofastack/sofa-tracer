@@ -25,6 +25,7 @@ import com.alipay.common.tracer.core.reporter.common.CommonTracerManager;
 import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.tags.SpanTags;
 import com.alipay.common.tracer.core.utils.AssertUtils;
+import com.alipay.common.tracer.core.utils.MicroTimestamp;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
@@ -64,12 +65,12 @@ public class SofaTracerSpan implements Span {
     private final SofaTracerSpanContext                     sofaTracerSpanContext;
 
     /***
-     * 启动时间
+     * 启动时间 microsecond unit
      */
     private long                                            startTime;
 
     /***
-     * span endTime
+     * span endTime microsecond unit
      */
     private long                                            endTime              = -1;
 
@@ -161,7 +162,7 @@ public class SofaTracerSpan implements Span {
 
     @Override
     public void finish() {
-        this.finish(System.currentTimeMillis());
+        this.finish(MicroTimestamp.INSTANCE.currentMicroSeconds());
     }
 
     @Override
@@ -216,7 +217,7 @@ public class SofaTracerSpan implements Span {
     @Override
     public Span log(String eventValue) {
         //使用默认的 event key,关键记录 span 事件:cs/cr/ss/sr
-        return log(System.currentTimeMillis(), eventValue);
+        return log(MicroTimestamp.INSTANCE.currentMicroSeconds(), eventValue);
     }
 
     @Override
@@ -247,13 +248,13 @@ public class SofaTracerSpan implements Span {
 
     @Override
     public Span log(Map<String, ?> map) {
-        return this.log(System.currentTimeMillis(), map);
+        return this.log(MicroTimestamp.INSTANCE.currentMicroSeconds(), map);
     }
 
     @Override
     public Span log(String eventName, /* @Nullable */Object payload) {
         //key:value
-        return this.log(System.currentTimeMillis(), eventName, payload);
+        return this.log(MicroTimestamp.INSTANCE.currentMicroSeconds(), eventName, payload);
     }
 
     @Override
@@ -314,8 +315,8 @@ public class SofaTracerSpan implements Span {
         tags.put(SpanTags.CURR_APP_TAG.getKey(), errorSourceApp);
         //构造新的
         CommonLogSpan commonLogSpan = new CommonLogSpan(this.sofaTracer,
-            System.currentTimeMillis(), this.getOperationName(), this.getSofaTracerSpanContext(),
-            tags);
+            MicroTimestamp.INSTANCE.currentMicroSeconds(), this.getOperationName(),
+            this.getSofaTracerSpanContext(), tags);
         commonLogSpan.addSlot(Thread.currentThread().getName());
         commonLogSpan.addSlot(errorType);
         // 业务定制的输出中可能会有分隔符，现在将分割符替换成相应的转义字符
@@ -353,8 +354,8 @@ public class SofaTracerSpan implements Span {
         tags.put(SpanTags.CURR_APP_TAG.getKey(), profileApp);
         //构造新的,关键:用于记录所有的持久化数据
         CommonLogSpan commonLogSpan = new CommonLogSpan(this.sofaTracer,
-            System.currentTimeMillis(), this.getOperationName(), this.getSofaTracerSpanContext(),
-            tags);
+            MicroTimestamp.INSTANCE.currentMicroSeconds(), this.getOperationName(),
+            this.getSofaTracerSpanContext(), tags);
 
         commonLogSpan.addSlot(protocolType);
         commonLogSpan.addSlot(profileMessage);
@@ -380,8 +381,9 @@ public class SofaTracerSpan implements Span {
             baggage.putAll(this.sofaTracerSpanContext.getBizBaggage());
             parentSpanContext.addBizBaggage(baggage);
             //重新构造
-            parent = new SofaTracerSpan(this.sofaTracer, System.currentTimeMillis(),
-                this.operationName, parentSpanContext, null);
+            parent = new SofaTracerSpan(this.sofaTracer,
+                MicroTimestamp.INSTANCE.currentMicroSeconds(), this.operationName,
+                parentSpanContext, null);
             // 在日志中进行记录, 防止发生了这个情况却无法快速知晓
             SelfLog.errorWithTraceId("OpenTracing Span layer exceed max layer limit "
                                      + SofaTracerConstant.MAX_LAYER,
@@ -406,12 +408,20 @@ public class SofaTracerSpan implements Span {
         return sofaTracer;
     }
 
+    public long getStartTimeMillis() {
+        return startTime / 1000;
+    }
+
     public long getStartTime() {
         return startTime;
     }
 
     public void setStartTime(long startTime) {
         this.startTime = startTime;
+    }
+
+    public long getEndTimeMillis() {
+        return endTime / 1000;
     }
 
     public long getEndTime() {

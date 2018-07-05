@@ -37,7 +37,7 @@ public class ServerSpanEncoder extends ClientSpanEncoder implements SpanEncoder<
     //        SofaTracerSpanContext spanContext = span.getSofaTracerSpanContext();
     //        xsb.reset();
     //
-    //        xsb.append(Timestamp.format(span.getStartTime())).append(span.getTagsWithStr())
+    //        xsb.append(Timestamp.format(span.getStartTimeMillis())).append(span.getTagsWithStr())
     //            .append(span.getTagsWithBool().toString()).append(span.getTagsWithNumber().toString())
     //            .appendEnd(spanContext.getBizBaggage());
     //

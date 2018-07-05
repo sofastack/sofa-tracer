@@ -66,7 +66,7 @@ public class SpringMvcJsonStatReporter extends SpringMvcStatReporter {
         statKey.setEnd(TracerUtils.getLoadTestMark(sofaTracerSpan));
         //value
         //次数和耗时，最后一个耗时是单独打印的字段
-        long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
+        long duration = sofaTracerSpan.getEndTimeMillis() - sofaTracerSpan.getStartTimeMillis();
         long values[] = new long[] { 1, duration };
         //reserve
         this.addStat(statKey, values);

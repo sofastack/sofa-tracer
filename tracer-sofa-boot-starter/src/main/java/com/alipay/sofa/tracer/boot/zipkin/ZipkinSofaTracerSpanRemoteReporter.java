@@ -98,10 +98,9 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         //baggage
         this.addZipkinBinaryAnnotationsWithBaggage(zipkinSpanBuilder, sofaTracerSpan);
         // Zipkin is in nanosecond :timestamp reference : zipkin.storage.QueryRequest.test()
-        zipkinSpanBuilder.timestamp(sofaTracerSpan.getStartTime() * 1000);
+        zipkinSpanBuilder.timestamp(sofaTracerSpan.getStartTime());
         // Zipkin is in nanosecond
-        zipkinSpanBuilder
-            .duration((sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()) * 1000);
+        zipkinSpanBuilder.duration(sofaTracerSpan.getDurationMicroseconds());
         //traceId
         SofaTracerSpanContext sofaTracerSpanContext = sofaTracerSpan.getSofaTracerSpanContext();
         zipkinSpanBuilder.traceId(traceIdToId(sofaTracerSpanContext.getTraceId()));
@@ -191,7 +190,7 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
                 //ignore event key
                 Annotation zipkinAnnotation = Annotation.builder()
                     // Zipkin is in nanosecond
-                    .timestamp(logData.getTime() * 1000).value(entry.getValue().toString())
+                    .timestamp(logData.getTime()).value(entry.getValue().toString())
                     .endpoint(endpoint).build();
                 zipkinSpan.addAnnotation(zipkinAnnotation);
             }

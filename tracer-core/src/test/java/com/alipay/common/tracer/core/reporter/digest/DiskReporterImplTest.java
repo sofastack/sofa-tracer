@@ -25,12 +25,14 @@ import com.alipay.common.tracer.core.reporter.stat.SofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.core.tracertest.type.TracerTestLogEnum;
+import com.alipay.common.tracer.core.utils.MicroTimestamp;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.nio.charset.MalformedInputException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -185,7 +187,8 @@ public class DiskReporterImplTest extends AbstractTestBase {
 
         private void processCommand() {
             SofaTracerSpan span = new SofaTracerSpan(mock(SofaTracer.class),
-                System.currentTimeMillis(), "open", SofaTracerSpanContext.rootStart(), null);
+                MicroTimestamp.INSTANCE.currentMicroSeconds(), "open",
+                SofaTracerSpanContext.rootStart(), null);
             this.reporter.digestReport(span);
         }
 

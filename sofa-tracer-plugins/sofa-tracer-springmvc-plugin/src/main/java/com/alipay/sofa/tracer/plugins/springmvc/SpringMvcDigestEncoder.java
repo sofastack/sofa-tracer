@@ -41,7 +41,7 @@ public class SpringMvcDigestEncoder extends AbstractDigestSpanEncoder {
         XStringBuilder xsb = new XStringBuilder();
         xsb.reset();
         //日志打印时间
-        xsb.append(Timestamp.format(span.getEndTime()));
+        xsb.append(Timestamp.format(span.getEndTimeMillis()));
         appendSlot(xsb, span);
         return xsb.toString();
     }
@@ -70,7 +70,7 @@ public class SpringMvcDigestEncoder extends AbstractDigestSpanEncoder {
         //Response Body 大小，单位为byte
         xsb.append((responseSize == null ? 0L : responseSize.longValue()) + SofaTracerConstant.BYTE);
         //请求耗时（MS）
-        xsb.append((sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime())
+        xsb.append((sofaTracerSpan.getEndTimeMillis() - sofaTracerSpan.getStartTimeMillis())
                    + SofaTracerConstant.MS);
         xsb.append(tagWithStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
         //穿透数据放在最后
