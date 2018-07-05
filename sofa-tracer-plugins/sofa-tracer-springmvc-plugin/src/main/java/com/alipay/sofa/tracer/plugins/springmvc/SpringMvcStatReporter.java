@@ -56,7 +56,7 @@ public class SpringMvcStatReporter extends AbstractSofaTracerStatisticReporter {
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
 
         //次数和耗时，最后一个耗时是单独打印的字段
-        long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
+        long duration = sofaTracerSpan.getEndTimeMillis() - sofaTracerSpan.getStartTimeMillis();
         long values[] = new long[] { 1, duration };
         this.addStat(statKey, values);
     }

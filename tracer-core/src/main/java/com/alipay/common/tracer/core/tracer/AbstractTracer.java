@@ -29,6 +29,7 @@ import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticRe
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.MicroTimestamp;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.tag.Tags;
 
@@ -194,8 +195,9 @@ public abstract class AbstractTracer {
                 if (sofaTracerSpanContext == null) {
                     sofaTracerSpanContext = SofaTracerSpanContext.rootStart();
                 }
-                sofaTracerSpanServer = this.genSeverSpanInstance(System.currentTimeMillis(),
-                    StringUtils.EMPTY_STRING, sofaTracerSpanContext, null);
+                sofaTracerSpanServer = this.genSeverSpanInstance(
+                    MicroTimestamp.INSTANCE.currentMicroSeconds(), StringUtils.EMPTY_STRING,
+                    sofaTracerSpanContext, null);
             } else {
                 //没有 setLogContextAndPush 操作,会 span == null,所以不会抛出 cast 异常
                 sofaTracerSpanServer = serverSpan;
@@ -274,8 +276,9 @@ public abstract class AbstractTracer {
         SofaTracerSpanContext spanContext = SofaTracerSpanContext.rootStart();
         spanContext.addBizBaggage(bizBaggage);
         spanContext.addSysBaggage(sysBaggage);
-        SofaTracerSpan span = this.genSeverSpanInstance(System.currentTimeMillis(),
-            StringUtils.EMPTY_STRING, spanContext, null);
+        SofaTracerSpan span = this.genSeverSpanInstance(
+            MicroTimestamp.INSTANCE.currentMicroSeconds(), StringUtils.EMPTY_STRING, spanContext,
+            null);
         return span;
     }
 

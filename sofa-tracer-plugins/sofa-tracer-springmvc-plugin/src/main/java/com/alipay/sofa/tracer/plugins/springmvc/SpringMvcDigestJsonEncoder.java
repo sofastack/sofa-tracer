@@ -38,7 +38,7 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
     public String encode(SofaTracerSpan span) throws IOException {
         JsonStringBuilder jsonStringBuilder = new JsonStringBuilder();
         //日志打印时间
-        jsonStringBuilder.appendBegin("time", Timestamp.format(span.getEndTime()));
+        jsonStringBuilder.appendBegin("time", Timestamp.format(span.getEndTimeMillis()));
         appendSlot(jsonStringBuilder, span);
         return jsonStringBuilder.toString();
     }
@@ -73,7 +73,7 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
             : responseSize.longValue()));
         //请求耗时（MS）
         jsonStringBuilder.append("time.cost.milliseconds",
-            (sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()));
+            (sofaTracerSpan.getEndTimeMillis() - sofaTracerSpan.getStartTimeMillis()));
         jsonStringBuilder.append(CommonSpanTags.CURRENT_THREAD_NAME,
             tagWithStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
         //穿透数据放在最后

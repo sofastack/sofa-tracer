@@ -142,8 +142,9 @@ public class TracerUtilsTest {
     public void testCheckBaggageLength() {
         SofaTracer sofaTracer = mock(SofaTracer.class);
         SofaTracerSpanContext sofaTracerSpanContext = new SofaTracerSpanContext();
-        SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(sofaTracer, System.currentTimeMillis(),
-            "mock", sofaTracerSpanContext, new HashMap<String, Object>());
+        SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(sofaTracer,
+            MicroTimestamp.INSTANCE.currentMicroSeconds(), "mock", sofaTracerSpanContext,
+            new HashMap<String, Object>());
         assertTrue(TracerUtils.checkBaggageLength(sofaTracerSpan, "key", "value"));
     }
 

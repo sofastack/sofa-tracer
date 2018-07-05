@@ -46,7 +46,7 @@ public class CommonSpanEncoder implements SpanEncoder<CommonLogSpan> {
         SofaTracerSpanContext spanContext = commonLogSpan.getSofaTracerSpanContext();
         XStringBuilder xsb = new XStringBuilder();
         //报告开始的时间作为打印的时间,不存在完成时间
-        xsb.append(Timestamp.format(commonLogSpan.getStartTime()))
+        xsb.append(Timestamp.format(commonLogSpan.getStartTimeMillis()))
             //保证构造common也携带过来
             .append(commonLogSpan.getTagsWithStr().get(SpanTags.CURR_APP_TAG.getKey()))
             .append(spanContext.getTraceId()).append(spanContext.getSpanId());

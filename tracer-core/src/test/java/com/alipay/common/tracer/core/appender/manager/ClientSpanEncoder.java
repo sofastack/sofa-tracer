@@ -41,7 +41,7 @@ public class ClientSpanEncoder implements SpanEncoder<SofaTracerSpan> {
 
         SofaTracerSpanContext spanContext = span.getSofaTracerSpanContext();
         xsb.reset();
-        xsb.append(Timestamp.format(span.getEndTime()));
+        xsb.append(Timestamp.format(span.getEndTimeMillis()));
         //traceId
         xsb.append(spanContext.getTraceId());
         //spanId

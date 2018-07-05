@@ -23,6 +23,7 @@ import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.generator.TraceIdGenerator;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.MicroTimestamp;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.test.base.AbstractTestBase;
 import com.alipay.common.tracer.test.core.sofatracer.type.TracerTestLogEnum;
@@ -162,8 +163,8 @@ public class SofaTracerStatisticsDemoTest extends AbstractTestBase {
 
         String callServiceName = "callServiceName";
         //create server
-        SofaTracerSpan serverSpan = new SofaTracerSpan(tracer, System.currentTimeMillis(),
-            callServiceName, spanContext, null);
+        SofaTracerSpan serverSpan = new SofaTracerSpan(tracer,
+            MicroTimestamp.INSTANCE.currentMicroSeconds(), callServiceName, spanContext, null);
         serverSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
         return serverSpan;
     }

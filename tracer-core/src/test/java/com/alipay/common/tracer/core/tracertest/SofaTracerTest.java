@@ -505,7 +505,7 @@ public class SofaTracerTest extends AbstractTestBase {
      */
     @Test
     public void testWithStartTimestampMicroseconds() throws Exception {
-        long startTime = 111;
+        long startTime = 1111;
         //create
         SofaTracerSpan spanParent = (SofaTracerSpan) this.sofaTracer
             .buildSpan("testWithStartTimestampMicroseconds")
@@ -513,6 +513,7 @@ public class SofaTracerTest extends AbstractTestBase {
             .start();
         //
         assertEquals(startTime, spanParent.getStartTime());
+        assertEquals(startTime / 1000, spanParent.getStartTimeMillis());
     }
 
     /**
