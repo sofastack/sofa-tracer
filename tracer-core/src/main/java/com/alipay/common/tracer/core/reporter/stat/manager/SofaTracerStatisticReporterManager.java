@@ -68,8 +68,11 @@ public class SofaTracerStatisticReporterManager {
         this.executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
 
             public Thread newThread(Runnable r) {
-                return new Thread(r, "Tracer-TimedAppender-" + THREAD_NUMBER.incrementAndGet()
-                                     + "-" + cycleTime);
+                final Thread thread = new Thread(r, "Tracer-TimedAppender-"
+                                                    + THREAD_NUMBER.incrementAndGet() + "-"
+                                                    + cycleTime);
+                thread.setDaemon(true);
+                return thread;
             }
         });
         start();
