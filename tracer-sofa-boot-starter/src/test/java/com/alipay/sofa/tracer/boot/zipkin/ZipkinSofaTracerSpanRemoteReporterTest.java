@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.tracer.boot.zipkin;
 
+import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.generator.TraceIdGenerator;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
@@ -56,6 +57,7 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         ZipkinSofaTracerRestTemplateCustomizer restTemplateCustomizer = new ZipkinSofaTracerRestTemplateCustomizer(
             zipkinProperties);
         restTemplateCustomizer.customize(restTemplate);
+        //host http://zipkin-cloud-3.inc.host.net:9411
         String baseUrl = "http://zipkin-cloud-3.inc.host.net:9411";
         int flushInterval = 1;
         SpanReportListener spanReportListener = new ZipkinSofaTracerSpanRemoteReporter(
@@ -209,13 +211,15 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         //sr TL
         SofaTracerSpan sofaTracerServerSpan = this.remoteTracer.serverReceive();
-        sofaTracerServerSpan.setOperationName("server");
+        sofaTracerServerSpan.setOperationName("ServerReveive0");
         //assert
         assertEquals(sofaTracerServerSpan, sofaTraceContext.getCurrentSpan());
         //cs
-        SofaTracerSpan clientSpan = this.remoteTracer.clientSend("clientSend");
+        SofaTracerSpan clientSpan = this.remoteTracer.clientSend("ClientSend0");
         //assert
         assertEquals(clientSpan, sofaTraceContext.getCurrentSpan());
+        //mock sync remote call
+        this.mockRemoteCall();
         //cr
         this.remoteTracer.clientReceive("0");
         assertEquals(sofaTracerServerSpan, sofaTraceContext.getCurrentSpan());
@@ -225,5 +229,21 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         Thread.sleep(1000 * 10);
         //assert
         assertTrue(sofaTraceContext.isEmpty());
+    }
+
+    public void mockRemoteCall() throws Exception {
+        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+        SofaTracerSpan originSofaTracerSpan = sofaTraceContext.getCurrentSpan();
+        SofaTracerSpanContext spanContext = originSofaTracerSpan.getSofaTracerSpanContext();
+        sofaTraceContext.clear();
+        //sr
+        SofaTracerSpan srSpan = this.remoteTracer.serverReceive(spanContext);
+        srSpan.setOperationName("ServerReceive1");
+        assertEquals(srSpan, sofaTraceContext.getCurrentSpan());
+        //ss
+        this.remoteTracer.serverSend("0");
+        assertTrue(sofaTraceContext.getThreadLocalSpanSize() == 0);
+        //mock restore
+        sofaTraceContext.push(originSofaTracerSpan);
     }
 }
