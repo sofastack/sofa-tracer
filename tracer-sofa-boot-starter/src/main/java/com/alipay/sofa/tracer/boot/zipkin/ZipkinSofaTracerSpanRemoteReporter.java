@@ -104,7 +104,22 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
             .duration((sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()) * 1000);
         //traceId
         SofaTracerSpanContext sofaTracerSpanContext = sofaTracerSpan.getSofaTracerSpanContext();
-        zipkinSpanBuilder.traceId(traceIdToId(sofaTracerSpanContext.getTraceId()));
+
+        /**
+         * Changes:
+         * 1.From using zipkin span's traceId alone, to using both traceid and traceIdHigh
+         * 2.From using part of SpanContext's traceId as radix 10, to using full traceId as hexadecimal(radix 16)
+         * So that the traceId in the zipkin trace data is consistent with the traceId in the application log files.
+         *
+         * 3.When traceId is received from the previous node, the original algorithm will not be able to cut
+         *   off the pid in tail of the traceId, because it does not know the pid of the sender.
+         *   resulting in over range when convert it to long type.
+         */
+        //zipkinSpanBuilder.traceId(traceIdToId(sofaTracerSpanContext.getTraceId()));
+        long[] traceIds = traceIdToIds(sofaTracerSpanContext.getTraceId());
+        zipkinSpanBuilder.traceIdHigh(traceIds[0]);
+        zipkinSpanBuilder.traceId(traceIds[1]);
+
         if (sofaTracerSpan.getParentSofaTracerSpan() != null) {
             SofaTracerSpanContext parentSofaTracerSpanContext = sofaTracerSpan
                 .getParentSofaTracerSpan().getSofaTracerSpanContext();
@@ -240,5 +255,48 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
             //delete ip and processor id
             return Long.parseLong(hexString.substring(8), 10);
         }
+    }
+
+    private static int LONG_BYTES            = Long.SIZE / 8;
+    private static int LONG_HEX_STRING_BYTES = LONG_BYTES * 2;
+
+    /***
+     * Convert a hex string to a long array containing two elements
+     * @param hexString hex string
+     * @return long array: [0] -- High 64 bit, [1] -- low 64 bit
+     */
+    public static long[] traceIdToIds(String hexString) {
+        //Assert.hasText(hexString, "Can't convert empty hex string to long");
+        int length = hexString.length();
+        if (length < 1) {
+            throw new IllegalArgumentException("Malformed id(length must be more than zero): "
+                                               + hexString);
+        }
+
+        if (length > LONG_HEX_STRING_BYTES * 2) {
+            throw new IllegalArgumentException(
+                "Malformed id(length must be less than 2 times lengh of type long): " + hexString);
+        }
+
+        long[] result = new long[2];
+        result[0] = 0;
+        result[1] = 0;
+
+        int charLast = length - 1;
+        int i = 0;
+        while (charLast >= 0 && i < LONG_BYTES * 2) {
+            result[1] += ((long) Character.digit(hexString.charAt(charLast), 16) & 0xffL) << (4 * i);
+            charLast--;
+            i++;
+        }
+
+        i = 0;
+        while (charLast >= 0 && i < LONG_BYTES * 2) {
+            result[0] += ((long) Character.digit(hexString.charAt(charLast), 16) & 0xffL) << (4 * i);
+            charLast--;
+            i++;
+        }
+
+        return result;
     }
 }

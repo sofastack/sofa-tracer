@@ -22,6 +22,7 @@ import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.listener.SpanReportListenerHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.TracerUtils;
 import com.alipay.sofa.tracer.boot.zipkin.configuration.ZipkinSofaTracerRestTemplateCustomizer;
 import com.alipay.sofa.tracer.boot.zipkin.mock.MockAbstractTracer;
 import com.alipay.sofa.tracer.boot.zipkin.properties.ZipkinSofaTracerProperties;
@@ -30,8 +31,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -225,5 +228,35 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         Thread.sleep(1000 * 10);
         //assert
         assertTrue(sofaTraceContext.isEmpty());
+    }
+
+    @Test
+    public void traceIdToIds() throws Exception {
+        String traceIdOrig;
+        String traceIdResult;
+        Random rand = new Random();
+        BigInteger traceIdNum;
+
+        for (int i = 0; i < 10000; i++) {
+            traceIdNum = new BigInteger(125, 100, rand);
+            traceIdOrig = traceIdNum.toString(16);
+
+            long[] ids = ZipkinSofaTracerSpanRemoteReporter.traceIdToIds(traceIdOrig);
+
+            traceIdResult = String.format("%x%016x", ids[0], ids[1]);//.replaceFirst("^0+(?!$)", "");
+
+            assertEquals(traceIdOrig, traceIdResult);
+        }
+
+        for (int i = 0; i < 10000; i++) {
+            traceIdOrig = TraceIdGenerator.generate();
+
+            long[] ids = ZipkinSofaTracerSpanRemoteReporter.traceIdToIds(traceIdOrig);
+
+            traceIdResult = String.format("%x%016x", ids[0], ids[1]);//.replaceFirst("^0+(?!$)", "");
+
+            assertEquals(traceIdOrig, traceIdResult);
+        }
+
     }
 }

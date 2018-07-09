@@ -16,17 +16,22 @@
  */
 package com.alipay.sofa.tracer.plugins.springmvc;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.propagation.Format;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.HashMap;
 
 /**
  * SpringMvcSofaTracerFilter
@@ -58,8 +63,9 @@ public class SpringMvcSofaTracerFilter implements Filter {
         try {
             HttpServletRequest request = (HttpServletRequest) servletRequest;
             HttpServletResponse response = (HttpServletResponse) servletResponse;
+            SofaTracerSpanContext spanContext = getSpanContextFromRequest(request);
             // sr
-            springMvcSpan = springMvcTracer.serverReceive();
+            springMvcSpan = springMvcTracer.serverReceive(spanContext);
             if (StringUtils.isBlank(this.appName)) {
                 this.appName = SofaTracerConfiguration
                     .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
@@ -107,6 +113,27 @@ public class SpringMvcSofaTracerFilter implements Filter {
 
     public String getFilterName() {
         return "SpringMvcSofaTracerFilter";
+    }
+
+    /***
+     * Extract tracing context from request received from previous node
+     * @param request Servlet http request object
+     * @return SofaTracerSpanContext Tracing context extract from request
+     */
+    public SofaTracerSpanContext getSpanContextFromRequest(HttpServletRequest request) {
+        HashMap<String, String> headers = new HashMap<String, String>();
+
+        Enumeration headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String key = (String) headerNames.nextElement();
+            String value = request.getHeader(key);
+            headers.put(key, value);
+        }
+
+        SofaTracer tracer = springMvcTracer.getSofaTracer();
+        SofaTracerSpanContext spanContext = (SofaTracerSpanContext) tracer.extract(
+            Format.Builtin.HTTP_HEADERS, new SpringMvcHeadersCarrier(headers));
+        return spanContext;
     }
 
     class ServletOutputStreamWrapper extends ServletOutputStream {
