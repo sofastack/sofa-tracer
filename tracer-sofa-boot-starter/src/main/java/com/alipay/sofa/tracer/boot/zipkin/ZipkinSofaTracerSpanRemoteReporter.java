@@ -20,9 +20,11 @@ import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.span.SofaTracerSpanReferenceRelationship;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 import com.alipay.sofa.tracer.boot.zipkin.sender.ZipkinRestTemplateSender;
+import io.opentracing.References;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 import zipkin.Annotation;
@@ -133,6 +135,12 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         //spanId
         String spanId = sofaTracerSpanContext.getSpanId();
         zipkinSpanBuilder.id(spanIdToLong(spanId));
+        //parentid
+        try {
+            long parentId = Long.parseLong(sofaTracerSpanContext.getParentId());
+            zipkinSpanBuilder.parentId(parentId);
+        } catch (NumberFormatException e) {
+        }
         //name
         String operationName = sofaTracerSpan.getOperationName();
         if (StringUtils.isNotBlank(operationName)) {
@@ -140,6 +148,7 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         } else {
             zipkinSpanBuilder.name(StringUtils.EMPTY_STRING);
         }
+
         return zipkinSpanBuilder.build();
     }
 
@@ -272,24 +281,22 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
             throw new IllegalArgumentException("Malformed id(length must be more than zero): "
                                                + hexString);
         }
-
         if (length > LONG_HEX_STRING_BYTES * 2) {
             throw new IllegalArgumentException(
                 "Malformed id(length must be less than 2 times lengh of type long): " + hexString);
         }
 
-        long[] result = new long[2];
-        result[0] = 0;
-        result[1] = 0;
-
         int charLast = length - 1;
+        long[] result = new long[2];
+        result[0] = result[1] = 0;
+        //Convert the 16 chars at the end, to 2nd elem of array, low 64 bit
         int i = 0;
         while (charLast >= 0 && i < LONG_BYTES * 2) {
             result[1] += ((long) Character.digit(hexString.charAt(charLast), 16) & 0xffL) << (4 * i);
             charLast--;
             i++;
         }
-
+        //Convert other than the 16 chars at the end, to 1st elem of array, high 64 bit
         i = 0;
         while (charLast >= 0 && i < LONG_BYTES * 2) {
             result[0] += ((long) Character.digit(hexString.charAt(charLast), 16) & 0xffL) << (4 * i);

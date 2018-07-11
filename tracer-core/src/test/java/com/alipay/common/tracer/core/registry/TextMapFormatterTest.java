@@ -17,6 +17,7 @@
 package com.alipay.common.tracer.core.registry;
 
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import com.alipay.common.tracer.core.registry.propagation.B3Propagation;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 import org.junit.After;
@@ -98,4 +99,56 @@ public class TextMapFormatterTest {
         assertTrue("Extract : " + extractContext, baggage.equals(extractContext.getBizBaggage()));
     }
 
+    public class Carrier4Test implements TextMap {
+        Map<String, String> carr = new HashMap<String, String>();
+
+        @Override
+        public Iterator<Map.Entry<String, String>> iterator() {
+            return carr.entrySet().iterator();
+        }
+
+        @Override
+        public void put(String key, String value) {
+            carr.put(key, value);
+        }
+
+        @Override
+        public String toString() {
+            return "$classname{" + "carr=" + carr + '}';
+        }
+
+        public String get(String key) {
+            return carr.get(key);
+        }
+
+        public void remove(String key) {
+            carr.remove(key);
+        }
+    };
+
+    /**
+     * Method: encodedValue(String value)
+     * Method: decodedValue(String value)
+     */
+    @Test
+    public void testEncodedValueB3() throws Exception {
+        SofaTracerSpanContext spanContext = SofaTracerSpanContext.rootStart();
+        Map<String, String> baggage = new HashMap<String, String>();
+        baggage.put("key", "value");
+        baggage.put("key1", "value1");
+        baggage.put("key2", "value2");
+        spanContext.addBizBaggage(baggage);
+
+        Carrier4Test carrier = new Carrier4Test();
+        this.registryExtractorInjector.inject(spanContext, carrier);
+        assertEquals(spanContext.getTraceId(), carrier.get(B3Propagation.TRACE_ID_KEY_HEAD));
+        assertEquals(spanContext.getSpanId(), carrier.get(B3Propagation.SPAN_ID_KEY_HEAD));
+        assertEquals(spanContext.getParentId(), carrier.get(B3Propagation.PARENT_SPAN_ID_KEY_HEAD));
+
+        //remove sofa trace context header from carrier, to test B3 extract logic
+        carrier.remove(RegistryExtractorInjector.FORMATER_KEY_HEAD);
+        SofaTracerSpanContext extractContext = this.registryExtractorInjector.extract(carrier);
+        extractContext.equals(spanContext);
+        assertTrue("Extract : " + extractContext, baggage.equals(extractContext.getBizBaggage()));
+    }
 }

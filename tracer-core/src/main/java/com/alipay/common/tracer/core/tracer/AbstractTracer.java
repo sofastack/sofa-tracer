@@ -227,6 +227,50 @@ public abstract class AbstractTracer {
     }
 
     /**
+     * 收到请求
+     * @param spanContextReceived 要恢复的上下文
+     * @param operationName server openration name
+     * @return SofaTracerSpan
+     */
+    public SofaTracerSpan serverReceive(SofaTracerSpanContext spanContextReceived,
+                                        String operationName) {
+        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+        SofaTracerSpan serverSpan = null;
+        SofaTracerSpanContext serverSpanContext = null;
+
+        try {
+            SofaTracer.SofaTracerSpanBuilder spanBuilder = (SofaTracer.SofaTracerSpanBuilder) this.sofaTracer
+                .buildSpan(operationName);
+            if (spanContextReceived != null) {
+                spanBuilder.asChildOf(spanContextReceived);
+            }
+            serverSpan = (SofaTracerSpan) spanBuilder.start();
+            sofaTraceContext.push(serverSpan);
+        } catch (Throwable throwable) {
+            SelfLog.errorWithTraceId("Middleware server received and restart root span", throwable);
+            SelfLog.flush();
+            Map<String, String> bizBaggage = null;
+            Map<String, String> sysBaggage = null;
+            if (serverSpan != null) {
+                bizBaggage = serverSpan.getSofaTracerSpanContext().getBizBaggage();
+                sysBaggage = serverSpan.getSofaTracerSpanContext().getSysBaggage();
+            }
+            serverSpan = this.errorRecover(bizBaggage, sysBaggage);
+            sofaTraceContext.push(serverSpan);
+        } finally {
+            if (serverSpan != null) {
+                //log
+                serverSpan.log(LogData.SERVER_RECV_EVENT_VALUE);
+                //server tags 必须设置
+                serverSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
+                serverSpan.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread()
+                    .getName());
+            }
+        }
+        return serverSpan;
+    }
+
+    /**
      * 请求处理完成
      * @param resultCode 结果码
      */
