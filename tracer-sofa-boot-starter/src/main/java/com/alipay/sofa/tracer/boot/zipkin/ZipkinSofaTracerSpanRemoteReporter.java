@@ -122,25 +122,27 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         zipkinSpanBuilder.traceIdHigh(traceIds[0]);
         zipkinSpanBuilder.traceId(traceIds[1]);
 
-        if (sofaTracerSpan.getParentSofaTracerSpan() != null) {
+        String parentSpanId = sofaTracerSpanContext.getParentId();
+        if (sofaTracerSpan.isServer() && parentSpanId != null) {
+            if (isHexString(parentSpanId)) {
+                zipkinSpanBuilder.parentId(parentIdToId(parentSpanId));
+            } else {
+                zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
+            }
+        } else if (sofaTracerSpan.getParentSofaTracerSpan() != null) {
             SofaTracerSpanContext parentSofaTracerSpanContext = sofaTracerSpan
                 .getParentSofaTracerSpan().getSofaTracerSpanContext();
             if (parentSofaTracerSpanContext != null) {
-                String parentSpanId = parentSofaTracerSpanContext.getSpanId();
+                parentSpanId = parentSofaTracerSpanContext.getSpanId();
                 //
                 zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
             }
 
         }
+
         //spanId
         String spanId = sofaTracerSpanContext.getSpanId();
         zipkinSpanBuilder.id(spanIdToLong(spanId));
-        //parentid
-        try {
-            long parentId = Long.parseLong(sofaTracerSpanContext.getParentId());
-            zipkinSpanBuilder.parentId(parentId);
-        } catch (NumberFormatException e) {
-        }
         //name
         String operationName = sofaTracerSpan.getOperationName();
         if (StringUtils.isNotBlank(operationName)) {
@@ -148,7 +150,6 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         } else {
             zipkinSpanBuilder.name(StringUtils.EMPTY_STRING);
         }
-
         return zipkinSpanBuilder.build();
     }
 
@@ -305,5 +306,50 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         }
 
         return result;
+    }
+
+    /***
+     * Convert a hex string to a long array containing two elements
+     * @param hexString hex string
+     * @return long array: [0] -- High 64 bit, [1] -- low 64 bit
+     */
+    public static long parentIdToId(String hexString) {
+        //Assert.hasText(hexString, "Can't convert empty hex string to long");
+        int length = hexString.length();
+        if (length < 1) {
+            throw new IllegalArgumentException("Malformed id(length must be more than zero): "
+                                               + hexString);
+        }
+        if (length > LONG_HEX_STRING_BYTES) {
+            throw new IllegalArgumentException(
+                "Malformed id(length must be less than 2 times lengh of type long): " + hexString);
+        }
+
+        int charLast = length - 1;
+        long result = 0;
+        //Convert the 16 chars to 64 bit long type
+        int i = 0;
+        while (charLast >= 0 && i < LONG_BYTES * 2) {
+            result += ((long) Character.digit(hexString.charAt(charLast), 16) & 0xffL) << (4 * i);
+            charLast--;
+            i++;
+        }
+
+        return result;
+    }
+
+    public static boolean isHexString(String hexString) {
+        if (hexString == null || hexString.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < hexString.length(); i++) {
+            char c = hexString.charAt(i);
+            if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
+                continue;
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -251,4 +251,20 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
             assertEquals(traceIdOrig, traceIdResult);
         }
     }
+
+    @Test
+    public void parentIdToId() throws Exception {
+        String traceIdOrig;
+        String traceIdResult;
+        Random rand = new Random();
+        BigInteger traceIdNum;
+        //Testing process random long long large than 120 bits
+        for (int i = 0; i < 10000; i++) {
+            traceIdNum = new BigInteger(64, 100, rand);
+            traceIdOrig = traceIdNum.toString(16);
+            long id = ZipkinSofaTracerSpanRemoteReporter.parentIdToId(traceIdOrig);
+            traceIdResult = String.format("%x", id);
+            assertEquals(traceIdOrig, traceIdResult);
+        }
+    }
 }

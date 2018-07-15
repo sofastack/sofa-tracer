@@ -63,16 +63,15 @@ public class SpringMvcSofaTracerFilter implements Filter {
         try {
             HttpServletRequest request = (HttpServletRequest) servletRequest;
             HttpServletResponse response = (HttpServletResponse) servletResponse;
-            SofaTracerSpanContext spanContextReceived = getSpanContextFromRequest(request);
+            SofaTracerSpanContext spanContext = getSpanContextFromRequest(request);
             // sr
-            springMvcSpan = springMvcTracer.serverReceive(spanContextReceived, request
-                .getRequestURL().toString());
+            springMvcSpan = springMvcTracer.serverReceive(spanContext);
             if (StringUtils.isBlank(this.appName)) {
                 this.appName = SofaTracerConfiguration
                     .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
             }
             //set service name
-            //springMvcSpan.setOperationName(request.getRequestURL().toString());
+            springMvcSpan.setOperationName(request.getRequestURL().toString());
             //app name
             springMvcSpan.setTag(CommonSpanTags.LOCAL_APP, this.appName);
             springMvcSpan.setTag(CommonSpanTags.REQUEST_URL, request.getRequestURL().toString());
