@@ -139,7 +139,7 @@ public class TracerUtils {
      */
     public static String getPID() {
         //缓存一次
-        if (P_ID_CACHE != null){
+        if (P_ID_CACHE != null) {
             return P_ID_CACHE;
         }
         String processName = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
