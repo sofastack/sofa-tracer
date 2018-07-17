@@ -18,9 +18,9 @@ package com.alipay.common.tracer.core.registry.propagation;
 
 public interface PropagationDecoder {
     /***
-     * 对指定的值进行解码
-     * @param value 字符串
-     * @return 编码后的字符串
+     * Decode string
+     * @param value String will be decoded
+     * @return Decoded string
      */
     String decodeValue(String value);
 }

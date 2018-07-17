@@ -135,7 +135,11 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
             if (parentSofaTracerSpanContext != null) {
                 parentSpanId = parentSofaTracerSpanContext.getSpanId();
                 //
-                zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
+                if (isHexString(parentSpanId)) {
+                    zipkinSpanBuilder.parentId(parentIdToId(parentSpanId));
+                } else {
+                    zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
+                }
             }
 
         }

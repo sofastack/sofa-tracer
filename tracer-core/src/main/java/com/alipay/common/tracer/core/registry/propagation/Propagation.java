@@ -21,17 +21,17 @@ import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 public interface Propagation<T> {
 
     /**
-     * 从负载中提取出 Span 上下文
+     * Extract span's context from payload
      *
-     * @param carrier 负载
-     * @return Span 上下文
+     * @param carrier Payload
+     * @return Span's context
      */
     SofaTracerSpanContext extract(T carrier);
 
     /***
-     * 向负载中注入 Span 上下文
-     * @param spanContext 要注入或者序列化的 span 上下文
-     * @param carrier 负载
+     * Inject span's context into payload
+     * @param spanContext Span's context
+     * @param carrier Payload
      */
     void inject(SofaTracerSpanContext spanContext, T carrier);
 
