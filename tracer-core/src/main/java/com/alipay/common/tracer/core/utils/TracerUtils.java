@@ -45,6 +45,8 @@ public class TracerUtils {
     public static final String CURRENT_ZONE                                 = System
                                                                                 .getProperty(KEY_OF_CURRENT_ZONE);
 
+    public static String       P_ID_CACHE                                   = null;
+
     /**
      * Get trace id from current tracer context.
      *
@@ -136,6 +138,10 @@ public class TracerUtils {
      * @return 进程 ID
      */
     public static String getPID() {
+        //check pid is cached
+        if (P_ID_CACHE != null) {
+            return P_ID_CACHE;
+        }
         String processName = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
 
         if (StringUtils.isBlank(processName)) {
@@ -153,7 +159,7 @@ public class TracerUtils {
         if (StringUtils.isBlank(pid)) {
             return StringUtils.EMPTY_STRING;
         }
-
+        P_ID_CACHE = pid;
         return pid;
     }
 
