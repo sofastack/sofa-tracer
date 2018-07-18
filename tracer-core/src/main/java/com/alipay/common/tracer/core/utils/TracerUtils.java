@@ -138,7 +138,7 @@ public class TracerUtils {
      * @return 进程 ID
      */
     public static String getPID() {
-        //缓存一次
+        //check pid is cached
         if (P_ID_CACHE != null) {
             return P_ID_CACHE;
         }
