@@ -17,7 +17,7 @@
 package com.alipay.common.tracer.core.appender.manager;
 
 import com.alipay.common.tracer.core.appender.TraceAppender;
-import com.alipay.common.tracer.core.appender.TracerLogRootDeamon;
+import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
@@ -41,7 +41,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class ConcurrentConsumerCorrectTest {
 
-    static final String fileNameRoot = TracerLogRootDeamon.LOG_FILE_DIR + File.separator;
+    static final String fileNameRoot = TracerLogRootDaemon.LOG_FILE_DIR + File.separator;
     static final String fileName1    = "log1.log";
     static final String fileName2    = "log2.log";
     static final String fileName3    = "log3.log";
@@ -49,7 +49,7 @@ public class ConcurrentConsumerCorrectTest {
     static final String fileName5    = "log5.log";
 
     @Before
-    public void beore() throws Exception {
+    public void before() throws Exception {
 
         cleanDir();
     }

@@ -32,7 +32,7 @@ import java.nio.charset.Charset;
  * @author yangguanchao
  * @since 2017/06/25
  */
-public class TracerLogRootDeamon {
+public class TracerLogRootDaemon {
 
     /***
      * 是否添加 pid 到 log path

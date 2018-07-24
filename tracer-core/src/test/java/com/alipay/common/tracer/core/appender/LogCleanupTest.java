@@ -114,60 +114,60 @@ public class LogCleanupTest extends AbstractTestBase {
     }
 
     private void generateLogFilesToBeCleanupHourly(SimpleDateFormat sdf) throws IOException {
-        todayFile = newFile(TracerLogRootDeamon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG);
+        todayFile = newFile(TracerLogRootDaemon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG);
 
         Calendar oneHourAgo = Calendar.getInstance();
         oneHourAgo.add(Calendar.HOUR, -1);
-        yesterdayFile = newFile(TracerLogRootDeamon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
+        yesterdayFile = newFile(TracerLogRootDaemon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
                                 + sdf.format(oneHourAgo.getTime()));
 
         Calendar twoHourAgo = Calendar.getInstance();
         twoHourAgo.add(Calendar.HOUR, -2);
-        twoDayAgoFile = newFile(TracerLogRootDeamon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
+        twoDayAgoFile = newFile(TracerLogRootDaemon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
                                 + sdf.format(twoHourAgo.getTime()));
 
         Calendar threeHourAgo = Calendar.getInstance();
         threeHourAgo.add(Calendar.HOUR, -3);
-        threeDayAgoFile = newFile(TracerLogRootDeamon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
+        threeDayAgoFile = newFile(TracerLogRootDaemon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
                                   + sdf.format(threeHourAgo.getTime()));
 
         Calendar fourHourAgo = Calendar.getInstance();
         fourHourAgo.add(Calendar.HOUR, -4);
-        fourDayAgoFile = newFile(TracerLogRootDeamon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
+        fourDayAgoFile = newFile(TracerLogRootDaemon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
                                  + sdf.format(fourHourAgo.getTime()));
 
         Calendar fiveHourAgo = Calendar.getInstance();
         fiveHourAgo.add(Calendar.HOUR, -5);
-        fiveDayAgoFile = newFile(TracerLogRootDeamon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
+        fiveDayAgoFile = newFile(TracerLogRootDaemon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
                                  + sdf.format(fiveHourAgo.getTime()));
     }
 
     private void generateLogFilesToBeCleanup(SimpleDateFormat sdf) throws IOException {
-        todayFile = newFile(TracerLogRootDeamon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG);
+        todayFile = newFile(TracerLogRootDaemon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG);
 
         Calendar yesterday = Calendar.getInstance();
         yesterday.add(Calendar.DATE, -1);
-        yesterdayFile = newFile(TracerLogRootDeamon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
+        yesterdayFile = newFile(TracerLogRootDaemon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
                                 + sdf.format(yesterday.getTime()));
 
         Calendar twoDayAgo = Calendar.getInstance();
         twoDayAgo.add(Calendar.DATE, -2);
-        twoDayAgoFile = newFile(TracerLogRootDeamon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
+        twoDayAgoFile = newFile(TracerLogRootDaemon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
                                 + sdf.format(twoDayAgo.getTime()));
 
         Calendar threeDayAgo = Calendar.getInstance();
         threeDayAgo.add(Calendar.DATE, -3);
-        threeDayAgoFile = newFile(TracerLogRootDeamon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
+        threeDayAgoFile = newFile(TracerLogRootDaemon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
                                   + sdf.format(threeDayAgo.getTime()));
 
         Calendar fourDayAgo = Calendar.getInstance();
         fourDayAgo.add(Calendar.DATE, -4);
-        fourDayAgoFile = newFile(TracerLogRootDeamon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
+        fourDayAgoFile = newFile(TracerLogRootDaemon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
                                  + sdf.format(fourDayAgo.getTime()));
 
         Calendar fiveDayAgo = Calendar.getInstance();
         fiveDayAgo.add(Calendar.DATE, -5);
-        fiveDayAgoFile = newFile(TracerLogRootDeamon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
+        fiveDayAgoFile = newFile(TracerLogRootDaemon.LOG_FILE_DIR + "/" + CLEAN_UP_TEST_LOG
                                  + sdf.format(fiveDayAgo.getTime()));
     }
 
