@@ -19,26 +19,20 @@ package com.alipay.common.tracer.core.generator;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 
 public class TraceIdGenerator {
 
-    private static String        IP_16   = "ffffffff";
-    private static String        IP_int  = "255255255255";
-
-    private static final String  regex   = "\\b((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\.((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\.((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\.((?!\\d\\d\\d)\\d+|1\\d\\d|2[0-4]\\d|25[0-5])\\b";
-    private static final Pattern pattern = Pattern.compile(regex);
-    private static AtomicInteger count   = new AtomicInteger(1000);
+    private static String        IP_16 = "ffffffff";
+    private static AtomicInteger count = new AtomicInteger(1000);
 
     static {
         try {
             String ipAddress = TracerUtils.getInetAddress();
             if (ipAddress != null) {
                 IP_16 = getIP_16(ipAddress);
-                IP_int = getIP_int(ipAddress);
             }
         } catch (Throwable e) {
-            /**
+            /*
              * empty catch block
              */
         }
@@ -54,34 +48,6 @@ public class TraceIdGenerator {
         return getTraceId(IP_16, System.currentTimeMillis(), getNextId());
     }
 
-    static String generate(String ip) {
-        if (ip != null && !ip.isEmpty() && validate(ip)) {
-            return getTraceId(getIP_16(ip), System.currentTimeMillis(), getNextId());
-        } else {
-            return generate();
-        }
-    }
-
-    static String generateIpv4Id() {
-        return IP_int;
-    }
-
-    static String generateIpv4Id(String ip) {
-        if (ip != null && !ip.isEmpty() && validate(ip)) {
-            return getIP_int(ip);
-        } else {
-            return IP_int;
-        }
-    }
-
-    private static boolean validate(String ip) {
-        try {
-            return pattern.matcher(ip).matches();
-        } catch (Throwable e) {
-            return false;
-        }
-    }
-
     private static String getIP_16(String ip) {
         String[] ips = ip.split("\\.");
         StringBuilder sb = new StringBuilder();
@@ -95,10 +61,6 @@ public class TraceIdGenerator {
 
         }
         return sb.toString();
-    }
-
-    private static String getIP_int(String ip) {
-        return ip.replace(".", "");
     }
 
     private static int getNextId() {
