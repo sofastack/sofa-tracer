@@ -17,6 +17,7 @@
 package com.alipay.common.tracer.core.appender.builder;
 
 import com.alipay.common.tracer.core.utils.StringUtils;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -45,4 +46,23 @@ public class XStringBuilderTest {
                      + XStringBuilder.AND_SEPARATOR + StringUtils.NEWLINE, converted);
     }
 
+    @Test
+    public void test_XStringBuilder(){
+        XStringBuilder xStringBuilder = new XStringBuilder(128);
+        xStringBuilder.append(1l, ",");
+        xStringBuilder.append(1l, ',');
+        xStringBuilder.append("test1", ",");
+
+        Map<String, String> map = new HashMap<String, String>();
+        xStringBuilder.append(1);
+        xStringBuilder.append(',');
+        xStringBuilder.append(map);
+        //append之后换行
+        xStringBuilder.appendEnd(1);
+        xStringBuilder.appendEnd(',');
+        xStringBuilder.appendEnd(1l);
+        xStringBuilder.appendEscape("test2");
+        XStringBuilder append = xStringBuilder.appendEscapeRaw("test3");
+        Assert.assertEquals("1,1,test1,1,,,,1\r\n,\r\n1\r\ntest2,test3",append.toString());
+    }
 }
