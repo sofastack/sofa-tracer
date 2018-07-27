@@ -47,7 +47,7 @@ public class XStringBuilderTest {
     }
 
     @Test
-    public void test_XStringBuilder(){
+    public void test_XStringBuilder() {
         XStringBuilder xStringBuilder = new XStringBuilder(128);
         xStringBuilder.append(1l, ",");
         xStringBuilder.append(1l, ',');
@@ -63,6 +63,6 @@ public class XStringBuilderTest {
         xStringBuilder.appendEnd(1l);
         xStringBuilder.appendEscape("test2");
         XStringBuilder append = xStringBuilder.appendEscapeRaw("test3");
-        Assert.assertEquals("1,1,test1,1,,,,1\r\n,\r\n1\r\ntest2,test3",append.toString());
+        Assert.assertEquals("1,1,test1,1,,,,1\r\n,\r\n1\r\ntest2,test3", append.toString());
     }
 }

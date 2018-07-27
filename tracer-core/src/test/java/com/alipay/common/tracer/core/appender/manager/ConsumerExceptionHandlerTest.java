@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.alipay.common.tracer.core.appender.manager;
 
 import com.alipay.common.tracer.core.SofaTracer;
@@ -28,15 +44,15 @@ import static org.junit.Assert.*;
 public class ConsumerExceptionHandlerTest extends AbstractTestBase {
 
     private ConsumerExceptionHandler consumerExceptionHandler;
-    private SofaTracerSpanEvent sofaTracerSpanEvent;
-    private SofaTracerSpan sofaTracerSpan;
-    private SofaTracer sofaTracer;
-    private final String   tracerType    = "SofaTracerSpanTest";
-    private final String   clientLogType = "client-log-test.log";
-    private final String   serverLogType = "server-log-test.log";
+    private SofaTracerSpanEvent      sofaTracerSpanEvent;
+    private SofaTracerSpan           sofaTracerSpan;
+    private SofaTracer               sofaTracer;
+    private final String             tracerType    = "SofaTracerSpanTest";
+    private final String             clientLogType = "client-log-test.log";
+    private final String             serverLogType = "server-log-test.log";
 
     @Before
-    public void init(){
+    public void init() {
         consumerExceptionHandler = new ConsumerExceptionHandler();
         sofaTracerSpanEvent = new SofaTracerSpanEvent();
 
@@ -45,29 +61,31 @@ public class ConsumerExceptionHandlerTest extends AbstractTestBase {
         Reporter serverReporter = new DiskReporterImpl(serverLogType, new ServerSpanEncoder());
 
         sofaTracer = new SofaTracer.Builder(tracerType)
-                .withTag("tracer", "SofaTraceContextHolderTest").withClientReporter(clientReporter)
-                .withServerReporter(serverReporter).build();
+            .withTag("tracer", "SofaTraceContextHolderTest").withClientReporter(clientReporter)
+            .withServerReporter(serverReporter).build();
 
         sofaTracerSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("SofaTracerSpanTest").start();
     }
 
     @Test
     public void handleEventException_with_event_null() throws IOException {
-        consumerExceptionHandler.handleEventException(new Throwable(),1,null);
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR
-                + File.separator + "sync.log");
+        consumerExceptionHandler.handleEventException(new Throwable(), 1, null);
+        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
-        assertTrue(logs.toString(), logs.get(0).contains("AsyncConsumer occurs exception during handle SofaTracerSpanEvent, The sofaTracerSpan is null"));
+        assertTrue(
+            logs.toString(),
+            logs.get(0)
+                .contains(
+                    "AsyncConsumer occurs exception during handle SofaTracerSpanEvent, The sofaTracerSpan is null"));
         FileUtils.writeStringToFile(log, "");
     }
 
     @Test
     public void handleEventException_with_event_not_null() throws IOException {
         sofaTracerSpanEvent.setSofaTracerSpan(sofaTracerSpan);
-        consumerExceptionHandler.handleEventException(new Throwable(),1,sofaTracerSpanEvent);
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR
-                + File.separator + "sync.log");
+        consumerExceptionHandler.handleEventException(new Throwable(), 1, sofaTracerSpanEvent);
+        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
         assertTrue(logs.toString(), logs.get(0).contains(sofaTracerSpan.toString()));
@@ -77,8 +95,7 @@ public class ConsumerExceptionHandlerTest extends AbstractTestBase {
     @Test
     public void handleOnStartException() throws IOException {
         consumerExceptionHandler.handleOnStartException(new Throwable());
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR
-                + File.separator + "sync.log");
+        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
         assertTrue(logs.toString(), logs.get(0).contains("AsyncConsumer occurs exception on start"));
@@ -89,11 +106,11 @@ public class ConsumerExceptionHandlerTest extends AbstractTestBase {
     @Test
     public void handleOnShutdownException() throws IOException {
         consumerExceptionHandler.handleOnShutdownException(new Throwable());
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR
-                + File.separator + "sync.log");
+        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
-        assertTrue(logs.toString(), logs.get(0).contains("Disruptor or AsyncConsumer occurs exception on shutdown"));
+        assertTrue(logs.toString(),
+            logs.get(0).contains("Disruptor or AsyncConsumer occurs exception on shutdown"));
         FileUtils.writeStringToFile(log, "");
     }
 }
