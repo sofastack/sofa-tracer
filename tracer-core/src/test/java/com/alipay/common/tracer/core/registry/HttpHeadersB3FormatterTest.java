@@ -17,9 +17,7 @@
 package com.alipay.common.tracer.core.registry;
 
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
-import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,28 +25,24 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
- * TextMapFormatter Tester.
+ * HttpHeadersFormatter Tester.
  *
  * @author <guanchao.ygc>
  * @version 1.0
  * @since <pre>七月 8, 2017</pre>
  */
-public class TextMapFormatterTest {
+public class HttpHeadersB3FormatterTest {
 
     private RegistryExtractorInjector<TextMap> registryExtractorInjector;
 
     @Before
     public void before() throws Exception {
-        registryExtractorInjector = TracerFormatRegistry.getRegistry(Format.Builtin.TEXT_MAP);
-        assertTrue(registryExtractorInjector instanceof TextMapFormatter);
-    }
-
-    @After
-    public void after() throws Exception {
+        registryExtractorInjector = TracerFormatRegistry
+            .getRegistry(ExtendFormat.Builtin.B3_HTTP_HEADERS);
+        assertTrue(registryExtractorInjector instanceof HttpHeadersB3Formatter);
     }
 
     /**
@@ -56,47 +50,59 @@ public class TextMapFormatterTest {
      */
     @Test
     public void testGetFormatType() throws Exception {
-        assertEquals(Format.Builtin.TEXT_MAP, registryExtractorInjector.getFormatType());
+        assertSame(ExtendFormat.Builtin.B3_HTTP_HEADERS, registryExtractorInjector.getFormatType());
     }
+
+    public class Carrier4Test implements TextMap {
+        Map<String, String> carr = new HashMap<String, String>();
+
+        @Override
+        public Iterator<Map.Entry<String, String>> iterator() {
+            return carr.entrySet().iterator();
+        }
+
+        @Override
+        public void put(String key, String value) {
+            carr.put(key, value);
+        }
+
+        @Override
+        public String toString() {
+            return "$classname{" + "carr=" + carr + '}';
+        }
+
+        public String get(String key) {
+            return carr.get(key);
+        }
+
+        public void remove(String key) {
+            carr.remove(key);
+        }
+    };
 
     /**
      * Method: encodedValue(String value)
      * Method: decodedValue(String value)
      */
     @Test
-    public void testEncodedValue() throws Exception {
+    public void testEncodedValueB3() throws Exception {
         SofaTracerSpanContext spanContext = SofaTracerSpanContext.rootStart();
         Map<String, String> baggage = new HashMap<String, String>();
         baggage.put("key", "value");
         baggage.put("key1", "value1");
         baggage.put("key2", "value2");
         spanContext.addBizBaggage(baggage);
-        //
-        final TextMap carrier = new TextMap() {
 
-            Map<String, String> carr = new HashMap<String, String>();
-
-            @Override
-            public Iterator<Map.Entry<String, String>> iterator() {
-                return carr.entrySet().iterator();
-            }
-
-            @Override
-            public void put(String key, String value) {
-                carr.put(key, value);
-            }
-
-            @Override
-            public String toString() {
-                return "$classname{" + "carr=" + carr + '}';
-            }
-        };
+        Carrier4Test carrier = new Carrier4Test();
         this.registryExtractorInjector.inject(spanContext, carrier);
-        //carrier
+        assertEquals(spanContext.getTraceId(),
+            carrier.get(AbstractTextB3Formatter.TRACE_ID_KEY_HEAD));
+        assertEquals(spanContext.getSpanId(), carrier.get(AbstractTextB3Formatter.SPAN_ID_KEY_HEAD));
+        assertEquals(spanContext.getParentId(),
+            carrier.get(AbstractTextB3Formatter.PARENT_SPAN_ID_KEY_HEAD));
+
         SofaTracerSpanContext extractContext = this.registryExtractorInjector.extract(carrier);
-        //traceid spanId sampled
         extractContext.equals(spanContext);
         assertTrue("Extract : " + extractContext, baggage.equals(extractContext.getBizBaggage()));
     }
-
 }

@@ -20,11 +20,10 @@ import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import com.alipay.common.tracer.core.span.SofaTracerSpanReferenceRelationship;
+import com.alipay.common.tracer.core.utils.CommonUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 import com.alipay.sofa.tracer.boot.zipkin.sender.ZipkinRestTemplateSender;
-import io.opentracing.References;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 import zipkin.Annotation;
@@ -118,14 +117,15 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
          *   resulting in over range when convert it to long type.
          */
         //zipkinSpanBuilder.traceId(traceIdToId(sofaTracerSpanContext.getTraceId()));
-        long[] traceIds = traceIdToIds(sofaTracerSpanContext.getTraceId());
+        long[] traceIds = CommonUtils.hexToDualLong(sofaTracerSpanContext.getTraceId());
         zipkinSpanBuilder.traceIdHigh(traceIds[0]);
         zipkinSpanBuilder.traceId(traceIds[1]);
 
         String parentSpanId = sofaTracerSpanContext.getParentId();
-        if (sofaTracerSpan.isServer() && parentSpanId != null) {
-            if (isHexString(parentSpanId)) {
-                zipkinSpanBuilder.parentId(parentIdToId(parentSpanId));
+        if (sofaTracerSpan.isServer() && parentSpanId != null
+            && StringUtils.isNotBlank(parentSpanId)) {
+            if (CommonUtils.isHexString(parentSpanId)) {
+                zipkinSpanBuilder.parentId(CommonUtils.hexToLong(parentSpanId));
             } else {
                 zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
             }
@@ -134,11 +134,12 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
                 .getParentSofaTracerSpan().getSofaTracerSpanContext();
             if (parentSofaTracerSpanContext != null) {
                 parentSpanId = parentSofaTracerSpanContext.getSpanId();
-                //
-                if (isHexString(parentSpanId)) {
-                    zipkinSpanBuilder.parentId(parentIdToId(parentSpanId));
-                } else {
-                    zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
+                if (parentSpanId != null && StringUtils.isNotBlank(parentSpanId)) {
+                    if (CommonUtils.isHexString(parentSpanId)) {
+                        zipkinSpanBuilder.parentId(CommonUtils.hexToLong(parentSpanId));
+                    } else {
+                        zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
+                    }
                 }
             }
 
@@ -271,89 +272,4 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         }
     }
 
-    private static int LONG_BYTES            = Long.SIZE / 8;
-    private static int LONG_HEX_STRING_BYTES = LONG_BYTES * 2;
-
-    /***
-     * Convert a hex string to a long array containing two elements
-     * @param hexString hex string
-     * @return long array: [0] -- High 64 bit, [1] -- low 64 bit
-     */
-    public static long[] traceIdToIds(String hexString) {
-        //Assert.hasText(hexString, "Can't convert empty hex string to long");
-        int length = hexString.length();
-        if (length < 1) {
-            throw new IllegalArgumentException("Malformed id(length must be more than zero): "
-                                               + hexString);
-        }
-        if (length > LONG_HEX_STRING_BYTES * 2) {
-            throw new IllegalArgumentException(
-                "Malformed id(length must be less than 2 times lengh of type long): " + hexString);
-        }
-
-        int charLast = length - 1;
-        long[] result = new long[2];
-        result[0] = result[1] = 0;
-        //Convert the 16 chars at the end, to 2nd elem of array, low 64 bit
-        int i = 0;
-        while (charLast >= 0 && i < LONG_BYTES * 2) {
-            result[1] += ((long) Character.digit(hexString.charAt(charLast), 16) & 0xffL) << (4 * i);
-            charLast--;
-            i++;
-        }
-        //Convert other than the 16 chars at the end, to 1st elem of array, high 64 bit
-        i = 0;
-        while (charLast >= 0 && i < LONG_BYTES * 2) {
-            result[0] += ((long) Character.digit(hexString.charAt(charLast), 16) & 0xffL) << (4 * i);
-            charLast--;
-            i++;
-        }
-
-        return result;
-    }
-
-    /***
-     * Convert a hex string to a long array containing two elements
-     * @param hexString hex string
-     * @return long array: [0] -- High 64 bit, [1] -- low 64 bit
-     */
-    public static long parentIdToId(String hexString) {
-        //Assert.hasText(hexString, "Can't convert empty hex string to long");
-        int length = hexString.length();
-        if (length < 1) {
-            throw new IllegalArgumentException("Malformed id(length must be more than zero): "
-                                               + hexString);
-        }
-        if (length > LONG_HEX_STRING_BYTES) {
-            throw new IllegalArgumentException(
-                "Malformed id(length must be less than 2 times lengh of type long): " + hexString);
-        }
-
-        int charLast = length - 1;
-        long result = 0;
-        //Convert the 16 chars to 64 bit long type
-        int i = 0;
-        while (charLast >= 0 && i < LONG_BYTES * 2) {
-            result += ((long) Character.digit(hexString.charAt(charLast), 16) & 0xffL) << (4 * i);
-            charLast--;
-            i++;
-        }
-
-        return result;
-    }
-
-    public static boolean isHexString(String hexString) {
-        if (hexString == null || hexString.isEmpty()) {
-            return false;
-        }
-        for (int i = 0; i < hexString.length(); i++) {
-            char c = hexString.charAt(i);
-            if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
-                continue;
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
 }

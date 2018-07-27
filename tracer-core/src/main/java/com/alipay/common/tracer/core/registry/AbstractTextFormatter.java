@@ -17,9 +17,6 @@
 package com.alipay.common.tracer.core.registry;
 
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
-import com.alipay.common.tracer.core.registry.propagation.PropagationEncoder;
-import com.alipay.common.tracer.core.registry.propagation.PropagationDecoder;
-import com.alipay.common.tracer.core.registry.propagation.TextB3Propagation;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.propagation.TextMap;
 
@@ -32,17 +29,6 @@ import java.util.Map;
  * @since 2017/06/24
  */
 public abstract class AbstractTextFormatter implements RegistryExtractorInjector<TextMap> {
-    TextB3Propagation propagation = new TextB3Propagation(new PropagationEncoder() {
-                                      @Override
-                                      public String encodeValue(String value) {
-                                          return AbstractTextFormatter.this.encodedValue(value);
-                                      }
-                                  }, new PropagationDecoder() {
-                                      @Override
-                                      public String decodeValue(String value) {
-                                          return AbstractTextFormatter.this.decodedValue(value);
-                                      }
-                                  });
 
     @Override
     public SofaTracerSpanContext extract(TextMap carrier) {
@@ -62,10 +48,6 @@ public abstract class AbstractTextFormatter implements RegistryExtractorInjector
                     .decodedValue(value));
             }
         }
-        //if not found sofa trace context, then try to find out if there have zipkin propagation
-        if (sofaTracerSpanContext == null) {
-            sofaTracerSpanContext = propagation.extract(carrier);
-        }
         if (sofaTracerSpanContext == null) {
             //根节点开始
             return SofaTracerSpanContext.rootStart();
@@ -78,10 +60,7 @@ public abstract class AbstractTextFormatter implements RegistryExtractorInjector
         if (carrier == null || spanContext == null) {
             return;
         }
-        //sofa internal trace context head inject
         carrier.put(FORMATER_KEY_HEAD, this.encodedValue(spanContext.serializeSpanContext()));
-        //also zipkin propagation trace context head inject
-        propagation.inject(spanContext, carrier);
     }
 
     /***
@@ -97,5 +76,4 @@ public abstract class AbstractTextFormatter implements RegistryExtractorInjector
      * @return 编码后的字符串
      */
     protected abstract String decodedValue(String value);
-
 }

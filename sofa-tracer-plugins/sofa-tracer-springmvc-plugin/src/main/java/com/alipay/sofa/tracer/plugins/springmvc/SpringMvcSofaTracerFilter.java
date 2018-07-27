@@ -20,10 +20,10 @@ import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
-import io.opentracing.propagation.Format;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -132,7 +132,7 @@ public class SpringMvcSofaTracerFilter implements Filter {
 
         SofaTracer tracer = springMvcTracer.getSofaTracer();
         SofaTracerSpanContext spanContext = (SofaTracerSpanContext) tracer.extract(
-            Format.Builtin.HTTP_HEADERS, new SpringMvcHeadersCarrier(headers));
+            ExtendFormat.Builtin.B3_HTTP_HEADERS, new SpringMvcHeadersCarrier(headers));
         return spanContext;
     }
 

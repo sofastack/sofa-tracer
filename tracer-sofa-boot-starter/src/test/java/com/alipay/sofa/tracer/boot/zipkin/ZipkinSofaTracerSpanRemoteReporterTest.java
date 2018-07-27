@@ -30,10 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -227,44 +225,5 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         Thread.sleep(1000 * 10);
         //assert
         assertTrue(sofaTraceContext.isEmpty());
-    }
-
-    @Test
-    public void traceIdToIds() throws Exception {
-        String traceIdOrig;
-        String traceIdResult;
-        Random rand = new Random();
-        BigInteger traceIdNum;
-        //Testing process random long long large than 120 bits
-        for (int i = 0; i < 10000; i++) {
-            traceIdNum = new BigInteger(125, 100, rand);
-            traceIdOrig = traceIdNum.toString(16);
-            long[] ids = ZipkinSofaTracerSpanRemoteReporter.traceIdToIds(traceIdOrig);
-            traceIdResult = String.format("%x%016x", ids[0], ids[1]);//.replaceFirst("^0+(?!$)", "");
-            assertEquals(traceIdOrig, traceIdResult);
-        }
-        //Testing process sofa generated traceId
-        for (int i = 0; i < 10000; i++) {
-            traceIdOrig = TraceIdGenerator.generate();
-            long[] ids = ZipkinSofaTracerSpanRemoteReporter.traceIdToIds(traceIdOrig);
-            traceIdResult = String.format("%x%016x", ids[0], ids[1]);//.replaceFirst("^0+(?!$)", "");
-            assertEquals(traceIdOrig, traceIdResult);
-        }
-    }
-
-    @Test
-    public void parentIdToId() throws Exception {
-        String traceIdOrig;
-        String traceIdResult;
-        Random rand = new Random();
-        BigInteger traceIdNum;
-        //Testing process random long long large than 120 bits
-        for (int i = 0; i < 10000; i++) {
-            traceIdNum = new BigInteger(64, 100, rand);
-            traceIdOrig = traceIdNum.toString(16);
-            long id = ZipkinSofaTracerSpanRemoteReporter.parentIdToId(traceIdOrig);
-            traceIdResult = String.format("%x", id);
-            assertEquals(traceIdOrig, traceIdResult);
-        }
     }
 }
