@@ -102,7 +102,7 @@ public class HttpHeadersB3FormatterTest {
             carrier.get(AbstractTextB3Formatter.PARENT_SPAN_ID_KEY_HEAD));
 
         SofaTracerSpanContext extractContext = this.registryExtractorInjector.extract(carrier);
-        extractContext.equals(spanContext);
+        assertTrue(extractContext.equals(spanContext));
         Map<String, String> baggageInContext = extractContext.getBizBaggage();
         assertEquals(baggage.size(), baggageInContext.size());
         assertEquals(baggage.get("key"), baggageInContext.get("key"));

@@ -82,7 +82,6 @@ public abstract class AbstractTextB3Formatter implements RegistryExtractorInject
             }
             if (traceId == null && TRACE_ID_KEY_HEAD.equalsIgnoreCase(key)) {
                 traceId = decodedValue(entry.getValue());
-                break;
             }
             if (spanId == null && SPAN_ID_KEY_HEAD.equalsIgnoreCase(key)) {
                 spanId = decodedValue(entry.getValue());
