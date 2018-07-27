@@ -21,9 +21,9 @@ import io.opentracing.propagation.TextMap;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.Assert.*;
 
@@ -54,7 +54,7 @@ public class HttpHeadersB3FormatterTest {
     }
 
     public class Carrier4Test implements TextMap {
-        Map<String, String> carr = new HashMap<String, String>();
+        Map<String, String> carr = new ConcurrentHashMap<String, String>();
 
         @Override
         public Iterator<Map.Entry<String, String>> iterator() {
@@ -87,7 +87,7 @@ public class HttpHeadersB3FormatterTest {
     @Test
     public void testEncodedValue() throws Exception {
         SofaTracerSpanContext spanContext = SofaTracerSpanContext.rootStart();
-        Map<String, String> baggage = new HashMap<String, String>();
+        Map<String, String> baggage = new ConcurrentHashMap<String, String>();
         baggage.put("key", "value");
         baggage.put("key1", "value1");
         baggage.put("key2", "value2");
@@ -103,7 +103,7 @@ public class HttpHeadersB3FormatterTest {
 
         SofaTracerSpanContext extractContext = this.registryExtractorInjector.extract(carrier);
         extractContext.equals(spanContext);
-        Map<String, String>baggageInContext = extractContext.getBizBaggage();
+        Map<String, String> baggageInContext = extractContext.getBizBaggage();
         assertEquals(baggage.size(), baggageInContext.size());
         assertEquals(baggage.get("key"), baggageInContext.get("key"));
         assertEquals(baggage.get("key1"), baggageInContext.get("key1"));

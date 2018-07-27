@@ -24,6 +24,7 @@ import io.opentracing.propagation.TextMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractTextB3Formatter implements RegistryExtractorInjector<TextMap> {
     /**
@@ -69,9 +70,9 @@ public abstract class AbstractTextB3Formatter implements RegistryExtractorInject
         boolean sampled = false;
         boolean isGetSampled = false;
         //sys bizBaggage
-        Map<String, String> sysBaggage = new HashMap<String, String>();
+        Map<String, String> sysBaggage = new ConcurrentHashMap<String, String>();
         //bizBaggage
-        Map<String, String> bizBaggage = new HashMap<String, String>();
+        Map<String, String> bizBaggage = new ConcurrentHashMap<String, String>();
 
         //Get others trace context items, the first value wins.
         for (Map.Entry<String, String> entry : carrier) {
