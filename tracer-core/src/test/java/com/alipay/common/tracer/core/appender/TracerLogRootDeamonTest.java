@@ -36,13 +36,13 @@ public class TracerLogRootDeamonTest {
     @Before
     public void before() throws Exception {
 
-        System.setProperty(TracerLogRootDeamon.TRACER_APPEND_PID_TO_LOG_PATH_KEY, "true");
+        System.setProperty(TracerLogRootDaemon.TRACER_APPEND_PID_TO_LOG_PATH_KEY, "true");
 
     }
 
     @After
     public void after() throws Exception {
-        System.clearProperty(TracerLogRootDeamon.TRACER_APPEND_PID_TO_LOG_PATH_KEY);
+        System.clearProperty(TracerLogRootDaemon.TRACER_APPEND_PID_TO_LOG_PATH_KEY);
     }
 
     //@Test
@@ -50,7 +50,7 @@ public class TracerLogRootDeamonTest {
         String traceLogRoot = System.getProperty("user.home") + File.separator + "logs";
         traceLogRoot += File.separator + "tracelog";
         traceLogRoot += File.separator + TracerUtils.getPID();
-        assertEquals(TracerLogRootDeamon.LOG_FILE_DIR, traceLogRoot);
+        assertEquals(TracerLogRootDaemon.LOG_FILE_DIR, traceLogRoot);
     }
 
 }
