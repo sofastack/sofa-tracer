@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.alipay.common.tracer.core.appender.file;
 
 import com.alipay.common.tracer.core.appender.TraceAppender;
@@ -23,25 +39,28 @@ public class CompositeTraceAppenderTest {
 
     private static final String                 COMPOSITE_TEST_FILE_NAME = "composite-test.log";
     private TimedRollingFileAppender            timedRollingFileAppender;
-    private PathMatchingResourcePatternResolver resolver               = new PathMatchingResourcePatternResolver();
+    private PathMatchingResourcePatternResolver resolver                 = new PathMatchingResourcePatternResolver();
 
-    CompositeTraceAppender compositeTraceAppender;
+    CompositeTraceAppender                      compositeTraceAppender;
 
     @Before
     public void init() throws IOException {
         timedRollingFileAppender = new TimedRollingFileAppender(COMPOSITE_TEST_FILE_NAME,
-                AbstractRollingFileAppender.DEFAULT_BUFFER_SIZE, true, "'.'yyyy-MM-dd.HH:mm:ss");
+            AbstractRollingFileAppender.DEFAULT_BUFFER_SIZE, true, "'.'yyyy-MM-dd.HH:mm:ss");
         compositeTraceAppender = new CompositeTraceAppender();
         MockTraceAppender mockTracerAppender = new MockTraceAppender();
-        compositeTraceAppender.putAppender("timedRollingFileAppender",timedRollingFileAppender);
-        compositeTraceAppender.putAppender("mockTracerAppender",mockTracerAppender);
+        compositeTraceAppender.putAppender("timedRollingFileAppender", timedRollingFileAppender);
+        compositeTraceAppender.putAppender("mockTracerAppender", mockTracerAppender);
     }
+
     @Test
     public void getAppender() {
-        TraceAppender timedRollingFileAppender = compositeTraceAppender.getAppender("timedRollingFileAppender");
+        TraceAppender timedRollingFileAppender = compositeTraceAppender
+            .getAppender("timedRollingFileAppender");
         TraceAppender mockTracerAppender = compositeTraceAppender.getAppender("mockTracerAppender");
-        Assert.assertEquals(timedRollingFileAppender.hashCode(),timedRollingFileAppender.hashCode());
-        Assert.assertEquals(mockTracerAppender.hashCode(),mockTracerAppender.hashCode());
+        Assert.assertEquals(timedRollingFileAppender.hashCode(),
+            timedRollingFileAppender.hashCode());
+        Assert.assertEquals(mockTracerAppender.hashCode(), mockTracerAppender.hashCode());
     }
 
     @Test
@@ -55,16 +74,15 @@ public class CompositeTraceAppenderTest {
         compositeTraceAppender.append("test compositeTraceAppender");
         compositeTraceAppender.flush();
         Resource[] resources = resolver.getResources("file:" + TracerLogRootDaemon.LOG_FILE_DIR
-                + File.separator + COMPOSITE_TEST_FILE_NAME);
-        Assert.assertTrue(resources.length==1);
+                                                     + File.separator + COMPOSITE_TEST_FILE_NAME);
+        Assert.assertTrue(resources.length == 1);
     }
 
     @Test
     public void cleanup() {
     }
 
-
-    class MockTraceAppender implements TraceAppender{
+    class MockTraceAppender implements TraceAppender {
 
         @Override
         public void flush() throws IOException {

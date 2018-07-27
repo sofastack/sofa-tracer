@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.alipay.common.tracer.core.appender.manager;
 
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
@@ -22,7 +38,8 @@ public class StringConsumerExceptionHandlerTest extends AbstractTestBase {
 
     private StringConsumerExceptionHandler stringConsumerExceptionHandler;
 
-    private StringEvent stringEvent;
+    private StringEvent                    stringEvent;
+
     @Before
     public void setUp() throws Exception {
         stringConsumerExceptionHandler = new StringConsumerExceptionHandler();
@@ -32,20 +49,19 @@ public class StringConsumerExceptionHandlerTest extends AbstractTestBase {
 
     @Test
     public void handleEventException_with_event_null() throws IOException {
-        stringConsumerExceptionHandler.handleEventException(new Throwable(),2,null);
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR
-                + File.separator + "sync.log");
+        stringConsumerExceptionHandler.handleEventException(new Throwable(), 2, null);
+        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
-        assertTrue(logs.toString(), logs.get(0).contains("AsyncConsumer occurs exception during handle StringEvent"));
+        assertTrue(logs.toString(),
+            logs.get(0).contains("AsyncConsumer occurs exception during handle StringEvent"));
         FileUtils.writeStringToFile(log, "");
     }
 
     @Test
     public void handleEventException_with_event_not_null() throws IOException {
-        stringConsumerExceptionHandler.handleEventException(new Throwable(),2,stringEvent);
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR
-                + File.separator + "sync.log");
+        stringConsumerExceptionHandler.handleEventException(new Throwable(), 2, stringEvent);
+        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
         assertTrue(logs.toString(), logs.get(0).contains(stringEvent.getString()));
@@ -55,8 +71,7 @@ public class StringConsumerExceptionHandlerTest extends AbstractTestBase {
     @Test
     public void handleOnStartException() throws IOException {
         stringConsumerExceptionHandler.handleOnStartException(new Throwable());
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR
-                + File.separator + "sync.log");
+        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
         assertTrue(logs.toString(), logs.get(0).contains("AsyncConsumer occurs exception on start"));
@@ -67,11 +82,11 @@ public class StringConsumerExceptionHandlerTest extends AbstractTestBase {
     @Test
     public void handleOnShutdownException() throws IOException {
         stringConsumerExceptionHandler.handleOnShutdownException(new Throwable());
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR
-                + File.separator + "sync.log");
+        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
-        assertTrue(logs.toString(), logs.get(0).contains("Disruptor or AsyncConsumer occurs exception on shutdown"));
+        assertTrue(logs.toString(),
+            logs.get(0).contains("Disruptor or AsyncConsumer occurs exception on shutdown"));
         FileUtils.writeStringToFile(log, "");
     }
 }

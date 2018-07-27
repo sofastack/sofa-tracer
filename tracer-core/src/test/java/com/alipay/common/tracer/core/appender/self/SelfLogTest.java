@@ -90,7 +90,7 @@ public class SelfLogTest extends AbstractTestBase {
         SelfLog.errorWithTraceId("error Info ", new Throwable());
         Thread.sleep(4000);
         List<String> logs = FileUtils.readLines(new File(TracerLogRootDaemon.LOG_FILE_DIR
-                + File.separator + SelfLog.SELF_LOG_FILE));
+                                                         + File.separator + SelfLog.SELF_LOG_FILE));
         assertTrue(logs.toString(), logs.size() > 0);
     }
 
