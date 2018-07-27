@@ -109,6 +109,10 @@ public class TextMapB3FormatterTest {
 
         SofaTracerSpanContext extractContext = this.registryExtractorInjector.extract(carrier);
         extractContext.equals(spanContext);
-        assertTrue("Extract : " + extractContext, baggage.equals(extractContext.getBizBaggage()));
+        Map<String, String>baggageInContext = extractContext.getBizBaggage();
+        assertEquals(baggage.size(), baggageInContext.size());
+        assertEquals(baggage.get("key"), baggageInContext.get("key"));
+        assertEquals(baggage.get("key1"), baggageInContext.get("key1"));
+        assertEquals(baggage.get("key2"), baggageInContext.get("key2"));
     }
 }
