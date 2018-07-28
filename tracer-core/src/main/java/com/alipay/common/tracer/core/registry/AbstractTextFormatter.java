@@ -43,7 +43,7 @@ public abstract class AbstractTextFormatter implements RegistryExtractorInjector
             if (StringUtils.isBlank(key)) {
                 continue;
             }
-            if (FORMATER_KEY_HEAD.equalsIgnoreCase(key)) {
+            if (FORMATER_KEY_HEAD.equalsIgnoreCase(key) && !StringUtils.isBlank(value)) {
                 sofaTracerSpanContext = SofaTracerSpanContext.deserializeFromString(this
                     .decodedValue(value));
             }

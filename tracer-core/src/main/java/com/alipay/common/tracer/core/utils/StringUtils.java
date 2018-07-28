@@ -231,20 +231,16 @@ public class StringUtils {
         return buf.toString();
     }
 
-    /**
-     * 替换str中的"&"，"=" 和 "%"
-     */
-    private static String escapePercentEqualAnd(String str) {
+    //替换str中的"&"，"=" 和 "%"
+    public static String escapePercentEqualAnd(String str) {
         // 必须先对 % 做转义
         return escape(
             escape(escape(str, PERCENT, PERCENT_ESCAPE), AND_SEPARATOR, AND_SEPARATOR_ESCAPE),
             EQUAL_SEPARATOR, EQUAL_SEPARATOR_ESCAPE);
     }
 
-    /**
-     * 将 str 中被转义的 & ， = 和 % 转义回来
-     */
-    private static String unescapeEqualAndPercent(String str) {
+    //将 str 中被转义的 & ， = 和 % 转义回来
+    public static String unescapeEqualAndPercent(String str) {
         // 必须最后才对 % 做转义
         return escape(
             escape(escape(str, EQUAL_SEPARATOR_ESCAPE, EQUAL_SEPARATOR), AND_SEPARATOR_ESCAPE,
