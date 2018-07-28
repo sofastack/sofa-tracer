@@ -35,9 +35,13 @@ public class TracerFormatRegistry {
         TextMapFormatter textMapFormatter = new TextMapFormatter();
         HttpHeadersFormatter httpHeadersFormatter = new HttpHeadersFormatter();
         BinaryFormater binaryFormater = new BinaryFormater();
+        TextMapB3Formatter textMapB3Formatter = new TextMapB3Formatter();
+        HttpHeadersB3Formatter httpHeadersB3Formatter = new HttpHeadersB3Formatter();
         injectorsAndExtractors.put(textMapFormatter.getFormatType(), textMapFormatter);
         injectorsAndExtractors.put(httpHeadersFormatter.getFormatType(), httpHeadersFormatter);
         injectorsAndExtractors.put(binaryFormater.getFormatType(), binaryFormater);
+        injectorsAndExtractors.put(textMapB3Formatter.getFormatType(), textMapB3Formatter);
+        injectorsAndExtractors.put(httpHeadersB3Formatter.getFormatType(), httpHeadersB3Formatter);
     }
 
     @SuppressWarnings("unchecked")
