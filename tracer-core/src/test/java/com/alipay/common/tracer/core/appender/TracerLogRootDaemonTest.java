@@ -31,7 +31,7 @@ import static junit.framework.TestCase.assertEquals;
  * @version 1.0
  * @since <pre>七月 24, 2017</pre>
  */
-public class TracerLogRootDeamonTest {
+public class TracerLogRootDaemonTest {
 
     @Before
     public void before() throws Exception {
