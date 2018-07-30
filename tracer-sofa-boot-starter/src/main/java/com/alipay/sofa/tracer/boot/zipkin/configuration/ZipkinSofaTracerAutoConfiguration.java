@@ -19,6 +19,7 @@ package com.alipay.sofa.tracer.boot.zipkin.configuration;
 import com.alipay.sofa.tracer.boot.zipkin.ZipkinSofaTracerSpanRemoteReporter;
 import com.alipay.sofa.tracer.boot.zipkin.properties.ZipkinSofaTracerProperties;
 import com.alipay.sofa.tracer.boot.zipkin.properties.ZipkinSofaTracerSamplerProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -35,7 +36,8 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @EnableConfigurationProperties({ ZipkinSofaTracerProperties.class,
                                 ZipkinSofaTracerSamplerProperties.class })
-@ConditionalOnProperty(value = "com.alipay.sofa.tracer.zipkin.enabled")
+@ConditionalOnProperty(value = "com.alipay.sofa.tracer.zipkin.enabled", matchIfMissing = true)
+@ConditionalOnClass({ zipkin.Span.class, zipkin.reporter.AsyncReporter.class })
 public class ZipkinSofaTracerAutoConfiguration {
 
     @Bean

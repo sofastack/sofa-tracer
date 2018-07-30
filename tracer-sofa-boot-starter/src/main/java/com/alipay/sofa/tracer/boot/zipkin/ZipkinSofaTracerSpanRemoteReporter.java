@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.CommonUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 import com.alipay.sofa.tracer.boot.zipkin.sender.ZipkinRestTemplateSender;
@@ -104,17 +105,46 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
             .duration((sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()) * 1000);
         //traceId
         SofaTracerSpanContext sofaTracerSpanContext = sofaTracerSpan.getSofaTracerSpanContext();
-        zipkinSpanBuilder.traceId(traceIdToId(sofaTracerSpanContext.getTraceId()));
-        if (sofaTracerSpan.getParentSofaTracerSpan() != null) {
+
+        /**
+         * Changes:
+         * 1.From using zipkin span's traceId alone, to using both traceid and traceIdHigh
+         * 2.From using part of SpanContext's traceId as radix 10, to using full traceId as hexadecimal(radix 16)
+         * So that the traceId in the zipkin trace data is consistent with the traceId in the application log files.
+         *
+         * 3.When traceId is received from the previous node, the original algorithm will not be able to cut
+         *   off the pid in tail of the traceId, because it does not know the pid of the sender.
+         *   resulting in over range when convert it to long type.
+         */
+        //zipkinSpanBuilder.traceId(traceIdToId(sofaTracerSpanContext.getTraceId()));
+        long[] traceIds = CommonUtils.hexToDualLong(sofaTracerSpanContext.getTraceId());
+        zipkinSpanBuilder.traceIdHigh(traceIds[0]);
+        zipkinSpanBuilder.traceId(traceIds[1]);
+
+        String parentSpanId = sofaTracerSpanContext.getParentId();
+        if (sofaTracerSpan.isServer() && parentSpanId != null
+            && StringUtils.isNotBlank(parentSpanId)) {
+            if (CommonUtils.isHexString(parentSpanId)) {
+                zipkinSpanBuilder.parentId(CommonUtils.hexToLong(parentSpanId));
+            } else {
+                zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
+            }
+        } else if (sofaTracerSpan.getParentSofaTracerSpan() != null) {
             SofaTracerSpanContext parentSofaTracerSpanContext = sofaTracerSpan
                 .getParentSofaTracerSpan().getSofaTracerSpanContext();
             if (parentSofaTracerSpanContext != null) {
-                String parentSpanId = parentSofaTracerSpanContext.getSpanId();
-                //
-                zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
+                parentSpanId = parentSofaTracerSpanContext.getSpanId();
+                if (parentSpanId != null && StringUtils.isNotBlank(parentSpanId)) {
+                    if (CommonUtils.isHexString(parentSpanId)) {
+                        zipkinSpanBuilder.parentId(CommonUtils.hexToLong(parentSpanId));
+                    } else {
+                        zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
+                    }
+                }
             }
 
         }
+
         //spanId
         String spanId = sofaTracerSpanContext.getSpanId();
         zipkinSpanBuilder.id(spanIdToLong(spanId));
@@ -241,4 +271,5 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
             return Long.parseLong(hexString.substring(8), 10);
         }
     }
+
 }

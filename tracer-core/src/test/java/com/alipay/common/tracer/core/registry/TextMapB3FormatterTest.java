@@ -17,15 +17,14 @@
 package com.alipay.common.tracer.core.registry;
 
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
-import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -37,14 +36,15 @@ import static org.junit.Assert.assertTrue;
  * @version 1.0
  * @since <pre>七月 8, 2017</pre>
  */
-public class TextMapFormatterTest {
+public class TextMapB3FormatterTest {
 
     private RegistryExtractorInjector<TextMap> registryExtractorInjector;
 
     @Before
     public void before() throws Exception {
-        registryExtractorInjector = TracerFormatRegistry.getRegistry(Format.Builtin.TEXT_MAP);
-        assertTrue(registryExtractorInjector instanceof TextMapFormatter);
+        registryExtractorInjector = TracerFormatRegistry
+            .getRegistry(ExtendFormat.Builtin.B3_TEXT_MAP);
+        assertTrue(registryExtractorInjector instanceof TextMapB3Formatter);
     }
 
     @After
@@ -56,8 +56,35 @@ public class TextMapFormatterTest {
      */
     @Test
     public void testGetFormatType() throws Exception {
-        assertEquals(Format.Builtin.TEXT_MAP, registryExtractorInjector.getFormatType());
+        assertEquals(ExtendFormat.Builtin.B3_TEXT_MAP, registryExtractorInjector.getFormatType());
     }
+
+    public class Carrier4Test implements TextMap {
+        Map<String, String> carr = new ConcurrentHashMap<String, String>();
+
+        @Override
+        public Iterator<Map.Entry<String, String>> iterator() {
+            return carr.entrySet().iterator();
+        }
+
+        @Override
+        public void put(String key, String value) {
+            carr.put(key, value);
+        }
+
+        @Override
+        public String toString() {
+            return "$classname{" + "carr=" + carr + '}';
+        }
+
+        public String get(String key) {
+            return carr.get(key);
+        }
+
+        public void remove(String key) {
+            carr.remove(key);
+        }
+    };
 
     /**
      * Method: encodedValue(String value)
@@ -66,37 +93,26 @@ public class TextMapFormatterTest {
     @Test
     public void testEncodedValue() throws Exception {
         SofaTracerSpanContext spanContext = SofaTracerSpanContext.rootStart();
-        Map<String, String> baggage = new HashMap<String, String>();
+        Map<String, String> baggage = new ConcurrentHashMap<String, String>();
         baggage.put("key", "value");
         baggage.put("key1", "value1");
         baggage.put("key2", "value2");
         spanContext.addBizBaggage(baggage);
-        //
-        final TextMap carrier = new TextMap() {
 
-            Map<String, String> carr = new HashMap<String, String>();
-
-            @Override
-            public Iterator<Map.Entry<String, String>> iterator() {
-                return carr.entrySet().iterator();
-            }
-
-            @Override
-            public void put(String key, String value) {
-                carr.put(key, value);
-            }
-
-            @Override
-            public String toString() {
-                return "$classname{" + "carr=" + carr + '}';
-            }
-        };
+        Carrier4Test carrier = new Carrier4Test();
         this.registryExtractorInjector.inject(spanContext, carrier);
-        //carrier
-        SofaTracerSpanContext extractContext = this.registryExtractorInjector.extract(carrier);
-        //traceid spanId sampled
-        extractContext.equals(spanContext);
-        assertTrue("Extract : " + extractContext, baggage.equals(extractContext.getBizBaggage()));
-    }
+        assertEquals(spanContext.getTraceId(),
+            carrier.get(AbstractTextB3Formatter.TRACE_ID_KEY_HEAD));
+        assertEquals(spanContext.getSpanId(), carrier.get(AbstractTextB3Formatter.SPAN_ID_KEY_HEAD));
+        assertEquals(spanContext.getParentId(),
+            carrier.get(AbstractTextB3Formatter.PARENT_SPAN_ID_KEY_HEAD));
 
+        SofaTracerSpanContext extractContext = this.registryExtractorInjector.extract(carrier);
+        assertTrue(extractContext.equals(spanContext));
+        Map<String, String> baggageInContext = extractContext.getBizBaggage();
+        assertEquals(baggage.size(), baggageInContext.size());
+        assertEquals(baggage.get("key"), baggageInContext.get("key"));
+        assertEquals(baggage.get("key1"), baggageInContext.get("key1"));
+        assertEquals(baggage.get("key2"), baggageInContext.get("key2"));
+    }
 }

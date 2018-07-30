@@ -16,25 +16,51 @@
  */
 package com.alipay.common.tracer.core.utils;
 
-import org.junit.Assert;
+import com.alipay.common.tracer.core.generator.TraceIdGenerator;
 import org.junit.Test;
 
-/**
- * @description: test unit for CommonUtils
- * @email: <a href="guolei.sgl@antfin.com"></a>
- * @author: guolei.sgl
- * @date: 18/7/25
- */
+import java.math.BigInteger;
+import java.util.Random;
+
+import static junit.framework.TestCase.assertEquals;
+
 public class CommonUtilsTest {
+    @Test
+    public void hexToDualLong() throws Exception {
+        String traceIdOrig;
+        String traceIdResult;
+        Random rand = new Random();
+        BigInteger traceIdNum;
+        //Testing process random long long large than 120 bits
+        for (int i = 0; i < 10000; i++) {
+            traceIdNum = new BigInteger(125, 100, rand);
+            traceIdOrig = traceIdNum.toString(16);
+            long[] ids = CommonUtils.hexToDualLong(traceIdOrig);
+            traceIdResult = String.format("%x%016x", ids[0], ids[1]);//.replaceFirst("^0+(?!$)", "");
+            assertEquals(traceIdOrig, traceIdResult);
+        }
+        //Testing process sofa generated traceId
+        for (int i = 0; i < 10000; i++) {
+            traceIdOrig = TraceIdGenerator.generate();
+            long[] ids = CommonUtils.hexToDualLong(traceIdOrig);
+            traceIdResult = String.format("%x%016x", ids[0], ids[1]);//.replaceFirst("^0+(?!$)", "");
+            assertEquals(traceIdOrig, traceIdResult);
+        }
+    }
 
     @Test
-    public void parseNum() {
-
-        Integer integer = CommonUtils.parseNum(null, 1);
-        Assert.assertTrue(integer.intValue() == 1);
-
-        Integer nullObjInteger = new Integer(2);
-        Assert.assertTrue(nullObjInteger.intValue() == 2);
-
+    public void hexToLong() throws Exception {
+        String traceIdOrig;
+        String traceIdResult;
+        Random rand = new Random();
+        BigInteger traceIdNum;
+        //Testing process random long long large than 120 bits
+        for (int i = 0; i < 10000; i++) {
+            traceIdNum = new BigInteger(64, 100, rand);
+            traceIdOrig = traceIdNum.toString(16);
+            long id = CommonUtils.hexToLong(traceIdOrig);
+            traceIdResult = String.format("%x", id);
+            assertEquals(traceIdOrig, traceIdResult);
+        }
     }
 }

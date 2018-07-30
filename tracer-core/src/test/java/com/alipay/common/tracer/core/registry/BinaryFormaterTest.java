@@ -46,6 +46,7 @@ public class BinaryFormaterTest {
     @Before
     public void before() throws Exception {
         registryExtractorInjector = TracerFormatRegistry.getRegistry(Format.Builtin.BINARY);
+        assertTrue(registryExtractorInjector instanceof BinaryFormater);
     }
 
     @After
