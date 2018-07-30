@@ -43,8 +43,6 @@ public class CompositeTraceAppenderTest {
 
     CompositeTraceAppender                      compositeTraceAppender;
 
-
-
     @Before
     public void init() throws IOException {
         timedRollingFileAppender = new TimedRollingFileAppender(COMPOSITE_TEST_FILE_NAME,

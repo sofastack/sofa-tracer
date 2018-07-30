@@ -40,9 +40,10 @@ public class SofaTracerPercentageBasedSamplerTest {
     }
 
     @After
-    public void close(){
+    public void close() {
         sofaTracerPercentageBasedSampler.close();
     }
+
     @Test
     public void sample() {
 
