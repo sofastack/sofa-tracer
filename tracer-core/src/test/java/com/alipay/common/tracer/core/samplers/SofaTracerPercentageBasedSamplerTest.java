@@ -17,12 +17,13 @@
 package com.alipay.common.tracer.core.samplers;
 
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @description: [描述文本]
+ * @description: [test unit for SofaTracerPercentageBasedSampler]
  * @email: <a href="guolei.sgl@antfin.com"></a>
  * @author: guolei.sgl
  * @date: 18/7/25
@@ -38,6 +39,10 @@ public class SofaTracerPercentageBasedSamplerTest {
         sofaTracerPercentageBasedSampler = new SofaTracerPercentageBasedSampler(samplerProperties);
     }
 
+    @After
+    public void close(){
+        sofaTracerPercentageBasedSampler.close();
+    }
     @Test
     public void sample() {
 
@@ -63,10 +68,5 @@ public class SofaTracerPercentageBasedSamplerTest {
     public void getType() {
         Assert.assertTrue(sofaTracerPercentageBasedSampler.getType().equals(
             "PercentageBasedSampler"));
-    }
-
-    @Test
-    public void close() {
-        sofaTracerPercentageBasedSampler.close();
     }
 }

@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @description: [描述文本]
+ * @description: [test unit for SamplingStatus]
  * @email: <a href="guolei.sgl@antfin.com"></a>
  * @author: guolei.sgl
  * @date: 18/7/25
@@ -48,10 +48,6 @@ public class SamplingStatusTest {
     public void setSampled() {
         samplingStatus.setSampled(true);
         Assert.assertTrue(samplingStatus.isSampled());
-    }
-
-    @Test
-    public void getTags() {
     }
 
     @Test

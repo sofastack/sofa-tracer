@@ -18,19 +18,19 @@ package com.alipay.common.tracer.core.appender.file;
 
 import com.alipay.common.tracer.core.appender.TraceAppender;
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
+import mockit.Mocked;
+import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
-
 /**
- * @description: [描述文本]
+ * @description: [test unit for CompositeTraceAppender]
  * @email: <a href="guolei.sgl@antfin.com"></a>
  * @author: guolei.sgl
  * @date: 18/7/27
@@ -43,12 +43,14 @@ public class CompositeTraceAppenderTest {
 
     CompositeTraceAppender                      compositeTraceAppender;
 
+
+
     @Before
     public void init() throws IOException {
         timedRollingFileAppender = new TimedRollingFileAppender(COMPOSITE_TEST_FILE_NAME,
             AbstractRollingFileAppender.DEFAULT_BUFFER_SIZE, true, "'.'yyyy-MM-dd.HH:mm:ss");
         compositeTraceAppender = new CompositeTraceAppender();
-        MockTraceAppender mockTracerAppender = new MockTraceAppender();
+        TraceAppender mockTracerAppender = Mockito.mock(TraceAppender.class);
         compositeTraceAppender.putAppender("timedRollingFileAppender", timedRollingFileAppender);
         compositeTraceAppender.putAppender("mockTracerAppender", mockTracerAppender);
     }
@@ -64,11 +66,6 @@ public class CompositeTraceAppenderTest {
     }
 
     @Test
-    public void flush() {
-
-    }
-
-    @Test
     public void append() throws IOException {
         compositeTraceAppender.cleanup();
         compositeTraceAppender.append("test compositeTraceAppender");
@@ -76,27 +73,5 @@ public class CompositeTraceAppenderTest {
         Resource[] resources = resolver.getResources("file:" + TracerLogRootDaemon.LOG_FILE_DIR
                                                      + File.separator + COMPOSITE_TEST_FILE_NAME);
         Assert.assertTrue(resources.length == 1);
-    }
-
-    @Test
-    public void cleanup() {
-    }
-
-    class MockTraceAppender implements TraceAppender {
-
-        @Override
-        public void flush() throws IOException {
-
-        }
-
-        @Override
-        public void append(String log) throws IOException {
-
-        }
-
-        @Override
-        public void cleanup() {
-
-        }
     }
 }

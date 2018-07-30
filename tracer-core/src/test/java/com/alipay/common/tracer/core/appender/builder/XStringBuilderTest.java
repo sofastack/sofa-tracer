@@ -57,7 +57,7 @@ public class XStringBuilderTest {
         xStringBuilder.append(1);
         xStringBuilder.append(',');
         xStringBuilder.append(map);
-        //append之后换行
+        //after append start with newline
         xStringBuilder.appendEnd(1);
         xStringBuilder.appendEnd(',');
         xStringBuilder.appendEnd(1l);

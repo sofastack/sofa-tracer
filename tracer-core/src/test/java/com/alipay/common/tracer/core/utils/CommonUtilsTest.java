@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @description: [描述文本]
+ * @description: test unit for CommonUtils
  * @email: <a href="guolei.sgl@antfin.com"></a>
  * @author: guolei.sgl
  * @date: 18/7/25

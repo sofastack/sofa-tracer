@@ -29,7 +29,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * @description: [描述文本]
+ * @description: [test unit for StringConsumerExceptionHandler]
  * @email: <a href="guolei.sgl@antfin.com"></a>
  * @author: guolei.sgl
  * @date: 18/7/27

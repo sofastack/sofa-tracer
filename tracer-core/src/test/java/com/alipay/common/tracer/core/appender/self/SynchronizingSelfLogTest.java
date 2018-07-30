@@ -19,33 +19,19 @@ package com.alipay.common.tracer.core.appender.self;
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
 import static org.junit.Assert.assertTrue;
 
 /**
- * @description: [描述文本]
+ * @description: [test unit for SynchronizingSelfLog]
  * @email: <a href="guolei.sgl@antfin.com"></a>
  * @author: guolei.sgl
  * @date: 18/7/26
  */
 public class SynchronizingSelfLogTest extends AbstractTestBase {
-
-    @Before
-    public void before() {
-
-    }
-
-    @After
-    public void after() {
-
-    }
 
     @Test
     public void error() throws IOException {
