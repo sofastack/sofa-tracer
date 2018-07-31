@@ -41,7 +41,7 @@ public class TracerScheduleExecutorServiceTest {
     }
 
     @Test
-    public void schedule() throws InterruptedException, ExecutionException {
+    public void scheduleRunnable() throws InterruptedException, ExecutionException {
         Runnable runnable = mock(Runnable.class);
         ScheduledFuture<?> schedule = tracerScheduleExecutorService.schedule(runnable, 1000,
             TIME_UNIT);
@@ -50,7 +50,7 @@ public class TracerScheduleExecutorServiceTest {
     }
 
     @Test
-    public void schedule1() throws InterruptedException, ExecutionException {
+    public void scheduleCallable() throws InterruptedException, ExecutionException {
         final Object testObj = new Object();
         Callable callable = new Callable() {
             @Override

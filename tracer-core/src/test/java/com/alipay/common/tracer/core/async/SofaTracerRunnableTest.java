@@ -21,7 +21,6 @@ import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -30,54 +29,53 @@ import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Mockito.*;
 
 /**
- * @description: [test for SofaTracerRunnable]
- * @email: <a href="guolei.sgl@antfin.com"></a>
- * @author: guolei.sgl
- * @date: 18/7/30
+ * @author luoguimu123
+ * @version $Id: SofaTracerRunnableTest.java, v 0.1 2017年06月22日 下午3:53 luoguimu123 Exp $
  */
 public class SofaTracerRunnableTest {
-
-    SofaTraceContext sofaTraceContext;
-    SofaTracerSpan   sofaTracerSpan;
-    Runnable         wrappedRunnable;
+    SofaTraceContext traceContext;
+    SofaTracerSpan   span;
 
     @Before
     public void setUp() {
-        sofaTracerSpan = Mockito.mock(SofaTracerSpan.class);
-        sofaTraceContext = Mockito.mock(SofaTraceContext.class);
-        wrappedRunnable = Mockito.mock(Runnable.class);
-        when(sofaTraceContext.getCurrentSpan()).thenReturn(sofaTracerSpan);
-        when(sofaTraceContext.pop()).thenReturn(sofaTracerSpan);
-        when(sofaTraceContext.isEmpty()).thenReturn(false);
+        span = mock(SofaTracerSpan.class);
+        traceContext = mock(SofaTraceContext.class);
+        when(traceContext.getCurrentSpan()).thenReturn(span);
+        when(traceContext.pop()).thenReturn(span);
+        when(traceContext.isEmpty()).thenReturn(false);
     }
 
     @Test
     public void testIntrumentedRunnable() {
-        Runnable wrappedRunnable = Mockito.mock(Runnable.class);
-        SofaTracerRunnable runnable = new SofaTracerRunnable(wrappedRunnable, sofaTraceContext);
+        Runnable wrappedRunnable = mock(Runnable.class);
+        SofaTracerRunnable runnable = new SofaTracerRunnable(wrappedRunnable, traceContext);
+
         runnable.run();
-        verify(sofaTraceContext, times(1)).getCurrentSpan();
-        verify(sofaTraceContext, times(1)).isEmpty();
+
+        verify(traceContext, times(1)).getCurrentSpan();
+        verify(traceContext, times(1)).isEmpty();
         verify(wrappedRunnable, times(1)).run();
-        verifyNoMoreInteractions(sofaTraceContext, wrappedRunnable);
+        verifyNoMoreInteractions(traceContext, wrappedRunnable);
     }
 
     @Test
     public void testIntrumentedRunnableNoCurrentSpan() {
-        when(sofaTraceContext.isEmpty()).thenReturn(true);
+        when(traceContext.isEmpty()).thenReturn(true);
 
-        Runnable wrappedRunnable = Mockito.mock(Runnable.class);
-        SofaTracerRunnable runnable = new SofaTracerRunnable(wrappedRunnable, sofaTraceContext);
+        Runnable wrappedRunnable = mock(Runnable.class);
+        SofaTracerRunnable runnable = new SofaTracerRunnable(wrappedRunnable, traceContext);
+
         runnable.run();
-        verify(sofaTraceContext, times(1)).isEmpty();
+
+        verify(traceContext, times(1)).isEmpty();
         verify(wrappedRunnable, times(1)).run();
-        verifyNoMoreInteractions(sofaTraceContext, wrappedRunnable);
+        verifyNoMoreInteractions(traceContext, wrappedRunnable);
     }
 
     @Test
     public void sofaTracerRunnableSamples() throws InterruptedException {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        SofaTracerSpan sofaTracerSpan = Mockito.mock((SofaTracerSpan.class));
+        SofaTracerSpan sofaTracerSpan = mock((SofaTracerSpan.class));
         sofaTraceContext.push(sofaTracerSpan);
         RunnableTread runnableTread = new RunnableTread();
         SofaTracerRunnable sofaTracerRunnable = new SofaTracerRunnable(runnableTread,
@@ -99,8 +97,9 @@ public class SofaTracerRunnableTest {
 
     @Test
     public void samples() throws Exception {
+
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        SofaTracerSpan sofaTracerSpan = Mockito.mock((SofaTracerSpan.class));
+        SofaTracerSpan sofaTracerSpan = mock((SofaTracerSpan.class));
         sofaTraceContext.push(sofaTracerSpan);
         Thread thread = new Thread(new SofaTracerRunnable(new Runnable() {
             @Override
@@ -138,5 +137,4 @@ public class SofaTracerRunnableTest {
             return threadName;
         }
     }
-
 }

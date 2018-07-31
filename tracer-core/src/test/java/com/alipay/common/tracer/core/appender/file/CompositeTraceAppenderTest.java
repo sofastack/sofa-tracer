@@ -18,8 +18,6 @@ package com.alipay.common.tracer.core.appender.file;
 
 import com.alipay.common.tracer.core.appender.TraceAppender;
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
-import mockit.Mocked;
-import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,29 +40,37 @@ public class CompositeTraceAppenderTest {
     private PathMatchingResourcePatternResolver resolver                 = new PathMatchingResourcePatternResolver();
 
     CompositeTraceAppender                      compositeTraceAppender;
+    TraceAppender                               mockTracerAppender;
 
     @Before
     public void init() throws IOException {
         timedRollingFileAppender = new TimedRollingFileAppender(COMPOSITE_TEST_FILE_NAME,
             AbstractRollingFileAppender.DEFAULT_BUFFER_SIZE, true, "'.'yyyy-MM-dd.HH:mm:ss");
         compositeTraceAppender = new CompositeTraceAppender();
-        TraceAppender mockTracerAppender = Mockito.mock(TraceAppender.class);
+        mockTracerAppender = Mockito.mock(TraceAppender.class);
         compositeTraceAppender.putAppender("timedRollingFileAppender", timedRollingFileAppender);
         compositeTraceAppender.putAppender("mockTracerAppender", mockTracerAppender);
     }
 
     @Test
     public void getAppender() {
-        TraceAppender timedRollingFileAppender = compositeTraceAppender
+        TraceAppender compositeTimedRollingFileAppender = compositeTraceAppender
             .getAppender("timedRollingFileAppender");
-        TraceAppender mockTracerAppender = compositeTraceAppender.getAppender("mockTracerAppender");
-        Assert.assertEquals(timedRollingFileAppender.hashCode(),
+        TraceAppender compositeMockTracerAppender = compositeTraceAppender
+            .getAppender("mockTracerAppender");
+        Assert.assertEquals(compositeTimedRollingFileAppender.hashCode(),
             timedRollingFileAppender.hashCode());
-        Assert.assertEquals(mockTracerAppender.hashCode(), mockTracerAppender.hashCode());
+        Assert.assertEquals(compositeMockTracerAppender.hashCode(), mockTracerAppender.hashCode());
     }
 
     @Test
     public void append() throws IOException {
+        //ensure current log resource is created by this appender
+        File file = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator
+                             + COMPOSITE_TEST_FILE_NAME);
+        if (file.exists() && file.isFile()) {
+            file.delete();
+        }
         compositeTraceAppender.cleanup();
         compositeTraceAppender.append("test compositeTraceAppender");
         compositeTraceAppender.flush();

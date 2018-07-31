@@ -19,6 +19,7 @@ package com.alipay.common.tracer.core.async;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import java.lang.Runnable;
 
 /**
  * Runnable that passes Span between threads. The Span name is
@@ -26,22 +27,22 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
  * @author luoguimu123
  * @version $Id: Runnable.java, v 0.1 2017年06月19日 下午5:54 luoguimu123 Exp $
  */
-public class SofaTracerRunnable implements java.lang.Runnable {
+public class SofaTracerRunnable implements Runnable {
 
-    private long               tid = Thread.currentThread().getId();
-    private java.lang.Runnable wrappedRunnable;
-    private SofaTraceContext   traceContext;
-    private SofaTracerSpan     currentSpan;
+    private long             tid = Thread.currentThread().getId();
+    private Runnable         wrappedRunnable;
+    private SofaTraceContext traceContext;
+    private SofaTracerSpan   currentSpan;
 
-    public SofaTracerRunnable(java.lang.Runnable wrappedRunnable) {
+    public SofaTracerRunnable(Runnable wrappedRunnable) {
         this.initRunnable(wrappedRunnable, SofaTraceContextHolder.getSofaTraceContext());
     }
 
-    public SofaTracerRunnable(java.lang.Runnable wrappedRunnable, SofaTraceContext traceContext) {
+    public SofaTracerRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
         this.initRunnable(wrappedRunnable, traceContext);
     }
 
-    private void initRunnable(java.lang.Runnable wrappedRunnable, SofaTraceContext traceContext) {
+    private void initRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
         this.wrappedRunnable = wrappedRunnable;
         this.traceContext = traceContext;
         if (!traceContext.isEmpty()) {

@@ -32,10 +32,9 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
- * @description: [test for TracedExecutorService]
- * @email: <a href="guolei.sgl@antfin.com"></a>
- * @author: guolei.sgl
- * @date: 18/7/30
+ *
+ * @author luoguimu123
+ * @version $Id: TracedExecutorServiceTest.java, v 0.1 2017年06月22日 下午3:59 luoguimu123 Exp $
  */
 public class TracedExecutorServiceTest {
     private static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;
@@ -56,8 +55,8 @@ public class TracedExecutorServiceTest {
         tracedExecutorService = new TracedExecutorService(wrappedExecutorService, traceContext);
 
         callableList = new ArrayList<Callable<Span>>();
-        callableList.add(mock(java.util.concurrent.Callable.class));
-        callableList.add(mock(java.util.concurrent.Callable.class));
+        callableList.add(mock(Callable.class));
+        callableList.add(mock(Callable.class));
     }
 
     @Test
@@ -69,7 +68,7 @@ public class TracedExecutorServiceTest {
 
     @Test
     public void testShutdownNow() {
-        List<java.lang.Runnable> expectedRunnableList = new ArrayList<java.lang.Runnable>();
+        List<Runnable> expectedRunnableList = new ArrayList<Runnable>();
         when(wrappedExecutorService.shutdownNow()).thenReturn(expectedRunnableList);
         assertSame(expectedRunnableList, tracedExecutorService.shutdownNow());
         verify(wrappedExecutorService).shutdownNow();
@@ -102,7 +101,7 @@ public class TracedExecutorServiceTest {
 
     @Test
     public void testSubmitCallableOfT() {
-        java.util.concurrent.Callable<Span> wrappedCallable = mock(java.util.concurrent.Callable.class);
+        Callable<Span> wrappedCallable = mock(Callable.class);
 
         tracedExecutorService.submit(wrappedCallable);
 
@@ -114,7 +113,7 @@ public class TracedExecutorServiceTest {
 
     @Test
     public void testSubmitRunnable() {
-        java.lang.Runnable wrappedRunnable = mock(java.lang.Runnable.class);
+        Runnable wrappedRunnable = mock(Runnable.class);
 
         tracedExecutorService.submit(wrappedRunnable);
 
@@ -146,7 +145,7 @@ public class TracedExecutorServiceTest {
 
     @Test
     public void testExecute() {
-        java.lang.Runnable wrappedRunnable = mock(java.lang.Runnable.class);
+        Runnable wrappedRunnable = mock(Runnable.class);
 
         tracedExecutorService.execute(wrappedRunnable);
 

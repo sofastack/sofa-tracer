@@ -38,7 +38,7 @@ public class XStringBuilderTest {
      * 测试_appendEndMap_逗号被转义
      */
     @Test
-    public void appendEndMapransferredMeaning() {
+    public void appendEndMapTransferredMeaning() {
         Map<String, String> map = new HashMap<String, String>();
         map.put("test", "test" + XStringBuilder.DEFAULT_SEPARATOR);
         String converted = new XStringBuilder().appendEnd(map).toString();
@@ -47,7 +47,7 @@ public class XStringBuilderTest {
     }
 
     @Test
-    public void test_XStringBuilder() {
+    public void testXStringBuilderAppender() {
         XStringBuilder xStringBuilder = new XStringBuilder(128);
         xStringBuilder.append(1l, ",");
         xStringBuilder.append(1l, ',');

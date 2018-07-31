@@ -23,54 +23,51 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 /**
- * @description: [test for SofaTracerCallable]
- * @email: <a href="guolei.sgl@antfin.com"></a>
- * @author: guolei.sgl
- * @date: 18/7/30
+ *
+ * @author luoguimu123
+ * @version $Id: SofaTracerCallableTest.java, v 0.1 2017年06月22日 下午3:38 luoguimu123 Exp $
  */
 public class SofaTracerCallableTest {
-
-    SofaTraceContext   sofaTraceContext;
-    SofaTracerSpan     sofaTracerSpan;
-    SofaTracerCallable sofaTracerCallable;
+    SofaTraceContext traceContext;
+    SofaTracerSpan   span;
 
     @Before
     public void setUp() {
-        sofaTracerSpan = Mockito.mock(SofaTracerSpan.class);
-        sofaTraceContext = Mockito.mock(SofaTraceContext.class);
-        sofaTracerCallable = Mockito.mock(SofaTracerCallable.class);
-        when(sofaTraceContext.getCurrentSpan()).thenReturn(sofaTracerSpan);
-        when(sofaTraceContext.pop()).thenReturn(sofaTracerSpan);
-        when(sofaTraceContext.isEmpty()).thenReturn(false);
-
+        span = Mockito.mock(SofaTracerSpan.class);
+        traceContext = Mockito.mock(SofaTraceContext.class);
+        Mockito.when(traceContext.getCurrentSpan()).thenReturn(span);
+        Mockito.when(traceContext.pop()).thenReturn(span);
+        Mockito.when(traceContext.isEmpty()).thenReturn(false);
     }
 
     @Test
     public void testInstrumentedCallable() throws Exception {
-        when(sofaTracerCallable.call()).thenReturn(sofaTracerSpan);
+        SofaTracerCallable wrappedCallable = Mockito.mock(SofaTracerCallable.class);
+        Mockito.when(wrappedCallable.call()).thenReturn(span);
+
         SofaTracerCallable<Span> spanSofaTracerCallable = new SofaTracerCallable<Span>(
-            sofaTracerCallable, sofaTraceContext);
+            wrappedCallable, traceContext);
         spanSofaTracerCallable.call();
-        verify(sofaTraceContext, times(1)).isEmpty();
-        verify(sofaTraceContext, times(1)).getCurrentSpan();
-        verify(sofaTracerCallable, times(1)).call();
-        verifyNoMoreInteractions(sofaTraceContext, sofaTracerCallable);
+        Mockito.verify(traceContext, Mockito.times(1)).isEmpty();
+        Mockito.verify(traceContext, Mockito.times(1)).getCurrentSpan();
+
+        Mockito.verify(wrappedCallable, Mockito.times(1)).call();
+        Mockito.verifyNoMoreInteractions(traceContext, wrappedCallable);
     }
 
     @Test
     public void testInstrumentedCallableNoCurrentSpan() throws Exception {
+        SofaTracerCallable wrappedCallable = Mockito.mock(SofaTracerCallable.class);
+        Mockito.when(wrappedCallable.call()).thenReturn(span);
+        Mockito.when(traceContext.isEmpty()).thenReturn(true);
 
-        when(sofaTracerCallable.call()).thenReturn(sofaTracerSpan);
-        when(sofaTraceContext.isEmpty()).thenReturn(true);
         SofaTracerCallable<Span> spanSofaTracerCallable = new SofaTracerCallable<Span>(
-            sofaTracerCallable, sofaTraceContext);
+            wrappedCallable, traceContext);
         spanSofaTracerCallable.call();
-        verify(sofaTraceContext, times(1)).isEmpty();
-        verify(sofaTracerCallable, times(1)).call();
-        verifyNoMoreInteractions(sofaTraceContext, sofaTracerCallable);
+        Mockito.verify(traceContext, Mockito.times(1)).isEmpty();
+        Mockito.verify(wrappedCallable, Mockito.times(1)).call();
+        Mockito.verifyNoMoreInteractions(traceContext, wrappedCallable);
     }
+
 }

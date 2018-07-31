@@ -53,8 +53,10 @@ public class StringConsumerExceptionHandlerTest extends AbstractTestBase {
         File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
-        assertTrue(logs.toString(),
-            logs.get(0).contains("AsyncConsumer occurs exception during handle StringEvent"));
+        assertTrue(
+            logs.toString(),
+            logs.get(0).contains(
+                "AsyncConsumer occurs exception during handle StringEvent, The string is null"));
         FileUtils.writeStringToFile(log, "");
     }
 

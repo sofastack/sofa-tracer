@@ -18,7 +18,6 @@ package com.alipay.common.tracer.core.appender.manager;
 
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
-import com.alipay.common.tracer.core.appender.self.SynchronizingSelfLog;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
 import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
 import com.alipay.common.tracer.core.reporter.facade.Reporter;
