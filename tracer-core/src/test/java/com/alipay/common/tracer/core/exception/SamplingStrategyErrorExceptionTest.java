@@ -16,7 +16,8 @@
  */
 package com.alipay.common.tracer.core.exception;
 
-import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.common.tracer.core.samplers.SamplerProperties;
+import com.alipay.common.tracer.core.samplers.SofaTracerPercentageBasedSampler;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,36 +29,40 @@ import org.junit.Test;
  */
 public class SamplingStrategyErrorExceptionTest {
 
-    private String exceptionCondition = null;
-
     @Test
     public void test_SamplingStrategyErrorException() {
 
         try {
-            test_throw_1();
+            build_SamplingStrategyErrorException_with_throwable();
         } catch (SamplingStrategyErrorException e) {
-            Assert.assertEquals("samplingStrategy is null", e.getMessage());
+            Assert.assertEquals("sampler init failed;", e.getMessage());
         }
 
         try {
-            test_throw_2();
+            build_SamplingStrategyErrorException();
         } catch (SamplingStrategyErrorException e) {
-            Assert.assertEquals("samplingStrategy is null", e.getMessage());
-            Assert.assertEquals("samplingStrategy with throwable", e.getCause().getMessage());
-        }
-
-    }
-
-    private void test_throw_1() throws SamplingStrategyErrorException {
-        if (StringUtils.isBlank(exceptionCondition)) {
-            throw new SamplingStrategyErrorException("samplingStrategy is null");
+            Assert.assertEquals("SamplerProperties is null", e.getMessage());
         }
     }
 
-    private void test_throw_2() throws SamplingStrategyErrorException {
-        if (StringUtils.isBlank(exceptionCondition)) {
-            throw new SamplingStrategyErrorException("samplingStrategy is null", new Throwable(
-                "samplingStrategy with throwable"));
+    private void build_SamplingStrategyErrorException_with_throwable() {
+        try {
+            SamplerProperties configuration = new SamplerProperties();
+            configuration.setPercentage(-1);
+            //init failed
+            new SofaTracerPercentageBasedSampler(configuration);
+        } catch (Throwable e) {
+            throw new SamplingStrategyErrorException("sampler init failed;", e);
+        }
+    }
+
+    private void build_SamplingStrategyErrorException() throws SamplingStrategyErrorException {
+        try {
+            SamplerProperties configuration = null;
+            //init failed
+            new SofaTracerPercentageBasedSampler(configuration);
+        } catch (Throwable e) {
+            throw new SamplingStrategyErrorException("SamplerProperties is null");
         }
     }
 

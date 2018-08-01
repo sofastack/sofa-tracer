@@ -16,9 +16,21 @@
  */
 package com.alipay.common.tracer.core.exception;
 
-import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
+import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
+import com.alipay.common.tracer.core.tracertest.encoder.ServerSpanEncoder;
+import com.alipay.common.tracer.core.tracertest.type.TracerTestLogEnum;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMap;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @description: [test for SofaTracerRuntimeExceptionTest]
@@ -28,35 +40,72 @@ import org.junit.Test;
  */
 public class SofaTracerRuntimeExceptionTest {
 
-    private String exceptionCondition = "";
+    SofaTracer           sofaTracer;
+    private final String tracerType           = "TracerTestService";
+    private final String tracerGlobalTagKey   = "tracerkey";
+    private final String tracerGlobalTagValue = "tracervalue";
+
+    @Before
+    public void init() {
+        //client
+        DiskReporterImpl clientReporter = new DiskReporterImpl(
+            TracerTestLogEnum.RPC_CLIENT.getDefaultLogName(), new ClientSpanEncoder());
+        //server
+        DiskReporterImpl serverReporter = new DiskReporterImpl(
+            TracerTestLogEnum.RPC_SERVER.getDefaultLogName(), new ServerSpanEncoder());
+        sofaTracer = new SofaTracer.Builder(tracerType).withTag("tracer", "tracertest")
+            .withClientReporter(clientReporter).withServerReporter(serverReporter)
+            .withTag(tracerGlobalTagKey, tracerGlobalTagValue).build();
+    }
 
     @Test
     public void test_SofaTracerRuntimeException() {
         try {
-            test_throw_1();
+            build_SofaTracerRuntimeException_npe();
         } catch (SofaTracerRuntimeException e) {
-            //test toString ;same as e.getMessage()
-            Assert.assertEquals("SofaTracerRuntimeException with message", e.toString());
+            Assert.assertEquals("NullPointException occurs;", e.toString());
         }
 
         try {
-            test_throw_2();
+            build_SofaTracerRuntimeException();
         } catch (SofaTracerRuntimeException e) {
-            Assert.assertEquals("SofaTracerRuntimeException with message", e.getMessage());
-            Assert.assertEquals("with throwable", e.getCause().getMessage());
+            Assert.assertTrue(e.getMessage().contains("Unsupported extractor format:"));
         }
     }
 
-    private void test_throw_1() throws SofaTracerRuntimeException {
-        if (StringUtils.isBlank(exceptionCondition)) {
-            throw new SofaTracerRuntimeException("SofaTracerRuntimeException with message");
+    private void build_SofaTracerRuntimeException_npe() throws SofaTracerRuntimeException {
+        try {
+            sofaTracer.inject(null, null, null);
+        } catch (Exception e) {
+            throw new SofaTracerRuntimeException("NullPointException occurs;");
         }
     }
 
-    private void test_throw_2() throws SofaTracerRuntimeException {
-        if (StringUtils.isBlank(exceptionCondition)) {
-            throw new SofaTracerRuntimeException("SofaTracerRuntimeException with message",
-                new Throwable("with throwable"));
+    private void build_SofaTracerRuntimeException() throws SofaTracerRuntimeException {
+        try {
+            HashMap<String, String> headers = new HashMap<String, String>();
+            Format format = Mockito.mock(Format.class);
+            sofaTracer.extract(format, new TestCarry(headers));
+        } catch (Exception e) {
+            throw new SofaTracerRuntimeException(e.getMessage());
+        }
+    }
+
+    private static class TestCarry implements TextMap {
+        private HashMap<String, String> headers;
+
+        public TestCarry(HashMap<String, String> headers) {
+            this.headers = headers;
+        }
+
+        @Override
+        public void put(String key, String value) {
+            headers.put(key, value);
+        }
+
+        @Override
+        public Iterator<Map.Entry<String, String>> iterator() {
+            return headers.entrySet().iterator();
         }
     }
 

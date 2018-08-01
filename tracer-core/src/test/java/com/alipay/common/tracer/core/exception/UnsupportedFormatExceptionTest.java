@@ -16,11 +16,12 @@
  */
 package com.alipay.common.tracer.core.exception;
 
-import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.common.tracer.core.registry.ExtendFormat;
 import io.opentracing.propagation.Format;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 /**
  * @description: [test for UnsupportedFormatException]
@@ -31,24 +32,23 @@ import org.junit.Test;
 public class UnsupportedFormatExceptionTest {
 
     private Format<?> format;
-    private String    exceptionCondition = null;
 
     @Before
     public void init() {
-        format = Format.Builtin.TEXT_MAP;
+        format = Mockito.mock(Format.class);
     }
 
     @Test
     public void test_UnsupportedFormatException() {
         try {
-            test_throw();
+            build_UnsupportedFormatException();
         } catch (UnsupportedFormatException e) {
-            Assert.assertEquals("Builtin.TEXT_MAP", e.getMessage());
+            Assert.assertTrue(e.getMessage().contains("Mock for Format"));
         }
     }
 
-    private void test_throw() throws UnsupportedFormatException {
-        if (StringUtils.isBlank(exceptionCondition)) {
+    private void build_UnsupportedFormatException() {
+        if (!(format instanceof ExtendFormat)) {
             throw new UnsupportedFormatException(format);
         }
     }

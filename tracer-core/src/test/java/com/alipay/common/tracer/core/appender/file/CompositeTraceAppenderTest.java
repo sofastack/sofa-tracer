@@ -18,6 +18,7 @@ package com.alipay.common.tracer.core.appender.file;
 
 import com.alipay.common.tracer.core.appender.TraceAppender;
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,17 +66,13 @@ public class CompositeTraceAppenderTest {
 
     @Test
     public void append() throws IOException {
-        //ensure current log resource is created by this appender
-        File file = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator
-                             + COMPOSITE_TEST_FILE_NAME);
-        if (file.exists() && file.isFile()) {
-            file.delete();
-        }
         compositeTraceAppender.cleanup();
         compositeTraceAppender.append("test compositeTraceAppender");
         compositeTraceAppender.flush();
         Resource[] resources = resolver.getResources("file:" + TracerLogRootDaemon.LOG_FILE_DIR
                                                      + File.separator + COMPOSITE_TEST_FILE_NAME);
         Assert.assertTrue(resources.length == 1);
+        String logText = FileUtils.readFileToString(resources[0].getFile());
+        Assert.assertTrue(logText.equals("test compositeTraceAppender"));
     }
 }
