@@ -99,9 +99,8 @@ public class TracerScheduleExecutorServiceTest {
         Field field = sofaTracerRunnable.getClass().getDeclaredField("traceContext");
         field.setAccessible(true);
         SofaTraceContext resultSofaTraceContext = (SofaTraceContext) field.get(sofaTracerRunnable);
-        //currentSpan has been pop ;  currentSpan should be null
         SofaTracerSpan currentSpan = resultSofaTraceContext.getCurrentSpan();
-        Assert.assertTrue(currentSpan == null);
+        Assert.assertTrue(currentSpan.getOperationName().equals("SofaTracerSpanTest"));
     }
 
     @Test
