@@ -16,7 +16,6 @@
  */
 package com.alipay.common.tracer.core.samplers;
 
-import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,7 +33,7 @@ public class SofaTracerPercentageBasedSamplerTest {
     SofaTracerPercentageBasedSampler sofaTracerPercentageBasedSampler;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         samplerProperties = new SamplerProperties();
         sofaTracerPercentageBasedSampler = new SofaTracerPercentageBasedSampler(samplerProperties);
     }
@@ -46,15 +45,6 @@ public class SofaTracerPercentageBasedSamplerTest {
 
     @Test
     public void sample() {
-
-        SamplingStatus sampleStatus = sofaTracerPercentageBasedSampler.sample("", "");
-        Assert.assertTrue(!sampleStatus.isSampled());
-        Object percentage = sampleStatus.getTags().get(SofaTracerConstant.SAMPLER_PARAM_TAG_KEY);
-        if (percentage instanceof Float) {
-            float percentageVal = (Float) percentage;
-            Assert.assertTrue(percentageVal == 0.1f);
-        }
-
         samplerProperties.setPercentage(0);
         SamplingStatus sampleStatusFalse = sofaTracerPercentageBasedSampler.sample("", "");
         Assert.assertTrue(!sampleStatusFalse.isSampled());
