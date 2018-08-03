@@ -25,14 +25,14 @@ import java.io.File;
 import java.nio.charset.Charset;
 
 /**
- * TracerLogRootDeamon
+ * TracerLogRootDaemon
  *
  * 不从配置项目获取,直接从系统属性获取
  *
  * @author yangguanchao
  * @since 2017/06/25
  */
-public class TracerLogRootDeamon {
+public class TracerLogRootDaemon {
 
     /***
      * 是否添加 pid 到 log path

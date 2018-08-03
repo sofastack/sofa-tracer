@@ -17,7 +17,7 @@
 package com.alipay.common.tracer.core.appender.manager;
 
 import com.alipay.common.tracer.core.appender.TraceAppender;
-import com.alipay.common.tracer.core.appender.TracerLogRootDeamon;
+import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.appender.self.SynchronizingSelfLog;
@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @version $Id: ConcurrentDiscardTest.java, v 0.1 2017年10月23日 下午8:22 liangen Exp $
  */
 public class ConcurrentDiscardTest {
-    static final String fileNameRoot    = TracerLogRootDeamon.LOG_FILE_DIR + File.separator;
+    static final String fileNameRoot    = TracerLogRootDaemon.LOG_FILE_DIR + File.separator;
     static final String fileName1       = "log1.log";
     static final String fileName2       = "log2.log";
     static final String fileName3       = "log3.log";
