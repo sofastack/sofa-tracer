@@ -16,7 +16,7 @@
  */
 package com.alipay.common.tracer.core.appender.self;
 
-import com.alipay.common.tracer.core.appender.TracerLogRootDeamon;
+import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.manager.AsyncCommonAppenderManager;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
 import org.apache.commons.io.FileUtils;
@@ -65,7 +65,7 @@ public class SelfLogTest extends AbstractTestBase {
         SelfLog.error("Error info", new RuntimeException("RunTimeException"));
         Thread.sleep(4000);
 
-        List<String> logs = FileUtils.readLines(new File(TracerLogRootDeamon.LOG_FILE_DIR
+        List<String> logs = FileUtils.readLines(new File(TracerLogRootDaemon.LOG_FILE_DIR
                                                          + File.separator + SelfLog.SELF_LOG_FILE));
         assertTrue(logs.size() > 0);
     }
@@ -77,7 +77,7 @@ public class SelfLogTest extends AbstractTestBase {
     public void testErrorWithTraceIdForLogE() throws Exception {
         SelfLog.errorWithTraceId("error Info ", "traceid");
         Thread.sleep(4000);
-        List<String> logs = FileUtils.readLines(new File(TracerLogRootDeamon.LOG_FILE_DIR
+        List<String> logs = FileUtils.readLines(new File(TracerLogRootDaemon.LOG_FILE_DIR
                                                          + File.separator + SelfLog.SELF_LOG_FILE));
         assertTrue(logs.toString(), logs.size() > 0);
     }
@@ -92,7 +92,7 @@ public class SelfLogTest extends AbstractTestBase {
 
         Thread.sleep(4000);
 
-        List<String> logs = FileUtils.readLines(new File(TracerLogRootDeamon.LOG_FILE_DIR
+        List<String> logs = FileUtils.readLines(new File(TracerLogRootDaemon.LOG_FILE_DIR
                                                          + File.separator + SelfLog.SELF_LOG_FILE));
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < logs.size(); i++) {
