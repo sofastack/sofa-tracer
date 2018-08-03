@@ -55,7 +55,7 @@ public class StringConsumerExceptionHandlerTest extends AbstractTestBase {
     }
 
     @Test
-    public void handleEventException_with_event_null() throws IOException {
+    public void handleEventExceptionWithEventNull() throws IOException {
         stringConsumerExceptionHandler.handleEventException(new Throwable(), 2, null);
         File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
         List<String> logs = FileUtils.readLines(log);
@@ -63,7 +63,7 @@ public class StringConsumerExceptionHandlerTest extends AbstractTestBase {
     }
 
     @Test
-    public void handleEventException_with_event_not_null() throws IOException {
+    public void handleEventExceptionWithEventNotNull() throws IOException {
         stringConsumerExceptionHandler.handleEventException(new Throwable(), 2, stringEvent);
         File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
         List<String> logs = FileUtils.readLines(log);

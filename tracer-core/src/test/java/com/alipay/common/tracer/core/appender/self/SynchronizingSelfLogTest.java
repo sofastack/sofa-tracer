@@ -19,6 +19,7 @@ package com.alipay.common.tracer.core.appender.self;
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +34,13 @@ import static org.junit.Assert.assertTrue;
  */
 public class SynchronizingSelfLogTest extends AbstractTestBase {
 
+    @After
+    public void clean() throws IOException {
+        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator
+                + SynchronizingSelfLog.SELF_LOG_FILE);
+        FileUtils.writeStringToFile(log, "");
+    }
+
     @Test
     public void error() throws IOException {
         SynchronizingSelfLog.error("test for SynchronizingSelfLog error situation");
@@ -43,7 +51,6 @@ public class SynchronizingSelfLogTest extends AbstractTestBase {
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
         assertTrue(logs.toString(),
             logs.get(0).contains("test for SynchronizingSelfLog error situation"));
-        FileUtils.writeStringToFile(log, "");
     }
 
     @Test
@@ -55,11 +62,10 @@ public class SynchronizingSelfLogTest extends AbstractTestBase {
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
         assertTrue(logs.toString(), logs.get(0).contains("[tracerId:1234567890]"));
-        FileUtils.writeStringToFile(log, "");
     }
 
     @Test
-    public void error1() throws IOException {
+    public void errorWithThrowable() throws IOException {
         SynchronizingSelfLog
             .error("test for SynchronizingSelfLog error situation", new Throwable());
         SynchronizingSelfLog.flush();
@@ -69,11 +75,10 @@ public class SynchronizingSelfLogTest extends AbstractTestBase {
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
         assertTrue(logs.toString(),
             logs.get(0).contains("test for SynchronizingSelfLog error situation"));
-        FileUtils.writeStringToFile(log, "");
     }
 
     @Test
-    public void errorWithTraceId1() throws IOException {
+    public void errorWithTraceIdWithDefaultTracerId() throws IOException {
         SynchronizingSelfLog.errorWithTraceId("test error with tracerId");
         SynchronizingSelfLog.flush();
         File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator
@@ -81,11 +86,10 @@ public class SynchronizingSelfLogTest extends AbstractTestBase {
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
         assertTrue(logs.toString(), logs.get(0).contains("test error with tracerId"));
-        FileUtils.writeStringToFile(log, "");
     }
 
     @Test
-    public void errorWithTraceId2() throws IOException {
+    public void errorWithTraceIdWithCustomTracerId() throws IOException {
         SynchronizingSelfLog.errorWithTraceId("test error with tracerId", new Throwable());
         SynchronizingSelfLog.flush();
         File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator
@@ -93,7 +97,6 @@ public class SynchronizingSelfLogTest extends AbstractTestBase {
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
         assertTrue(logs.toString(), logs.get(0).contains("test error with tracerId"));
-        FileUtils.writeStringToFile(log, "");
     }
 
     @Test
@@ -105,7 +108,6 @@ public class SynchronizingSelfLogTest extends AbstractTestBase {
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[WARN]"));
         assertTrue(logs.toString(), logs.get(0).contains("test warn"));
-        FileUtils.writeStringToFile(log, "");
     }
 
     @Test
@@ -117,7 +119,6 @@ public class SynchronizingSelfLogTest extends AbstractTestBase {
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[INFO]"));
         assertTrue(logs.toString(), logs.get(0).contains("test info"));
-        FileUtils.writeStringToFile(log, "");
     }
 
     @Test
@@ -129,7 +130,6 @@ public class SynchronizingSelfLogTest extends AbstractTestBase {
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[INFO]"));
         assertTrue(logs.toString(), logs.get(0).contains("test info with tracerId"));
-        FileUtils.writeStringToFile(log, "");
     }
 
 }
