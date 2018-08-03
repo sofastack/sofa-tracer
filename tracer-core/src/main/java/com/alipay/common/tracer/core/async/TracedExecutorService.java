@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
+import java.lang.Runnable;
 
 public class TracedExecutorService implements ExecutorService {
 
@@ -44,7 +45,7 @@ public class TracedExecutorService implements ExecutorService {
     }
 
     @Override
-    public List<java.lang.Runnable> shutdownNow() {
+    public List<Runnable> shutdownNow() {
         return delegate.shutdownNow();
     }
 
@@ -64,43 +65,43 @@ public class TracedExecutorService implements ExecutorService {
     }
 
     @Override
-    public <T> Future<T> submit(java.util.concurrent.Callable<T> task) {
+    public <T> Future<T> submit(Callable<T> task) {
         return delegate.submit(new SofaTracerCallable<T>(task, traceContext));
     }
 
     @Override
-    public <T> Future<T> submit(java.lang.Runnable task, T result) {
+    public <T> Future<T> submit(Runnable task, T result) {
         return delegate.submit(new SofaTracerRunnable(task, traceContext), result);
     }
 
     @Override
-    public Future<?> submit(java.lang.Runnable task) {
+    public Future<?> submit(Runnable task) {
         return delegate.submit(new SofaTracerRunnable(task, traceContext));
     }
 
     @Override
-    public <T> List<Future<T>> invokeAll(Collection<? extends java.util.concurrent.Callable<T>> tasks)
-                                                                                                      throws InterruptedException {
+    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
+                                                                                 throws InterruptedException {
         return delegate.invokeAll(wrapTracerCallableCollection(tasks));
     }
 
     @Override
-    public <T> List<Future<T>> invokeAll(Collection<? extends java.util.concurrent.Callable<T>> tasks,
-                                         long timeout, TimeUnit unit) throws InterruptedException {
+    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout,
+                                         TimeUnit unit) throws InterruptedException {
         return delegate.invokeAll(wrapTracerCallableCollection(tasks), timeout, unit);
     }
 
     @Override
-    public <T> T invokeAny(Collection<? extends java.util.concurrent.Callable<T>> tasks)
-                                                                                        throws InterruptedException,
-                                                                                        ExecutionException {
+    public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException,
+                                                                   ExecutionException {
         return delegate.invokeAny(wrapTracerCallableCollection(tasks));
     }
 
     @Override
-    public <T> T invokeAny(Collection<? extends java.util.concurrent.Callable<T>> tasks,
-                           long timeout, TimeUnit unit) throws InterruptedException,
-                                                       ExecutionException, TimeoutException {
+    public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+                                                                                                throws InterruptedException,
+                                                                                                ExecutionException,
+                                                                                                TimeoutException {
         return delegate.invokeAny(wrapTracerCallableCollection(tasks), timeout, unit);
     }
 
@@ -109,10 +110,10 @@ public class TracedExecutorService implements ExecutorService {
         delegate.execute(new SofaTracerRunnable(command, traceContext));
     }
 
-    private <T> Collection<? extends java.util.concurrent.Callable<T>> wrapTracerCallableCollection(Collection<? extends java.util.concurrent.Callable<T>> originalCollection) {
-        Collection<java.util.concurrent.Callable<T>> collection = new ArrayList<java.util.concurrent.Callable<T>>(
+    private <T> Collection<? extends Callable<T>> wrapTracerCallableCollection(Collection<? extends Callable<T>> originalCollection) {
+        Collection<Callable<T>> collection = new ArrayList<java.util.concurrent.Callable<T>>(
             originalCollection.size());
-        for (java.util.concurrent.Callable<T> c : originalCollection) {
+        for (Callable<T> c : originalCollection) {
             collection.add(new SofaTracerCallable<T>(c, traceContext));
         }
         return collection;

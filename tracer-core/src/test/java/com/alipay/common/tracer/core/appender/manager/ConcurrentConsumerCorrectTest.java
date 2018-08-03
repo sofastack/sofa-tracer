@@ -49,7 +49,7 @@ public class ConcurrentConsumerCorrectTest {
     static final String fileName5    = "log5.log";
 
     @Before
-    public void beore() throws Exception {
+    public void before() throws Exception {
 
         cleanDir();
     }

@@ -19,10 +19,7 @@ package com.alipay.common.tracer.core.registry;
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.utils.StringUtils;
-import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
-
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
