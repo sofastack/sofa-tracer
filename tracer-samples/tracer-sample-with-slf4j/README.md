@@ -40,6 +40,16 @@
 </dependency>
 ```
 
+最后，在工程的 `application.properties` 文件下添加一个 SOFATracer 要使用的参数，包括`spring.application.name` 用于标示当前应用的名称；`logging.path` 用于指定日志的输出目录。
+
+```
+# Application Name
+spring.application.name=SOFATracerSLF4JDemo
+
+# logging path
+logging.path=./logs
+```
+
 ## 配置 PatternLayout
 
 此示例工程使用的日志实现框架是 Logback，在日志配置文件 `logback-spring.xml` 中新增了一个 `appender` 即 `MDC-EXAMPLE-APPENDER`，之后配置 Logback 的 [PatternLayoutEncoder](https://logback.qos.ch/)：
