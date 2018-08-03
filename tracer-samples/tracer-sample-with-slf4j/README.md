@@ -10,7 +10,28 @@
 
 ## 引入 SOFATracer
 
-在工程中添加 SOFATracer 依赖：
+在创建好一个 Spring Boot 的工程之后，接下来就需要引入 SOFABoot 的依赖，首先，需要将上文中生成的 Spring Boot 工程的 `zip` 包解压后，修改 Maven 项目的配置文件 `pom.xml`，将
+
+```xml
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>${spring.boot.version}</version>
+    <relativePath/>
+</parent>
+```
+
+替换为：
+
+```xml
+<parent>
+    <groupId>com.alipay.sofa</groupId>
+    <artifactId>sofaboot-dependencies</artifactId>
+    <version>2.4.4</version>
+</parent>
+```
+
+然后，在工程中添加 SOFATracer 依赖：
 
 ```
 <dependency>
