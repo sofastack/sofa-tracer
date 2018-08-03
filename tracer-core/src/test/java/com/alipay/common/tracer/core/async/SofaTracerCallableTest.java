@@ -14,20 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.common.tracer.test;
+package com.alipay.common.tracer.core.async;
 
-import com.alipay.common.tracer.core.async.SofaTracerCallable;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import io.opentracing.Span;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import org.mockito.Mockito;
 
 /**
  *
@@ -40,40 +34,40 @@ public class SofaTracerCallableTest {
 
     @Before
     public void setUp() {
-        span = mock(SofaTracerSpan.class);
-        traceContext = mock(SofaTraceContext.class);
-        when(traceContext.getCurrentSpan()).thenReturn(span);
-        when(traceContext.pop()).thenReturn(span);
-        when(traceContext.isEmpty()).thenReturn(false);
+        span = Mockito.mock(SofaTracerSpan.class);
+        traceContext = Mockito.mock(SofaTraceContext.class);
+        Mockito.when(traceContext.getCurrentSpan()).thenReturn(span);
+        Mockito.when(traceContext.pop()).thenReturn(span);
+        Mockito.when(traceContext.isEmpty()).thenReturn(false);
     }
 
     @Test
     public void testInstrumentedCallable() throws Exception {
-        SofaTracerCallable wrappedCallable = mock(SofaTracerCallable.class);
-        when(wrappedCallable.call()).thenReturn(span);
+        SofaTracerCallable wrappedCallable = Mockito.mock(SofaTracerCallable.class);
+        Mockito.when(wrappedCallable.call()).thenReturn(span);
 
         SofaTracerCallable<Span> spanSofaTracerCallable = new SofaTracerCallable<Span>(
             wrappedCallable, traceContext);
         spanSofaTracerCallable.call();
-        verify(traceContext, times(1)).isEmpty();
-        verify(traceContext, times(1)).getCurrentSpan();
+        Mockito.verify(traceContext, Mockito.times(1)).isEmpty();
+        Mockito.verify(traceContext, Mockito.times(1)).getCurrentSpan();
 
-        verify(wrappedCallable, times(1)).call();
-        verifyNoMoreInteractions(traceContext, wrappedCallable);
+        Mockito.verify(wrappedCallable, Mockito.times(1)).call();
+        Mockito.verifyNoMoreInteractions(traceContext, wrappedCallable);
     }
 
     @Test
     public void testInstrumentedCallableNoCurrentSpan() throws Exception {
-        SofaTracerCallable wrappedCallable = mock(SofaTracerCallable.class);
-        when(wrappedCallable.call()).thenReturn(span);
-        when(traceContext.isEmpty()).thenReturn(true);
+        SofaTracerCallable wrappedCallable = Mockito.mock(SofaTracerCallable.class);
+        Mockito.when(wrappedCallable.call()).thenReturn(span);
+        Mockito.when(traceContext.isEmpty()).thenReturn(true);
 
         SofaTracerCallable<Span> spanSofaTracerCallable = new SofaTracerCallable<Span>(
             wrappedCallable, traceContext);
         spanSofaTracerCallable.call();
-        verify(traceContext, times(1)).isEmpty();
-        verify(wrappedCallable, times(1)).call();
-        verifyNoMoreInteractions(traceContext, wrappedCallable);
+        Mockito.verify(traceContext, Mockito.times(1)).isEmpty();
+        Mockito.verify(wrappedCallable, Mockito.times(1)).call();
+        Mockito.verifyNoMoreInteractions(traceContext, wrappedCallable);
     }
 
 }

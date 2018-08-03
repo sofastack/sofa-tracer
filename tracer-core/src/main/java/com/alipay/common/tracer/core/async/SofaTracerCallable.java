@@ -30,22 +30,20 @@ import java.util.concurrent.Callable;
  */
 public class SofaTracerCallable<T> implements Callable<T> {
 
-    private long                             tid = Thread.currentThread().getId();
-    private java.util.concurrent.Callable<T> wrappedCallable;
-    private SofaTraceContext                 traceContext;
-    private SofaTracerSpan                   currentSpan;
+    private long             tid = Thread.currentThread().getId();
+    private Callable<T>      wrappedCallable;
+    private SofaTraceContext traceContext;
+    private SofaTracerSpan   currentSpan;
 
-    public SofaTracerCallable(java.util.concurrent.Callable<T> wrappedCallable) {
+    public SofaTracerCallable(Callable<T> wrappedCallable) {
         this.initCallable(wrappedCallable, SofaTraceContextHolder.getSofaTraceContext());
     }
 
-    public SofaTracerCallable(java.util.concurrent.Callable<T> wrappedCallable,
-                              SofaTraceContext traceContext) {
+    public SofaTracerCallable(Callable<T> wrappedCallable, SofaTraceContext traceContext) {
         this.initCallable(wrappedCallable, traceContext);
     }
 
-    private void initCallable(java.util.concurrent.Callable<T> wrappedCallable,
-                              SofaTraceContext traceContext) {
+    private void initCallable(Callable<T> wrappedCallable, SofaTraceContext traceContext) {
         this.wrappedCallable = wrappedCallable;
         this.traceContext = traceContext;
         if (!traceContext.isEmpty()) {

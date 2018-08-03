@@ -43,7 +43,8 @@ public class CommonUtilsTest {
         for (int i = 0; i < 10000; i++) {
             traceIdOrig = TraceIdGenerator.generate();
             long[] ids = CommonUtils.hexToDualLong(traceIdOrig);
-            traceIdResult = String.format("%x%016x", ids[0], ids[1]);//.replaceFirst("^0+(?!$)", "");
+            // avoid hexadecimal high bit lost 0
+            traceIdResult = String.format("%014x%016x", ids[0], ids[1]);//.replaceFirst("^0+(?!$)", "");
             assertEquals(traceIdOrig, traceIdResult);
         }
     }
