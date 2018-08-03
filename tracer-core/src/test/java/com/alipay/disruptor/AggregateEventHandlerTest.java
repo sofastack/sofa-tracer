@@ -37,10 +37,8 @@ public class AggregateEventHandlerTest {
         final int[] event = { 7 };
         final long sequence = 3L;
         final boolean endOfBatch = true;
-
         final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>(
             eh1, eh2, eh3);
-
         aggregateEventHandler.onEvent(event, sequence, endOfBatch);
         assertLastEvent(event, sequence, eh1, eh2, eh3);
     }
@@ -49,9 +47,7 @@ public class AggregateEventHandlerTest {
     public void shouldCallOnStartInSequence() throws Exception {
         final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>(
             eh1, eh2, eh3);
-
         aggregateEventHandler.onStart();
-
         assertStartCalls(1, eh1, eh2, eh3);
     }
 
@@ -59,16 +55,13 @@ public class AggregateEventHandlerTest {
     public void shouldCallOnShutdownInSequence() throws Exception {
         final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>(
             eh1, eh2, eh3);
-
         aggregateEventHandler.onShutdown();
-
         assertShutoownCalls(1, eh1, eh2, eh3);
     }
 
     @Test
     public void shouldHandleEmptyListOfEventHandlers() throws Exception {
         final AggregateEventHandler<int[]> aggregateEventHandler = new AggregateEventHandler<int[]>();
-
         aggregateEventHandler.onEvent(new int[] { 7 }, 0L, true);
         aggregateEventHandler.onStart();
         aggregateEventHandler.onShutdown();

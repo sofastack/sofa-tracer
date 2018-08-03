@@ -59,21 +59,21 @@ public class SofaTracerRuntimeExceptionTest {
     }
 
     @Test
-    public void test_SofaTracerRuntimeException() {
+    public void testSofaTracerRuntimeException() {
         try {
-            build_SofaTracerRuntimeException_npe();
+            buildSofaTracerRuntimeExceptionNpe();
         } catch (SofaTracerRuntimeException e) {
             Assert.assertEquals("NullPointException occurs;", e.toString());
         }
 
         try {
-            build_SofaTracerRuntimeException();
+            buildSofaTracerRuntimeException();
         } catch (SofaTracerRuntimeException e) {
             Assert.assertTrue(e.getMessage().contains("Unsupported extractor format:"));
         }
     }
 
-    private void build_SofaTracerRuntimeException_npe() throws SofaTracerRuntimeException {
+    private void buildSofaTracerRuntimeExceptionNpe() throws SofaTracerRuntimeException {
         try {
             sofaTracer.inject(null, null, null);
         } catch (Exception e) {
@@ -81,7 +81,7 @@ public class SofaTracerRuntimeExceptionTest {
         }
     }
 
-    private void build_SofaTracerRuntimeException() throws SofaTracerRuntimeException {
+    private void buildSofaTracerRuntimeException() throws SofaTracerRuntimeException {
         try {
             HashMap<String, String> headers = new HashMap<String, String>();
             Format format = Mockito.mock(Format.class);
@@ -108,5 +108,4 @@ public class SofaTracerRuntimeExceptionTest {
             return headers.entrySet().iterator();
         }
     }
-
 }

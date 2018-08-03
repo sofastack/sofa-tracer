@@ -39,15 +39,15 @@ public class UnsupportedFormatExceptionTest {
     }
 
     @Test
-    public void test_UnsupportedFormatException() {
+    public void testUnsupportedFormatException() {
         try {
-            build_UnsupportedFormatException();
+            buildUnsupportedFormatException();
         } catch (UnsupportedFormatException e) {
             Assert.assertTrue(e.getMessage().contains("Mock for Format"));
         }
     }
 
-    private void build_UnsupportedFormatException() {
+    private void buildUnsupportedFormatException() {
         if (!(format instanceof ExtendFormat)) {
             throw new UnsupportedFormatException(format);
         }

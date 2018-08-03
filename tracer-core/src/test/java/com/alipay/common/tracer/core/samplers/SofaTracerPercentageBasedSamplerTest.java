@@ -52,7 +52,6 @@ public class SofaTracerPercentageBasedSamplerTest {
         samplerProperties.setPercentage(100);
         SamplingStatus sampleStatusTrue = sofaTracerPercentageBasedSampler.sample("", "");
         Assert.assertTrue(sampleStatusTrue.isSampled());
-
     }
 
     @Test

@@ -30,22 +30,21 @@ import org.junit.Test;
 public class SamplingStrategyErrorExceptionTest {
 
     @Test
-    public void test_SamplingStrategyErrorException() {
-
+    public void testSamplingStrategyErrorException() {
         try {
-            build_SamplingStrategyErrorException_with_throwable();
+            buildSamplingStrategyErrorExceptionWithThrowable();
         } catch (SamplingStrategyErrorException e) {
             Assert.assertEquals("sampler init failed;", e.getMessage());
         }
 
         try {
-            build_SamplingStrategyErrorException();
+            buildSamplingStrategyErrorException();
         } catch (SamplingStrategyErrorException e) {
             Assert.assertEquals("SamplerProperties is null", e.getMessage());
         }
     }
 
-    private void build_SamplingStrategyErrorException_with_throwable() {
+    private void buildSamplingStrategyErrorExceptionWithThrowable() {
         try {
             SamplerProperties configuration = new SamplerProperties();
             configuration.setPercentage(-1);
@@ -56,7 +55,7 @@ public class SamplingStrategyErrorExceptionTest {
         }
     }
 
-    private void build_SamplingStrategyErrorException() throws SamplingStrategyErrorException {
+    private void buildSamplingStrategyErrorException() throws SamplingStrategyErrorException {
         try {
             SamplerProperties configuration = null;
             //init failed
@@ -65,5 +64,4 @@ public class SamplingStrategyErrorExceptionTest {
             throw new SamplingStrategyErrorException("SamplerProperties is null");
         }
     }
-
 }
