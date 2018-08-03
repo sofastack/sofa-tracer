@@ -10,7 +10,28 @@
 
 ## 引入 SOFATracer
 
-在工程中添加 SOFATracer 依赖：
+在创建好一个 Spring Boot 的工程之后，接下来就需要引入 SOFABoot 的依赖，首先，需要将上文中生成的 Spring Boot 工程的 `zip` 包解压后，修改 Maven 项目的配置文件 `pom.xml`，将
+
+```xml
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>${spring.boot.version}</version>
+    <relativePath/>
+</parent>
+```
+
+替换为：
+
+```xml
+<parent>
+    <groupId>com.alipay.sofa</groupId>
+    <artifactId>sofaboot-dependencies</artifactId>
+    <version>2.4.4</version>
+</parent>
+```
+
+然后，在工程中添加 SOFATracer 依赖：
 
 ```
 <dependency>
@@ -18,6 +39,16 @@
     <artifactId>tracer-sofa-boot-starter</artifactId>
 </dependency>
 ```
+
+最后，在工程的 `application.properties` 文件下添加一个 SOFATracer 要使用的参数，包括`spring.application.name` 用于标示当前应用的名称；`logging.path` 用于指定日志的输出目录。
+
+```
+# Application Name
+spring.application.name=SOFATracerReportZipkin
+# logging path
+logging.path=./logs
+```
+
 ## 启动 Zipkin 服务端
 
 启动 Zipkin 服务端用于接收 SOFATracer 汇报的链路数据，并做展示。Zipkin Server 的搭建可以[参考此文档](https://zipkin.io/)进行配置和服务端的搭建。
@@ -41,7 +72,7 @@
 
 ## 启用 SOFATracer 汇报数据到 Zipkin
 
-配置 Zipkin Server 端的地址 `com.alipay.sofa.tracer.zipkin.baseUrl=http://${ip}:${port}`。
+在配置文件 `application.properties` 中，配置 Zipkin Server 端的地址 `com.alipay.sofa.tracer.zipkin.baseUrl=http://${ip}:${port}`。
 
 按照上文完成了依赖和 Zipkin Server 的配置后，即激活了远程上报的能力。本示例中已经搭建好的 Zipkin Server 端地址是 `http://zipkin-cloud-3.host.net:9411`。
 
