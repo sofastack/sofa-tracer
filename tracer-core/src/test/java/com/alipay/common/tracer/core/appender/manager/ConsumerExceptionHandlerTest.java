@@ -70,7 +70,7 @@ public class ConsumerExceptionHandlerTest extends AbstractTestBase {
     }
 
     @Test
-    public void handleEventException_with_event_null() throws IOException {
+    public void handleEventExceptionWithEventNull() throws IOException {
         consumerExceptionHandler.handleEventException(new Throwable(), 1, null);
         File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
         List<String> logs = FileUtils.readLines(log);
@@ -78,7 +78,7 @@ public class ConsumerExceptionHandlerTest extends AbstractTestBase {
     }
 
     @Test
-    public void handleEventException_with_event_not_null() throws IOException {
+    public void handleEventExceptionWithEventNotNull() throws IOException {
         sofaTracerSpanEvent.setSofaTracerSpan(sofaTracerSpan);
         consumerExceptionHandler.handleEventException(new Throwable(), 1, sofaTracerSpanEvent);
         File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
