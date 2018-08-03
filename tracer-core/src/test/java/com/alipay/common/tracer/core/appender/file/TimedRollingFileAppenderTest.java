@@ -16,7 +16,7 @@
  */
 package com.alipay.common.tracer.core.appender.file;
 
-import com.alipay.common.tracer.core.appender.TracerLogRootDeamon;
+import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import org.apache.commons.io.FileUtils;
@@ -52,7 +52,7 @@ public class TimedRollingFileAppenderTest extends AbstractTestBase {
         TimeUnit.SECONDS.sleep(1);
         timedRollingFileAppender.append(content);
         timedRollingFileAppender.flush();
-        Resource[] resources = resolver.getResources("file:" + TracerLogRootDeamon.LOG_FILE_DIR
+        Resource[] resources = resolver.getResources("file:" + TracerLogRootDaemon.LOG_FILE_DIR
                                                      + File.separator + ROLLING_TEST_FILE_NAME
                                                      + "*");
         Assert.assertTrue("文件的数量不正确，以 " + ROLLING_TEST_FILE_NAME + " 为开头的文件数量应该是 2 个",

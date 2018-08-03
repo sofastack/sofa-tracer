@@ -17,7 +17,7 @@
 package com.alipay.common.tracer.core.appender.info;
 
 import com.alipay.common.tracer.core.appender.TraceAppender;
-import com.alipay.common.tracer.core.appender.TracerLogRootDeamon;
+import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
 import com.alipay.common.tracer.core.utils.TracerUtils;
@@ -45,7 +45,7 @@ public class StaticInfoLogTest extends AbstractTestBase {
 
     @Before
     public void setup() {
-        File logDirectoryStaticInfoFile = new File(TracerLogRootDeamon.LOG_FILE_DIR
+        File logDirectoryStaticInfoFile = new File(TracerLogRootDaemon.LOG_FILE_DIR
                                                    + File.separator + "static-info.log");
         if (!logDirectoryStaticInfoFile.exists()) {
             return;
@@ -55,8 +55,8 @@ public class StaticInfoLogTest extends AbstractTestBase {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        assertTrue("LogRoot : " + TracerLogRootDeamon.LOG_FILE_DIR,
-            TracerLogRootDeamon.LOG_FILE_DIR.contains("tracelog"));
+        assertTrue("LogRoot : " + TracerLogRootDaemon.LOG_FILE_DIR,
+            TracerLogRootDaemon.LOG_FILE_DIR.contains("tracelog"));
     }
 
     @Test

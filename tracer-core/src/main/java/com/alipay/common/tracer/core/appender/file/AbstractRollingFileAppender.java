@@ -17,7 +17,7 @@
 package com.alipay.common.tracer.core.appender.file;
 
 import com.alipay.common.tracer.core.appender.TraceAppender;
-import com.alipay.common.tracer.core.appender.TracerLogRootDeamon;
+import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 
 import java.io.BufferedOutputStream;
@@ -63,7 +63,7 @@ public abstract class AbstractRollingFileAppender implements TraceAppender {
     }
 
     public AbstractRollingFileAppender(String file, int bufferSize, boolean append) {
-        this.fileName = TracerLogRootDeamon.LOG_FILE_DIR + File.separator + file;
+        this.fileName = TracerLogRootDaemon.LOG_FILE_DIR + File.separator + file;
         this.bufferSize = bufferSize;
         setFile(append);
     }
@@ -115,7 +115,7 @@ public abstract class AbstractRollingFileAppender implements TraceAppender {
                 }
             }
             // 无论有没有做 RollOver，都需要将输入往 bos 中写入
-            byte[] bytes = log.getBytes(TracerLogRootDeamon.DEFAULT_CHARSET);
+            byte[] bytes = log.getBytes(TracerLogRootDaemon.DEFAULT_CHARSET);
             write(bytes);
         }
     }
