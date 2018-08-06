@@ -71,11 +71,23 @@ public class SelfLogTest extends AbstractTestBase {
     }
 
     /**
-     * Method: errorWithTraceId(String log, Throwable e)
+     * out Method: errorWithTraceId(String log, Throwable e)
      */
     @Test
     public void testErrorWithTraceIdForLogE() throws Exception {
         SelfLog.errorWithTraceId("error Info ", "traceid");
+        Thread.sleep(4000);
+        List<String> logs = FileUtils.readLines(new File(TracerLogRootDaemon.LOG_FILE_DIR
+                                                         + File.separator + SelfLog.SELF_LOG_FILE));
+        assertTrue(logs.toString(), logs.size() > 0);
+    }
+
+    /**
+     * Method: errorWithTraceId(String log, Throwable e)
+     */
+    @Test
+    public void testErrorWithTraceIdForLogErrorThrowable() throws Exception {
+        SelfLog.errorWithTraceId("error Info ", new Throwable());
         Thread.sleep(4000);
         List<String> logs = FileUtils.readLines(new File(TracerLogRootDaemon.LOG_FILE_DIR
                                                          + File.separator + SelfLog.SELF_LOG_FILE));

@@ -14,9 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.common.tracer.test;
+package com.alipay.common.tracer.core.async;
 
-import com.alipay.common.tracer.core.async.TracedExecutorService;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import io.opentracing.Span;
@@ -29,15 +28,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -63,8 +55,8 @@ public class TracedExecutorServiceTest {
         tracedExecutorService = new TracedExecutorService(wrappedExecutorService, traceContext);
 
         callableList = new ArrayList<Callable<Span>>();
-        callableList.add(mock(java.util.concurrent.Callable.class));
-        callableList.add(mock(java.util.concurrent.Callable.class));
+        callableList.add(mock(Callable.class));
+        callableList.add(mock(Callable.class));
     }
 
     @Test
@@ -76,7 +68,7 @@ public class TracedExecutorServiceTest {
 
     @Test
     public void testShutdownNow() {
-        List<java.lang.Runnable> expectedRunnableList = new ArrayList<java.lang.Runnable>();
+        List<Runnable> expectedRunnableList = new ArrayList<Runnable>();
         when(wrappedExecutorService.shutdownNow()).thenReturn(expectedRunnableList);
         assertSame(expectedRunnableList, tracedExecutorService.shutdownNow());
         verify(wrappedExecutorService).shutdownNow();
@@ -109,7 +101,7 @@ public class TracedExecutorServiceTest {
 
     @Test
     public void testSubmitCallableOfT() {
-        java.util.concurrent.Callable<Span> wrappedCallable = mock(java.util.concurrent.Callable.class);
+        Callable<Span> wrappedCallable = mock(Callable.class);
 
         tracedExecutorService.submit(wrappedCallable);
 
@@ -121,7 +113,7 @@ public class TracedExecutorServiceTest {
 
     @Test
     public void testSubmitRunnable() {
-        java.lang.Runnable wrappedRunnable = mock(java.lang.Runnable.class);
+        Runnable wrappedRunnable = mock(Runnable.class);
 
         tracedExecutorService.submit(wrappedRunnable);
 
@@ -153,7 +145,7 @@ public class TracedExecutorServiceTest {
 
     @Test
     public void testExecute() {
-        java.lang.Runnable wrappedRunnable = mock(java.lang.Runnable.class);
+        Runnable wrappedRunnable = mock(Runnable.class);
 
         tracedExecutorService.execute(wrappedRunnable);
 
