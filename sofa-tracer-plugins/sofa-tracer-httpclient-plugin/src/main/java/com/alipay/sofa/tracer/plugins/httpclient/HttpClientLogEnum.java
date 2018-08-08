@@ -26,9 +26,9 @@ public enum HttpClientLogEnum {
 
     // Http Client Digest Log
     HTTP_CLIENT_DIGEST("httpclient_digest_log_name", "httpclient-digest.log",
-                       "httpclient_digest_rolling"),
+            "httpclient_digest_rolling"),
     // Http Client Stat Log
-    HTTP_CLIENT_STAT("httpclient_stat_log_name", "httpclient-stat.log", "httpclient_stat_rolling");
+    HTTP_CLIENT_STAT("httpclient_stat_log_name", "httpclient-stat.log", "httpclient_stat_rolling"),;
 
     private String logNameKey;
     private String defaultLogName;

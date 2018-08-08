@@ -30,6 +30,11 @@ public class CommonSpanTags {
     public static final String LOCAL_APP           = "local.app";
 
     /**
+     * opposite end appName such as source or target appName
+     */
+    public static final String REMOTE_APP                   = "remote.app";
+
+    /**
      * 结果码, 具体含义根据实际每个中间件的约定不同而不同
      */
     public static final String RESULT_CODE         = "result.code";

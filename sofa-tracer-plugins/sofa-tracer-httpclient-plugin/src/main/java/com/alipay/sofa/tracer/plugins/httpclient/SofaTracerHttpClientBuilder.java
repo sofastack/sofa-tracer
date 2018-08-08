@@ -14,14 +14,22 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 public class SofaTracerHttpClientBuilder {
 
     public static HttpAsyncClientBuilder asyncClientBuilder(HttpAsyncClientBuilder httpAsyncClientBuilder) {
+        return asyncClientBuilder(httpAsyncClientBuilder, null, null);
+    }
+
+    public static HttpAsyncClientBuilder asyncClientBuilder(HttpAsyncClientBuilder httpAsyncClientBuilder, String currentApp, String targetApp) {
         return httpAsyncClientBuilder
-                .addInterceptorFirst(new SofaTracerHttpRequestInterceptor())
+                .addInterceptorFirst(new SofaTracerHttpRequestInterceptor(currentApp, targetApp))
                 .addInterceptorFirst(new SofaTracerHttpResponseInterceptor());
     }
 
     public static HttpClientBuilder clientBuilder(HttpClientBuilder clientBuilder) {
+        return clientBuilder(clientBuilder, null, null);
+    }
+
+    public static HttpClientBuilder clientBuilder(HttpClientBuilder clientBuilder, String currentApp, String targetApp) {
         return clientBuilder
-                .addInterceptorFirst(new SofaTracerHttpRequestInterceptor())
+                .addInterceptorFirst(new SofaTracerHttpRequestInterceptor(currentApp, targetApp))
                 .addInterceptorFirst(new SofaTracerHttpResponseInterceptor());
     }
 }
