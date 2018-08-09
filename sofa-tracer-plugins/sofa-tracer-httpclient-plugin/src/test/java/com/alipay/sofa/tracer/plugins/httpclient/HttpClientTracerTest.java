@@ -48,47 +48,61 @@ public class HttpClientTracerTest extends AbstractTestBase {
     }
 
     @After
-    public void after() {
+    public void after() throws NoSuchFieldException, IllegalAccessException {
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL, "");
     }
 
-    /**
-     * Method: getHttpClientTracerSingleton()
-     */
     @Test
     public void testHttpClientTracer() throws Exception {
+        //get
+        testHttpClientGet(1);
+        //post
+        testHttpClientPost(2);
+    }
+
+    private void testHttpClientGet(int expectedLength) throws Exception {
         HttpClientTracer httpClientTracer = HttpClientTracer.getHttpClientTracerSingleton();
         HttpClientTracer httpClientTracer1 = HttpClientTracer.getHttpClientTracerSingleton();
         assertEquals(httpClientTracer, httpClientTracer1);
         String httpGetUrl = urlHttpPrefix;
         String path = "/httpclient";
-        String responseStr = new HttpClientInstance(10 * 1000)
-                .executeGet(httpGetUrl + path);
+        String responseStr = new HttpClientInstance(10 * 1000).executeGet(httpGetUrl + path);
         assertFalse(StringUtils.isBlank(responseStr));
-        Thread.sleep(3000);
+        Thread.sleep(2000);
         //wait for async output
         List<String> contents = FileUtils.readLines(new File(logDirectoryPath
-                + File.separator
-                + HttpClientLogEnum.HTTP_CLIENT_DIGEST
-                .getDefaultLogName()));
-        assertTrue(contents.size() == 1);
+                                                             + File.separator
+                                                             + HttpClientLogEnum.HTTP_CLIENT_DIGEST
+                                                                 .getDefaultLogName()));
+        assertTrue(contents.size() == expectedLength);
         //stat log
-        List<String> statContents = FileUtils.readLines(new File(logDirectoryPath
-                + File.separator
-                + HttpClientLogEnum.HTTP_CLIENT_STAT
-                .getDefaultLogName()));
-        assertTrue(statContents.size() == 1);
+        List<String> statContents = FileUtils.readLines(new File(
+            logDirectoryPath + File.separator
+                    + HttpClientLogEnum.HTTP_CLIENT_STAT.getDefaultLogName()));
+        assertTrue(statContents.size() == expectedLength);
     }
 
-    @Test
-    public void testPostHttpClient() throws Exception {
+    private void testHttpClientPost(int expectedLength) throws Exception {
         PostBody postBody = new PostBody();
         postBody.setAge(111);
         postBody.setFemale(false);
         postBody.setName("guanchao.ygc/xuelian");
         String httpGetUrl = urlHttpPrefix + "/httpclient";
-        String responseStr = new HttpClientInstance((10 * 1000)).executePost(httpGetUrl, JSON.toJSONString(postBody));
+        String responseStr = new HttpClientInstance((10 * 1000)).executePost(httpGetUrl,
+            JSON.toJSONString(postBody));
         PostBody resultPostBody = JSON.parseObject(responseStr, PostBody.class);
         assertEquals(postBody, resultPostBody);
+        Thread.sleep(3000);
+        //wait for async output
+        List<String> contents = FileUtils.readLines(new File(logDirectoryPath
+                                                             + File.separator
+                                                             + HttpClientLogEnum.HTTP_CLIENT_DIGEST
+                                                                 .getDefaultLogName()));
+        assertTrue(contents.size() == expectedLength);
+        //stat log
+        List<String> statContents = FileUtils.readLines(new File(
+            logDirectoryPath + File.separator
+                    + HttpClientLogEnum.HTTP_CLIENT_STAT.getDefaultLogName()));
+        assertTrue(statContents.size() == expectedLength);
     }
 }

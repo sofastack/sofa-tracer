@@ -45,11 +45,11 @@ public class HttpClientInstance {
     /***
      * request timeout
      */
-    private static final int          REQUEST_TIMEOUT    = 10 * 1000;
+    private static final int    REQUEST_TIMEOUT = 10 * 1000;
 
-    private RequestConfig             defaultRequestConfig;
+    private RequestConfig       defaultRequestConfig;
 
-    private CloseableHttpClient       httpClient         = null;
+    private CloseableHttpClient httpClient      = null;
 
     public HttpClientInstance(int soTimeoutMilliseconds) {
         if (soTimeoutMilliseconds < 0) {
