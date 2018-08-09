@@ -16,9 +16,7 @@
  */
 package com.alipay.sofa.tracer.plugins.httpclient.base.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,5 +44,16 @@ public class SampleRestController {
         map.put("count", counter.incrementAndGet());
         map.put("name", name);
         return map;
+    }
+
+    /**
+     * Request http://localhost:8080/httpclient
+     * @param postBody body
+     * @return Result
+     */
+    @RequestMapping(value = "/httpclient", method = RequestMethod.POST)
+    @ResponseBody
+    public PostBody postBody(@RequestBody PostBody postBody) {
+        return postBody;
     }
 }

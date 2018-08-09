@@ -47,24 +47,11 @@ public class HttpClientInstance {
      */
     private static final int          REQUEST_TIMEOUT    = 10 * 1000;
 
-    private static HttpClientInstance httpClientInstance = null;
-
     private RequestConfig             defaultRequestConfig;
 
     private CloseableHttpClient       httpClient         = null;
 
-    public static HttpClientInstance getSofaRouterHttpClientTemplateSingleton(int httpRequestTimeoutMilliseconds) {
-        if (httpClientInstance == null) {
-            synchronized (HttpClientInstance.class) {
-                if (httpClientInstance == null) {
-                    httpClientInstance = new HttpClientInstance(httpRequestTimeoutMilliseconds);
-                }
-            }
-        }
-        return httpClientInstance;
-    }
-
-    private HttpClientInstance(int soTimeoutMilliseconds) {
+    public HttpClientInstance(int soTimeoutMilliseconds) {
         if (soTimeoutMilliseconds < 0) {
             soTimeoutMilliseconds = REQUEST_TIMEOUT;
         }
