@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/alipay/sofa-tracer.svg?branch=master)](https://travis-ci.org/alipay/sofa-tracer)
 [![Coverage Status](https://coveralls.io/repos/github/alipay/sofa-tracer/badge.svg?branch=master)](https://coveralls.io/github/alipay/sofa-tracer?branch=master)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)
-![maven][(https://img.shields.io/github/release/alipay/sofa-tracer.svg)](https://github.com/alipay/sofa-tracer/releases)
+[![Maven](https://img.shields.io/github/release/alipay/sofa-tracer.svg)](https://github.com/alipay/sofa-tracer/releases)
 
 SOFATracer 是一个用于分布式系统调用跟踪的组件，通过统一的 `traceId` 将调用链路中的各种网络调用情况以日志的方式记录下来，以达到透视化网络调用的目的。这些日志可用于故障的快速发现，服务治理等。
 
