@@ -29,7 +29,7 @@ import com.alipay.common.tracer.core.utils.TracerUtils;
 import java.util.Map;
 
 /**
- * SpringMvcStatReporter
+ * HttpClientStatJsonReporter
  *
  * @author yangguanchao
  * @since 2018/08/07
@@ -37,7 +37,7 @@ import java.util.Map;
 public class HttpClientStatJsonReporter extends HttpClientStatReporter {
 
     /***
-     * 输出拼接器
+     * print builder
      */
     private static JsonStringBuilder jsonBuffer = new JsonStringBuilder();
 
@@ -64,8 +64,7 @@ public class HttpClientStatJsonReporter extends HttpClientStatReporter {
         statKey.setResult(success ? "Y" : "N");
         //end
         statKey.setEnd(TracerUtils.getLoadTestMark(sofaTracerSpan));
-        //value
-        //次数和耗时，最后一个耗时是单独打印的字段
+        //value the count and duration
         long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
         long values[] = new long[] { 1, duration };
         //reserve
@@ -75,7 +74,7 @@ public class HttpClientStatJsonReporter extends HttpClientStatReporter {
     @Override
     public void print(StatKey statKey, long[] values) {
         if (this.isClosePrint.get()) {
-            //关闭统计日志输出
+            //close
             return;
         }
         if (!(statKey instanceof StatMapKey)) {
@@ -90,7 +89,7 @@ public class HttpClientStatJsonReporter extends HttpClientStatReporter {
             jsonBuffer.append("count", values[0]);
             jsonBuffer.append("total.cost.milliseconds", values[1]);
             jsonBuffer.append("success", statMapKey.getResult());
-            //压测
+            //pressure
             jsonBuffer.appendEnd("load.test", statMapKey.getEnd());
 
             if (appender instanceof LoadTestAwareAppender) {
@@ -99,10 +98,10 @@ public class HttpClientStatJsonReporter extends HttpClientStatReporter {
             } else {
                 appender.append(jsonBuffer.toString());
             }
-            // 这里强制刷一次
+            // force print
             appender.flush();
         } catch (Throwable t) {
-            SelfLog.error("统计日志<" + statTracerName + ">输出异常", t);
+            SelfLog.error("Stat log <" + statTracerName + "> error!", t);
         }
     }
 

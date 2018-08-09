@@ -77,10 +77,12 @@ public class HttpClientDigestJsonEncoder extends AbstractDigestSpanEncoder {
             tagWithStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
         //target appName
         jsonStringBuilder.append(CommonSpanTags.REMOTE_APP,
-                tagWithStr.get(CommonSpanTags.REMOTE_APP));
+            tagWithStr.get(CommonSpanTags.REMOTE_APP));
+        this.appendBaggage(jsonStringBuilder, context);
     }
 
-    protected void appendBaggage(JsonStringBuilder jsonStringBuilder, SofaTracerSpanContext sofaTracerSpanContext) {
+    protected void appendBaggage(JsonStringBuilder jsonStringBuilder,
+                                 SofaTracerSpanContext sofaTracerSpanContext) {
         //baggage
         jsonStringBuilder.appendEnd("baggage", baggageSerialized(sofaTracerSpanContext));
     }

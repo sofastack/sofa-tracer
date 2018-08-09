@@ -45,13 +45,13 @@ public class HttpClientInstance {
     /***
      * request timeout
      */
-    private static final int REQUEST_TIMEOUT = 10 * 1000;
+    private static final int          REQUEST_TIMEOUT    = 10 * 1000;
 
     private static HttpClientInstance httpClientInstance = null;
 
-    private RequestConfig defaultRequestConfig;
+    private RequestConfig             defaultRequestConfig;
 
-    private CloseableHttpClient httpClient = null;
+    private CloseableHttpClient       httpClient         = null;
 
     public static HttpClientInstance getSofaRouterHttpClientTemplateSingleton(int httpRequestTimeoutMilliseconds) {
         if (httpClientInstance == null) {
@@ -73,8 +73,8 @@ public class HttpClientInstance {
         //connect Manager get the Connection timeout milliseconds
         int connectionRequestTimeout = 3 * 1000;
         this.defaultRequestConfig = RequestConfig.custom().setConnectTimeout(connectionTimeout)
-                .setSocketTimeout(soTimeoutMilliseconds).setConnectionRequestTimeout(connectionRequestTimeout)
-                .build();
+            .setSocketTimeout(soTimeoutMilliseconds)
+            .setConnectionRequestTimeout(connectionRequestTimeout).build();
         this.httpClient = this.getHttpClient();
     }
 
@@ -126,8 +126,8 @@ public class HttpClientInstance {
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
         //SOFATracer
         SofaTracerHttpClientBuilder.clientBuilder(httpClientBuilder);
-        httpClient = httpClientBuilder.setConnectionManager(connManager)
-                .disableAutomaticRetries().setUserAgent("CLIENT_VERSION").build();
+        httpClient = httpClientBuilder.setConnectionManager(connManager).disableAutomaticRetries()
+            .setUserAgent("CLIENT_VERSION").build();
         return httpClient;
     }
 }

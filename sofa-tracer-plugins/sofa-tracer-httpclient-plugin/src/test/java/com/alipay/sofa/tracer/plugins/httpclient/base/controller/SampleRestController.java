@@ -41,7 +41,7 @@ public class SampleRestController {
      * @return Map of Result
      */
     @RequestMapping("/httpclient")
-    public Map<String,Object> greeting(@RequestParam(value = "name", defaultValue = "httpclient") String name) {
+    public Map<String, Object> greeting(@RequestParam(value = "name", defaultValue = "httpclient") String name) {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("count", counter.incrementAndGet());
         map.put("name", name);

@@ -40,7 +40,7 @@ public class HttpClientDigestEncoder extends AbstractDigestSpanEncoder {
 
         XStringBuilder xsb = new XStringBuilder();
         xsb.reset();
-        //日志打印时间
+        //time
         xsb.append(Timestamp.format(span.getEndTime()));
         appendSlot(xsb, span);
         return xsb.toString();

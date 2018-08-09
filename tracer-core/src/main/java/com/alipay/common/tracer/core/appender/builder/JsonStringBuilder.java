@@ -105,7 +105,8 @@ public class JsonStringBuilder {
 
     private JsonStringBuilder append(String key, Object value, char endChar) {
         if (value == null) {
-            this.sb.append('"').append(key).append('"').append(':').append('"').append(value)
+            //value blank
+            this.sb.append('"').append(key).append('"').append(':').append('"').append("")
                 .append('"').append(endChar);
             return this;
         }
