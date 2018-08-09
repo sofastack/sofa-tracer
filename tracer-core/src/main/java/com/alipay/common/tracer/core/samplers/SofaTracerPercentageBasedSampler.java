@@ -57,15 +57,14 @@ public class SofaTracerPercentageBasedSampler implements Sampler {
             samplingStatus.setSampled(true);
             return samplingStatus;
         }
-        synchronized (this) {
-            final int i = this.counter.getAndIncrement();
-            boolean result = this.sampleDecisions.get(i);
-            if (i == 99) {
-                this.counter.set(0);
-            }
-            samplingStatus.setSampled(result);
-            return samplingStatus;
-        }
+        int i, j;
+        do {
+            i = this.counter.get();
+            j = (i + 1) % 100;
+        } while (!this.counter.compareAndSet(i, j));
+        boolean result = this.sampleDecisions.get(i);
+        samplingStatus.setSampled(result);
+        return samplingStatus;
     }
 
     @Override
