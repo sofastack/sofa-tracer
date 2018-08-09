@@ -5,7 +5,6 @@ import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.httpclient.HttpClientTracer;
-import io.opentracing.tag.Tags;
 import org.apache.http.*;
 import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.protocol.HttpContext;
@@ -35,10 +34,11 @@ public class SofaTracerHttpRequestInterceptor implements HttpRequestInterceptor 
             this.appName = SofaTracerConfiguration
                     .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY, StringUtils.EMPTY_STRING);
         }
-        //span generated
+        //lazy init
         HttpClientTracer httpClientTracer = HttpClientTracer.getHttpClientTracerSingleton();
         RequestLine requestLine = httpRequest.getRequestLine();
         String methodName = requestLine.getMethod();
+        //span generated
         SofaTracerSpan httpClientSpan = httpClientTracer.clientSend(methodName);
         //appName
         httpClientSpan.setTag(CommonSpanTags.LOCAL_APP, this.appName == null ? StringUtils.EMPTY_STRING : this.appName);
@@ -47,12 +47,12 @@ public class SofaTracerHttpRequestInterceptor implements HttpRequestInterceptor 
         //url ((HttpRequestWrapper) request).getOriginal().getRequestLine().getUri()
         if (httpRequest instanceof HttpRequestWrapper) {
             HttpRequestWrapper httpRequestWrapper = (HttpRequestWrapper) httpRequest;
-            Tags.HTTP_URL.set(httpClientSpan, httpRequestWrapper.getOriginal().getRequestLine().getUri());
+            httpClientSpan.setTag(CommonSpanTags.REQUEST_URL, httpRequestWrapper.getOriginal().getRequestLine().getUri());
         } else {
-            Tags.HTTP_URL.set(httpClientSpan, requestLine.getUri());
+            httpClientSpan.setTag(CommonSpanTags.REQUEST_URL, requestLine.getUri());
         }
         //method
-        Tags.HTTP_METHOD.set(httpClientSpan, methodName);
+        httpClientSpan.setTag(CommonSpanTags.METHOD, methodName);
         //length
         if (httpRequest instanceof HttpEntityEnclosingRequest) {
             HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;

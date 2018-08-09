@@ -51,30 +51,35 @@ public class HttpClientDigestEncoder extends AbstractDigestSpanEncoder {
         SofaTracerSpanContext context = sofaTracerSpan.getSofaTracerSpanContext();
         Map<String, String> tagWithStr = sofaTracerSpan.getTagsWithStr();
         Map<String, Number> tagWithNumber = sofaTracerSpan.getTagsWithNumber();
-        //当前应用名
+        //appName
         xsb.append(tagWithStr.get(CommonSpanTags.LOCAL_APP));
         //TraceId
         xsb.append(context.getTraceId());
         //RpcId
         xsb.append(context.getSpanId());
-        //请求 URL
+        //Request URL
         xsb.append(tagWithStr.get(CommonSpanTags.REQUEST_URL));
-        //请求方法
+        //Request method
         xsb.append(tagWithStr.get(CommonSpanTags.METHOD));
-        //Http 状态码
+        //Http status
         xsb.append(tagWithStr.get(CommonSpanTags.RESULT_CODE));
         Number requestSize = tagWithNumber.get(CommonSpanTags.REQ_SIZE);
-        //Request Body 大小 单位为byte
+        //Request Body bytes
         xsb.append((requestSize == null ? 0L : requestSize.longValue()) + SofaTracerConstant.BYTE);
         Number responseSize = tagWithNumber.get(CommonSpanTags.RESP_SIZE);
-        //Response Body 大小，单位为byte
+        //Response Body bytes
         xsb.append((responseSize == null ? 0L : responseSize.longValue()) + SofaTracerConstant.BYTE);
-        //请求耗时（MS）
+        //cost
         xsb.append((sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime())
                    + SofaTracerConstant.MS);
+        //thread
         xsb.append(tagWithStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
-        //穿透数据放在最后
-        xsb.appendEnd(baggageSerialized(context));
+        //target appName
+        xsb.append(tagWithStr.get(CommonSpanTags.REMOTE_APP));
+        //sys baggage
+        xsb.append(context.getSysBaggage());
+        //baggage
+        xsb.appendEnd(context.getBizBaggage());
     }
 
 }
