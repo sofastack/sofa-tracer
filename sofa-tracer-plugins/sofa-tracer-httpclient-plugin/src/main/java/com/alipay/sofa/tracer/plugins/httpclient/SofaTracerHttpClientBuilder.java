@@ -20,7 +20,6 @@ import com.alipay.common.tracer.core.tracer.AbstractTracer;
 import com.alipay.sofa.tracer.plugins.httpclient.interceptor.SofaTracerHttpRequestInterceptor;
 import com.alipay.sofa.tracer.plugins.httpclient.interceptor.SofaTracerHttpResponseInterceptor;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 
 /**
  * SofaTracerHttpClientBuilder
@@ -31,17 +30,6 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 public class SofaTracerHttpClientBuilder {
 
     protected static AbstractTracer httpClientTracer = null;
-
-    public static HttpAsyncClientBuilder asyncClientBuilder(HttpAsyncClientBuilder httpAsyncClientBuilder) {
-        return asyncClientBuilder(httpAsyncClientBuilder, null, null);
-    }
-
-    public static HttpAsyncClientBuilder asyncClientBuilder(HttpAsyncClientBuilder httpAsyncClientBuilder,
-                                                            String currentApp, String targetApp) {
-        return httpAsyncClientBuilder.addInterceptorFirst(
-            new SofaTracerHttpRequestInterceptor(getHttpClientTracer(), currentApp, targetApp))
-            .addInterceptorFirst(new SofaTracerHttpResponseInterceptor(getHttpClientTracer()));
-    }
 
     public static HttpClientBuilder clientBuilder(HttpClientBuilder clientBuilder) {
         return clientBuilder(clientBuilder, null, null);

@@ -28,11 +28,6 @@
             <artifactId>httpclient</artifactId>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpasyncclient</artifactId>
-            <optional>true</optional>
-        </dependency>
 
         <!-- test dependency -->
         <dependency>
