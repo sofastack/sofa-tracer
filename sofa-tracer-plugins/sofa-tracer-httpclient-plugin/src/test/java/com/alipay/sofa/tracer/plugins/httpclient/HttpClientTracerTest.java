@@ -95,7 +95,8 @@ public class HttpClientTracerTest extends AbstractTestBase {
         //baggage
         SofaTracer sofaTracer = HttpClientTracer.getHttpClientTracerSingleton().getSofaTracer();
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        SofaTracerSpan sofaTracerSpan = (SofaTracerSpan) sofaTracer.buildSpan("HttpClientTracer Baggage").start();
+        SofaTracerSpan sofaTracerSpan = (SofaTracerSpan) sofaTracer.buildSpan(
+            "HttpClientTracer Baggage").start();
         sofaTracerSpan.setBaggageItem("key1", "baggage1");
         sofaTracerSpan.setBaggageItem("key2", "baggage2");
         sofaTraceContext.push(sofaTracerSpan);

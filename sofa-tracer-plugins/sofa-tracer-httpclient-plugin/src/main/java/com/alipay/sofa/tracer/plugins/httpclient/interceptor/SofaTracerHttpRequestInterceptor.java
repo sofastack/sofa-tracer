@@ -100,6 +100,7 @@ public class SofaTracerHttpRequestInterceptor implements HttpRequestInterceptor 
 
     private void processHttpClientRequestCarrier(HttpRequest httpRequest, SofaTracerSpan currentSpan) {
         SofaTracer sofaTracer = this.httpClientTracer.getSofaTracer();
-        sofaTracer.inject(currentSpan.getSofaTracerSpanContext(), ExtendFormat.Builtin.B3_HTTP_HEADERS, new HttpClientRequestCarrier(httpRequest));
+        sofaTracer.inject(currentSpan.getSofaTracerSpanContext(),
+            ExtendFormat.Builtin.B3_HTTP_HEADERS, new HttpClientRequestCarrier(httpRequest));
     }
 }
