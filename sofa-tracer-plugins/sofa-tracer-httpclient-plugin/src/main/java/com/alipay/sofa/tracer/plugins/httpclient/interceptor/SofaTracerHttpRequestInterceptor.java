@@ -16,11 +16,14 @@
  */
 package com.alipay.sofa.tracer.plugins.httpclient.interceptor;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.tracer.plugins.httpclient.HttpClientRequestCarrier;
 import org.apache.http.*;
 import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.protocol.HttpContext;
@@ -43,6 +46,7 @@ public class SofaTracerHttpRequestInterceptor implements HttpRequestInterceptor 
 
     public SofaTracerHttpRequestInterceptor(AbstractTracer httpClientTracer, String appName,
                                             String targetAppName) {
+
         this.httpClientTracer = httpClientTracer;
         this.appName = appName;
         this.targetAppName = targetAppName;
@@ -82,6 +86,8 @@ public class SofaTracerHttpRequestInterceptor implements HttpRequestInterceptor 
             httpClientSpan.setTag(CommonSpanTags.REQ_SIZE, httpEntityEnclosingRequest.getEntity()
                 .getContentLength());
         }
+        //carrier
+        this.processHttpClientRequestCarrier(httpRequest, httpClientSpan);
     }
 
     public String getAppName() {
@@ -90,5 +96,10 @@ public class SofaTracerHttpRequestInterceptor implements HttpRequestInterceptor 
 
     public void setAppName(String appName) {
         this.appName = appName;
+    }
+
+    private void processHttpClientRequestCarrier(HttpRequest httpRequest, SofaTracerSpan currentSpan) {
+        SofaTracer sofaTracer = this.httpClientTracer.getSofaTracer();
+        sofaTracer.inject(currentSpan.getSofaTracerSpanContext(), ExtendFormat.Builtin.B3_HTTP_HEADERS, new HttpClientRequestCarrier(httpRequest));
     }
 }

@@ -17,7 +17,11 @@
 package com.alipay.sofa.tracer.plugins.httpclient;
 
 import com.alibaba.fastjson.JSON;
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
+import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.httpclient.base.AbstractTestBase;
 import com.alipay.sofa.tracer.plugins.httpclient.base.client.HttpClientInstance;
@@ -88,6 +92,14 @@ public class HttpClientTracerTest extends AbstractTestBase {
         postBody.setFemale(false);
         postBody.setName("guanchao.ygc/xuelian");
         String httpGetUrl = urlHttpPrefix + "/httpclient";
+        //baggage
+        SofaTracer sofaTracer = HttpClientTracer.getHttpClientTracerSingleton().getSofaTracer();
+        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+        SofaTracerSpan sofaTracerSpan = (SofaTracerSpan) sofaTracer.buildSpan("HttpClientTracer Baggage").start();
+        sofaTracerSpan.setBaggageItem("key1", "baggage1");
+        sofaTracerSpan.setBaggageItem("key2", "baggage2");
+        sofaTraceContext.push(sofaTracerSpan);
+
         String responseStr = new HttpClientInstance((10 * 1000)).executePost(httpGetUrl,
             JSON.toJSONString(postBody));
         PostBody resultPostBody = JSON.parseObject(responseStr, PostBody.class);
