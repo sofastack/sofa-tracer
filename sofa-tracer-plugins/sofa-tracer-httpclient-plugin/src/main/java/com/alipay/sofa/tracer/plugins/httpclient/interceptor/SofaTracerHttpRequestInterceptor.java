@@ -19,6 +19,7 @@ package com.alipay.sofa.tracer.plugins.httpclient.interceptor;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.tracer.AbstractTracer;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.httpclient.HttpClientTracer;
 import org.apache.http.*;
@@ -35,11 +36,15 @@ import java.io.IOException;
  */
 public class SofaTracerHttpRequestInterceptor implements HttpRequestInterceptor {
 
-    private String appName       = null;
+    private AbstractTracer httpClientTracer;
 
-    private String targetAppName = null;
+    private String         appName       = null;
 
-    public SofaTracerHttpRequestInterceptor(String appName, String targetAppName) {
+    private String         targetAppName = null;
+
+    public SofaTracerHttpRequestInterceptor(AbstractTracer httpClientTracer, String appName,
+                                            String targetAppName) {
+        this.httpClientTracer = httpClientTracer;
         this.appName = appName;
         this.targetAppName = targetAppName;
     }
@@ -52,7 +57,6 @@ public class SofaTracerHttpRequestInterceptor implements HttpRequestInterceptor 
                 SofaTracerConfiguration.TRACER_APPNAME_KEY, StringUtils.EMPTY_STRING);
         }
         //lazy init
-        HttpClientTracer httpClientTracer = HttpClientTracer.getHttpClientTracerSingleton();
         RequestLine requestLine = httpRequest.getRequestLine();
         String methodName = requestLine.getMethod();
         //span generated

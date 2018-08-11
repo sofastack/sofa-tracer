@@ -81,8 +81,8 @@ public class HttpClientDigestJsonEncoder extends AbstractDigestSpanEncoder {
         this.appendBaggage(jsonStringBuilder, context);
     }
 
-    protected void appendBaggage(JsonStringBuilder jsonStringBuilder,
-                                 SofaTracerSpanContext sofaTracerSpanContext) {
+    private void appendBaggage(JsonStringBuilder jsonStringBuilder,
+                               SofaTracerSpanContext sofaTracerSpanContext) {
         //baggage
         jsonStringBuilder.appendEnd("baggage", baggageSerialized(sofaTracerSpanContext));
     }
