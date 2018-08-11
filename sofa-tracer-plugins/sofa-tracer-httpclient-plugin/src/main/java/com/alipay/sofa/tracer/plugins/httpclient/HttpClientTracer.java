@@ -30,9 +30,7 @@ import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
  */
 public class HttpClientTracer extends AbstractClientTracer {
 
-    public static final String               HTTP_CLIENT_JSON_FORMAT_OUTPUT = "http_client_json_format_output";
-
-    private volatile static HttpClientTracer httpClientTracer               = null;
+    private volatile static HttpClientTracer httpClientTracer = null;
 
     /***
      * Http Client Tracer Singleton
@@ -49,7 +47,7 @@ public class HttpClientTracer extends AbstractClientTracer {
         return httpClientTracer;
     }
 
-    private HttpClientTracer() {
+    protected HttpClientTracer() {
         super("httpclient");
     }
 
@@ -70,14 +68,8 @@ public class HttpClientTracer extends AbstractClientTracer {
 
     @Override
     protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
-        String isJsonOutput = SofaTracerConfiguration.getProperty(HTTP_CLIENT_JSON_FORMAT_OUTPUT);
-        // default json output
-        if (Boolean.FALSE.toString().equalsIgnoreCase(isJsonOutput)) {
-            return new HttpClientDigestEncoder();
-        } else {
-            //blank or true is json output
-            return new HttpClientDigestJsonEncoder();
-        }
+        //default json output
+        return new HttpClientDigestJsonEncoder();
     }
 
     @Override
@@ -88,13 +80,14 @@ public class HttpClientTracer extends AbstractClientTracer {
             .getRollingKey());
         String statLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(httpClientLogEnum
             .getLogNameKey());
-        // default json output
-        String isJsonOutput = SofaTracerConfiguration.getProperty(HTTP_CLIENT_JSON_FORMAT_OUTPUT);
-        if (Boolean.FALSE.toString().equalsIgnoreCase(isJsonOutput)) {
-            return new HttpClientStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
-        } else {
-            //blank or true is json output
-            return new HttpClientStatJsonReporter(statLog, statRollingPolicy, statLogReserveConfig);
-        }
+        //stat
+        return this.getHttpClientStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
+    }
+
+    protected AbstractSofaTracerStatisticReporter getHttpClientStatReporter(String statTracerName,
+                                                                            String statRollingPolicy,
+                                                                            String statLogReserveConfig) {
+        return new HttpClientStatJsonReporter(statTracerName, statRollingPolicy,
+            statLogReserveConfig);
     }
 }

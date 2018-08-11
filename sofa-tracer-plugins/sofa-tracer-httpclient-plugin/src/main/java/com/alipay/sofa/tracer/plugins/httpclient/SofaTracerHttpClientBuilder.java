@@ -30,6 +30,8 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
  */
 public class SofaTracerHttpClientBuilder {
 
+    protected static AbstractTracer httpClientTracer = null;
+
     public static HttpAsyncClientBuilder asyncClientBuilder(HttpAsyncClientBuilder httpAsyncClientBuilder) {
         return asyncClientBuilder(httpAsyncClientBuilder, null, null);
     }
@@ -52,7 +54,19 @@ public class SofaTracerHttpClientBuilder {
             .addInterceptorFirst(new SofaTracerHttpResponseInterceptor(getHttpClientTracer()));
     }
 
-    protected static AbstractTracer getHttpClientTracer() {
-        return HttpClientTracer.getHttpClientTracerSingleton();
+    public static AbstractTracer getHttpClientTracer() {
+        if (httpClientTracer == null) {
+            synchronized (SofaTracerHttpClientBuilder.class) {
+                if (httpClientTracer == null) {
+                    //default json format
+                    httpClientTracer = HttpClientTracer.getHttpClientTracerSingleton();
+                }
+            }
+        }
+        return httpClientTracer;
+    }
+
+    public static void setHttpClientTracer(AbstractTracer httpClientTracer) {
+        SofaTracerHttpClientBuilder.httpClientTracer = httpClientTracer;
     }
 }

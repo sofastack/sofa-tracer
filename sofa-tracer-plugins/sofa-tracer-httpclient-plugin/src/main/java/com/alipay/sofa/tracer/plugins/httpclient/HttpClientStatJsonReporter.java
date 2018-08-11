@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.appender.self.Timestamp;
+import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.reporter.stat.model.StatMapKey;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
@@ -32,9 +33,9 @@ import java.util.Map;
  * HttpClientStatJsonReporter
  *
  * @author yangguanchao
- * @since 2018/08/07
+ * @since 2018/08/11
  */
-public class HttpClientStatJsonReporter extends HttpClientStatReporter {
+public class HttpClientStatJsonReporter extends AbstractSofaTracerStatisticReporter {
 
     /***
      * print builder
