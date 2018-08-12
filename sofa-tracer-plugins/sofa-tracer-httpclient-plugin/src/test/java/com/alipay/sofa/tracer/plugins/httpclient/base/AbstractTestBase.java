@@ -16,6 +16,10 @@
  */
 package com.alipay.sofa.tracer.plugins.httpclient.base;
 
+import com.alipay.common.tracer.core.reporter.digest.manager.SofaTracerDigestReporterAsyncManager;
+import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
+import com.alipay.sofa.tracer.plugins.httpclient.HttpClientTracer;
+import com.alipay.sofa.tracer.plugins.httpclient.SofaTracerHttpClientBuilder;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -29,6 +33,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 /**
  * referenced document: http://docs.spring.io/spring-boot/docs/1.4.2.RELEASE/reference/htmlsingle/#boot-features-testing
@@ -56,12 +61,13 @@ public abstract class AbstractTestBase {
     protected String           urlHttpPrefix;
 
     @BeforeClass
-    public static void beforeClass() throws IOException {
+    public static void beforeClass() throws Exception {
         cleanLogDirectory();
+        reflectHttpClientClear();
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         urlHttpPrefix = "http://localhost:" + definedPort;
     }
 
@@ -75,5 +81,24 @@ public abstract class AbstractTestBase {
             return;
         }
         FileUtils.cleanDirectory(logDirectory);
+    }
+
+    private static void reflectHttpClientClear() throws NoSuchFieldException,
+                                                IllegalAccessException {
+        //builder
+        Field field = SofaTracerHttpClientBuilder.class.getDeclaredField("httpClientTracer");
+        field.setAccessible(true);
+        field.set(null, null);
+        //httpClientTracer
+        Field fieldTracer = HttpClientTracer.class.getDeclaredField("httpClientTracer");
+        fieldTracer.setAccessible(true);
+        fieldTracer.set(null, null);
+        //stat
+        SofaTracerStatisticReporterCycleTimesManager.getCycleTimesManager().clear();
+        //clear
+        Field fieldAsync = SofaTracerDigestReporterAsyncManager.class
+            .getDeclaredField("asyncCommonDigestAppenderManager");
+        fieldAsync.setAccessible(true);
+        fieldAsync.set(null, null);
     }
 }

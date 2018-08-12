@@ -46,7 +46,7 @@ import static org.junit.Assert.*;
 public class AsyncHttpClientTracerTest extends AbstractTestBase {
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL, "1");
     }

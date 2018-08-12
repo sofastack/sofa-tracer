@@ -46,7 +46,7 @@ import static org.junit.Assert.*;
 public class HttpClientTracerTest extends AbstractTestBase {
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL, "1");
     }
@@ -72,7 +72,7 @@ public class HttpClientTracerTest extends AbstractTestBase {
         String path = "/httpclient";
         String responseStr = new HttpClientInstance(10 * 1000).executeGet(httpGetUrl + path);
         assertFalse(StringUtils.isBlank(responseStr));
-        Thread.sleep(2000);
+        Thread.sleep(3000);
         //wait for async output
         List<String> contents = FileUtils.readLines(new File(logDirectoryPath
                                                              + File.separator
