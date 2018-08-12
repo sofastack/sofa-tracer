@@ -17,9 +17,12 @@
 package com.alipay.sofa.tracer.plugins.httpclient;
 
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
-import com.alipay.sofa.tracer.plugins.httpclient.interceptor.SofaTracerHttpRequestInterceptor;
-import com.alipay.sofa.tracer.plugins.httpclient.interceptor.SofaTracerHttpResponseInterceptor;
+import com.alipay.sofa.tracer.plugins.httpclient.interceptor.SofaTracerAsyncHttpInterceptor;
+import com.alipay.sofa.tracer.plugins.httpclient.interceptor.SofaTracerHttpInterceptor;
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 
 /**
  * SofaTracerHttpClientBuilder
@@ -37,9 +40,22 @@ public class SofaTracerHttpClientBuilder {
 
     public static HttpClientBuilder clientBuilder(HttpClientBuilder clientBuilder,
                                                   String currentApp, String targetApp) {
-        return clientBuilder.addInterceptorFirst(
-            new SofaTracerHttpRequestInterceptor(getHttpClientTracer(), currentApp, targetApp))
-            .addInterceptorFirst(new SofaTracerHttpResponseInterceptor(getHttpClientTracer()));
+        SofaTracerHttpInterceptor interceptor = new SofaTracerHttpInterceptor(
+            getHttpClientTracer(), currentApp, targetApp);
+        return clientBuilder.addInterceptorFirst((HttpRequestInterceptor) interceptor)
+            .addInterceptorFirst((HttpResponseInterceptor) interceptor);
+    }
+
+    public static HttpAsyncClientBuilder asyncClientBuilder(HttpAsyncClientBuilder httpAsyncClientBuilder) {
+        return asyncClientBuilder(httpAsyncClientBuilder, null, null);
+    }
+
+    public static HttpAsyncClientBuilder asyncClientBuilder(HttpAsyncClientBuilder httpAsyncClientBuilder,
+                                                            String currentApp, String targetApp) {
+        SofaTracerAsyncHttpInterceptor interceptor = new SofaTracerAsyncHttpInterceptor(
+            getHttpClientTracer(), currentApp, targetApp);
+        return httpAsyncClientBuilder.addInterceptorFirst((HttpRequestInterceptor) interceptor)
+            .addInterceptorFirst((HttpResponseInterceptor) interceptor);
     }
 
     public static AbstractTracer getHttpClientTracer() {

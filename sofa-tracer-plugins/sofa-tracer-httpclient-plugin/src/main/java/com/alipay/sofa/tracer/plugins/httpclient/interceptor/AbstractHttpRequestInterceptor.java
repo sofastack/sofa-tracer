@@ -26,35 +26,35 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.httpclient.HttpClientRequestCarrier;
 import org.apache.http.*;
 import org.apache.http.client.methods.HttpRequestWrapper;
-import org.apache.http.protocol.HttpContext;
-
-import java.io.IOException;
 
 /**
- * SofaTracerHttpRequestInterceptor
+ * AbstractHttpRequestInterceptor
  *
  * @author yangguanchao
- * @since 2018/08/07
+ * @since 2018/08/12
  */
-public class SofaTracerHttpRequestInterceptor implements HttpRequestInterceptor {
+public abstract class AbstractHttpRequestInterceptor {
 
-    private AbstractTracer httpClientTracer;
+    protected static final String CURRENT_ASYNC_HTTP_SPAN_KEY = "httpclient.async.span.key";
 
-    private String         appName       = null;
+    protected AbstractTracer      httpClientTracer;
 
-    private String         targetAppName = null;
+    protected String              appName                     = null;
 
-    public SofaTracerHttpRequestInterceptor(AbstractTracer httpClientTracer, String appName,
-                                            String targetAppName) {
+    protected String              targetAppName               = null;
 
+    public AbstractHttpRequestInterceptor(AbstractTracer httpClientTracer, String appName,
+                                          String targetAppName) {
         this.httpClientTracer = httpClientTracer;
         this.appName = appName;
         this.targetAppName = targetAppName;
     }
 
-    @Override
-    public void process(HttpRequest httpRequest, HttpContext httpContext) throws HttpException,
-                                                                         IOException {
+    public void appendHttpClientRequestSpanTags(HttpRequest httpRequest,
+                                                SofaTracerSpan httpClientSpan) {
+        if (httpClientSpan == null) {
+            return;
+        }
         if (this.appName == null) {
             this.appName = SofaTracerConfiguration.getProperty(
                 SofaTracerConfiguration.TRACER_APPNAME_KEY, StringUtils.EMPTY_STRING);
@@ -62,8 +62,6 @@ public class SofaTracerHttpRequestInterceptor implements HttpRequestInterceptor 
         //lazy init
         RequestLine requestLine = httpRequest.getRequestLine();
         String methodName = requestLine.getMethod();
-        //span generated
-        SofaTracerSpan httpClientSpan = httpClientTracer.clientSend(methodName);
         //appName
         httpClientSpan.setTag(CommonSpanTags.LOCAL_APP,
             this.appName == null ? StringUtils.EMPTY_STRING : this.appName);
@@ -90,15 +88,18 @@ public class SofaTracerHttpRequestInterceptor implements HttpRequestInterceptor 
         this.processHttpClientRequestCarrier(httpRequest, httpClientSpan);
     }
 
-    public String getAppName() {
-        return appName;
+    public void appendHttpClientResponseSpanTags(HttpResponse httpResponse,
+                                                 SofaTracerSpan httpClientSpan) {
+        //length
+        if (httpClientSpan != null) {
+            httpClientSpan.setTag(CommonSpanTags.RESP_SIZE, httpResponse.getEntity()
+                .getContentLength());
+            httpClientSpan.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread()
+                .getName());
+        }
     }
 
-    public void setAppName(String appName) {
-        this.appName = appName;
-    }
-
-    private void processHttpClientRequestCarrier(HttpRequest httpRequest, SofaTracerSpan currentSpan) {
+    public void processHttpClientRequestCarrier(HttpRequest httpRequest, SofaTracerSpan currentSpan) {
         SofaTracer sofaTracer = this.httpClientTracer.getSofaTracer();
         sofaTracer.inject(currentSpan.getSofaTracerSpanContext(),
             ExtendFormat.Builtin.B3_HTTP_HEADERS, new HttpClientRequestCarrier(httpRequest));
