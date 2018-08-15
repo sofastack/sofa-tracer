@@ -62,7 +62,7 @@ public class HttpClientStatJsonReporter extends AbstractSofaTracerStatisticRepor
                                                                              || resultCode
                                                                                  .charAt(0) == '2' || resultCode
             .trim().equals("302")));
-        statKey.setResult(success ? "Y" : "N");
+        statKey.setResult(success ? "true" : "false");
         //end
         statKey.setEnd(TracerUtils.getLoadTestMark(sofaTracerSpan));
         //value the count and duration
