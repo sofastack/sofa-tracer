@@ -69,8 +69,4 @@ public class SofaTracerHttpClientBuilder {
         }
         return httpClientTracer;
     }
-
-    public static void setHttpClientTracer(AbstractTracer httpClientTracer) {
-        SofaTracerHttpClientBuilder.httpClientTracer = httpClientTracer;
-    }
 }

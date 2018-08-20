@@ -59,8 +59,10 @@ public class SpringMvcJsonStatReporter extends SpringMvcStatReporter {
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
         boolean success = (resultCode != null && resultCode.length() > 0 && (resultCode.charAt(0) == '1'
                                                                              || resultCode
-                                                                                 .charAt(0) == '2' || resultCode
-            .trim().equals("302")));
+                                                                                 .charAt(0) == '2'
+                                                                             || resultCode.trim()
+                                                                                 .equals("302") || resultCode
+            .trim().equals("301")));
         statKey.setResult(success ? "true" : "false");
         //end
         statKey.setEnd(TracerUtils.getLoadTestMark(sofaTracerSpan));
