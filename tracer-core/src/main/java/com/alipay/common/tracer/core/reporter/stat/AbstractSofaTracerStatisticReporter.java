@@ -311,4 +311,9 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
         sb.appendRaw(keys[i] == null ? "" : keys[i]);
         return sb.toString();
     }
+
+    protected boolean isHttpOrMvcSuccess(String resultCode) {
+        return resultCode.charAt(0) == '1' || resultCode.charAt(0) == '2'
+               || resultCode.trim().equals("302") || resultCode.trim().equals("301");
+    }
 }
