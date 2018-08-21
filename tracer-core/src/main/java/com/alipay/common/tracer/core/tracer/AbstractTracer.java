@@ -158,15 +158,27 @@ public abstract class AbstractTracer {
         if (clientSpan == null) {
             return;
         }
-        //log
-        clientSpan.log(LogData.CLIENT_RECV_EVENT_VALUE);
-        clientSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
-        //finish client
-        clientSpan.finish();
+        //finish
+        this.clientReceiveTagFinish(clientSpan, resultCode);
         //client span
         if (clientSpan.getParentSofaTracerSpan() != null) {
             //restore parent
             sofaTraceContext.push(clientSpan.getParentSofaTracerSpan());
+        }
+    }
+
+    /**
+     * Span finished and append tags
+     * @param clientSpan current finished span
+     * @param resultCode result status code
+     */
+    public void clientReceiveTagFinish(SofaTracerSpan clientSpan, String resultCode) {
+        if (clientSpan != null) {
+            //log
+            clientSpan.log(LogData.CLIENT_RECV_EVENT_VALUE);
+            clientSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
+            //finish client
+            clientSpan.finish();
         }
     }
 
