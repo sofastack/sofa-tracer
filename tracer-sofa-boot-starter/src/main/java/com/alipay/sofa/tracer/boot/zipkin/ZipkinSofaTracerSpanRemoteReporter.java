@@ -100,6 +100,16 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         //traceId
         SofaTracerSpanContext sofaTracerSpanContext = sofaTracerSpan.getSofaTracerSpanContext();
 
+        /**
+         * Changes:
+         * 1.From using zipkin span's traceId alone, to using both traceid and traceIdHigh
+         * 2.From using part of SpanContext's traceId as radix 10, to using full traceId as hexadecimal(radix 16)
+         * So that the traceId in the zipkin trace data is consistent with the traceId in the application log files.
+         *
+         * 3.When traceId is received from the previous node, the original algorithm will not be able to cut
+         *   off the pid in tail of the traceId, because it does not know the pid of the sender.
+         *   resulting in over range when convert it to long type.
+         */
         long[] traceIds = CommonUtils.hexToDualLong(sofaTracerSpanContext.getTraceId());
 
         zipkinSpanBuilder.traceId(traceIds[0], traceIds[1]);
@@ -208,6 +218,7 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
      * @return fnv hash code
      */
     public static long FNV64HashCode(String data) {
+        //hash FNVHash64 : http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-param
         long hash = 0xcbf29ce484222325L;
         for (int i = 0; i < data.length(); ++i) {
             char c = data.charAt(i);
