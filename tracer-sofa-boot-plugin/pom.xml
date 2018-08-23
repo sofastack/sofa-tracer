@@ -37,7 +37,6 @@
                         <configuration>
                             <priority>2000</priority>
                             <pluginName>${ark.plugin.name}</pluginName>
-                            <classifier> </classifier>
 
                             <exported>
                                 <packages>
