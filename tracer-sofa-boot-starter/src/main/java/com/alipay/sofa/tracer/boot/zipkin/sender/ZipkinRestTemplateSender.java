@@ -21,11 +21,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.web.client.RestTemplate;
-import zipkin.reporter.BytesMessageEncoder;
-import zipkin.reporter.Callback;
-import zipkin.reporter.Encoding;
-import zipkin.reporter.Sender;
-
+import zipkin2.Call;
+import zipkin2.codec.Encoding;
+import zipkin2.reporter.BytesMessageEncoder;
+import zipkin2.reporter.Sender;
 import java.net.URI;
 import java.util.List;
 
@@ -35,20 +34,15 @@ import java.util.List;
  * @author yangguanchao
  * @since 2018/05/01
  */
-public class ZipkinRestTemplateSender implements Sender {
+public class ZipkinRestTemplateSender extends Sender {
 
-    private RestTemplate      restTemplate;
+    private RestTemplate restTemplate;
 
-    private String            url;
-
-    /**
-     * close is typically called from a different thread
-     */
-    private transient boolean closeCalled;
+    private String       url;
 
     public ZipkinRestTemplateSender(RestTemplate restTemplate, String baseUrl) {
         this.restTemplate = restTemplate;
-        this.url = baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "api/v1/spans";
+        this.url = baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "api/v2/spans";
     }
 
     @Override
@@ -68,44 +62,22 @@ public class ZipkinRestTemplateSender implements Sender {
     }
 
     @Override
-    public void sendSpans(List<byte[]> encodedSpans, Callback callback) {
-        if (this.closeCalled) {
-            throw new IllegalStateException("Zipkin has closed!");
-        }
+    public Call<Void> sendSpans(List<byte[]> encodedSpans) {
         try {
             byte[] message = BytesMessageEncoder.JSON.encode(encodedSpans);
             post(message);
-            callback.onComplete();
         } catch (Throwable e) {
-            callback.onError(e);
             if (e instanceof Error) {
                 throw (Error) e;
             }
         }
-    }
-
-    /**
-     * Sends an empty json message to the configured endpoint.
-     */
-    @Override
-    public CheckResult check() {
-        try {
-            post(new byte[] { '[', ']' });
-            return CheckResult.OK;
-        } catch (Exception e) {
-            return CheckResult.failed(e);
-        }
-    }
-
-    @Override
-    public void close() {
-        this.closeCalled = true;
+        return null;
     }
 
     private void post(byte[] json) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        RequestEntity<byte[]> requestEntity = new RequestEntity<byte[]>(json, httpHeaders,
+        RequestEntity<byte[]> requestEntity = new RequestEntity<>(json, httpHeaders,
             HttpMethod.POST, URI.create(this.url));
         this.restTemplate.exchange(requestEntity, String.class);
     }
