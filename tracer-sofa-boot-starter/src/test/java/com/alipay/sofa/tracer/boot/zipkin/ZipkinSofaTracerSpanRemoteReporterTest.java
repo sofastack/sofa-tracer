@@ -59,9 +59,8 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         restTemplateCustomizer.customize(restTemplate);
         //host http://zipkin-cloud-3.inc.host.net:9411
         String baseUrl = "http://zipkin-cloud-3.inc.host.net:9411";
-        int flushInterval = 1;
         SpanReportListener spanReportListener = new ZipkinSofaTracerSpanRemoteReporter(
-            restTemplate, baseUrl, flushInterval);
+            restTemplate, baseUrl);
         SpanReportListenerHolder.addSpanReportListener(spanReportListener);
     }
 

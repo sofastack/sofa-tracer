@@ -37,7 +37,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableConfigurationProperties({ ZipkinSofaTracerProperties.class,
                                 ZipkinSofaTracerSamplerProperties.class })
 @ConditionalOnProperty(value = "com.alipay.sofa.tracer.zipkin.enabled", matchIfMissing = true)
-@ConditionalOnClass({ zipkin.Span.class, zipkin.reporter.AsyncReporter.class })
+@ConditionalOnClass({ zipkin2.Span.class, zipkin2.reporter.AsyncReporter.class })
 public class ZipkinSofaTracerAutoConfiguration {
 
     @Bean
@@ -53,6 +53,6 @@ public class ZipkinSofaTracerAutoConfiguration {
         RestTemplate restTemplate = new RestTemplate();
         zipkinSofaTracerRestTemplateCustomizer.customize(restTemplate);
         return new ZipkinSofaTracerSpanRemoteReporter(restTemplate,
-            zipkinSofaTracerProperties.getBaseUrl(), zipkinSofaTracerProperties.getFlushInterval());
+            zipkinSofaTracerProperties.getBaseUrl());
     }
 }

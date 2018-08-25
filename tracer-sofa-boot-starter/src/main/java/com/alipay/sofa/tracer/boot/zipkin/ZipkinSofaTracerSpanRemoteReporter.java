@@ -26,21 +26,16 @@ import com.alipay.common.tracer.core.utils.TracerUtils;
 import com.alipay.sofa.tracer.boot.zipkin.sender.ZipkinRestTemplateSender;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
-import zipkin.Annotation;
-import zipkin.BinaryAnnotation;
-import zipkin.Endpoint;
-import zipkin.Span;
-import zipkin.reporter.AsyncReporter;
-
+import zipkin2.Endpoint;
+import zipkin2.Span;
+import zipkin2.reporter.AsyncReporter;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * ZipkinSofaTracerSpanRemoteReporter report {@link SofaTracerSpan} to Zipkin
@@ -49,8 +44,6 @@ import java.util.concurrent.TimeUnit;
  * @since 2018/05/01
  */
 public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, Flushable, Closeable {
-
-    private static final Charset           UTF_8        = Charset.forName("UTF-8");
 
     private static String                  processId    = TracerUtils.getPID();
 
@@ -63,11 +56,9 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
      */
     private int                            ipAddressInt = -1;
 
-    public ZipkinSofaTracerSpanRemoteReporter(RestTemplate restTemplate, String baseUrl,
-                                              int flushInterval) {
+    public ZipkinSofaTracerSpanRemoteReporter(RestTemplate restTemplate, String baseUrl) {
         this.sender = new ZipkinRestTemplateSender(restTemplate, baseUrl);
-        this.delegate = AsyncReporter.builder(this.sender).queuedMaxSpans(1000)
-            .messageTimeout(flushInterval, TimeUnit.SECONDS).build();
+        this.delegate = AsyncReporter.create(sender);
     }
 
     @Override
@@ -76,7 +67,7 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
             return;
         }
         //convert
-        zipkin.Span zipkinSpan = convertToZipkinSpan(span);
+        Span zipkinSpan = convertToZipkinSpan(span);
         this.delegate.report(zipkinSpan);
     }
 
@@ -88,19 +79,22 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
     @Override
     public void close() {
         this.delegate.close();
-        this.sender.close();
     }
 
-    private zipkin.Span convertToZipkinSpan(SofaTracerSpan sofaTracerSpan) {
-        zipkin.Span.Builder zipkinSpanBuilder = Span.builder();
+    /**
+     * convent sofaTracerSpan model to zipKinSpan model
+     * @param sofaTracerSpan
+     * @return
+     */
+    private Span convertToZipkinSpan(SofaTracerSpan sofaTracerSpan) {
+        Span.Builder zipkinSpanBuilder = Span.newBuilder();
+        zipkinSpanBuilder.timestamp(sofaTracerSpan.getStartTime() * 1000);
+        //Annotations
         Endpoint endpoint = getZipkinEndpoint(sofaTracerSpan.getOperationName());
         this.addZipkinAnnotations(zipkinSpanBuilder, sofaTracerSpan, endpoint);
-        this.addZipkinBinaryAnnotationsWithTags(zipkinSpanBuilder, sofaTracerSpan, endpoint);
-        //baggage
+        this.addZipkinBinaryAnnotationsWithTags(zipkinSpanBuilder, sofaTracerSpan);
         this.addZipkinBinaryAnnotationsWithBaggage(zipkinSpanBuilder, sofaTracerSpan);
-        // Zipkin is in nanosecond :timestamp reference : zipkin.storage.QueryRequest.test()
-        zipkinSpanBuilder.timestamp(sofaTracerSpan.getStartTime() * 1000);
-        // Zipkin is in nanosecond
+        // Zipkin is in nanosecond  cr-cs
         zipkinSpanBuilder
             .duration((sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()) * 1000);
         //traceId
@@ -116,11 +110,10 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
          *   off the pid in tail of the traceId, because it does not know the pid of the sender.
          *   resulting in over range when convert it to long type.
          */
-        //zipkinSpanBuilder.traceId(traceIdToId(sofaTracerSpanContext.getTraceId()));
         long[] traceIds = CommonUtils.hexToDualLong(sofaTracerSpanContext.getTraceId());
-        zipkinSpanBuilder.traceIdHigh(traceIds[0]);
-        zipkinSpanBuilder.traceId(traceIds[1]);
 
+        zipkinSpanBuilder.traceId(traceIds[0], traceIds[1]);
+        zipkinSpanBuilder.kind(Span.Kind.SERVER);
         String parentSpanId = sofaTracerSpanContext.getParentId();
         if (sofaTracerSpan.isServer() && parentSpanId != null
             && StringUtils.isNotBlank(parentSpanId)) {
@@ -159,8 +152,8 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
     }
 
     private Endpoint getZipkinEndpoint(String operationName) {
+        InetAddress ipAddress = null;
         if (this.ipAddressInt <= 0) {
-            InetAddress ipAddress = null;
             try {
                 ipAddress = InetAddress.getLocalHost();
                 this.ipAddressInt = ByteBuffer.wrap(ipAddress.getAddress()).getInt();
@@ -169,48 +162,39 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
                 this.ipAddressInt = 256 * 256 * 256 * 127 + 1;
             }
         }
-        return Endpoint.builder().serviceName(operationName).ipv4(this.ipAddressInt).build();
-    }
-
-    private void addZipkinBinaryAnnotation(String key, String value, Endpoint endpoint,
-                                           zipkin.Span.Builder zipkinSpan) {
-        BinaryAnnotation binaryAnn = BinaryAnnotation.builder().type(BinaryAnnotation.Type.STRING)
-            .key(key).value(value.getBytes(UTF_8)).endpoint(endpoint).build();
-        zipkinSpan.addBinaryAnnotation(binaryAnn);
+        return Endpoint.newBuilder().serviceName(operationName).ip(ipAddress).build();
     }
 
     /**
      * Adds binary annotation from the Open Tracing Span
      */
-    private void addZipkinBinaryAnnotationsWithTags(zipkin.Span.Builder zipkinSpan,
-                                                    SofaTracerSpan span, Endpoint endpoint) {
+    private void addZipkinBinaryAnnotationsWithTags(Span.Builder zipkinSpan, SofaTracerSpan span) {
         for (Map.Entry<String, String> e : span.getTagsWithStr().entrySet()) {
-            addZipkinBinaryAnnotation(e.getKey(), e.getValue(), endpoint, zipkinSpan);
+            zipkinSpan.putTag(e.getKey(), e.getValue());
         }
         for (Map.Entry<String, Number> e : span.getTagsWithNumber().entrySet()) {
-            addZipkinBinaryAnnotation(e.getKey(), e.getValue().toString(), endpoint, zipkinSpan);
+            zipkinSpan.putTag(e.getKey(), e.getValue().toString());
         }
         for (Map.Entry<String, Boolean> e : span.getTagsWithBool().entrySet()) {
-            addZipkinBinaryAnnotation(e.getKey(), e.getValue().toString(), endpoint, zipkinSpan);
+            zipkinSpan.putTag(e.getKey(), e.getValue().toString());
         }
     }
 
-    private void addZipkinBinaryAnnotationsWithBaggage(zipkin.Span.Builder zipkinSpan,
-                                                       SofaTracerSpan span) {
+    private void addZipkinBinaryAnnotationsWithBaggage(Span.Builder zipkinSpan, SofaTracerSpan span) {
         SofaTracerSpanContext sofaTracerSpanContext = span.getSofaTracerSpanContext();
         if (sofaTracerSpanContext != null) {
             Map<String, String> sysBaggage = sofaTracerSpanContext.getSysBaggage();
             for (Map.Entry<String, String> e : sysBaggage.entrySet()) {
-                addZipkinBinaryAnnotation(e.getKey(), e.getValue(), null, zipkinSpan);
+                zipkinSpan.putTag(e.getKey(), e.getValue());
             }
             Map<String, String> bizBaggage = sofaTracerSpanContext.getBizBaggage();
             for (Map.Entry<String, String> e : bizBaggage.entrySet()) {
-                addZipkinBinaryAnnotation(e.getKey(), e.getValue(), null, zipkinSpan);
+                zipkinSpan.putTag(e.getKey(), e.getValue());
             }
         }
     }
 
-    private void addZipkinAnnotations(zipkin.Span.Builder zipkinSpan, SofaTracerSpan span,
+    private void addZipkinAnnotations(Span.Builder zipkinSpan, SofaTracerSpan span,
                                       Endpoint endpoint) {
         for (LogData logData : span.getLogs()) {
             Map<String, ?> fields = logData.getFields();
@@ -218,12 +202,8 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
                 continue;
             }
             for (Map.Entry<String, ?> entry : fields.entrySet()) {
-                //ignore event key
-                Annotation zipkinAnnotation = Annotation.builder()
-                    // Zipkin is in nanosecond
-                    .timestamp(logData.getTime() * 1000).value(entry.getValue().toString())
-                    .endpoint(endpoint).build();
-                zipkinSpan.addAnnotation(zipkinAnnotation);
+                zipkinSpan.addAnnotation(logData.getTime() * 1000, entry.getValue().toString())
+                    .localEndpoint(endpoint);
             }
         }
     }
