@@ -30,6 +30,7 @@ public class C3p0Test extends BaseTest {
 
     @Before
     public void beforeTestCase() throws Exception{
+        sqlExecutionMock();
         when(comboPooledDataSource.getJdbcUrl()).thenReturn("jdbc:oracle:thin:@//mockJdbcHost:9336");
         when(comboPooledDataSource.getConnection()).thenReturn(cn);
         when(cn.prepareStatement(any(String.class))).thenReturn(ps);
@@ -47,8 +48,8 @@ public class C3p0Test extends BaseTest {
     @Override
     protected DataSource newDataSourceWithoutInitialization() {
         dataSource = new SmartDataSource(comboPooledDataSource);
-        ((SmartDataSource) dataSource).setAppName("c3p0MockApp");
-        ((SmartDataSource) dataSource).setDatabase("c3p0MockDB");
+        ((SmartDataSource) dataSource).setAppName("mockApp");
+        ((SmartDataSource) dataSource).setDatabase("mockDB");
         ((SmartDataSource) dataSource).setDbType(DBType.MYSQL.getName());
         ((SmartDataSource) dataSource).setClientTracer(DataSourceClientTracer.getDataSourceClientTracer());
         return dataSource;

@@ -38,8 +38,15 @@ public class DruidTest extends BaseTest {
     @Mock
     protected DruidPooledPreparedStatement druidPooledPreparedStatement;
 
+    public DruidTest() {
+    }
+
     @Before
     public void beforeTestCase() throws Exception{
+        cn = druidPooledConnection;
+        ps = druidPooledPreparedStatement;
+        st = druidPooledStatement;
+        sqlExecutionMock();
         when(druidDataSource.getUrl()).thenReturn("jdbc:oracle:thin:@//mockJdbcHost:9336");
         when(druidDataSource.getConnection()).thenReturn(druidPooledConnection);
         when(druidPooledConnection.prepareStatement(any(String.class))).thenReturn(druidPooledPreparedStatement);
@@ -57,8 +64,8 @@ public class DruidTest extends BaseTest {
     @Override
     protected DataSource newDataSourceWithoutInitialization() {
         dataSource = new SmartDataSource(druidDataSource);
-        ((SmartDataSource) dataSource).setAppName("druidMockApp");
-        ((SmartDataSource) dataSource).setDatabase("druidMockDB");
+        ((SmartDataSource) dataSource).setAppName("mockApp");
+        ((SmartDataSource) dataSource).setDatabase("mockDB");
         ((SmartDataSource) dataSource).setDbType(DBType.MYSQL.getName());
         ((SmartDataSource) dataSource).setClientTracer(DataSourceClientTracer.getDataSourceClientTracer());
         return dataSource;

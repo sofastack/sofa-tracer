@@ -4,13 +4,11 @@
  */
 package com.sofa.tracer.plugins.datasource.base;
 
-import com.alibaba.druid.pool.DruidDataSource;
-import com.alibaba.druid.pool.DruidPooledConnection;
-import com.alibaba.druid.pool.DruidPooledPreparedStatement;
-import com.alibaba.druid.pool.DruidPooledStatement;
+import com.alibaba.druid.mock.MockResultSet;
 import com.alipay.sofa.tracer.plugins.datasource.BaseDataSource;
+import com.alipay.sofa.tracer.plugins.datasource.DBType;
 import com.alipay.sofa.tracer.plugins.datasource.Interceptor;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -22,9 +20,13 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static org.mockito.Mockito.when;
 
 /**
  * @author shusong.yss
@@ -54,6 +56,22 @@ public abstract class BaseTest {
 
     protected abstract DataSource newDataSourceWithoutInitialization();
 
+    protected void sqlExecutionMock() throws Exception{
+        when(ps.executeQuery()).thenReturn(new MockResultSet(null, Arrays.asList(new Object[][]{{"数据检查"}})));
+        when(ps.executeBatch()).thenReturn(new int[]{0, 1});
+        when(ps.executeUpdate()).thenReturn(1);
+        when(ps.execute()).thenReturn(false);
+        when(ps.getUpdateCount()).thenReturn(1);
+        when(st
+                .executeUpdate("insert into mars (id, gmt_create, gmt_modified, username) \n"
+                        + "values (100, now(), now(), 'neo')")).thenReturn(1);
+        when(st.executeQuery("select username from mars where id=100")).thenReturn(new MockResultSet(null, Arrays.asList(new Object[][]{{"数据检查", "neo"}})));
+        when(st.executeQuery("select username from mars where id=101")).thenReturn(new MockResultSet(null, Arrays.asList(new Object[][]{{"frank"}})));
+        when(st.executeQuery("select username from mars where id=102")).thenReturn(new MockResultSet(null, Arrays.asList(new Object[][]{{"bryce"}})));
+        when(st.executeQuery("select id, username from mars")).thenReturn(new MockResultSet(null, Arrays.asList(new Object[][]{{"数据检查"}})));
+        when(st.executeQuery("select * from mars")).thenReturn(new MockResultSet(null, Arrays.asList(new Object[][]{{"数据检查"}})));
+    }
+
     @After
     public void afterTestCase() throws SQLException {
         if (ps != null) {
@@ -67,40 +85,21 @@ public abstract class BaseTest {
         }
     }
 
-    protected void initLogContext() {
-        try {
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected void clearLogContext() {
-        try {
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Test
     public void test_select_statement() throws SQLException {
         try {
-            initLogContext();
             cn = dataSource.getConnection();
             st = cn.createStatement();
             ResultSet rs = st.executeQuery("select id, username from mars");
             Assert.assertTrue("数据检查", rs.next());
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            clearLogContext();
         }
     }
 
     @Test
-    @Ignore
     public void test_insert_statement() throws Exception {
         try {
-            initLogContext();
             cn = dataSource.getConnection();
             st = cn.createStatement();
             int result = st
@@ -109,20 +108,16 @@ public abstract class BaseTest {
             Assert.assertTrue("数据检查", result == 1);
             ResultSet rs = st.executeQuery("select username from mars where id=100");
             Assert.assertTrue("数据检查", rs.next());
-            Assert.assertEquals("结果检查", rs.getString(1), "neo");
+            Assert.assertEquals("结果检查", rs.getString(2), "neo");
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
-        } finally {
-            clearLogContext();
         }
     }
 
     @Test
-    @Ignore
     public void test_insert_preparedStatement() throws Exception {
         try {
-            initLogContext();
             cn = dataSource.getConnection();
             st = cn.createStatement();
             ps = cn
@@ -135,18 +130,14 @@ public abstract class BaseTest {
             ResultSet rs = st.executeQuery("select username from mars where id=101");
             Assert.assertTrue("数据检查", rs.next());
             Assert.assertEquals("结果检查", rs.getString(1), "frank");
-            st.execute("delete from mars where id=101");
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            clearLogContext();
         }
     }
 
     @Test
     public void test_statement_with_interceptor() throws Exception {
         try {
-            initLogContext();
             dataSource.setInterceptors(Collections
                     .<Interceptor> singletonList(new FakeInterceptor()));
             dataSource.init();
@@ -156,30 +147,25 @@ public abstract class BaseTest {
             Assert.assertTrue("数据检查", rs.next());
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            clearLogContext();
         }
     }
 
     @Test
     public void test_prepare_statement() throws Exception {
         try {
-            initLogContext();
             cn = dataSource.getConnection();
             ps = cn.prepareStatement("select * from mars");
             ResultSet rs = ps.executeQuery();
             Assert.assertTrue("数据检查", rs.next());
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            clearLogContext();
+            Assert.assertNotNull(e);
         }
     }
 
     @Test
     public void test_ps_batch() throws SQLException {
         try {
-            initLogContext();
             cn = dataSource.getConnection();
             st = cn.createStatement();
             ps = cn
@@ -205,16 +191,13 @@ public abstract class BaseTest {
             Assert.assertEquals("结果检查", rs.getString(1), "bryce");
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            clearLogContext();
+            Assert.assertNotNull(e);
         }
     }
 
     @Test
-    @Ignore
     public void test_ps_execute() throws SQLException {
         try {
-            initLogContext();
             cn = dataSource.getConnection();
             st = cn.createStatement();
             ps = cn
@@ -226,8 +209,7 @@ public abstract class BaseTest {
             Assert.assertTrue("updateCount", 1 == ps.getUpdateCount());
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            clearLogContext();
+            Assert.assertNotNull(e);
         }
     }
 
@@ -250,6 +232,7 @@ public abstract class BaseTest {
             ps.addBatch();
             ps.executeUpdate();
         } catch (SQLException e) {
+            Assert.assertNotNull(e);
             throw e;
         }
     }
@@ -257,7 +240,6 @@ public abstract class BaseTest {
     @Test
     public void test_prepare_statement_disable_trace() throws Exception {
         try {
-            initLogContext();
             dataSource = (BaseDataSource) newDataSourceWithoutInitialization();
             dataSource.init();
             cn = dataSource.getConnection();
@@ -266,24 +248,18 @@ public abstract class BaseTest {
             Assert.assertTrue("数据检查", rs.next());
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            clearLogContext();
         }
     }
 
     @Test
-    @Ignore
-    public void test_zzz_tracelog() throws SQLException {
+    public void test_zzz_tracelog() throws Exception {
         try {
-            initLogContext();
             cn = dataSource.getConnection();
             ps = cn.prepareStatement("select * from mars");
             ResultSet rs = ps.executeQuery();
             Assert.assertTrue("数据检查", rs.next());
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            clearLogContext();
         }
         try {
             TimeUnit.SECONDS.sleep(2);
@@ -292,17 +268,22 @@ public abstract class BaseTest {
         }
         List<String> lines = readLines(DATASOURCE_CLIENT_DIGEST_LOG_FILE);
         String thisLog = lines.get(lines.size() - 1);
-        String[] contents = thisLog.split(",");
-        Assert.assertTrue(contents[1].equals("testApp"));
-        Assert.assertTrue(contents[2].length() > 0);
-        Assert.assertTrue(contents[3].equals("0.1"));
-        Assert.assertTrue(contents[4].equals("testDb"));
-        Assert.assertTrue(contents[5].equals("select * from mars"));
-        Assert.assertTrue(contents[6].equals("success"));
-        Assert.assertTrue(parseMs(contents[7]) > 0);
-        Assert.assertTrue(parseMs(contents[8]) >= 0);
-        Assert.assertTrue(parseMs(contents[9]) > 0);
-        Assert.assertTrue(contents[10].equals("main"));
+        ObjectMapper mapper = new ObjectMapper();
+        Map result = mapper.readValue(thisLog, Map.class);
+        Assert.assertTrue(result.get("local.app").equals("mockApp"));
+        Assert.assertTrue(result.get("database.name").equals("mockDB"));
+        Assert.assertTrue(result.get("sql").equals("select * from mars"));
+        Assert.assertTrue(result.get("result.code").equals("success"));
+        String totalTime = result.get("total.time").toString();
+        Assert.assertTrue(totalTime.endsWith("ms"));
+        Assert.assertTrue(Integer.valueOf(totalTime.substring(0, totalTime.length() - 2)) >= 0);
+        Assert.assertTrue(result.get("database.type").equals(DBType.MYSQL.getName()));
+        Assert.assertTrue(result.get("database.endpoint").equals("mockJdbcHost:9336"));
+        Assert.assertTrue(result.get("result.code").equals("success"));
+        Assert.assertTrue(result.get("current.thread.name").equals("main"));
+
+
+//        Assert.assertTrue(contents[10].equals("main"));
     }
 
     private Integer parseMs(String str) {
