@@ -1,6 +1,18 @@
-/**
- * Alipay.com Inc.
- * Copyright (c) 2004-2018 All Rights Reserved.
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.sofa.tracer.plugins.datasource.base;
 
@@ -37,39 +49,45 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class BaseTest {
 
-    public static final String USER_HOME             = System.getProperty("user.home");
-    public static final String DATASOURCE_CLIENT_DIGEST_LOG_FILE = USER_HOME
-            + "/logs/tracelog/datasource-client-digest.log";
+    public static final String  USER_HOME                         = System.getProperty("user.home");
+    public static final String  DATASOURCE_CLIENT_DIGEST_LOG_FILE = USER_HOME
+                                                                    + "/logs/tracelog/datasource-client-digest.log";
 
-    protected BaseDataSource dataSource = null;
+    protected BaseDataSource    dataSource                        = null;
 
     @Mock
-    protected Connection cn;
+    protected Connection        cn;
 
     @Mock
     protected PreparedStatement ps;
 
     @Mock
-    protected Statement st;
+    protected Statement         st;
 
     protected abstract DataSource newDataSource();
 
     protected abstract DataSource newDataSourceWithoutInitialization();
 
-    protected void sqlExecutionMock() throws Exception{
-        when(ps.executeQuery()).thenReturn(new MockResultSet(null, Arrays.asList(new Object[][]{{"数据检查"}})));
-        when(ps.executeBatch()).thenReturn(new int[]{0, 1});
+    protected void sqlExecutionMock() throws Exception {
+        when(ps.executeQuery()).thenReturn(
+            new MockResultSet(null, Arrays.asList(new Object[][] { { "数据检查" } })));
+        when(ps.executeBatch()).thenReturn(new int[] { 0, 1 });
         when(ps.executeUpdate()).thenReturn(1);
         when(ps.execute()).thenReturn(false);
         when(ps.getUpdateCount()).thenReturn(1);
-        when(st
-                .executeUpdate("insert into mars (id, gmt_create, gmt_modified, username) \n"
-                        + "values (100, now(), now(), 'neo')")).thenReturn(1);
-        when(st.executeQuery("select username from mars where id=100")).thenReturn(new MockResultSet(null, Arrays.asList(new Object[][]{{"数据检查", "neo"}})));
-        when(st.executeQuery("select username from mars where id=101")).thenReturn(new MockResultSet(null, Arrays.asList(new Object[][]{{"frank"}})));
-        when(st.executeQuery("select username from mars where id=102")).thenReturn(new MockResultSet(null, Arrays.asList(new Object[][]{{"bryce"}})));
-        when(st.executeQuery("select id, username from mars")).thenReturn(new MockResultSet(null, Arrays.asList(new Object[][]{{"数据检查"}})));
-        when(st.executeQuery("select * from mars")).thenReturn(new MockResultSet(null, Arrays.asList(new Object[][]{{"数据检查"}})));
+        when(
+            st.executeUpdate("insert into mars (id, gmt_create, gmt_modified, username) \n"
+                             + "values (100, now(), now(), 'neo')")).thenReturn(1);
+        when(st.executeQuery("select username from mars where id=100")).thenReturn(
+            new MockResultSet(null, Arrays.asList(new Object[][] { { "数据检查", "neo" } })));
+        when(st.executeQuery("select username from mars where id=101")).thenReturn(
+            new MockResultSet(null, Arrays.asList(new Object[][] { { "frank" } })));
+        when(st.executeQuery("select username from mars where id=102")).thenReturn(
+            new MockResultSet(null, Arrays.asList(new Object[][] { { "bryce" } })));
+        when(st.executeQuery("select id, username from mars")).thenReturn(
+            new MockResultSet(null, Arrays.asList(new Object[][] { { "数据检查" } })));
+        when(st.executeQuery("select * from mars")).thenReturn(
+            new MockResultSet(null, Arrays.asList(new Object[][] { { "数据检查" } })));
     }
 
     @After
@@ -103,8 +121,8 @@ public abstract class BaseTest {
             cn = dataSource.getConnection();
             st = cn.createStatement();
             int result = st
-                    .executeUpdate("insert into mars (id, gmt_create, gmt_modified, username) \n"
-                            + "values (100, now(), now(), 'neo')");
+                .executeUpdate("insert into mars (id, gmt_create, gmt_modified, username) \n"
+                               + "values (100, now(), now(), 'neo')");
             Assert.assertTrue("数据检查", result == 1);
             ResultSet rs = st.executeQuery("select username from mars where id=100");
             Assert.assertTrue("数据检查", rs.next());
@@ -121,7 +139,7 @@ public abstract class BaseTest {
             cn = dataSource.getConnection();
             st = cn.createStatement();
             ps = cn
-                    .prepareStatement("insert into mars (id, gmt_create, username) values (?, ?, ?)");
+                .prepareStatement("insert into mars (id, gmt_create, username) values (?, ?, ?)");
             ps.setInt(1, 101);
             ps.setDate(2, new Date(System.currentTimeMillis()));
             ps.setString(3, "frank");
@@ -139,7 +157,7 @@ public abstract class BaseTest {
     public void test_statement_with_interceptor() throws Exception {
         try {
             dataSource.setInterceptors(Collections
-                    .<Interceptor> singletonList(new FakeInterceptor()));
+                .<Interceptor> singletonList(new FakeInterceptor()));
             dataSource.init();
             cn = dataSource.getConnection();
             st = cn.createStatement();
@@ -169,7 +187,7 @@ public abstract class BaseTest {
             cn = dataSource.getConnection();
             st = cn.createStatement();
             ps = cn
-                    .prepareStatement("insert into mars (id, gmt_create, username) values (?, ?, ?)");
+                .prepareStatement("insert into mars (id, gmt_create, username) values (?, ?, ?)");
             ps.setLong(1, 101);
             ps.setDate(2, new Date(System.currentTimeMillis()));
             ps.setString(3, "frank");
@@ -201,7 +219,7 @@ public abstract class BaseTest {
             cn = dataSource.getConnection();
             st = cn.createStatement();
             ps = cn
-                    .prepareStatement("insert into mars (id, gmt_create, username) values (?, ?, ?)");
+                .prepareStatement("insert into mars (id, gmt_create, username) values (?, ?, ?)");
             ps.setLong(1, 101);
             ps.setDate(2, new Date(System.currentTimeMillis()));
             ps.setString(3, "frank");
@@ -218,7 +236,7 @@ public abstract class BaseTest {
         try {
             cn = dataSource.getConnection();
             ps = cn
-                    .prepareStatement("insert into mars (id, gmt_create, gmt_modified, username) values (?, ?, ?, ?)");
+                .prepareStatement("insert into mars (id, gmt_create, gmt_modified, username) values (?, ?, ?, ?)");
             ps.setLong(1, 100000);
             ps.setDate(2, new Date(System.currentTimeMillis()));
             ps.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
@@ -282,8 +300,7 @@ public abstract class BaseTest {
         Assert.assertTrue(result.get("result.code").equals("success"));
         Assert.assertTrue(result.get("current.thread.name").equals("main"));
 
-
-//        Assert.assertTrue(contents[10].equals("main"));
+        //        Assert.assertTrue(contents[10].equals("main"));
     }
 
     private Integer parseMs(String str) {
