@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.tracer.plugins.datasource.tracer;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
@@ -53,7 +54,7 @@ public class DataSourceClientTracer extends AbstractClientTracer {
      * DataSource Client Tracer Singleton
      * @return singleton
      */
-    public static DataSourceClientTracer getHttpClientTracerSingleton() {
+    public static DataSourceClientTracer getDataSourceClientTracer() {
         if (dataSourceClientTracer == null) {
             synchronized (DataSourceClientTracer.class) {
                 if (dataSourceClientTracer == null) {
@@ -128,16 +129,13 @@ public class DataSourceClientTracer extends AbstractClientTracer {
     public void endTrace(long cost, String resultCode) {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         if (sofaTraceContext != null) {
-            SofaTracerSpan sofaTracerSpan = sofaTraceContext.pop();
+            SofaTracerSpan sofaTracerSpan = sofaTraceContext.getCurrentSpan();
             if (sofaTracerSpan != null) {
                 sofaTracerSpan.setTag(DataSourceTracerKeys.DB_EXECUTE_COST, cost);
                 try {
                     sofaTracerSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
                     sofaTracerSpan.setEndTime(System.currentTimeMillis());
-                    SofaTracerSpan parentSpan = sofaTracerSpan.getParentSofaTracerSpan();
-                    if (parentSpan != null) {
-                        sofaTraceContext.push(sofaTracerSpan.getParentSofaTracerSpan());
-                    }
+                    clientReceive(resultCode);
                 } catch (Throwable throwable) {
                     SelfLog.errorWithTraceId("db processed", throwable);
                 }
