@@ -24,6 +24,7 @@ import java.util.concurrent.Executor;
 /**
  * @author shusong.yss
  * @author qilong.zql
+ * @since 2.2.0
  */
 public class ExtendedConnection implements Connection {
 

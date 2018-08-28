@@ -19,10 +19,10 @@ package com.alipay.sofa.tracer.plugins.datasource.utils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.datasource.tracer.Endpoint;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Method;
 
 /**
+ * @author shusong.yss
  * @author qilong.zql
  * @since 2.2.0
  */

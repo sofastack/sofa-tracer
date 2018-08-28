@@ -24,7 +24,9 @@ import java.sql.*;
 import java.util.Calendar;
 
 /**
- * @author qilong.zql 18/8/24-下午5:23
+ * @author shusong.yss
+ * @author qilong.zql
+ * @since 2.2.0
  */
 public class ExtendedPreparedStatement extends ExtendedStatement implements PreparedStatement {
 

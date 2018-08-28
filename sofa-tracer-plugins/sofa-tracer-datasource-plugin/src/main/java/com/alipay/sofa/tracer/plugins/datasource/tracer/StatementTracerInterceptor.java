@@ -16,9 +16,6 @@
  */
 package com.alipay.sofa.tracer.plugins.datasource.tracer;
 
-import com.alipay.common.tracer.core.SofaTracer;
-import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
-import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.sofa.tracer.plugins.datasource.Interceptor;
 
 /**

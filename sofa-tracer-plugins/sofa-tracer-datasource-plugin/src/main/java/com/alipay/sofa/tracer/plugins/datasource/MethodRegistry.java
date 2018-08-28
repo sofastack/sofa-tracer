@@ -28,7 +28,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author qilong.zql 18/8/24-下午4:22
+ * @author shusong.yss
+ * @author qilong.zql
+ * @since 2.2.0
  */
 public class MethodRegistry {
 

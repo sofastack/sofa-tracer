@@ -17,12 +17,12 @@
 package com.alipay.sofa.tracer.plugins.datasource.tracer;
 
 import com.alipay.sofa.tracer.plugins.datasource.Interceptor;
-
 import java.util.List;
 
 /**
  * @author shusong.yss
  * @author qilong.zql
+ * @since 2.2.0
  */
 public class ConnectionTraceInterceptor implements Interceptor {
 

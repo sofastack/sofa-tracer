@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.tracer.plugins.datasource.tracer;
 
-import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;

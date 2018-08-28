@@ -299,13 +299,6 @@ public abstract class BaseTest {
         Assert.assertTrue(result.get("database.endpoint").equals("mockJdbcHost:9336"));
         Assert.assertTrue(result.get("result.code").equals("success"));
         Assert.assertTrue(result.get("current.thread.name").equals("main"));
-
-        //        Assert.assertTrue(contents[10].equals("main"));
-    }
-
-    private Integer parseMs(String str) {
-        String num = str.substring(0, str.length() - 2);
-        return Integer.valueOf(num);
     }
 
     public static List<String> readLines(String filePath) {

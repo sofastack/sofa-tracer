@@ -17,7 +17,9 @@
 package com.alipay.sofa.tracer.plugins.datasource.tracer;
 
 /**
- * @author qilong.zql 18/8/25-下午4:18
+ * @author shusong.yss
+ * @author qilong.zql
+ * @since 2.2.0
  */
 public class Endpoint {
 

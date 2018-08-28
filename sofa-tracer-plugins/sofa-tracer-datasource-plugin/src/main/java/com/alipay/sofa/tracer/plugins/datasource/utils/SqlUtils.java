@@ -19,6 +19,7 @@ package com.alipay.sofa.tracer.plugins.datasource.utils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 
 /**
+ * @author shusong.yss
  * @author qilong.zql
  * @since 2.2.0
  */

@@ -22,7 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author qilong.zql 18/8/24-下午5:00
+ * @author shusong.yss
+ * @author qilong.zql
+ * @since 2.2.0
  */
 public class ExtendedStatement implements Statement {
 
