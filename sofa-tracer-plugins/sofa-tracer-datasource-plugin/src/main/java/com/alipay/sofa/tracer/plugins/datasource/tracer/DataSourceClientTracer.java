@@ -101,7 +101,7 @@ public class DataSourceClientTracer extends AbstractClientTracer {
     }
 
     public void startTrace(String sql) {
-        SofaTracerSpan sofaTracerSpan = clientSend(StringUtils.EMPTY_STRING);
+        SofaTracerSpan sofaTracerSpan = clientSend((String) getStateValue(DataSourceTracerKeys.DATABASE_NAME));
         SofaTracerSpanContext cxt = sofaTracerSpan.getSofaTracerSpanContext();
         if (cxt != null) {
             propagate();
