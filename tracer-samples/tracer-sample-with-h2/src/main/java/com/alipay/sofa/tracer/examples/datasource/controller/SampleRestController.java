@@ -16,10 +16,13 @@
  */
 package com.alipay.sofa.tracer.examples.datasource.controller;
 
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.alipay.sofa.tracer.plugins.datasource.SmartDataSource;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -28,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.sql.DataSource;
+
 /**
  * SampleRestController
  *
@@ -35,20 +40,21 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2018/05/11
  */
 @RestController
-public class SampleRestController implements ApplicationContextAware {
+public class SampleRestController {
 
     private static final String TEMPLATE = "Hello, %s!";
 
     private final AtomicLong    counter  = new AtomicLong();
 
-    private ApplicationContext cxt;
+    @Autowired
+    private SmartDataSource     smartDataSource;
 
     /***
      * @param name name
      * @return map
      */
     @RequestMapping("/datasource")
-    public Map<String, Object> springmvc(@RequestParam(value = "name", defaultValue = "SOFATracer DataSource DEMO") String name) {
+    public Map<String, Object> datasource(@RequestParam(value = "name", defaultValue = "SOFATracer DataSource DEMO") String name) {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         resultMap.put("success", true);
         resultMap.put("id", counter.incrementAndGet());
@@ -56,8 +62,21 @@ public class SampleRestController implements ApplicationContextAware {
         return resultMap;
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        cxt = applicationContext;
+    @RequestMapping("/create")
+    public Map<String, Object> create() {
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        try {
+            Connection cn = smartDataSource.getConnection();
+            Statement st = cn.createStatement();
+            st.execute("DROP TABLE IF EXISTS TEST;\n"
+                       + "CREATE TABLE TEST(ID INT PRIMARY KEY, NAME VARCHAR(255));");
+            resultMap.put("success", true);
+            resultMap.put("result", "CREATE TABLE TEST(ID INT PRIMARY KEY, NAME VARCHAR(255))");
+        } catch (Throwable throwable) {
+            resultMap.put("success", false);
+            resultMap.put("error", throwable.getMessage());
+        }
+        return resultMap;
     }
+
 }

@@ -43,6 +43,7 @@ public class DataSourceClientDigestJsonEncoder extends AbstractDigestSpanEncoder
     private void appendSlot(JsonStringBuilder jsonStringBuilder, SofaTracerSpan sofaTracerSpan) {
         SofaTracerSpanContext context = sofaTracerSpan.getSofaTracerSpanContext();
         Map<String, String> tagWithStr = sofaTracerSpan.getTagsWithStr();
+        Map<String, Number> tagsWithLong = sofaTracerSpan.getTagsWithNumber();
         // app name
         jsonStringBuilder
             .append(CommonSpanTags.LOCAL_APP, tagWithStr.get(CommonSpanTags.LOCAL_APP));
@@ -65,10 +66,11 @@ public class DataSourceClientDigestJsonEncoder extends AbstractDigestSpanEncoder
                                                                   + SofaTracerConstant.MS);
         //db connection established cost time
         jsonStringBuilder.append(DataSourceTracerKeys.CONNECTION_ESTABLISH_COST,
-            tagWithStr.get(DataSourceTracerKeys.CONNECTION_ESTABLISH_COST) + SofaTracerConstant.MS);
+            tagsWithLong.get(DataSourceTracerKeys.CONNECTION_ESTABLISH_COST)
+                    + SofaTracerConstant.MS);
         //db cost time
         jsonStringBuilder.append(DataSourceTracerKeys.DB_EXECUTE_COST,
-            tagWithStr.get(DataSourceTracerKeys.DB_EXECUTE_COST) + SofaTracerConstant.MS);
+            tagsWithLong.get(DataSourceTracerKeys.DB_EXECUTE_COST) + SofaTracerConstant.MS);
         //db type
         jsonStringBuilder.append(DataSourceTracerKeys.DATABASE_TYPE,
             tagWithStr.get(DataSourceTracerKeys.DATABASE_TYPE));

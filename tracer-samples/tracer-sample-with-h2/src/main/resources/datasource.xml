@@ -4,31 +4,26 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
-    <bean id="smartDataSource" class="com.alipay.sofa.extds.SmartDataSource" init-method="init">
+    <bean id="smartDataSource" class="com.alipay.sofa.tracer.plugins.datasource.SmartDataSource" init-method="init">
         <property name="delegate" ref="simpleDataSource"/>
         <!--应用名称 -->
-        <property name="appName" value="yourAppName"/>
+        <property name="appName" value="SOFATracerDataSource"/>
         <!--数据库名称 -->
-        <property name="database" value="yourDatabase"/>
+        <property name="database" value="h2DataSource"/>
         <!--数据库类型，支持MYSQL, ORACLE-->
         <property name="dbType" value="MYSQL"/>
         <!--tracer-->
         <property name="clientTracer" ref="clientTracer"/>
-        <!--metricsTracker-->
-        <property name="metricsTracker" ref="metricsTracker"/>
     </bean>
 
     <!-- dataSource pool -->
-    <bean id="simpleDataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" primary="true">>
-        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://127.0.0.1:3306/yourDatabase"/>
-        <property name="username" value="root"/>
+    <bean id="simpleDataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" primary="true">
+        <property name="driverClassName" value="org.h2.Driver"/>
+        <property name="url" value="jdbc:h2:~/test"/>
+        <property name="username" value="sofa"/>
         <property name="password" value="123456"/>
     </bean>
 
-    <bean id="metricsTracker" class="com.alipay.sofa.extds.metrics.LookoutMetricsTracker"/>
-
-    <!-- sofa boot tracer2.0-->
-    <bean id="clientTracer" class="Datasource" />
+    <bean id="clientTracer" class="com.alipay.sofa.tracer.plugins.datasource.tracer.DataSourceClientTracer" />
 
 </beans>

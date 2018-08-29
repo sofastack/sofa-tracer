@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author shusong.yss
  * @author qilong.zql
- * @sicne 2.2.0
+ * @since 2.2.0
  */
 public class C3p0Test extends BaseTest {
 

@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * @author shusong.yss
  * @author qilong.zql
- * @sicne 2.2.0
+ * @since 2.2.0
  */
 public class SmartDataSource extends BaseDataSource {
 

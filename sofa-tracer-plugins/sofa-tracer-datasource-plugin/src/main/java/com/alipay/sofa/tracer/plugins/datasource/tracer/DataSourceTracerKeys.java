@@ -19,7 +19,7 @@ package com.alipay.sofa.tracer.plugins.datasource.tracer;
 /**
  * @author shusong.yss
  * @author qilong.zql
- * @sicne 2.2.0
+ * @since 2.2.0
  */
 public class DataSourceTracerKeys {
     public static final String CONNECTION_ESTABLISH_COST         = "connection.establish.span";

@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * @author shusong.yss
  * @author qilong.zql
- * @sicne 2.1.3
+ * @since 2.1.3
  */
 public class DBType {
 

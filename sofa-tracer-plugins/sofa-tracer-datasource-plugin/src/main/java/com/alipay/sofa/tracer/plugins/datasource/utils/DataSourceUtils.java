@@ -154,6 +154,10 @@ public class DataSourceUtils {
                 } else {
                     port = Integer.parseInt(connectionURL.substring(hostEnd + 1));
                 }
+            } else if (connectionURL.contains("jdbc:h2:")) {
+                int start = connectionURL.indexOf("jdbc:h2:");
+                host = connectionURL.substring(start);
+                port = -1;
             } else if (connectionURL.indexOf("://") > 0) {
                 int start = connectionURL.indexOf("://") + 3;
                 int hostEnd = connectionURL.indexOf(':', start);
