@@ -30,6 +30,10 @@
             <artifactId>sofa-tracer-springmvc-plugin</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-tracer-httpclient-plugin</artifactId>
+        </dependency> 
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
         </dependency>
@@ -52,25 +56,11 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
-        <!--httpclient-->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.3</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpasyncclient</artifactId>
-            <version>4.1.3</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- zipkin optional : add manually -->
         <dependency>
             <groupId>io.zipkin.zipkin2</groupId>
             <artifactId>zipkin</artifactId>
-            <version>2.11.1</version>
+            <version>2.11.3</version>
             <optional>true</optional>
         </dependency>
         <dependency>
