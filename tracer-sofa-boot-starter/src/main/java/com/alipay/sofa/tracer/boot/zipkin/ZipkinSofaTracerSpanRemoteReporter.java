@@ -134,7 +134,7 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         //kind
         SofaTracer sofaTracer = sofaTracerSpan.getSofaTracer();
         // adapter SOFARpc span model
-        if (sofaTracer.getTracerType().equals("RPC_TRACER")) {
+        if ("RPC_TRACER".equals(sofaTracer.getTracerType())) {
             zipkinSpanBuilder.kind(Span.Kind.CLIENT);
         } else {
             zipkinSpanBuilder.kind(sofaTracerSpan.isClient() ? Span.Kind.CLIENT : Span.Kind.SERVER);
