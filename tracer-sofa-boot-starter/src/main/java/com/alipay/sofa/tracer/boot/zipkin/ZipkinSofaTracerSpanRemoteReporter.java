@@ -45,16 +45,18 @@ import java.util.Map;
  */
 public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, Flushable, Closeable {
 
-    private static String                  processId    = TracerUtils.getPID();
+    private static String                  processId           = TracerUtils.getPID();
 
     private final ZipkinRestTemplateSender sender;
 
     private final AsyncReporter<Span>      delegate;
 
+    private static final String            SOFARPC_TRACER_TYPE = "RPC_TRACER";
+
     /***
      * cache and performance improve
      */
-    private int                            ipAddressInt = -1;
+    private int                            ipAddressInt        = -1;
 
     public ZipkinSofaTracerSpanRemoteReporter(RestTemplate restTemplate, String baseUrl) {
         this.sender = new ZipkinRestTemplateSender(restTemplate, baseUrl);
@@ -134,7 +136,7 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         //kind
         SofaTracer sofaTracer = sofaTracerSpan.getSofaTracer();
         // adapter SOFARpc span model
-        if ("RPC_TRACER".equals(sofaTracer.getTracerType())) {
+        if (SOFARPC_TRACER_TYPE.equals(sofaTracer.getTracerType())) {
             zipkinSpanBuilder.kind(Span.Kind.CLIENT);
         } else {
             zipkinSpanBuilder.kind(sofaTracerSpan.isClient() ? Span.Kind.CLIENT : Span.Kind.SERVER);
