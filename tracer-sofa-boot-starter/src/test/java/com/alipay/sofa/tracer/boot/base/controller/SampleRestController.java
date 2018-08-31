@@ -35,6 +35,8 @@ import java.util.concurrent.atomic.AtomicLong;
 @RestController
 public class SampleRestController {
 
+    public static String ASYNC_RESP = "Hello World!";
+
     private static final String template = "Hello, %s!";
 
     private final AtomicLong    counter  = new AtomicLong();
@@ -61,7 +63,7 @@ public class SampleRestController {
     public void asyncServlet(HttpServletRequest request, HttpServletResponse response)
                                                                                       throws IOException {
         AsyncContext asyncContext = request.startAsync();
-        asyncContext.getResponse().getWriter().write("Hello World!");
+        asyncContext.getResponse().getWriter().write(ASYNC_RESP);
         asyncContext.complete();
     }
 

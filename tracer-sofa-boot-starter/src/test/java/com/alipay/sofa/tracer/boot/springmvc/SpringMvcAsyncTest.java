@@ -19,6 +19,7 @@ package com.alipay.sofa.tracer.boot.springmvc;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.digest.manager.SofaTracerDigestReporterAsyncManager;
 import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
+import com.alipay.sofa.tracer.boot.base.controller.SampleRestController;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcLogEnum;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import org.apache.commons.io.FileUtils;
@@ -56,6 +57,7 @@ public class SpringMvcAsyncTest extends AbstractTestBase {
 
         ResponseEntity<String> response = testRestTemplate.getForEntity(restUrl, String.class);
         String greetingResponse = response.getBody();
+        assertTrue(greetingResponse.equals(SampleRestController.ASYNC_RESP));
         assertTrue(response.getStatusCode() == HttpStatus.OK);
         // http://docs.spring.io/spring-boot/docs/1.4.2.RELEASE/reference/htmlsingle/#boot-features-testing
         Thread.sleep(3000);
