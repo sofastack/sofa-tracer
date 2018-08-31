@@ -42,7 +42,7 @@ import static org.junit.Assert.assertTrue;
  * @author yangguanchao
  * @since 2018/08/31
  */
-@ActiveProfiles("json")
+@ActiveProfiles("async")
 public class SpringMvcAsyncTest extends AbstractTestBase {
 
     @Test

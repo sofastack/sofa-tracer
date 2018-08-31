@@ -35,11 +35,11 @@ import java.util.concurrent.atomic.AtomicLong;
 @RestController
 public class SampleRestController {
 
-    public static String ASYNC_RESP = "Hello World!";
+    public static String        ASYNC_RESP = "Hello World!";
 
-    private static final String template = "Hello, %s!";
+    private static final String template   = "Hello, %s!";
 
-    private final AtomicLong    counter  = new AtomicLong();
+    private final AtomicLong    counter    = new AtomicLong();
 
     @RequestMapping("/greeting")
     public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
