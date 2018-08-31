@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>tracer-all-parent</artifactId>
-    <version>2.1.3</version>
+    <version>2.1.4</version>
     <packaging>pom</packaging>
 
     <name>tracer-all-parent</name>
@@ -31,7 +31,7 @@
 
     <properties>
         <opentracing.version>0.22.0</opentracing.version>
-        <sofa.tracer.version>2.1.3</sofa.tracer.version>
+        <sofa.tracer.version>2.1.4</sofa.tracer.version>
         <java.compiler.source.version>1.6</java.compiler.source.version>
         <java.compiler.target.version>1.6</java.compiler.target.version>
         <jmh.version>1.9.3</jmh.version>
@@ -221,22 +221,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
-                <artifactId>maven-java-formatter-plugin</artifactId>
-                <version>0.4</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>format</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <configFile>${main.user.dir}/Formatter.xml</configFile>
-                    <encoding>${project.encoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
@@ -246,19 +230,7 @@
                     <encoding>${project.encoding}</encoding>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
