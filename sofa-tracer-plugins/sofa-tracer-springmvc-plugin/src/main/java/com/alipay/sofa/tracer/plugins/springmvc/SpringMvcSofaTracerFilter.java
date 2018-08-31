@@ -148,7 +148,6 @@ public class SpringMvcSofaTracerFilter implements Filter {
          */
         @Override
         public void setContentLength(int len) {
-            // sofaMvcLogContext.setResponseSize(len);
             contentLength = len;
             super.setContentLength(len);
         }
