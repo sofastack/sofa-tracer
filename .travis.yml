@@ -6,7 +6,7 @@ jdk:
 
 install:
 
-- mvn clean install -B -V
+- mvn clean install -B -V -X
 
 script:
 - sh ./check_format.sh
