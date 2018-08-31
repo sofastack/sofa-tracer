@@ -85,7 +85,7 @@ public class SpringMvcSofaTracerFilter implements Filter {
             //filter end
 
             httpStatus = responseWrapper.getStatus();
-            responseSize = responseWrapper.contentLength;
+            responseSize = responseWrapper.getContentLength();
         } catch (Exception e) {
             SelfLog.error("Spring MVC Tracer error occurs in SpringMvcSofaTracerFilter.doFilter.",
                 e);
@@ -150,6 +150,10 @@ public class SpringMvcSofaTracerFilter implements Filter {
         public void setContentLength(int len) {
             contentLength = len;
             super.setContentLength(len);
+        }
+
+        public int getContentLength() {
+            return contentLength;
         }
     }
 
