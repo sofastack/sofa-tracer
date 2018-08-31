@@ -77,19 +77,15 @@ public class SpringMvcSofaTracerFilter implements Filter {
             springMvcSpan.setTag(CommonSpanTags.REQUEST_URL, request.getRequestURL().toString());
             springMvcSpan.setTag(CommonSpanTags.METHOD, request.getMethod());
             springMvcSpan.setTag(CommonSpanTags.REQ_SIZE, request.getContentLength());
-            OutputStreamResponseWrapper outputStreamResponseWrapper = new OutputStreamResponseWrapper(
-                response);
+            //wrapper
+            ResponseWrapper responseWrapper = new ResponseWrapper(response);
 
             //filter begin
-            filterChain.doFilter(servletRequest, outputStreamResponseWrapper);
+            filterChain.doFilter(servletRequest, responseWrapper);
             //filter end
 
-            httpStatus = outputStreamResponseWrapper.getStatus();
-            ServletOutputStream servletOutputStream = outputStreamResponseWrapper.getOutputStream();
-            if (servletOutputStream instanceof ServletOutputStreamWrapper) {
-                ServletOutputStreamWrapper servletOutputStreamWrapper = (ServletOutputStreamWrapper) servletOutputStream;
-                responseSize = servletOutputStreamWrapper.getContentLengthWrapper();
-            }
+            httpStatus = responseWrapper.getStatus();
+            responseSize = responseWrapper.contentLength;
         } catch (Exception e) {
             SelfLog.error("Spring MVC Tracer error occurs in SpringMvcSofaTracerFilter.doFilter.",
                 e);
@@ -136,71 +132,25 @@ public class SpringMvcSofaTracerFilter implements Filter {
         return spanContext;
     }
 
-    class ServletOutputStreamWrapper extends ServletOutputStream {
+    class ResponseWrapper extends HttpServletResponseWrapper {
 
-        private long                contentLengthWrapper = 0;
-
-        private ServletOutputStream servletOutputStream;
-
-        public ServletOutputStreamWrapper(ServletOutputStream servletOutputStream) {
-            this.servletOutputStream = servletOutputStream;
-        }
-
-        @Override
-        public boolean isReady() {
-            return this.servletOutputStream.isReady();
-        }
-
-        @Override
-        public void setWriteListener(WriteListener writeListener) {
-            this.servletOutputStream.setWriteListener(writeListener);
-        }
-
-        @Override
-        public void write(int i) throws IOException {
-            this.servletOutputStream.write(i);
-        }
-
-        @Override
-        public void write(byte[] b, int off, int len) throws IOException {
-            this.servletOutputStream.write(b, off, len);
-            this.contentLengthWrapper += len;
-        }
-
-        public long getContentLengthWrapper() {
-            return contentLengthWrapper;
-        }
-    }
-
-    class OutputStreamResponseWrapper extends HttpServletResponseWrapper {
-
-        private HttpServletResponse        httpServletResponse;
-
-        private ServletOutputStreamWrapper servletOutputStreamWrapper;
+        int contentLength = 0;
 
         /**
          * @param httpServletResponse httpServletResponse
          */
-        public OutputStreamResponseWrapper(HttpServletResponse httpServletResponse)
-                                                                                   throws IOException {
+        public ResponseWrapper(HttpServletResponse httpServletResponse) throws IOException {
             super(httpServletResponse);
-            this.httpServletResponse = httpServletResponse;
         }
 
+        /**
+         * @see javax.servlet.ServletResponseWrapper#setContentLength(int)
+         */
         @Override
-        public ServletOutputStream getOutputStream() throws IOException {
-            //first init and second return
-            if (this.servletOutputStreamWrapper == null) {
-                ServletOutputStream servletOutputStream = this.httpServletResponse
-                    .getOutputStream();
-                this.servletOutputStreamWrapper = new ServletOutputStreamWrapper(
-                    servletOutputStream);
-            }
-            return this.servletOutputStreamWrapper;
-        }
-
-        public HttpServletResponse getHttpServletResponse() {
-            return httpServletResponse;
+        public void setContentLength(int len) {
+            // sofaMvcLogContext.setResponseSize(len);
+            contentLength = len;
+            super.setContentLength(len);
         }
     }
 
