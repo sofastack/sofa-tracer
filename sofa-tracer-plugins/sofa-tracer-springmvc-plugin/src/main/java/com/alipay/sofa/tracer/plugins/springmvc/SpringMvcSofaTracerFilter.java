@@ -133,6 +133,7 @@ public class SpringMvcSofaTracerFilter implements Filter {
         SofaTracer tracer = springMvcTracer.getSofaTracer();
         SofaTracerSpanContext spanContext = (SofaTracerSpanContext) tracer.extract(
             ExtendFormat.Builtin.B3_HTTP_HEADERS, new SpringMvcHeadersCarrier(headers));
+        spanContext.setSpanId(spanContext.nextChildContextId());
         return spanContext;
     }
 

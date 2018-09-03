@@ -20,7 +20,6 @@ import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import com.alipay.common.tracer.core.utils.CommonUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 import com.alipay.sofa.tracer.boot.zipkin.sender.ZipkinRestTemplateSender;
@@ -45,16 +44,18 @@ import java.util.Map;
  */
 public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, Flushable, Closeable {
 
-    private static String                  processId    = TracerUtils.getPID();
+    private static String                  processId           = TracerUtils.getPID();
 
     private final ZipkinRestTemplateSender sender;
 
     private final AsyncReporter<Span>      delegate;
 
+    private static final String            SOFARPC_TRACER_TYPE = "RPC_TRACER";
+
     /***
      * cache and performance improve
      */
-    private int                            ipAddressInt = -1;
+    private int                            ipAddressInt        = -1;
 
     public ZipkinSofaTracerSpanRemoteReporter(RestTemplate restTemplate, String baseUrl) {
         this.sender = new ZipkinRestTemplateSender(restTemplate, baseUrl);
@@ -89,17 +90,18 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
     private Span convertToZipkinSpan(SofaTracerSpan sofaTracerSpan) {
         Span.Builder zipkinSpanBuilder = Span.newBuilder();
         zipkinSpanBuilder.timestamp(sofaTracerSpan.getStartTime() * 1000);
+        // Zipkin is in nanosecond  cr-cs
+        zipkinSpanBuilder
+            .duration((sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()) * 1000);
         //Annotations
         Endpoint endpoint = getZipkinEndpoint(sofaTracerSpan.getOperationName());
         this.addZipkinAnnotations(zipkinSpanBuilder, sofaTracerSpan, endpoint);
         this.addZipkinBinaryAnnotationsWithTags(zipkinSpanBuilder, sofaTracerSpan);
         this.addZipkinBinaryAnnotationsWithBaggage(zipkinSpanBuilder, sofaTracerSpan);
-        // Zipkin is in nanosecond  cr-cs
-        zipkinSpanBuilder
-            .duration((sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()) * 1000);
         //traceId
         SofaTracerSpanContext sofaTracerSpanContext = sofaTracerSpan.getSofaTracerSpanContext();
-
+        // get current span's parentSpan
+        SofaTracerSpan parentSofaTracerSpan = sofaTracerSpan.getParentSofaTracerSpan();
         /**
          * Changes:
          * 1.From using zipkin span's traceId alone, to using both traceid and traceIdHigh
@@ -110,43 +112,44 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
          *   off the pid in tail of the traceId, because it does not know the pid of the sender.
          *   resulting in over range when convert it to long type.
          */
-        long[] traceIds = CommonUtils.hexToDualLong(sofaTracerSpanContext.getTraceId());
 
-        zipkinSpanBuilder.traceId(traceIds[0], traceIds[1]);
-        zipkinSpanBuilder.kind(Span.Kind.SERVER);
+        // v2 span model will padLeft automatic
+        zipkinSpanBuilder.traceId(sofaTracerSpanContext.getTraceId());
         String parentSpanId = sofaTracerSpanContext.getParentId();
+        // convent parentSpanId
         if (sofaTracerSpan.isServer() && parentSpanId != null
             && StringUtils.isNotBlank(parentSpanId)) {
-            if (CommonUtils.isHexString(parentSpanId)) {
-                zipkinSpanBuilder.parentId(CommonUtils.hexToLong(parentSpanId));
-            } else {
-                zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
-            }
-        } else if (sofaTracerSpan.getParentSofaTracerSpan() != null) {
-            SofaTracerSpanContext parentSofaTracerSpanContext = sofaTracerSpan
-                .getParentSofaTracerSpan().getSofaTracerSpanContext();
+            // v2 span model Unsets the {@link Span#parentId()} if the input is 0.
+            zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
+        } else if (parentSofaTracerSpan != null) {
+            SofaTracerSpanContext parentSofaTracerSpanContext = parentSofaTracerSpan
+                .getSofaTracerSpanContext();
             if (parentSofaTracerSpanContext != null) {
                 parentSpanId = parentSofaTracerSpanContext.getSpanId();
                 if (parentSpanId != null && StringUtils.isNotBlank(parentSpanId)) {
-                    if (CommonUtils.isHexString(parentSpanId)) {
-                        zipkinSpanBuilder.parentId(CommonUtils.hexToLong(parentSpanId));
-                    } else {
-                        zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
-                    }
+                    zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
                 }
             }
-
         }
-
-        //spanId
+        //convent spanId
         String spanId = sofaTracerSpanContext.getSpanId();
         zipkinSpanBuilder.id(spanIdToLong(spanId));
-        //name
+        //convent span.kind
+        zipkinSpanBuilder.kind(sofaTracerSpan.isClient() ? Span.Kind.CLIENT : Span.Kind.SERVER);
+        //convent name
         String operationName = sofaTracerSpan.getOperationName();
         if (StringUtils.isNotBlank(operationName)) {
             zipkinSpanBuilder.name(operationName);
         } else {
             zipkinSpanBuilder.name(StringUtils.EMPTY_STRING);
+        }
+        // adapter SOFARpc span model
+        if (sofaTracerSpan.getSofaTracer().getTracerType().equals(SOFARPC_TRACER_TYPE)) {
+            //if current span's kind is rpcClient,set localEndpoint by parentSofaTracerSpan's operationName
+            if (sofaTracerSpan.isClient()) {
+                zipkinSpanBuilder.localEndpoint(getZipkinEndpoint(parentSofaTracerSpan
+                    .getOperationName()));
+            }
         }
         return zipkinSpanBuilder.build();
     }
