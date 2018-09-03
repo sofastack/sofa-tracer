@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.tracer.plugins.datasource;
 
+import com.alipay.common.tracer.core.appender.self.SelfLog;
+
 import javax.sql.DataSource;
 import java.io.InputStream;
 import java.io.Reader;
@@ -273,7 +275,7 @@ public class MethodRegistry {
             methodRegistry.put(METHOD_SET_FETCH_SIZE,
                 Statement.class.getDeclaredMethod("setFetchSize", int.class));
         } catch (Exception e) {
-            //            SelfLog.error("init methodRegistry failed.", e);
+            SelfLog.error("init methodRegistry failed.", e);
             throw new RuntimeException(e);
         }
     }

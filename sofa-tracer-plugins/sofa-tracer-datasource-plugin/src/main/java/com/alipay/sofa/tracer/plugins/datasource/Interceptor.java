@@ -23,6 +23,12 @@ package com.alipay.sofa.tracer.plugins.datasource;
  */
 public interface Interceptor {
 
+    /**
+     * execute interceptor chain
+     * @param chain
+     * @return
+     * @throws Exception
+     */
     Object intercept(Chain chain) throws Exception;
 
     interface Chain {
@@ -41,5 +47,8 @@ public interface Interceptor {
 
         ExtendedStatement getStatement();
 
+        boolean hasNext();
+
+        Interceptor next();
     }
 }

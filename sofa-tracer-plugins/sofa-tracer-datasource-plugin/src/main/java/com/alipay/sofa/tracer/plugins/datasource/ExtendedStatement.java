@@ -49,9 +49,9 @@ public class ExtendedStatement implements Statement {
         return delegate;
     }
 
-    abstract class AbstractStatementInterceptorChain implements Interceptor.Chain {
+    abstract class BaseStatementInterceptorChain implements Interceptor.Chain {
 
-        private final int        index;
+        private int              index;
 
         private final Invocation invocation;
 
@@ -59,13 +59,8 @@ public class ExtendedStatement implements Statement {
 
         private String           processingSql;
 
-        AbstractStatementInterceptorChain(int index, String sql, Invocation invocation) {
-            this(index, sql, sql, invocation);
-        }
-
-        AbstractStatementInterceptorChain(int index, String sql, String processingSql,
-                                          Invocation invocation) {
-            this.index = index;
+        BaseStatementInterceptorChain(String sql, String processingSql, Invocation invocation) {
+            this.index = 0;
             this.sql = sql;
             this.processingSql = processingSql;
             this.invocation = invocation;
@@ -73,22 +68,30 @@ public class ExtendedStatement implements Statement {
 
         @Override
         public Object proceed() throws Exception {
-            if (interceptors != null && index < interceptors.size()) {
-                Interceptor.Chain chain = newStatementInterceptorChain(index + 1, sql,
-                    processingSql, invocation);
-                Interceptor interceptor = interceptors.get(index);
-                return interceptor.intercept(chain);
+            if (hasNext()) {
+                return next().intercept(this);
+            } else {
+                beforeInvoke(invocation);
+                return invocation.invoke();
             }
-            beforeInvoke(invocation);
-            return invocation.invoke();
         }
 
-        abstract AbstractStatementInterceptorChain newStatementInterceptorChain(int index,
-                                                                                String sql,
-                                                                                String processingSql,
-                                                                                Invocation invocation);
-
+        /**
+         * init process before real invocation
+         * @param invocation
+         * @throws Exception
+         */
         abstract void beforeInvoke(Invocation invocation) throws Exception;
+
+        @Override
+        public boolean hasNext() {
+            return interceptors != null && index < interceptors.size();
+        }
+
+        @Override
+        public Interceptor next() {
+            return interceptors.get(index++);
+        }
 
         @Override
         public String getOriginalSql() {
@@ -121,25 +124,12 @@ public class ExtendedStatement implements Statement {
         }
     }
 
-    class AbstractStatementInterceptorChainImpl extends AbstractStatementInterceptorChain {
-
-        AbstractStatementInterceptorChainImpl(String sql, Invocation invocation) {
-            super(0, sql, invocation);
+    class StatementInterceptorChainImpl extends BaseStatementInterceptorChain {
+        StatementInterceptorChainImpl(String sql, Invocation invocation) {
+            super(sql, sql, invocation);
         }
 
-        AbstractStatementInterceptorChainImpl(int index, String sql, String processingSql,
-                                              Invocation invocation) {
-            super(index, sql, processingSql, invocation);
-        }
-
-        @Override
-        AbstractStatementInterceptorChain newStatementInterceptorChain(int index, String sql,
-                                                                       String processingSql,
-                                                                       Invocation invocation) {
-            return new AbstractStatementInterceptorChainImpl(index, sql, processingSql, invocation);
-        }
-
-        protected void beforeInvoke(Invocation invocation) throws SQLException {
+        protected void beforeInvoke(Invocation invocation) {
             invocation.getArgs()[0] = getProcessingSql();
         }
     }
@@ -154,7 +144,7 @@ public class ExtendedStatement implements Statement {
 
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
-        Interceptor.Chain chain = new AbstractStatementInterceptorChainImpl(sql, new Invocation(
+        Interceptor.Chain chain = new StatementInterceptorChainImpl(sql, new Invocation(
             getMethod(MethodRegistry.METHOD_EXECUTE_QUERY), delegate, sql));
         try {
             return (ResultSet) chain.proceed();
@@ -174,8 +164,8 @@ public class ExtendedStatement implements Statement {
 
     private int doExecuteUpdate(Method method, Object... args) throws SQLException {
         String sql = (String) args[0];
-        Interceptor.Chain chain = new AbstractStatementInterceptorChainImpl(sql, new Invocation(
-            method, delegate, args));
+        Interceptor.Chain chain = new StatementInterceptorChainImpl(sql, new Invocation(method,
+            delegate, args));
         try {
             return (Integer) chain.proceed();
         } catch (Exception e) {
@@ -371,8 +361,8 @@ public class ExtendedStatement implements Statement {
 
     private boolean doExecute(Method method, Object... args) throws SQLException {
         String sql = (String) args[0];
-        Interceptor.Chain chain = new AbstractStatementInterceptorChainImpl(sql, new Invocation(
-            method, delegate, args));
+        Interceptor.Chain chain = new StatementInterceptorChainImpl(sql, new Invocation(method,
+            delegate, args));
         try {
             return (Boolean) chain.proceed();
         } catch (Exception e) {

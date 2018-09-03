@@ -22,45 +22,23 @@ package com.alipay.sofa.tracer.plugins.datasource.tracer;
  * @since 2.2.0
  */
 public class DataSourceTracerKeys {
-    public static final String CONNECTION_ESTABLISH_COST         = "connection.establish.span";
+    public static final String CONNECTION_ESTABLISH_COST = "connection.establish.span";
 
-    public static final String DB_EXECUTE_COST                   = "db.execute.cost";
+    public static final String DB_EXECUTE_COST           = "db.execute.cost";
 
-    public static final String SQL                               = "sql";
+    public static final String SQL                       = "sql";
 
-    public static final String INSTANCE_ID                       = "instance.id";
+    public static final String DATABASE_TYPE             = "database.type";
 
-    public static final String DATABASE_TYPE                     = "database.type";
+    public static final String DATABASE_NAME             = "database.name";
 
-    public static final String DATABASE_NAME                     = "database.name";
+    public static final String DATABASE_ENDPOINT         = "database.endpoint";
 
-    public static final String DATABASE_ENDPOINT                 = "database.endpoint";
+    public static final String LOCAL_APP                 = "local.app";
 
-    public static final String STAT_LOG_ROLLING_POLICY_KEY       = "extds_stat_log_rolling_key";
+    public static final String RESULT_CODE               = "result.code";
 
-    public static final String DEFAULT_STAT_LOG_ROLLING_POLICY   = "extds_stat_log_rolling";
+    public static final String START_TIME                = "start.time";
 
-    public static final String DIGEST_LOG_ROLLING_POLICY_KEY     = "extds_digest_log_rolling_key";
-
-    public static final String DEFAULT_DIGEST_LOG_ROLLING_POLICY = "extds_digest_log_rolling";
-
-    public static final String LOG_REVERSE_KEY                   = "log_reverse_key";
-
-    public static final String DEFAULT_LOG_REVERSE               = "log_reverse";
-
-    public static final String STAT_LOG_KEY                      = "stat_log_key";
-
-    public static final String DEFAULT_STAT_LOG                  = "sql-stat.log";
-
-    public static final String DIGEST_LOG_KEY                    = "digest_log_key";
-
-    public static final String DEFAULT_DIGEST_LOG                = "sql-digest.log";
-
-    public static final String LOCAL_APP                         = "local.app";
-
-    public static final String RESULT_CODE                       = "result.code";
-
-    public static final String START_TIME                        = "start.time";
-
-    public static final String TOTAL_TIME                        = "total.time";
+    public static final String TOTAL_TIME                = "total.time";
 }

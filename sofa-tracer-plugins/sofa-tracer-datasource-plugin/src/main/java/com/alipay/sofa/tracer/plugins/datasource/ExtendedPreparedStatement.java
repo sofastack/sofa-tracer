@@ -42,23 +42,10 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
         return originalSql;
     }
 
-    class PreparedAbstractStatementInterceptorChainImpl extends AbstractStatementInterceptorChain {
+    class PreparedBaseStatementInterceptorChainImpl extends BaseStatementInterceptorChain {
 
-        PreparedAbstractStatementInterceptorChainImpl(String sql, Invocation invocation) {
-            super(0, sql, invocation);
-        }
-
-        PreparedAbstractStatementInterceptorChainImpl(int index, String sql, String processingSql,
-                                                      Invocation invocation) {
-            super(index, sql, processingSql, invocation);
-        }
-
-        @Override
-        AbstractStatementInterceptorChain newStatementInterceptorChain(int index, String sql,
-                                                                       String processingSql,
-                                                                       Invocation invocation) {
-            return new PreparedAbstractStatementInterceptorChainImpl(index, sql, processingSql,
-                invocation);
+        PreparedBaseStatementInterceptorChainImpl(String sql, Invocation invocation) {
+            super(sql, sql, invocation);
         }
 
         @Override
@@ -69,9 +56,8 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
 
     @Override
     public ResultSet executeQuery() throws SQLException {
-        Interceptor.Chain chain = new PreparedAbstractStatementInterceptorChainImpl(
-            getOriginalSql(), new Invocation(getMethod(MethodRegistry.METHOD_PS_EXECUTE_QUERY),
-                delegate));
+        Interceptor.Chain chain = new PreparedBaseStatementInterceptorChainImpl(getOriginalSql(),
+            new Invocation(getMethod(MethodRegistry.METHOD_PS_EXECUTE_QUERY), delegate));
         try {
             return (ResultSet) chain.proceed();
         } catch (Exception e) {
@@ -85,9 +71,8 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
 
     @Override
     public int executeUpdate() throws SQLException {
-        Interceptor.Chain chain = new PreparedAbstractStatementInterceptorChainImpl(
-            getOriginalSql(), new Invocation(getMethod(MethodRegistry.METHOD_PS_EXECUTE_UPDATE),
-                delegate));
+        Interceptor.Chain chain = new PreparedBaseStatementInterceptorChainImpl(getOriginalSql(),
+            new Invocation(getMethod(MethodRegistry.METHOD_PS_EXECUTE_UPDATE), delegate));
         try {
             return (Integer) chain.proceed();
         } catch (Exception e) {
@@ -101,9 +86,8 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
 
     @Override
     public int[] executeBatch() throws SQLException {
-        Interceptor.Chain chain = new PreparedAbstractStatementInterceptorChainImpl(
-            getOriginalSql(), new Invocation(getMethod(MethodRegistry.METHOD_EXECUTE_BATCH),
-                delegate));
+        Interceptor.Chain chain = new PreparedBaseStatementInterceptorChainImpl(getOriginalSql(),
+            new Invocation(getMethod(MethodRegistry.METHOD_EXECUTE_BATCH), delegate));
         try {
             return (int[]) chain.proceed();
         } catch (Exception e) {
@@ -117,8 +101,8 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
 
     @Override
     public boolean execute() throws SQLException {
-        Interceptor.Chain chain = new PreparedAbstractStatementInterceptorChainImpl(
-            getOriginalSql(), new Invocation(getMethod(MethodRegistry.METHOD_PS_EXECUTE), delegate));
+        Interceptor.Chain chain = new PreparedBaseStatementInterceptorChainImpl(getOriginalSql(),
+            new Invocation(getMethod(MethodRegistry.METHOD_PS_EXECUTE), delegate));
         try {
             return (Boolean) chain.proceed();
         } catch (Exception e) {

@@ -32,17 +32,15 @@ import java.util.logging.Logger;
  */
 public abstract class BaseDataSource implements DataSource {
 
-    private DataSource        delegate;
+    protected DataSource        delegate;
 
-    private SecuritySpec      securitySpec;
+    protected List<Interceptor> interceptors;
 
-    private List<Interceptor> interceptors;
+    protected List<Interceptor> dataSourceInterceptors;
 
-    private List<Interceptor> dataSourceInterceptors;
+    protected final Prop        prop;
 
-    private final Prop        prop;
-
-    AtomicBoolean             initialized = new AtomicBoolean();
+    protected AtomicBoolean     initialized = new AtomicBoolean();
 
     public BaseDataSource(DataSource delegate) {
         this.delegate = delegate;
@@ -73,14 +71,6 @@ public abstract class BaseDataSource implements DataSource {
         this.dataSourceInterceptors = dataSourceInterceptors;
     }
 
-    public SecuritySpec getSecuritySpec() {
-        return securitySpec;
-    }
-
-    public void setSecuritySpec(SecuritySpec securitySpec) {
-        this.securitySpec = securitySpec;
-    }
-
     public Prop getProp() {
         return prop;
     }
@@ -99,9 +89,10 @@ public abstract class BaseDataSource implements DataSource {
     @Override
     public Connection getConnection() throws SQLException {
         checkInit();
-        DataSourceInterceptorChain dataSourceInterceptorChain = new DataSourceInterceptorChain(
-            new Invocation(prop.getTargetMethod(MethodRegistry.METHOD_DS_GET_CONNECTION), delegate));
         try {
+            DataSourceInterceptorChain dataSourceInterceptorChain = new DataSourceInterceptorChain(
+                new Invocation(prop.getTargetMethod(MethodRegistry.METHOD_DS_GET_CONNECTION),
+                    delegate));
             Connection conn = (Connection) dataSourceInterceptorChain.proceed();
             if (conn != null) {
                 return new ExtendedConnection(this, conn, prop);
@@ -118,28 +109,62 @@ public abstract class BaseDataSource implements DataSource {
             "please setup user and password in delegate dataSource");
     }
 
-    private class DataSourceInterceptorChain implements Interceptor.Chain {
+    @Override
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        return delegate.isWrapperFor(iface);
+    }
 
-        private final int        index;
+    @Override
+    public PrintWriter getLogWriter() throws SQLException {
+        return delegate.getLogWriter();
+    }
 
-        private final Invocation invocation;
+    @Override
+    public void setLogWriter(PrintWriter out) throws SQLException {
+        delegate.setLogWriter(out);
+    }
 
-        DataSourceInterceptorChain(Invocation invocation) {
-            this(0, invocation);
-        }
+    @Override
+    public void setLoginTimeout(int seconds) throws SQLException {
+        delegate.setLoginTimeout(seconds);
+    }
 
-        DataSourceInterceptorChain(int index, Invocation invocation) {
-            this.index = index;
+    @Override
+    public int getLoginTimeout() throws SQLException {
+        return delegate.getLoginTimeout();
+    }
+
+    @Override
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        return delegate.getParentLogger();
+    }
+
+    @Override
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+        return delegate.unwrap(iface);
+    }
+
+    /**
+     * DataSource Interceptor Chain, {@link Interceptor.Chain}
+     */
+    public class DataSourceInterceptorChain implements Interceptor.Chain {
+
+        private int        index;
+
+        private Invocation invocation;
+
+        public DataSourceInterceptorChain(Invocation invocation) {
+            this.index = 0;
             this.invocation = invocation;
         }
 
         @Override
         public Object proceed() throws Exception {
-            if (dataSourceInterceptors != null && index < dataSourceInterceptors.size()) {
-                Interceptor.Chain chain = new DataSourceInterceptorChain(index + 1, invocation);
-                return dataSourceInterceptors.get(index).intercept(chain);
+            if (hasNext()) {
+                return next().intercept(this);
+            } else {
+                return invocation.invoke();
             }
-            return invocation.invoke();
         }
 
         @Override
@@ -172,40 +197,15 @@ public abstract class BaseDataSource implements DataSource {
         public ExtendedStatement getStatement() {
             throw new UnsupportedOperationException("this operation unsupported");
         }
-    }
 
-    @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
-        return delegate.unwrap(iface);
-    }
+        @Override
+        public boolean hasNext() {
+            return dataSourceInterceptors != null && index < dataSourceInterceptors.size();
+        }
 
-    @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return delegate.isWrapperFor(iface);
-    }
-
-    @Override
-    public PrintWriter getLogWriter() throws SQLException {
-        return delegate.getLogWriter();
-    }
-
-    @Override
-    public void setLogWriter(PrintWriter out) throws SQLException {
-        delegate.setLogWriter(out);
-    }
-
-    @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
-        delegate.setLoginTimeout(seconds);
-    }
-
-    @Override
-    public int getLoginTimeout() throws SQLException {
-        return delegate.getLoginTimeout();
-    }
-
-    @Override
-    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-        return delegate.getParentLogger();
+        @Override
+        public Interceptor next() {
+            return dataSourceInterceptors.get(index++);
+        }
     }
 }

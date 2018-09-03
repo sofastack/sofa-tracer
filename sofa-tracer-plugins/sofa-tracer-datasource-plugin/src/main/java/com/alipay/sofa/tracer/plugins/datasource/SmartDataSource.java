@@ -43,15 +43,14 @@ public class SmartDataSource extends BaseDataSource {
 
     private DataSourceClientTracer           clientTracer;
 
+    /**
+     * DataSource basic info. Including appName, dbType, dbName, dbEndpoint.
+     */
     protected final List<KeyValueAnnotation> traceAnnotations;
-
-    public SmartDataSource() {
-        this(null);
-    }
 
     public SmartDataSource(DataSource delegate) {
         super(delegate);
-        traceAnnotations = new ArrayList<KeyValueAnnotation>();
+        traceAnnotations = new ArrayList<>();
     }
 
     public void setAppName(String appName) {
@@ -87,7 +86,7 @@ public class SmartDataSource extends BaseDataSource {
     }
 
     /**
-     * init method must be invoked first
+     * init method must be invoked first after construction
      */
     public void init() {
         if (initialized.compareAndSet(false, true)) {

@@ -126,7 +126,7 @@ public class DataSourceUtils {
         return clazz.isAssignableFrom(dataSource.getClass());
     }
 
-    // TODO only support mysql and oracle for now
+    // TODO only support mysql, oracle and h2 for now
     public static Endpoint getEndpointFromConnectionURL(final String connectionURL) {
         Endpoint endpoint = new Endpoint();
         String host = null;
@@ -155,8 +155,7 @@ public class DataSourceUtils {
                     port = Integer.parseInt(connectionURL.substring(hostEnd + 1));
                 }
             } else if (connectionURL.contains("jdbc:h2:")) {
-                int start = connectionURL.indexOf("jdbc:h2:");
-                host = connectionURL.substring(start);
+                host = connectionURL;
                 port = -1;
             } else if (connectionURL.indexOf("://") > 0) {
                 int start = connectionURL.indexOf("://") + 3;
