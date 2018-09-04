@@ -38,8 +38,6 @@ public class DataSourceUtils {
 
     public static final String DS_HIKARI_CLASS     = "com.zaxxer.hikari.HikariDataSource";
 
-    public static final String DS_REVISABLE_CLASS  = "com.alipay.sofa.dbp.discovery.RevisableDataSource";
-
     public static final String METHOD_GET_URL      = "getUrl";
     public static final String METHOD_SET_URL      = "setUrl";
 
@@ -58,6 +56,10 @@ public class DataSourceUtils {
         return isTargetDataSource(DS_DBCP_CLASS, dataSource);
     }
 
+    public static boolean isDbcpDataSource(String clazzType) {
+        return !StringUtils.isBlank(clazzType) && DS_DBCP_CLASS.equals(clazzType);
+    }
+
     public static boolean isC3p0DataSource(Object dataSource) {
         return isTargetDataSource(DS_C3P0_CLASS, dataSource);
     }
@@ -70,12 +72,16 @@ public class DataSourceUtils {
         return isTargetDataSource(DS_TOMCAT_CLASS, dataSource);
     }
 
+    public static boolean isTomcatDataSource(String clazzType) {
+        return !StringUtils.isBlank(clazzType) && DS_TOMCAT_CLASS.equals(clazzType);
+    }
+
     public static boolean isHikariDataSource(Object dataSource) {
         return isTargetDataSource(DS_HIKARI_CLASS, dataSource);
     }
 
-    public static boolean isRevisableDataSource(Object dataSource) {
-        return isTargetDataSource(DS_REVISABLE_CLASS, dataSource);
+    public static boolean isHikariDataSource(String clazzType) {
+        return !StringUtils.isBlank(clazzType) && DS_HIKARI_CLASS.equals(clazzType);
     }
 
     public static String getJdbcUrl(Object dataSource) {
@@ -85,7 +91,7 @@ public class DataSourceUtils {
         Method getUrlMethod;
         try {
             if (isDruidDataSource(dataSource) || isDbcpDataSource(dataSource)
-                || isTomcatDataSource(dataSource) || isRevisableDataSource(dataSource)) {
+                || isTomcatDataSource(dataSource)) {
                 getUrlMethod = dataSource.getClass().getMethod(METHOD_GET_URL);
             } else if (isC3p0DataSource(dataSource) || isHikariDataSource(dataSource)) {
                 getUrlMethod = dataSource.getClass().getMethod(METHOD_GET_JDBC_URL);
@@ -108,7 +114,7 @@ public class DataSourceUtils {
         Method setUrlMethod;
         try {
             if (isDruidDataSource(dataSource) || isDbcpDataSource(dataSource)
-                || isTomcatDataSource(dataSource) || isRevisableDataSource(dataSource)) {
+                || isTomcatDataSource(dataSource)) {
                 setUrlMethod = dataSource.getClass().getMethod(METHOD_SET_URL, String.class);
             } else if (isC3p0DataSource(dataSource) || isHikariDataSource(dataSource)) {
                 setUrlMethod = dataSource.getClass().getMethod(METHOD_SET_JDBC_URL, String.class);

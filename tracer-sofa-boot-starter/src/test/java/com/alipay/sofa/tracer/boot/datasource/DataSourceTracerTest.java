@@ -14,22 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.datasource.properties;
+package com.alipay.sofa.tracer.boot.datasource;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
+import com.alipay.sofa.tracer.plugins.datasource.SmartDataSource;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+
+import javax.sql.DataSource;
 
 /**
- * @author qilong.zql 18/9/4-下午1:41
+ * @author qilong.zql
+ * @since 2.2.0
  */
-@ConfigurationProperties("com.alipay.sofa.tracer.datasource")
-public class SofaTracerDataSourceProperties {
-    private boolean enable;
+public class DataSourceTracerTest extends AbstractTestBase {
 
-    public boolean isEnable() {
-        return enable;
+    @Autowired
+    private DataSource dataSource;
+
+    @Test
+    public void testDataSource() {
+        Assert.isTrue(dataSource instanceof SmartDataSource);
     }
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
-    }
 }

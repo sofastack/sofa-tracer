@@ -41,7 +41,8 @@ public class SmartDataSource extends BaseDataSource {
 
     private boolean                          isEnableTrace = Boolean.TRUE;
 
-    private DataSourceClientTracer           clientTracer = DataSourceClientTracer.getDataSourceClientTracer();
+    private DataSourceClientTracer           clientTracer  = DataSourceClientTracer
+                                                               .getDataSourceClientTracer();
 
     /**
      * DataSource basic info. Including appName, dbType, dbName, dbEndpoint.
