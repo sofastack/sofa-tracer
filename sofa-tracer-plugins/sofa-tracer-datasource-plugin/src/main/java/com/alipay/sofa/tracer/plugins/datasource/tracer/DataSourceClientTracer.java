@@ -26,7 +26,6 @@ import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticRe
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
-import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.datasource.utils.SqlUtils;
 
 /**

@@ -12,8 +12,6 @@
         <property name="database" value="h2DataSource"/>
         <!--数据库类型，支持MYSQL, ORACLE-->
         <property name="dbType" value="MYSQL"/>
-        <!--tracer-->
-        <property name="clientTracer" ref="clientTracer"/>
     </bean>
 
     <!-- dataSource pool -->
@@ -23,7 +21,4 @@
         <property name="username" value="sofa"/>
         <property name="password" value="123456"/>
     </bean>
-
-    <bean id="clientTracer" class="com.alipay.sofa.tracer.plugins.datasource.tracer.DataSourceClientTracer" />
-
 </beans>

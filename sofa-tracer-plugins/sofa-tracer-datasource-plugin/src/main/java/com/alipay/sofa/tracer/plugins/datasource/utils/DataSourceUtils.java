@@ -50,12 +50,20 @@ public class DataSourceUtils {
         return isTargetDataSource(DS_DRUID_CLASS, dataSource);
     }
 
+    public static boolean isDruidDataSource(String clazzType) {
+        return !StringUtils.isBlank(clazzType) && DS_DRUID_CLASS.equals(clazzType);
+    }
+
     public static boolean isDbcpDataSource(Object dataSource) {
         return isTargetDataSource(DS_DBCP_CLASS, dataSource);
     }
 
     public static boolean isC3p0DataSource(Object dataSource) {
         return isTargetDataSource(DS_C3P0_CLASS, dataSource);
+    }
+
+    public static boolean isC3p0DataSource(String clazzType) {
+        return !StringUtils.isBlank(clazzType) && DS_C3P0_CLASS.equals(clazzType);
     }
 
     public static boolean isTomcatDataSource(Object dataSource) {
