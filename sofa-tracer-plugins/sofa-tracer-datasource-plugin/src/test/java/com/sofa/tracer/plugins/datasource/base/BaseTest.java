@@ -70,7 +70,7 @@ public abstract class BaseTest {
 
     protected void sqlExecutionMock() throws Exception {
         when(ps.executeQuery()).thenReturn(
-            new MockResultSet(null, Arrays.asList(new Object[][] { { "数据检查" } })));
+            new MockResultSet(null, Arrays.asList(new Object[][] { { "data check" } })));
         when(ps.executeBatch()).thenReturn(new int[] { 0, 1 });
         when(ps.executeUpdate()).thenReturn(1);
         when(ps.execute()).thenReturn(false);
@@ -79,15 +79,15 @@ public abstract class BaseTest {
             st.executeUpdate("insert into mars (id, gmt_create, gmt_modified, username) \n"
                              + "values (100, now(), now(), 'neo')")).thenReturn(1);
         when(st.executeQuery("select username from mars where id=100")).thenReturn(
-            new MockResultSet(null, Arrays.asList(new Object[][] { { "数据检查", "neo" } })));
+            new MockResultSet(null, Arrays.asList(new Object[][] { { "data check", "neo" } })));
         when(st.executeQuery("select username from mars where id=101")).thenReturn(
             new MockResultSet(null, Arrays.asList(new Object[][] { { "frank" } })));
         when(st.executeQuery("select username from mars where id=102")).thenReturn(
             new MockResultSet(null, Arrays.asList(new Object[][] { { "bryce" } })));
         when(st.executeQuery("select id, username from mars")).thenReturn(
-            new MockResultSet(null, Arrays.asList(new Object[][] { { "数据检查" } })));
+            new MockResultSet(null, Arrays.asList(new Object[][] { { "data check" } })));
         when(st.executeQuery("select * from mars")).thenReturn(
-            new MockResultSet(null, Arrays.asList(new Object[][] { { "数据检查" } })));
+            new MockResultSet(null, Arrays.asList(new Object[][] { { "data check" } })));
     }
 
     @After
@@ -109,7 +109,7 @@ public abstract class BaseTest {
             cn = dataSource.getConnection();
             st = cn.createStatement();
             ResultSet rs = st.executeQuery("select id, username from mars");
-            Assert.assertTrue("数据检查", rs.next());
+            Assert.assertTrue("data check", rs.next());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -123,10 +123,10 @@ public abstract class BaseTest {
             int result = st
                 .executeUpdate("insert into mars (id, gmt_create, gmt_modified, username) \n"
                                + "values (100, now(), now(), 'neo')");
-            Assert.assertTrue("数据检查", result == 1);
+            Assert.assertTrue("data check", result == 1);
             ResultSet rs = st.executeQuery("select username from mars where id=100");
-            Assert.assertTrue("数据检查", rs.next());
-            Assert.assertEquals("结果检查", rs.getString(2), "neo");
+            Assert.assertTrue("data check", rs.next());
+            Assert.assertEquals("answer check", rs.getString(2), "neo");
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -144,10 +144,10 @@ public abstract class BaseTest {
             ps.setDate(2, new Date(System.currentTimeMillis()));
             ps.setString(3, "frank");
             int result = ps.executeUpdate();
-            Assert.assertTrue("数据检查", result == 1);
+            Assert.assertTrue("data check", result == 1);
             ResultSet rs = st.executeQuery("select username from mars where id=101");
-            Assert.assertTrue("数据检查", rs.next());
-            Assert.assertEquals("结果检查", rs.getString(1), "frank");
+            Assert.assertTrue("data check", rs.next());
+            Assert.assertEquals("answer check", rs.getString(1), "frank");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -162,7 +162,7 @@ public abstract class BaseTest {
             cn = dataSource.getConnection();
             st = cn.createStatement();
             ResultSet rs = st.executeQuery("select * from mars");
-            Assert.assertTrue("数据检查", rs.next());
+            Assert.assertTrue("data check", rs.next());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -174,7 +174,7 @@ public abstract class BaseTest {
             cn = dataSource.getConnection();
             ps = cn.prepareStatement("select * from mars");
             ResultSet rs = ps.executeQuery();
-            Assert.assertTrue("数据检查", rs.next());
+            Assert.assertTrue("data check", rs.next());
         } catch (Exception e) {
             e.printStackTrace();
             Assert.assertNotNull(e);
@@ -199,14 +199,14 @@ public abstract class BaseTest {
             ps.addBatch();
 
             int[] results = ps.executeBatch();
-            Assert.assertTrue("数据检查", results.length == 2);
+            Assert.assertTrue("data check", results.length == 2);
             ResultSet rs = st.executeQuery("select username from mars where id=101");
-            Assert.assertTrue("数据检查", rs.next());
-            Assert.assertEquals("结果检查", rs.getString(1), "frank");
+            Assert.assertTrue("data check", rs.next());
+            Assert.assertEquals("answer check", rs.getString(1), "frank");
 
             rs = st.executeQuery("select username from mars where id=102");
-            Assert.assertTrue("数据检查", rs.next());
-            Assert.assertEquals("结果检查", rs.getString(1), "bryce");
+            Assert.assertTrue("data check", rs.next());
+            Assert.assertEquals("answer check", rs.getString(1), "bryce");
         } catch (Exception e) {
             e.printStackTrace();
             Assert.assertNotNull(e);
@@ -263,7 +263,7 @@ public abstract class BaseTest {
             cn = dataSource.getConnection();
             ps = cn.prepareStatement("select * from mars");
             ResultSet rs = ps.executeQuery();
-            Assert.assertTrue("数据检查", rs.next());
+            Assert.assertTrue("data check", rs.next());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -275,7 +275,7 @@ public abstract class BaseTest {
             cn = dataSource.getConnection();
             ps = cn.prepareStatement("select * from mars");
             ResultSet rs = ps.executeQuery();
-            Assert.assertTrue("数据检查", rs.next());
+            Assert.assertTrue("data check", rs.next());
         } catch (Exception e) {
             e.printStackTrace();
         }

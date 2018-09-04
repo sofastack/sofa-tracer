@@ -147,13 +147,13 @@ public abstract class BaseDataSource implements DataSource {
     /**
      * DataSource Interceptor Chain, {@link Interceptor.Chain}
      */
-    public class DataSourceInterceptorChain implements Interceptor.Chain {
+    class DataSourceInterceptorChain implements Interceptor.Chain {
 
         private int        index;
 
         private Invocation invocation;
 
-        public DataSourceInterceptorChain(Invocation invocation) {
+        DataSourceInterceptorChain(Invocation invocation) {
             this.index = 0;
             this.invocation = invocation;
         }
