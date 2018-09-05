@@ -43,7 +43,7 @@ SOFATracer 可以将链路跟踪数据远程上报到开源产品 [Zipkin](https
 
 ## 三、快速开始
 
-请查看文档中的[快速开始](https://github.com/alipay/sofa-tracer/wiki/QuickStart)来了解如何快速上手使用 SOFATracer。
+请查看文档中的[快速开始](http://www.sofastack.tech/sofa-tracer/docs/QuickStart)来了解如何快速上手使用 SOFATracer。
 
 ## 四、如何贡献
 
