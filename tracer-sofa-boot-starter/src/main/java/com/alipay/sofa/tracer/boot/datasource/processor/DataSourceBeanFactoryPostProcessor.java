@@ -168,7 +168,7 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
         }
         int end = url.indexOf("?", start);
         if (end != -1) {
-            return url.substring(start, end);
+            return url.substring(start + 1, end);
         }
         return url.substring(start + 1);
     }
