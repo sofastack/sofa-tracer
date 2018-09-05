@@ -27,6 +27,7 @@
         <module>tracer-test/logback-test</module>
         <module>tracer-test/log4j2-test</module>
         <module>tracer-test/log4j-test</module>
+        <module>tracer-sofa-boot-plugin</module>
     </modules>
 
     <properties>
