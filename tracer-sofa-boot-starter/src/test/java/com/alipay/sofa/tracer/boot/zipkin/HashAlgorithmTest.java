@@ -1,6 +1,18 @@
-/**
- * Alipay.com Inc.
- * Copyright (c) 2004-2018 All Rights Reserved.
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.alipay.sofa.tracer.boot.zipkin;
 
@@ -33,12 +45,14 @@ public class HashAlgorithmTest {
                 return ZipkinSofaTracerSpanRemoteReporter.MurmurHash64(data);
             }
         });
-        Assert.isTrue(fnvCost > murCost );
+        System.out.println(fnvCost);
+        System.out.println(murCost);
+        Assert.isTrue(fnvCost > murCost);
     }
 
     /***
      * 测试 FNV64HashCode 算法性能,如果不满足性能要求,那么考虑更优秀算法
-     * 目标: 200 万数据务必在 10s 内完成且没有碰撞发生
+     * 目标: 500 万数据务必在 10s 内完成且没有碰撞发生
      * hash FNVHash64 : http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-param
      * @throws Exception 异常
      */
@@ -56,15 +70,15 @@ public class HashAlgorithmTest {
             //hash
             entranceHash(mapHash, spanId1, hashAlgorithm);
             //100000
-            for (int j = 0; j < jLong; j++) {
+            for (int j = 10; j < jLong; j++) {
                 String spanId2 = i + "." + j;
                 //hash
                 entranceHash(mapHash, spanId2, hashAlgorithm);
-                for (int k = 0; k < kLong; k++) {
+                for (int k = 100; k < 100 + kLong; k++) {
                     String spanId3 = i + "." + j + "." + k;
                     //hash
                     entranceHash(mapHash, spanId3, hashAlgorithm);
-                    for (int l = 0; l < lLong; l++) {
+                    for (int l = 1000; l < 1000 + lLong; l++) {
                         String spanId4 = i + "." + j + "." + k + "." + l;
                         //hash
                         entranceHash(mapHash, spanId4, hashAlgorithm);
@@ -74,13 +88,13 @@ public class HashAlgorithmTest {
         }
         long cost = System.currentTimeMillis() - startTime;
         long count = (iLong * jLong * kLong * lLong) + (iLong * jLong * kLong) + (iLong * jLong)
-                + iLong;
+                     + iLong;
         //目标: 200 万数据务必在 10s 内完成
         assertTrue("Count = " + count + ",FNV64HashCode Cost = " + cost + " ms", cost < 10 * 1000);
         //重复
         Map<Long, Long> redundantMap = getRedundant(mapHash);
         assertTrue("FNV64HashCode Redundant Size = " + redundantMap.size() + " ; Redundant = "
-                + redundantMap, redundantMap.size() <= 0);
+                   + redundantMap, redundantMap.size() <= 0);
         return cost;
     }
 
