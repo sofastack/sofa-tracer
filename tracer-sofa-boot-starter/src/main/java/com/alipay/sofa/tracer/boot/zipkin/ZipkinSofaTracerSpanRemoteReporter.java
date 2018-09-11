@@ -143,10 +143,10 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         } else {
             zipkinSpanBuilder.name(StringUtils.EMPTY_STRING);
         }
-        // adapter SOFARpc span model
+        // adapter SOFARPC span model
         if (SOFARPC_TRACER_TYPE.equals(sofaTracerSpan.getSofaTracer().getTracerType())) {
             //if current span's kind is rpcClient,set localEndpoint by parentSofaTracerSpan's operationName
-            if (sofaTracerSpan.isClient()) {
+            if (sofaTracerSpan.isClient() && parentSofaTracerSpan != null) {
                 zipkinSpanBuilder.localEndpoint(getZipkinEndpoint(parentSofaTracerSpan
                     .getOperationName()));
             }
