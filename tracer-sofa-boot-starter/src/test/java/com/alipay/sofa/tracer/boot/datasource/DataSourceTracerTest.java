@@ -18,9 +18,9 @@ package com.alipay.sofa.tracer.boot.datasource;
 
 import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
 import com.alipay.sofa.tracer.plugins.datasource.SmartDataSource;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
 
@@ -35,7 +35,7 @@ public class DataSourceTracerTest extends AbstractTestBase {
 
     @Test
     public void testDataSource() {
-        Assert.isTrue(dataSource instanceof SmartDataSource);
+        Assert.assertTrue(dataSource instanceof SmartDataSource);
     }
 
 }

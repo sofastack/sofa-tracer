@@ -18,11 +18,10 @@ package com.alipay.sofa.tracer.boot.datasource;
 
 import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
 import com.zaxxer.hikari.HikariDataSource;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
 
@@ -38,6 +37,6 @@ public class DataSourceTracerDisableTest extends AbstractTestBase {
 
     @Test
     public void testDataSource() {
-        Assert.isTrue(dataSource instanceof HikariDataSource);
+        Assert.assertTrue(dataSource instanceof HikariDataSource);
     }
 }

@@ -32,8 +32,6 @@ import org.springframework.util.Assert;
 
 import java.util.List;
 
-import static com.alipay.common.tracer.core.configuration.SofaTracerConfiguration.TRACER_APPNAME_KEY;
-
 /**
  * SofaTracerAutoConfiguration
  *
@@ -51,9 +49,10 @@ public class SofaTracerAutoConfiguration {
     @Autowired
     public SofaTracerAutoConfiguration(SofaTracerProperties sofaTracerProperties,
                                        Environment environment) {
-        String applicationName = environment.getProperty(TRACER_APPNAME_KEY);
-        Assert.isTrue(!StringUtils.isBlank(applicationName), TRACER_APPNAME_KEY
-                                                             + " must be configured!");
+        String applicationName = environment
+            .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
+        Assert.isTrue(!StringUtils.isBlank(applicationName),
+            SofaTracerConfiguration.TRACER_APPNAME_KEY + " must be configured!");
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY,
             applicationName);
         //properties convert to tracer

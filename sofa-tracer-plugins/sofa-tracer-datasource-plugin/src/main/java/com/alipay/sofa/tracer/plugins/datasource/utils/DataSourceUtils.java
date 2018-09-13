@@ -127,6 +127,26 @@ public class DataSourceUtils {
         }
     }
 
+    public static String getTomcatJdbcUrlKey() {
+        return "url";
+    }
+
+    public static String getDbcpJdbcUrlKey() {
+        return "url";
+    }
+
+    public static String getDruidJdbcUrlKey() {
+        return "url";
+    }
+
+    public static String getC3p0JdbcUrlKey() {
+        return "jdbcUrl";
+    }
+
+    public static String getHikariJdbcUrlKey() {
+        return "jdbcUrl";
+    }
+
     public static boolean isTargetDataSource(String className, Object dataSource) {
         if (dataSource == null) {
             return false;

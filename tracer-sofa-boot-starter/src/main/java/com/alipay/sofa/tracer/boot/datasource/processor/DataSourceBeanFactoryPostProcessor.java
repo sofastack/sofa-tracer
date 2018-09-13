@@ -60,15 +60,20 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
             }
             BeanDefinition dataSource = getBeanDefinition(beanName, beanFactory);
             if (DataSourceUtils.isDruidDataSource(dataSource.getBeanClassName())) {
-                createDataSourceProxy(beanFactory, beanName, dataSource, getDruidJdbcUrlKey());
+                createDataSourceProxy(beanFactory, beanName, dataSource,
+                    DataSourceUtils.getDruidJdbcUrlKey());
             } else if (DataSourceUtils.isC3p0DataSource(dataSource.getBeanClassName())) {
-                createDataSourceProxy(beanFactory, beanName, dataSource, getC3p0JdbcUrlKey());
+                createDataSourceProxy(beanFactory, beanName, dataSource,
+                    DataSourceUtils.getC3p0JdbcUrlKey());
             } else if (DataSourceUtils.isDbcpDataSource(dataSource.getBeanClassName())) {
-                createDataSourceProxy(beanFactory, beanName, dataSource, getDbcpJdbcUrlKey());
+                createDataSourceProxy(beanFactory, beanName, dataSource,
+                    DataSourceUtils.getDbcpJdbcUrlKey());
             } else if (DataSourceUtils.isTomcatDataSource(dataSource.getBeanClassName())) {
-                createDataSourceProxy(beanFactory, beanName, dataSource, getTomcatJdbcUrlKey());
+                createDataSourceProxy(beanFactory, beanName, dataSource,
+                    DataSourceUtils.getTomcatJdbcUrlKey());
             } else if (DataSourceUtils.isHikariDataSource(dataSource.getBeanClassName())) {
-                createDataSourceProxy(beanFactory, beanName, dataSource, getHikariJdbcUrlKey());
+                createDataSourceProxy(beanFactory, beanName, dataSource,
+                    DataSourceUtils.getHikariJdbcUrlKey());
             }
         }
     }
@@ -92,26 +97,6 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
             }
             throw ex;
         }
-    }
-
-    private String getTomcatJdbcUrlKey() {
-        return "url";
-    }
-
-    private String getDbcpJdbcUrlKey() {
-        return "url";
-    }
-
-    private String getDruidJdbcUrlKey() {
-        return "url";
-    }
-
-    private String getC3p0JdbcUrlKey() {
-        return "jdbcUrl";
-    }
-
-    private String getHikariJdbcUrlKey() {
-        return "jdbcUrl";
     }
 
     private void createDataSourceProxy(ConfigurableListableBeanFactory beanFactory,

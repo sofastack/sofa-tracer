@@ -17,8 +17,8 @@
 package com.alipay.sofa.tracer.boot.datasource;
 
 import com.alipay.sofa.tracer.boot.datasource.processor.DataSourceBeanFactoryPostProcessor;
+import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.util.Assert;
 
 import java.security.InvalidParameterException;
 
@@ -36,13 +36,13 @@ public class DataSourceBFPPTest {
 
     @Test
     public void testDbType() {
-        Assert.isTrue("oracle".equals(DataSourceBeanFactoryPostProcessor
+        Assert.assertTrue("oracle".equals(DataSourceBeanFactoryPostProcessor
             .resolveDbTypeFromUrl(jdbcUrl)));
-        Assert.isTrue("oracle".equals(DataSourceBeanFactoryPostProcessor
+        Assert.assertTrue("oracle".equals(DataSourceBeanFactoryPostProcessor
             .resolveDbTypeFromUrl(jdbcUrl2)));
-        Assert.isTrue("mysql".equals(DataSourceBeanFactoryPostProcessor
+        Assert.assertTrue("mysql".equals(DataSourceBeanFactoryPostProcessor
             .resolveDbTypeFromUrl(jdbcUrl3)));
-        Assert.isTrue("mysql".equals(DataSourceBeanFactoryPostProcessor
+        Assert.assertTrue("mysql".equals(DataSourceBeanFactoryPostProcessor
             .resolveDbTypeFromUrl(jdbcUrl4)));
 
         boolean error = false;
@@ -51,18 +51,18 @@ public class DataSourceBFPPTest {
         } catch (InvalidParameterException ex) {
             error = true;
         }
-        Assert.isTrue(error);
+        Assert.assertTrue(error);
     }
 
     @Test
     public void testDataBase() {
-        Assert.isTrue("orcl".equals(DataSourceBeanFactoryPostProcessor
+        Assert.assertTrue("orcl".equals(DataSourceBeanFactoryPostProcessor
             .resolveDatabaseFromUrl(jdbcUrl)));
-        Assert.isTrue("orcl.city.com".equals(DataSourceBeanFactoryPostProcessor
+        Assert.assertTrue("orcl.city.com".equals(DataSourceBeanFactoryPostProcessor
             .resolveDatabaseFromUrl(jdbcUrl2)));
-        Assert.isTrue("imooc".equals(DataSourceBeanFactoryPostProcessor
+        Assert.assertTrue("imooc".equals(DataSourceBeanFactoryPostProcessor
             .resolveDatabaseFromUrl(jdbcUrl3)));
-        Assert.isTrue("dataBase".equals(DataSourceBeanFactoryPostProcessor
+        Assert.assertTrue("dataBase".equals(DataSourceBeanFactoryPostProcessor
             .resolveDatabaseFromUrl(jdbcUrl4)));
 
         boolean error = false;
@@ -71,7 +71,7 @@ public class DataSourceBFPPTest {
         } catch (InvalidParameterException ex) {
             error = true;
         }
-        Assert.isTrue(error);
+        Assert.assertTrue(error);
     }
 
 }
