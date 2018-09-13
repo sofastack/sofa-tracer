@@ -20,6 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -31,9 +35,11 @@ import java.util.concurrent.atomic.AtomicLong;
 @RestController
 public class SampleRestController {
 
-    private static final String template = "Hello, %s!";
+    public static String        ASYNC_RESP = "Hello World!";
 
-    private final AtomicLong    counter  = new AtomicLong();
+    private static final String template   = "Hello, %s!";
+
+    private final AtomicLong    counter    = new AtomicLong();
 
     @RequestMapping("/greeting")
     public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
@@ -51,6 +57,14 @@ public class SampleRestController {
         greeting.setId(counter.incrementAndGet());
         greeting.setContent("noDigestLog");
         return greeting;
+    }
+
+    @RequestMapping("/asyncServlet")
+    public void asyncServlet(HttpServletRequest request, HttpServletResponse response)
+                                                                                      throws IOException {
+        AsyncContext asyncContext = request.startAsync();
+        asyncContext.getResponse().getWriter().write(ASYNC_RESP);
+        asyncContext.complete();
     }
 
     public static class Greeting {

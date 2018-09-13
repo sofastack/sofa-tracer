@@ -43,7 +43,7 @@ SOFATracer 可以将链路跟踪数据远程上报到开源产品 [Zipkin](https
 
 ## 三、快速开始
 
-请查看文档中的[快速开始](https://github.com/alipay/sofa-tracer/wiki/QuickStart)来了解如何快速上手使用 SOFATracer。
+请查看文档中的[快速开始](http://www.sofastack.tech/sofa-tracer/docs/QuickStart)来了解如何快速上手使用 SOFATracer。
 
 ## 四、如何贡献
 
@@ -62,7 +62,7 @@ SOFATracer 的编译环境的要求为 JDK7 或者 JDK8，需要采用 [Apache M
  
 ## 六、文档
 
-请参考 [WIKI 中的 SOFATracer 的文档](https://github.com/alipay/sofa-tracer/wiki)。
+请参考 [SOFATracer 官方文档](http://www.sofastack.tech/sofa-tracer/docs/Home)。
 
 
 
