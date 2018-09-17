@@ -25,7 +25,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
@@ -38,7 +37,6 @@ import java.util.List;
  */
 @Configuration
 @EnableConfigurationProperties(OpenTracingSpringMvcProperties.class)
-@ComponentScan(value = { "com.alipay.sofa.tracer.boot" })
 @ConditionalOnWebApplication
 public class OpenTracingSpringMvcAutoConfiguration {
 
