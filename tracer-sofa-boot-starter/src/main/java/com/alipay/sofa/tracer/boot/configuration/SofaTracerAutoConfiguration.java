@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
@@ -38,7 +37,6 @@ import java.util.List;
  */
 @Configuration
 @EnableConfigurationProperties(SofaTracerProperties.class)
-@ComponentScan(value = { "com.alipay.sofa.tracer.boot" })
 public class SofaTracerAutoConfiguration {
 
     @Autowired(required = false)
