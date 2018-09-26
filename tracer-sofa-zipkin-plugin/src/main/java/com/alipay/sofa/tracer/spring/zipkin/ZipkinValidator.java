@@ -42,7 +42,9 @@ public class ZipkinValidator {
     }
 
     /**
-     * 是否存在zipkin上报所需要的依赖及配置
+     * Whether there is a dependency and configuration
+     * required for zipkin reporting
+     *
      * @return
      */
     public static boolean isMatchReport() {
