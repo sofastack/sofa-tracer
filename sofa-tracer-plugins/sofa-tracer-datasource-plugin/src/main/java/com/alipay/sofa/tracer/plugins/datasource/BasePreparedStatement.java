@@ -25,6 +25,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author shusong.yss
@@ -36,7 +37,7 @@ public abstract class BasePreparedStatement implements PreparedStatement {
     private final ExtendedConnection      connection;
     private final Prop                    prop;
 
-    private boolean                       initialized;
+    private AtomicBoolean                 initialized;
     private boolean                       closed;
 
     private PreparedStatement             realPreparedStatement;
@@ -52,14 +53,12 @@ public abstract class BasePreparedStatement implements PreparedStatement {
         if (closed) {
             throw new IllegalStateException("BasePreparedStatement has been closed");
         }
-        if (initialized) {
-            return;
+        if (initialized.compareAndSet(false, true)) {
+            realPreparedStatement = doPrepareStatement(sql);
+            for (PreparedParameter preparedParameter : preparedParameters) {
+                preparedParameter.invoke(realPreparedStatement);
+            }
         }
-        realPreparedStatement = doPrepareStatement(sql);
-        for (PreparedParameter preparedParameter : preparedParameters) {
-            preparedParameter.invoke(realPreparedStatement);
-        }
-        initialized = true;
     }
 
     public class PreparedParameter {
@@ -95,7 +94,7 @@ public abstract class BasePreparedStatement implements PreparedStatement {
     protected abstract PreparedStatement doPrepareStatement(String sql) throws SQLException;
 
     private void checkState() throws SQLException {
-        if (!initialized) {
+        if (!initialized.get()) {
             throw new IllegalStateException("BasePreparedStatement has not been initialized");
         }
         if (closed) {
