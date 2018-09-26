@@ -37,7 +37,7 @@ public abstract class BasePreparedStatement implements PreparedStatement {
     private final ExtendedConnection      connection;
     private final Prop                    prop;
 
-    private AtomicBoolean                 initialized = new AtomicBoolean(false);
+    private AtomicBoolean                 initialized        = new AtomicBoolean(false);
     private boolean                       closed;
 
     private PreparedStatement             realPreparedStatement;
