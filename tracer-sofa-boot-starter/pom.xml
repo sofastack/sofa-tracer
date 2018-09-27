@@ -30,10 +30,6 @@
             <artifactId>sofa-tracer-springmvc-plugin</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.alipay.sofa</groupId>
-            <artifactId>sofa-tracer-httpclient-plugin</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
         </dependency>
