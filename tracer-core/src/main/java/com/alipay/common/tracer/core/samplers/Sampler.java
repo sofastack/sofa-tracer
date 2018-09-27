@@ -16,13 +16,14 @@
  */
 package com.alipay.common.tracer.core.samplers;
 
+import com.alipay.common.tracer.core.span.SofaTracerSpan;
+
 public interface Sampler {
     /**
-     * @param operation The operation name set on the span
-     * @param traceId   The traceId on the span
+     * @param sofaTracerSpan The operation name set on the span
      * @return whether or not the new trace should be sampled
      */
-    SamplingStatus sample(String operation, String traceId);
+    SamplingStatus sample(SofaTracerSpan sofaTracerSpan);
 
     String getType();
 

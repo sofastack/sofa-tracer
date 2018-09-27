@@ -17,6 +17,7 @@
 package com.alipay.common.tracer.core.samplers;
 
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
+import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,7 +43,7 @@ public class SofaTracerPercentageBasedSampler implements Sampler {
     }
 
     @Override
-    public SamplingStatus sample(String operation, String traceId) {
+    public SamplingStatus sample(SofaTracerSpan sofaTracerSpan) {
         SamplingStatus samplingStatus = new SamplingStatus();
         Map<String, Object> tags = new HashMap<String, Object>();
         tags.put(SofaTracerConstant.SAMPLER_TYPE_TAG_KEY, TYPE);
