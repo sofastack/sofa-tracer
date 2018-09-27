@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.tracer.boot.zipkin;
 
-import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.span.LogData;
@@ -101,6 +100,8 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         this.addZipkinBinaryAnnotationsWithBaggage(zipkinSpanBuilder, sofaTracerSpan);
         //traceId
         SofaTracerSpanContext sofaTracerSpanContext = sofaTracerSpan.getSofaTracerSpanContext();
+        // get current span's parentSpan
+        SofaTracerSpan parentSofaTracerSpan = sofaTracerSpan.getParentSofaTracerSpan();
         /**
          * Changes:
          * 1.From using zipkin span's traceId alone, to using both traceid and traceIdHigh
@@ -115,13 +116,14 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         // v2 span model will padLeft automatic
         zipkinSpanBuilder.traceId(sofaTracerSpanContext.getTraceId());
         String parentSpanId = sofaTracerSpanContext.getParentId();
+        // convent parentSpanId
         if (sofaTracerSpan.isServer() && parentSpanId != null
             && StringUtils.isNotBlank(parentSpanId)) {
             // v2 span model Unsets the {@link Span#parentId()} if the input is 0.
             zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
-        } else if (sofaTracerSpan.getParentSofaTracerSpan() != null) {
-            SofaTracerSpanContext parentSofaTracerSpanContext = sofaTracerSpan
-                .getParentSofaTracerSpan().getSofaTracerSpanContext();
+        } else if (parentSofaTracerSpan != null) {
+            SofaTracerSpanContext parentSofaTracerSpanContext = parentSofaTracerSpan
+                .getSofaTracerSpanContext();
             if (parentSofaTracerSpanContext != null) {
                 parentSpanId = parentSofaTracerSpanContext.getSpanId();
                 if (parentSpanId != null && StringUtils.isNotBlank(parentSpanId)) {
@@ -129,24 +131,25 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
                 }
             }
         }
-
-        //spanId
+        //convent spanId
         String spanId = sofaTracerSpanContext.getSpanId();
         zipkinSpanBuilder.id(spanIdToLong(spanId));
-        //kind
-        SofaTracer sofaTracer = sofaTracerSpan.getSofaTracer();
-        // adapter SOFARpc span model
-        if (SOFARPC_TRACER_TYPE.equals(sofaTracer.getTracerType())) {
-            zipkinSpanBuilder.kind(Span.Kind.CLIENT);
-        } else {
-            zipkinSpanBuilder.kind(sofaTracerSpan.isClient() ? Span.Kind.CLIENT : Span.Kind.SERVER);
-        }
-        //name
+        //convent span.kind
+        zipkinSpanBuilder.kind(sofaTracerSpan.isClient() ? Span.Kind.CLIENT : Span.Kind.SERVER);
+        //convent name
         String operationName = sofaTracerSpan.getOperationName();
         if (StringUtils.isNotBlank(operationName)) {
             zipkinSpanBuilder.name(operationName);
         } else {
             zipkinSpanBuilder.name(StringUtils.EMPTY_STRING);
+        }
+        // adapter SOFARPC span model
+        if (SOFARPC_TRACER_TYPE.equals(sofaTracerSpan.getSofaTracer().getTracerType())) {
+            //if current span's kind is rpcClient,set localEndpoint by parentSofaTracerSpan's operationName
+            if (sofaTracerSpan.isClient() && parentSofaTracerSpan != null) {
+                zipkinSpanBuilder.localEndpoint(getZipkinEndpoint(parentSofaTracerSpan
+                    .getOperationName()));
+            }
         }
         return zipkinSpanBuilder.build();
     }
