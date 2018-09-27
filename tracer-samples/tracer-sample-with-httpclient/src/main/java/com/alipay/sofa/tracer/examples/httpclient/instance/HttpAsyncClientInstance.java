@@ -75,10 +75,10 @@ public class HttpAsyncClientInstance {
         HttpAsyncClientBuilder httpAsyncClientBuilder = HttpAsyncClientBuilder.create();
         //tracer
         SofaTracerHttpClientBuilder.asyncClientBuilder(httpAsyncClientBuilder);
-        CloseableHttpAsyncClient httpclient = httpAsyncClientBuilder.setDefaultRequestConfig(
+        CloseableHttpAsyncClient asyncHttpclient = httpAsyncClientBuilder.setDefaultRequestConfig(
             requestConfig).build();
         try {
-            httpclient.start();
+            asyncHttpclient.start();
 
             RequestBuilder builder = RequestBuilder.create(method.toUpperCase()).setUri(url);
             builder.setCharset(Consts.UTF_8);
@@ -102,11 +102,11 @@ public class HttpAsyncClientInstance {
             }
 
             HttpUriRequest request = builder.build();
-            Future<HttpResponse> future = httpclient.execute(request, null);
+            Future<HttpResponse> future = asyncHttpclient.execute(request, null);
             HttpResponse response = future.get(6000, TimeUnit.MILLISECONDS);
             return EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET);
         } finally {
-            httpclient.close();
+            asyncHttpclient.close();
         }
     }
 }

@@ -11,6 +11,10 @@
 
     <artifactId>tracer-sample-with-httpclient</artifactId>
 
+    <properties>
+        <main.user.dir>${project.basedir}/../..</main.user.dir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
