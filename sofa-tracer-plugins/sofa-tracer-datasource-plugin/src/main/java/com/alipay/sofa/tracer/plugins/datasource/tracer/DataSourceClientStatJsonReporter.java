@@ -48,6 +48,7 @@ public class DataSourceClientStatJsonReporter extends AbstractSofaTracerStatisti
         statKey.addKey(CommonSpanTags.LOCAL_APP, tagsWithStr.get(CommonSpanTags.LOCAL_APP));
         statKey.addKey(DataSourceTracerKeys.DATABASE_NAME,
             tagsWithStr.get(DataSourceTracerKeys.DATABASE_NAME));
+        statKey.addKey(DataSourceTracerKeys.SQL, tagsWithStr.get(DataSourceTracerKeys.SQL));
         //result
         String result = DataSourceClientTracer.RESULT_CODE_SUCCESS.equals(tagsWithStr
             .get(DataSourceTracerKeys.RESULT_CODE)) ? "true" : "false";
