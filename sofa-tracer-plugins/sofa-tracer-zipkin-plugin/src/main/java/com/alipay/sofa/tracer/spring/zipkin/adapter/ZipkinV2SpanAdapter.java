@@ -14,80 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.zipkin;
+package com.alipay.sofa.tracer.spring.zipkin.adapter;
 
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
-import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
-import com.alipay.common.tracer.core.utils.TracerUtils;
-import com.alipay.sofa.tracer.boot.zipkin.sender.ZipkinRestTemplateSender;
-import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
 import zipkin2.Endpoint;
 import zipkin2.Span;
-import zipkin2.reporter.AsyncReporter;
-import java.io.Closeable;
-import java.io.Flushable;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-/**
- * ZipkinSofaTracerSpanRemoteReporter report {@link SofaTracerSpan} to Zipkin
- *
- * @author yangguanchao
- * @since 2018/05/01
+/***
+ * ZipkinV2SpanAdapter : convent sofaTracer span model to zipkin span model
+ * @author guolei.sgl 05/09/2018
  */
-public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, Flushable, Closeable {
+public class ZipkinV2SpanAdapter {
 
-    private static String                  processId           = TracerUtils.getPID();
-
-    private final ZipkinRestTemplateSender sender;
-
-    private final AsyncReporter<Span>      delegate;
-
-    private static final String            SOFARPC_TRACER_TYPE = "RPC_TRACER";
-
-    /***
+    /**
      * cache and performance improve
      */
-    private int                            ipAddressInt        = -1;
+    private int                 ipAddressInt        = -1;
 
-    public ZipkinSofaTracerSpanRemoteReporter(RestTemplate restTemplate, String baseUrl) {
-        this.sender = new ZipkinRestTemplateSender(restTemplate, baseUrl);
-        this.delegate = AsyncReporter.create(sender);
-    }
-
-    @Override
-    public void onSpanReport(SofaTracerSpan span) {
-        if (span == null) {
-            return;
-        }
-        //convert
-        Span zipkinSpan = convertToZipkinSpan(span);
-        this.delegate.report(zipkinSpan);
-    }
-
-    @Override
-    public void flush() throws IOException {
-        this.delegate.flush();
-    }
-
-    @Override
-    public void close() {
-        this.delegate.close();
-    }
+    private static final String SOFARPC_TRACER_TYPE = "RPC_TRACER";
 
     /**
      * convent sofaTracerSpan model to zipKinSpan model
      * @param sofaTracerSpan
      * @return
      */
-    private Span convertToZipkinSpan(SofaTracerSpan sofaTracerSpan) {
+    public Span convertToZipkinSpan(SofaTracerSpan sofaTracerSpan) {
         Span.Builder zipkinSpanBuilder = Span.newBuilder();
         zipkinSpanBuilder.timestamp(sofaTracerSpan.getStartTime() * 1000);
         // Zipkin is in nanosecond  cr-cs
@@ -102,23 +60,11 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         SofaTracerSpanContext sofaTracerSpanContext = sofaTracerSpan.getSofaTracerSpanContext();
         // get current span's parentSpan
         SofaTracerSpan parentSofaTracerSpan = sofaTracerSpan.getParentSofaTracerSpan();
-        /**
-         * Changes:
-         * 1.From using zipkin span's traceId alone, to using both traceid and traceIdHigh
-         * 2.From using part of SpanContext's traceId as radix 10, to using full traceId as hexadecimal(radix 16)
-         * So that the traceId in the zipkin trace data is consistent with the traceId in the application log files.
-         *
-         * 3.When traceId is received from the previous node, the original algorithm will not be able to cut
-         *   off the pid in tail of the traceId, because it does not know the pid of the sender.
-         *   resulting in over range when convert it to long type.
-         */
-
         // v2 span model will padLeft automatic
         zipkinSpanBuilder.traceId(sofaTracerSpanContext.getTraceId());
         String parentSpanId = sofaTracerSpanContext.getParentId();
         // convent parentSpanId
-        if (sofaTracerSpan.isServer() && parentSpanId != null
-            && StringUtils.isNotBlank(parentSpanId)) {
+        if (sofaTracerSpan.isServer() && StringUtils.isNotBlank(parentSpanId)) {
             // v2 span model Unsets the {@link Span#parentId()} if the input is 0.
             zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
         } else if (parentSofaTracerSpan != null) {
@@ -126,7 +72,7 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
                 .getSofaTracerSpanContext();
             if (parentSofaTracerSpanContext != null) {
                 parentSpanId = parentSofaTracerSpanContext.getSpanId();
-                if (parentSpanId != null && StringUtils.isNotBlank(parentSpanId)) {
+                if (StringUtils.isNotBlank(parentSpanId)) {
                     zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
                 }
             }
@@ -152,6 +98,26 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
             }
         }
         return zipkinSpanBuilder.build();
+    }
+
+    public static long spanIdToLong(String spanId) {
+        return FNV64HashCode(spanId);
+    }
+
+    /**
+     * from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
+     * @param data String data
+     * @return fnv hash code
+     */
+    public static long FNV64HashCode(String data) {
+        //hash FNVHash64 : http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-param
+        long hash = 0xcbf29ce484222325L;
+        for (int i = 0; i < data.length(); ++i) {
+            char c = data.charAt(i);
+            hash ^= c;
+            hash *= 0x100000001b3L;
+        }
+        return hash;
     }
 
     private Endpoint getZipkinEndpoint(String operationName) {
@@ -208,50 +174,6 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
                 zipkinSpan.addAnnotation(logData.getTime() * 1000, entry.getValue().toString())
                     .localEndpoint(endpoint);
             }
-        }
-    }
-
-    public static long spanIdToLong(String spanId) {
-        return FNV64HashCode(spanId);
-    }
-
-    /**
-     * from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
-     * @param data String data
-     * @return fnv hash code
-     */
-    public static long FNV64HashCode(String data) {
-        //hash FNVHash64 : http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-param
-        long hash = 0xcbf29ce484222325L;
-        for (int i = 0; i < data.length(); ++i) {
-            char c = data.charAt(i);
-            hash ^= c;
-            hash *= 0x100000001b3L;
-        }
-        return hash;
-    }
-
-    /***
-     * 功能:将 16 进制字符串转换为:十进制整数
-     * @param hexString 16 进制字符串
-     * @return 十进制整数
-     */
-    public static long traceIdToId(String hexString) {
-        Assert.hasText(hexString, "Can't convert empty hex string to long");
-        int length = hexString.length();
-        if (length < 1) {
-            throw new IllegalArgumentException("Malformed id(length must be more than zero): "
-                                               + hexString);
-        }
-        if (length <= 8) {
-            //hex
-            return Long.parseLong(hexString, 16);
-        } else if (hexString.endsWith(processId)) {
-            //time
-            return Long.parseLong(hexString.substring(8, hexString.lastIndexOf(processId)), 10);
-        } else {
-            //delete ip and processor id
-            return Long.parseLong(hexString.substring(8), 10);
         }
     }
 

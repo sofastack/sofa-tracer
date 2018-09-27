@@ -16,31 +16,46 @@
  */
 package com.alipay.sofa.tracer.spring.zipkin.initialize;
 
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.listener.SpanReportListenerHolder;
-import com.alipay.sofa.tracer.spring.zipkin.ZipkinValidator;
+import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.tracer.spring.zipkin.ZipkinSofaTracerRestTemplateCustomizer;
+import com.alipay.sofa.tracer.spring.zipkin.ZipkinSofaTracerSpanRemoteReporter;
+import com.alipay.sofa.tracer.spring.zipkin.properties.ZipkinProperties;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * register zipkin report listeners
  * @author guolei.sgl
  */
-@Component
 public class ZipkinReportRegisterBean implements InitializingBean {
-
-    @Autowired(required = false)
-    private List<SpanReportListener> spanReportListenerList;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         // if do not match report condition,it will be return right now
-        if (!ZipkinValidator.isMatchReport()) {
+        boolean enabled = false;
+        String enabledStr = SofaTracerConfiguration
+            .getProperty(ZipkinProperties.ZIPKIN_IS_ENABLED_KEY);
+        if (StringUtils.isNotBlank(enabledStr) && "true".equalsIgnoreCase(enabledStr)) {
+            enabled = true;
+        }
+        if (!enabled) {
             return;
         }
+        RestTemplate restTemplate = new RestTemplate();
+        ZipkinSofaTracerRestTemplateCustomizer zipkinSofaTracerRestTemplateCustomizer = new ZipkinSofaTracerRestTemplateCustomizer(
+            ZipkinProperties.getCompression());
+        zipkinSofaTracerRestTemplateCustomizer.customize(restTemplate);
+        String baseUrl = SofaTracerConfiguration.getProperty(ZipkinProperties.ZIPKIN_BASE_URL_KEY);
+        SpanReportListener spanReportListener = new ZipkinSofaTracerSpanRemoteReporter(
+            restTemplate, baseUrl);
+        List<SpanReportListener> spanReportListenerList = new ArrayList<SpanReportListener>();
+        spanReportListenerList.add(spanReportListener);
         SpanReportListenerHolder.addSpanReportListeners(spanReportListenerList);
     }
 }

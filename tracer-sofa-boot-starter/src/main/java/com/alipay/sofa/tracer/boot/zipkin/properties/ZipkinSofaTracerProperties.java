@@ -30,10 +30,9 @@ public class ZipkinSofaTracerProperties {
     /**
      * URL of the zipkin query server instance.
      */
-    private String      baseUrl       = "http://localhost:9411/";
-    private boolean     enabled       = true;
-    private int         flushInterval = 1;
-    private Compression compression   = new Compression();
+    private String      baseUrl     = "http://localhost:9411/";
+    private boolean     enabled     = true;
+    private Compression compression = new Compression();
 
     public String getBaseUrl() {
         return this.baseUrl;
@@ -41,10 +40,6 @@ public class ZipkinSofaTracerProperties {
 
     public boolean isEnabled() {
         return this.enabled;
-    }
-
-    public int getFlushInterval() {
-        return this.flushInterval;
     }
 
     public Compression getCompression() {
@@ -57,10 +52,6 @@ public class ZipkinSofaTracerProperties {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public void setFlushInterval(int flushInterval) {
-        this.flushInterval = flushInterval;
     }
 
     public void setCompression(Compression compression) {
