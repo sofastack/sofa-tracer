@@ -33,7 +33,7 @@
 
 然后，在工程中添加 SOFATracer 依赖：
 
-```
+```xml
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>tracer-sofa-boot-starter</artifactId>
