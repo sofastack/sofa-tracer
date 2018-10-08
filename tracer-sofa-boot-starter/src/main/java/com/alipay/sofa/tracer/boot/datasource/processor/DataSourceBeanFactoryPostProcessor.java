@@ -142,14 +142,44 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
         if (end < 0) {
             throw new InvalidParameterException("jdbc url is invalid!");
         }
-        return url.substring(start, end);
+        String dbType = url.substring(start, end);
+        // SQL Server 2000
+        if ("microsoft".equals(dbType)) {
+            start = end + 1;
+            end = url.indexOf(":", start);
+            if (end < 0) {
+                throw new InvalidParameterException("jdbc url is invalid!");
+            }
+            return url.substring(start, end);
+        } else {
+            return dbType;
+        }
     }
 
     public static String resolveDatabaseFromUrl(String url) {
         Assert.isTrue(!StringUtils.isBlank(url), "Jdbc url must not be empty!");
+        if ("sqlserver".equals(resolveDbTypeFromUrl(url))) {
+            String[] segments = url.split(";");
+            for (String segment : segments) {
+                if (segment.toLowerCase().contains("databasename=")) {
+                    int start = segment.toLowerCase().indexOf("databasename=")
+                                + "databasename=".length();
+                    return segment.substring(start).trim();
+                }
+            }
+            throw new InvalidParameterException("jdbc url is invalid!");
+        }
+
         int start = url.lastIndexOf("/");
         if (start < 0) {
-            throw new InvalidParameterException("jdbc url is invalid!");
+            /**
+             * oracle sid 格式，{@see jdbc:oracle:thin:@host:port:SID}
+             */
+            if ("oracle".equals(resolveDbTypeFromUrl(url))) {
+                start = url.lastIndexOf(":");
+            } else {
+                throw new InvalidParameterException("jdbc url is invalid!");
+            }
         }
         int end = url.indexOf("?", start);
         if (end != -1) {

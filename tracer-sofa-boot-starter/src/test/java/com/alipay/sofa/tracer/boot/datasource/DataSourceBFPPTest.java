@@ -17,6 +17,8 @@
 package com.alipay.sofa.tracer.boot.datasource;
 
 import com.alipay.sofa.tracer.boot.datasource.processor.DataSourceBeanFactoryPostProcessor;
+import com.alipay.sofa.tracer.plugins.datasource.tracer.Endpoint;
+import com.alipay.sofa.tracer.plugins.datasource.utils.DataSourceUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,11 +30,15 @@ import java.security.InvalidParameterException;
  */
 public class DataSourceBFPPTest {
 
-    private String jdbcUrl  = "jdbc:oracle:thin:@localhost:1521/orcl";
+    private String jdbcUrl  = "jdbc:oracle:thin:@localhost:1521:orcl";
     private String jdbcUrl2 = "jdbc:oracle:thin:@//localhost:1521/orcl.city.com";
-    private String jdbcUrl3 = "jdbc:mysql://127.0.0.1:3306/imooc?useUnicode=true&amp;characterEncoding=utf-8";
-    private String jdbcUrl4 = "jdbc:mysql://127.0.0.1:3306/dataBase";
-    private String jdbcUrl5 = "invalid";
+    private String jdbcUrl4 = "jdbc:mysql://127.0.0.1:3306/imooc?useUnicode=true&amp;characterEncoding=utf-8";
+    private String jdbcUrl5 = "jdbc:mysql://127.0.0.1:3306/dataBase";
+    // SQL Server 2000
+    private String jdbcUrl6 = "jdbc:microsoft:sqlserver://localhost:1433; DatabaseName=sample ";
+    // SQL Server 2005
+    private String jdbcUrl7 = "jdbc:sqlserver://localhost:1433; DatabaseName=sample ";
+    private String jdbcUrl8 = "invalid";
 
     @Test
     public void testDbType() {
@@ -41,13 +47,17 @@ public class DataSourceBFPPTest {
         Assert.assertTrue("oracle".equals(DataSourceBeanFactoryPostProcessor
             .resolveDbTypeFromUrl(jdbcUrl2)));
         Assert.assertTrue("mysql".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDbTypeFromUrl(jdbcUrl3)));
-        Assert.assertTrue("mysql".equals(DataSourceBeanFactoryPostProcessor
             .resolveDbTypeFromUrl(jdbcUrl4)));
+        Assert.assertTrue("mysql".equals(DataSourceBeanFactoryPostProcessor
+            .resolveDbTypeFromUrl(jdbcUrl5)));
+        Assert.assertTrue("sqlserver".equals(DataSourceBeanFactoryPostProcessor
+            .resolveDbTypeFromUrl(jdbcUrl6)));
+        Assert.assertTrue("sqlserver".equals(DataSourceBeanFactoryPostProcessor
+            .resolveDbTypeFromUrl(jdbcUrl7)));
 
         boolean error = false;
         try {
-            DataSourceBeanFactoryPostProcessor.resolveDbTypeFromUrl(jdbcUrl5);
+            DataSourceBeanFactoryPostProcessor.resolveDbTypeFromUrl(jdbcUrl8);
         } catch (InvalidParameterException ex) {
             error = true;
         }
@@ -60,18 +70,52 @@ public class DataSourceBFPPTest {
             .resolveDatabaseFromUrl(jdbcUrl)));
         Assert.assertTrue("orcl.city.com".equals(DataSourceBeanFactoryPostProcessor
             .resolveDatabaseFromUrl(jdbcUrl2)));
+
         Assert.assertTrue("imooc".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDatabaseFromUrl(jdbcUrl3)));
-        Assert.assertTrue("dataBase".equals(DataSourceBeanFactoryPostProcessor
             .resolveDatabaseFromUrl(jdbcUrl4)));
+        Assert.assertTrue("dataBase".equals(DataSourceBeanFactoryPostProcessor
+            .resolveDatabaseFromUrl(jdbcUrl5)));
+
+        Assert.assertTrue("sample".equals(DataSourceBeanFactoryPostProcessor
+            .resolveDatabaseFromUrl(jdbcUrl6)));
+        Assert.assertTrue("sample".equals(DataSourceBeanFactoryPostProcessor
+            .resolveDatabaseFromUrl(jdbcUrl7)));
 
         boolean error = false;
         try {
-            DataSourceBeanFactoryPostProcessor.resolveDbTypeFromUrl(jdbcUrl5);
+            DataSourceBeanFactoryPostProcessor.resolveDbTypeFromUrl(jdbcUrl8);
         } catch (InvalidParameterException ex) {
             error = true;
         }
         Assert.assertTrue(error);
+    }
+
+    @Test
+    public void testEndpoint() {
+        Endpoint endpoint;
+        endpoint = DataSourceUtils.getEndpointFromConnectionURL(jdbcUrl);
+        Assert.assertEquals("localhost", endpoint.getHost());
+        Assert.assertEquals(1521, endpoint.getPort());
+
+        endpoint = DataSourceUtils.getEndpointFromConnectionURL(jdbcUrl2);
+        Assert.assertEquals("localhost", endpoint.getHost());
+        Assert.assertEquals(1521, endpoint.getPort());
+
+        endpoint = DataSourceUtils.getEndpointFromConnectionURL(jdbcUrl4);
+        Assert.assertEquals("127.0.0.1", endpoint.getHost());
+        Assert.assertEquals(3306, endpoint.getPort());
+
+        endpoint = DataSourceUtils.getEndpointFromConnectionURL(jdbcUrl5);
+        Assert.assertEquals("127.0.0.1", endpoint.getHost());
+        Assert.assertEquals(3306, endpoint.getPort());
+
+        endpoint = DataSourceUtils.getEndpointFromConnectionURL(jdbcUrl6);
+        Assert.assertEquals("localhost", endpoint.getHost());
+        Assert.assertEquals(1433, endpoint.getPort());
+
+        endpoint = DataSourceUtils.getEndpointFromConnectionURL(jdbcUrl7);
+        Assert.assertEquals("localhost", endpoint.getHost());
+        Assert.assertEquals(1433, endpoint.getPort());
     }
 
 }
