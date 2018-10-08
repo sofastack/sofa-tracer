@@ -20,6 +20,7 @@
         <module>tracer-extensions</module>
         <module>sofa-tracer-plugins/sofa-tracer-springmvc-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-httpclient-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-datasource-plugin</module>
         <module>tracer-all</module>
         <module>tracer-sofa-boot-starter</module>
         <module>tracer-samples</module>
@@ -27,7 +28,6 @@
         <module>tracer-test/logback-test</module>
         <module>tracer-test/log4j2-test</module>
         <module>tracer-test/log4j-test</module>
-        <module>tracer-sofa-boot-plugin</module>
     </modules>
 
     <properties>
@@ -93,6 +93,11 @@
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-httpclient-plugin</artifactId>
+                <version>${sofa.tracer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-datasource-plugin</artifactId>
                 <version>${sofa.tracer.version}</version>
             </dependency>
             <dependency>

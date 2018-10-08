@@ -14,23 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.base;
+package com.alipay.sofa.tracer.boot.datasource;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.ImportResource;
+import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
+import com.alipay.sofa.tracer.plugins.datasource.SmartDataSource;
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.sql.DataSource;
 
 /**
- * SpringBootWebApplication
- *
- * @author yangguanchao
- * @since 2018/04/30
+ * @author qilong.zql
+ * @since 2.2.0
  */
-@org.springframework.boot.autoconfigure.SpringBootApplication
-@ImportResource({ "classpath:hikariDataSource.xml" })
-public class SpringBootWebApplication {
+public class DataSourceTracerTest extends AbstractTestBase {
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication springApplication = new SpringApplication(SpringBootWebApplication.class);
-        springApplication.run(args);
+    @Autowired
+    private DataSource dataSource;
+
+    @Test
+    public void testDataSource() {
+        Assert.assertTrue(dataSource instanceof SmartDataSource);
     }
+
 }

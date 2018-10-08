@@ -14,23 +14,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.base;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.ImportResource;
+package com.alipay.sofa.tracer.plugins.datasource;
 
 /**
- * SpringBootWebApplication
- *
- * @author yangguanchao
- * @since 2018/04/30
+ * @author shusong.yss
+ * @author qilong.zql
+ * @since 2.2.0
  */
-@org.springframework.boot.autoconfigure.SpringBootApplication
-@ImportResource({ "classpath:hikariDataSource.xml" })
-public class SpringBootWebApplication {
+public interface Interceptor {
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication springApplication = new SpringApplication(SpringBootWebApplication.class);
-        springApplication.run(args);
+    /**
+     * execute interceptor chain
+     * @param chain
+     * @return
+     * @throws Exception
+     */
+    Object intercept(Chain chain) throws Exception;
+
+    interface Chain {
+
+        Object proceed() throws Exception;
+
+        String getOriginalSql();
+
+        String getProcessingSql();
+
+        void setProcessingSql(String processingSql);
+
+        BaseDataSource getDataSource();
+
+        ExtendedConnection getConnection();
+
+        ExtendedStatement getStatement();
+
+        boolean hasNext();
+
+        Interceptor next();
     }
 }
