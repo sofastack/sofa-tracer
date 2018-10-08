@@ -100,16 +100,17 @@ public class DataSourceClientTracer extends AbstractClientTracer {
     }
 
     public void startTrace(String sql) {
+        long startTime = System.currentTimeMillis();
         SofaTracerSpan sofaTracerSpan = clientSend((String) getStateValue(DataSourceTracerKeys.DATABASE_NAME));
         SofaTracerSpanContext cxt = sofaTracerSpan.getSofaTracerSpanContext();
         if (cxt != null) {
             propagate();
             if (isProcessingFirstSql()) {
-                sofaTracerSpan.setStartTime((Long) getStateValue(DataSourceTracerKeys.START_TIME));
+                sofaTracerSpan.setStartTime(startTime);
                 sofaTracerSpan.setTag(DataSourceTracerKeys.CONNECTION_ESTABLISH_COST,
                     (Long) getStateValue(DataSourceTracerKeys.CONNECTION_ESTABLISH_COST));
             } else {
-                sofaTracerSpan.setStartTime((Long) getStateValue(DataSourceTracerKeys.START_TIME));
+                sofaTracerSpan.setStartTime(startTime);
                 sofaTracerSpan.setTag(DataSourceTracerKeys.CONNECTION_ESTABLISH_COST, 0L);
             }
             sofaTracerSpan.setTag(DataSourceTracerKeys.LOCAL_APP,
