@@ -14,23 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.base;
+package com.alipay.sofa.tracer.plugins.datasource.tracer;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.ImportResource;
+import io.opentracing.propagation.TextMap;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
- * SpringBootWebApplication
- *
- * @author yangguanchao
- * @since 2018/04/30
+ * @author shusong.yss
+ * @author qilong.zql
+ * @since 2.2.0
  */
-@org.springframework.boot.autoconfigure.SpringBootApplication
-@ImportResource({ "classpath:hikariDataSource.xml" })
-public class SpringBootWebApplication {
+public class DataSourceClientRequestCarrier implements TextMap {
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication springApplication = new SpringApplication(SpringBootWebApplication.class);
-        springApplication.run(args);
+    private final Map<String, String> tagsWithStr = new LinkedHashMap<String, String>();
+
+    @Override
+    public Iterator<Map.Entry<String, String>> iterator() {
+        return tagsWithStr.entrySet().iterator();
+    }
+
+    @Override
+    public void put(String key, String value) {
+        tagsWithStr.put(key, value);
     }
 }

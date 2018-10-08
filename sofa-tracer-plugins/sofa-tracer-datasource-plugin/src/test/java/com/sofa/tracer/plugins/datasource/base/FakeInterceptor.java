@@ -14,23 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.base;
+package com.sofa.tracer.plugins.datasource.base;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.ImportResource;
+import com.alipay.sofa.tracer.plugins.datasource.Interceptor;
 
 /**
- * SpringBootWebApplication
- *
- * @author yangguanchao
- * @since 2018/04/30
+ * @author shusong.yss
+ * @author qilong.zql
+ * @since 2.2.0
  */
-@org.springframework.boot.autoconfigure.SpringBootApplication
-@ImportResource({ "classpath:hikariDataSource.xml" })
-public class SpringBootWebApplication {
+public class FakeInterceptor implements Interceptor {
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication springApplication = new SpringApplication(SpringBootWebApplication.class);
-        springApplication.run(args);
+    @Override
+    public Object intercept(Chain chain) throws Exception {
+        Object reVal = null;
+        try {
+            System.out.println("before interceptor");
+            reVal = chain.proceed();
+            System.out.println("after interceptor");
+        } finally {
+            System.out.println("finally interceptor");
+        }
+        return reVal;
     }
 }

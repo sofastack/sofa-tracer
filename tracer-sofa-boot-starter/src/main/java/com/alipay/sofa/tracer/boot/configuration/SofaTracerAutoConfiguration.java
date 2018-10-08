@@ -19,6 +19,7 @@ package com.alipay.sofa.tracer.boot.configuration;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.listener.SpanReportListenerHolder;
+import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -26,6 +27,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -45,12 +47,12 @@ public class SofaTracerAutoConfiguration {
     @Autowired
     public SofaTracerAutoConfiguration(SofaTracerProperties sofaTracerProperties,
                                        Environment environment) {
-        String applicationName = environment.getProperty("spring.application.name");
-        //appName
-        if (applicationName != null) {
-            SofaTracerConfiguration.setProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY,
-                applicationName);
-        }
+        String applicationName = environment
+            .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
+        Assert.isTrue(!StringUtils.isBlank(applicationName),
+            SofaTracerConfiguration.TRACER_APPNAME_KEY + " must be configured!");
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY,
+            applicationName);
         //properties convert to tracer
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY,

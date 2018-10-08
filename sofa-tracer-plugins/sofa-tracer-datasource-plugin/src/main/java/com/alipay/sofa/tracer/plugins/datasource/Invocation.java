@@ -14,23 +14,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.base;
+package com.alipay.sofa.tracer.plugins.datasource;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.ImportResource;
+import java.lang.reflect.Method;
 
 /**
- * SpringBootWebApplication
- *
- * @author yangguanchao
- * @since 2018/04/30
+ * @author shusong.yss
+ * @author qilong.zql
+ * @since 2.2.0
  */
-@org.springframework.boot.autoconfigure.SpringBootApplication
-@ImportResource({ "classpath:hikariDataSource.xml" })
-public class SpringBootWebApplication {
+public class Invocation {
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication springApplication = new SpringApplication(SpringBootWebApplication.class);
-        springApplication.run(args);
+    private final Method   method;
+
+    private final Object   target;
+
+    private final Object[] args;
+
+    public Invocation(Method method, Object target, Object... args) {
+        this.method = method;
+        this.target = target;
+        this.args = args;
+    }
+
+    public Method getMethod() {
+        return method;
+    }
+
+    public Object getTarget() {
+        return target;
+    }
+
+    public Object[] getArgs() {
+        return args;
+    }
+
+    public Object invoke() {
+        try {
+            return method.invoke(target, args);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

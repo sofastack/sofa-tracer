@@ -14,23 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.base;
+package com.alipay.sofa.tracer.examples.datasource;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;
 
-/**
- * SpringBootWebApplication
- *
- * @author yangguanchao
- * @since 2018/04/30
- */
-@org.springframework.boot.autoconfigure.SpringBootApplication
-@ImportResource({ "classpath:hikariDataSource.xml" })
-public class SpringBootWebApplication {
+@ImportResource({ "classpath:datasource.xml" })
+@SpringBootApplication
+public class DemoApplication {
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication springApplication = new SpringApplication(SpringBootWebApplication.class);
-        springApplication.run(args);
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
     }
 }
