@@ -17,6 +17,7 @@
         <module>tracer-sample-with-zipkin</module>
         <module>tracer-sample-with-slf4j</module>
         <module>tracer-sample-with-sofarpc</module>
+        <module>tracer-sample-with-httpclient</module>
         <module>tracer-sample-with-h2</module>
     </modules>
 
