@@ -5,7 +5,8 @@
 ## 环境准备
 
 要使用 SOFABoot，需要先准备好基础环境，SOFABoot 依赖以下环境：
-- JDK7 或 JDK8
+
+- JDK8
 - 需要采用 Apache Maven 3.2.5 或者以上的版本来编译
 
 ## 引入 SOFATracer
