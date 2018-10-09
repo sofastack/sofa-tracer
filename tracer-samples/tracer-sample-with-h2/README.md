@@ -1,4 +1,4 @@
-# 使用 SOFATracer记录 DataSource
+# 使用 SOFATracer 记录 DataSource
 
 本示例引入 SOFABoot 基础依赖管控，并且引入 SOFATracer ，演示如何记录 DataSource 调用信息.
 
