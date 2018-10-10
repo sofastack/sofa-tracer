@@ -28,7 +28,12 @@ public class SamplerProperties {
      * sampled. The precision is whole-numbers only (i.e. there's no support for 0.1% of
      * the traces).
      */
-    private float percentage = 0.1f;
+    private float  percentage = 0.1f;
+
+    /**
+     * if use custom rule, you can implements Sample interface and provide this class name
+     */
+    private String ruleClassName;
 
     public float getPercentage() {
         return this.percentage;
@@ -36,5 +41,13 @@ public class SamplerProperties {
 
     public void setPercentage(float percentage) {
         this.percentage = percentage;
+    }
+
+    public String getRuleClassName() {
+        return ruleClassName;
+    }
+
+    public void setRuleClassName(String ruleClassName) {
+        this.ruleClassName = ruleClassName;
     }
 }
