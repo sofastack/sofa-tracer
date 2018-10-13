@@ -23,15 +23,15 @@ import java.util.*;
 
 /**
  *
- * @description: Ability to customize rules for external users to provide sampling
- * @email: <a href="guolei.sgl@antfin.com"></a>
+ * Ability to customize rules for external users to provide sampling
+ *
  * @author: guolei.sgl
- * @date: 18/9/11
+ * @since: 18/9/11
  */
 public class OpenRulesSampler implements Sampler {
 
     final Rule                      rules;
-    static final String             TYPE = "OpenRulesSampler";
+    public static final String      TYPE = "OpenRulesSampler";
 
     private final SamplerProperties configuration;
 

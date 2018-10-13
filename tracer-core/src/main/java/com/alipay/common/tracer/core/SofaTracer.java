@@ -17,6 +17,7 @@
 package com.alipay.common.tracer.core;
 
 import com.alipay.common.tracer.core.appender.self.SelfLog;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.generator.TraceIdGenerator;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
@@ -25,6 +26,7 @@ import com.alipay.common.tracer.core.registry.RegistryExtractorInjector;
 import com.alipay.common.tracer.core.registry.TracerFormatRegistry;
 import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.samplers.Sampler;
+import com.alipay.common.tracer.core.samplers.SamplerFactory;
 import com.alipay.common.tracer.core.samplers.SamplingStatus;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.span.SofaTracerSpanReferenceRelationship;
@@ -115,6 +117,13 @@ public class SofaTracer implements Tracer {
     public void reportSpan(SofaTracerSpan span) {
         if (span == null) {
             return;
+        }
+        //sampler is support
+        if (sampler != null) {
+            // if current span is root span
+            if (span.getParentSofaTracerSpan() == null) {
+                span.getSofaTracerSpanContext().setSampled(sampler.sample(span).isSampled());
+            }
         }
         //invoke listener
         this.invokeReportListeners(span);
@@ -289,7 +298,7 @@ public class SofaTracer implements Tracer {
             SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(SofaTracer.this, begin,
                 this.references, this.operationName, sofaTracerSpanContext, this.tags);
 
-            // calculate isSampled
+            // calculate isSampled，but do not change parent's sampler behaviour
             boolean isSampled = calculateSampler(sofaTracerSpan);
             sofaTracerSpanContext.setSampled(isSampled);
 
@@ -469,6 +478,15 @@ public class SofaTracer implements Tracer {
         }
 
         public SofaTracer build() {
+            String samplerName = SofaTracerConfiguration.getSofaTracerSamplerStrategy();
+            if (StringUtils.isNotBlank(samplerName)) {
+                try {
+                    sampler = SamplerFactory.getSampler(samplerName);
+                } catch (Exception e) {
+                    SelfLog.error("Failed to get tracer sampler strategy; samplerName is ["
+                                  + samplerName + "]");
+                }
+            }
             return new SofaTracer(this.tracerType, this.clientReporter, this.serverReporter,
                 this.sampler, this.tracerTags);
         }

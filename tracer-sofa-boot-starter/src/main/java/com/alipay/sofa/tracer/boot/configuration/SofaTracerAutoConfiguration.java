@@ -19,6 +19,7 @@ package com.alipay.sofa.tracer.boot.configuration;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.listener.SpanReportListenerHolder;
+import com.alipay.common.tracer.core.samplers.OpenRulesSampler;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,19 @@ public class SofaTracerAutoConfiguration {
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.TRACER_SYSTEM_PENETRATE_ATTRIBUTE_MAX_LENGTH,
             sofaTracerProperties.getBaggageMaxLength());
+        //sampler config
+        if (sofaTracerProperties.getSamplerName() != null) {
+            SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
+                sofaTracerProperties.getSamplerName());
+            SofaTracerConfiguration.setProperty(
+                SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY,
+                String.valueOf(sofaTracerProperties.getSamplerPercentage()));
+            if (sofaTracerProperties.getSamplerName().equals(OpenRulesSampler.TYPE)) {
+                SofaTracerConfiguration.setProperty(
+                    SofaTracerConfiguration.SAMPLER_STRATEGY_CUSTOM_RULE_CLASS_NAME,
+                    sofaTracerProperties.getSamplerCustomRuleClassName());
+            }
+        }
     }
 
     @Bean
