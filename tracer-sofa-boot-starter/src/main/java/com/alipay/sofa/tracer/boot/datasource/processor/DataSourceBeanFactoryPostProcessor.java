@@ -122,7 +122,8 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
         values.add("appName", appName);
         values.add("delegate", new RuntimeBeanReference(transformDatasourceBeanName(beanName)));
         values.add("dbType", resolveDbTypeFromUrl(unwrapPropertyValue(originValues.get(jdbcUrl))));
-        values.add("database", resolveDatabaseFromUrl(unwrapPropertyValue(originValues.get(jdbcUrl))));
+        values.add("database",
+            resolveDatabaseFromUrl(unwrapPropertyValue(originValues.get(jdbcUrl))));
         proxiedBeanDefinition.setPropertyValues(values);
         beanDefinitionRegistry.registerBeanDefinition(beanName, proxiedBeanDefinition);
     }
@@ -131,9 +132,10 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
         if (propertyValue instanceof TypedStringValue) {
             return ((TypedStringValue) propertyValue).getValue();
         } else if (propertyValue instanceof String) {
-            return (String)propertyValue;
+            return (String) propertyValue;
         }
-        throw new IllegalArgumentException("The property value of jdbcUrl must be the type of String or TypedStringValue");
+        throw new IllegalArgumentException(
+            "The property value of jdbcUrl must be the type of String or TypedStringValue");
     }
 
     public static String transformDatasourceBeanName(String originName) {
