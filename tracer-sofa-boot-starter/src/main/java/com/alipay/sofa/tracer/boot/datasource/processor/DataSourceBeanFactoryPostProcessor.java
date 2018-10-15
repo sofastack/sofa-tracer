@@ -105,13 +105,14 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
         // re-register origin datasource bean
         BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) beanFactory;
         beanDefinitionRegistry.removeBeanDefinition(beanName);
+        boolean isPrimary = originDataSource.isPrimary();
         originDataSource.setPrimary(false);
         beanDefinitionRegistry.registerBeanDefinition(transformDatasourceBeanName(beanName),
             originDataSource);
         // register proxied datasource
         RootBeanDefinition proxiedBeanDefinition = new RootBeanDefinition(SmartDataSource.class);
         proxiedBeanDefinition.setRole(BeanDefinition.ROLE_APPLICATION);
-        proxiedBeanDefinition.setPrimary(true);
+        proxiedBeanDefinition.setPrimary(isPrimary);
         proxiedBeanDefinition.setInitMethodName("init");
         proxiedBeanDefinition.setDependsOn(transformDatasourceBeanName(beanName));
         MutablePropertyValues originValues = originDataSource.getPropertyValues();
@@ -120,12 +121,19 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
         Assert.isTrue(!StringUtils.isBlank(appName), TRACER_APPNAME_KEY + " must be configured!");
         values.add("appName", appName);
         values.add("delegate", new RuntimeBeanReference(transformDatasourceBeanName(beanName)));
-        values.add("dbType",
-            resolveDbTypeFromUrl(((TypedStringValue) originValues.get(jdbcUrl)).getValue()));
-        values.add("database",
-            resolveDatabaseFromUrl(((TypedStringValue) originValues.get(jdbcUrl)).getValue()));
+        values.add("dbType", resolveDbTypeFromUrl(unwrapPropertyValue(originValues.get(jdbcUrl))));
+        values.add("database", resolveDatabaseFromUrl(unwrapPropertyValue(originValues.get(jdbcUrl))));
         proxiedBeanDefinition.setPropertyValues(values);
         beanDefinitionRegistry.registerBeanDefinition(beanName, proxiedBeanDefinition);
+    }
+
+    protected String unwrapPropertyValue(Object propertyValue) {
+        if (propertyValue instanceof TypedStringValue) {
+            return ((TypedStringValue) propertyValue).getValue();
+        } else if (propertyValue instanceof String) {
+            return (String)propertyValue;
+        }
+        throw new IllegalArgumentException("The property value of jdbcUrl must be the type of String or TypedStringValue");
     }
 
     public static String transformDatasourceBeanName(String originName) {
