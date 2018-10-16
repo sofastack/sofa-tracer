@@ -92,8 +92,9 @@ public abstract class AbstractHttpRequestInterceptor {
                                                  SofaTracerSpan httpClientSpan) {
         //length
         if (httpClientSpan != null) {
-            httpClientSpan.setTag(CommonSpanTags.RESP_SIZE, httpResponse.getEntity()
-                .getContentLength());
+            HttpEntity httpEntity = httpResponse.getEntity();
+            long contentLength = httpEntity == null ? -1 : httpEntity.getContentLength();
+            httpClientSpan.setTag(CommonSpanTags.RESP_SIZE, contentLength);
             httpClientSpan.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread()
                 .getName());
         }
