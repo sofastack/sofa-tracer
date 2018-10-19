@@ -44,6 +44,7 @@ public class OpenTracingSpringMvcAutoConfiguration {
     private OpenTracingSpringMvcProperties openTracingSpringProperties;
 
     @Bean
+    @ConditionalOnWebApplication
     public FilterRegistrationBean springMvcDelegatingFilterProxy() {
         //decide output format  json or digest
         if (openTracingSpringProperties.isJsonOutput()) {

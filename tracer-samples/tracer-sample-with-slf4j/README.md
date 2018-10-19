@@ -27,7 +27,7 @@
 <parent>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofaboot-dependencies</artifactId>
-    <version>2.4.9</version>
+    <version>2.5.0</version>
 </parent>
 ```
 
