@@ -21,7 +21,9 @@ import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.listener.SpanReportListenerHolder;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -39,7 +41,7 @@ import java.util.List;
  */
 @Configuration
 @EnableConfigurationProperties(SofaTracerProperties.class)
-public class SofaTracerAutoConfiguration {
+public class SofaTracerAutoConfiguration implements BeanPostProcessor {
 
     @Autowired(required = false)
     private List<SpanReportListener> spanReportListenerList;
@@ -83,5 +85,19 @@ public class SofaTracerAutoConfiguration {
             SpanReportListenerHolder.addSpanReportListeners(spanReportListenerList);
         }
         return null;
+    }
+
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName)
+                                                                               throws BeansException {
+        //do nothing
+        return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName)
+                                                                              throws BeansException {
+        //do nothing
+        return bean;
     }
 }
