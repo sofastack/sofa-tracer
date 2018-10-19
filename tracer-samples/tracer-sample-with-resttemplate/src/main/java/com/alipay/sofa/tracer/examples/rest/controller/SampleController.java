@@ -48,7 +48,6 @@ public class SampleController {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("count", counter.incrementAndGet());
         Thread.sleep(5000);
-        System.out.println("asyncrest execute finish ...");
         return map;
     }
 }
