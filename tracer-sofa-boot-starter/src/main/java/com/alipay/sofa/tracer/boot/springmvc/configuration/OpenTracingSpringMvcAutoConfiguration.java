@@ -20,12 +20,14 @@ import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.sofa.tracer.boot.springmvc.properties.OpenTracingSpringMvcProperties;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcSofaTracerFilter;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
+import com.alipay.sofa.tracer.plugins.springmvc.WebfluxSofaTracerFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.server.WebFilter;
 
 import java.util.List;
 
@@ -65,5 +67,11 @@ public class OpenTracingSpringMvcAutoConfiguration {
         filterRegistrationBean.setAsyncSupported(true);
         filterRegistrationBean.setOrder(openTracingSpringProperties.getFilterOrder());
         return filterRegistrationBean;
+    }
+
+    @Bean
+    @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
+    public WebFilter webfluxSofaTracerFilter() {
+        return new WebfluxSofaTracerFilter();
     }
 }

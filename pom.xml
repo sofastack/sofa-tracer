@@ -33,8 +33,8 @@
     <properties>
         <opentracing.version>0.22.0</opentracing.version>
         <sofa.tracer.version>2.3.0</sofa.tracer.version>
-        <java.compiler.source.version>1.6</java.compiler.source.version>
-        <java.compiler.target.version>1.6</java.compiler.target.version>
+        <java.compiler.source.version>1.8</java.compiler.source.version>
+        <java.compiler.target.version>1.8</java.compiler.target.version>
         <jmh.version>1.9.3</jmh.version>
         <project.encoding>UTF-8</project.encoding>
         <main.user.dir>${user.dir}</main.user.dir>
