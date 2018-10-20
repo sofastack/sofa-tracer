@@ -82,7 +82,8 @@ public abstract class AbstractHttpRequestInterceptor {
         if (httpRequest instanceof HttpEntityEnclosingRequest) {
             HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
             HttpEntity httpEntity = httpEntityEnclosingRequest.getEntity();
-            httpClientSpan.setTag(CommonSpanTags.REQ_SIZE, httpEntity == null ? -1 : httpEntity.getContentLength());
+            httpClientSpan.setTag(CommonSpanTags.REQ_SIZE,
+                httpEntity == null ? -1 : httpEntity.getContentLength());
         }
         //carrier
         this.processHttpClientRequestCarrier(httpRequest, httpClientSpan);
