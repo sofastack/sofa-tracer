@@ -18,7 +18,7 @@ package com.alipay.common.tracer.test;
 
 /**
  * @author qilong.zql
- * @since 2.3.0
+ * @since 2.2.2
  */
 public class TestUtil {
     public static void waitForAsyncLog() throws InterruptedException {

@@ -23,7 +23,7 @@ import java.util.Map;
 
 /**
  * @author qilong.zql
- * @since 2.3.0
+ * @since 2.2.2
  */
 public class TestUtil {
 

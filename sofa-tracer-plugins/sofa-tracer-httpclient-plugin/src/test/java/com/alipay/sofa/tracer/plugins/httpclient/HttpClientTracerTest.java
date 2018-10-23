@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
  * HttpClientTracer Tester.
  *
  * @author guanchao.ygc
- * @version 2.3.0
+ * @version 2.2.2
  */
 public class HttpClientTracerTest extends AbstractTestBase {
 
