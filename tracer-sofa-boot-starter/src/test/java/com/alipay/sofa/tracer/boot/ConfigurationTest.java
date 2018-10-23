@@ -19,10 +19,15 @@ package com.alipay.sofa.tracer.boot;
 import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
 import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
 import com.alipay.sofa.tracer.boot.base.ConfigurationHolder;
+import com.alipay.sofa.tracer.boot.base.SpringBootWebApplication;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Map;
 
@@ -30,8 +35,10 @@ import java.util.Map;
  * @author qilong.zql
  * @since 2.2.2
  */
-@ActiveProfiles("config")
-public class ConfigurationTest extends AbstractTestBase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = SpringBootWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestPropertySource(locations = "classpath:application-config.properties")
+public class ConfigurationTest {
 
     @Test
     public void testAdvanceTracerConfig() {
