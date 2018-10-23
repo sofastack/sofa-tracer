@@ -26,6 +26,7 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.core.tracertest.type.TracerTestLogEnum;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.tag.Tags;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -185,6 +186,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
         private void processCommand() {
             SofaTracerSpan span = new SofaTracerSpan(mock(SofaTracer.class),
                 System.currentTimeMillis(), "open", SofaTracerSpanContext.rootStart(), null);
+            span.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
             this.reporter.digestReport(span);
         }
 

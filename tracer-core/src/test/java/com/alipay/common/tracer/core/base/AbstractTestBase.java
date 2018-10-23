@@ -72,6 +72,10 @@ public abstract class AbstractTestBase {
         if (file.exists()) {
             FileUtils.writeStringToFile(file, "");
         }
+        file = tracerSelfLog();
+        if (file.exists()) {
+            FileUtils.writeStringToFile(file, "");
+        }
     }
 
     /**

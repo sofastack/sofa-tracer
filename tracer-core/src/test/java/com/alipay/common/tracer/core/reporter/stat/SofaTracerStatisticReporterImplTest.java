@@ -18,13 +18,10 @@ package com.alipay.common.tracer.core.reporter.stat;
 
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
-import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
-import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
 import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import org.apache.commons.io.FileUtils;
 import org.junit.*;
 
 import java.io.File;
@@ -57,15 +54,6 @@ public class SofaTracerStatisticReporterImplTest {
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL, "");
     }
 
-    @After
-    public void afterClass() throws InterruptedException, IOException {
-        Thread.sleep(1000);
-        File file = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "tracer-self.log");
-        if (file.exists()) {
-            file.createNewFile();
-        }
-    }
-
     @AfterClass
     public static void afterCl() {
         SofaTracerStatisticReporterManager.CLEAR_STAT_KEY_THRESHOLD = 5000;
@@ -75,7 +63,7 @@ public class SofaTracerStatisticReporterImplTest {
      * 测试keys太多，定时清空的场景 如单独测试，可以把TracerConfiguration.CLEAR_STAT_KEY_THRESHOLD调小以方便测试
      */
     @Test
-    public void testClearKeys() throws InterruptedException, IOException {
+    public void testClearKeys() throws InterruptedException {
         String name = "testClearKeys";
         AbstractSofaTracerStatisticReporter statReporter = new AbstractSofaTracerStatisticReporter(
             name, CYCLE_IN_SECONDS, AbstractSofaTracerStatisticReporter.DEFAULT_CYCLE,
@@ -97,7 +85,7 @@ public class SofaTracerStatisticReporterImplTest {
         }
 
         // 此时应该发生过下标切换
-        Thread.sleep((int) (CYCLE_IN_SECONDS * 1200));
+        Thread.sleep(CYCLE_IN_SECONDS * 1100);
         //发生打印过了
         Assert.assertEquals(0, statReporter.getStatData().size());
         Assert.assertEquals(SofaTracerStatisticReporterManager.CLEAR_STAT_KEY_THRESHOLD,
@@ -109,7 +97,7 @@ public class SofaTracerStatisticReporterImplTest {
             statKey.setKey(String.valueOf(i));
             statReporter.addStat(statKey, i);
         }
-        Thread.sleep(CYCLE_IN_SECONDS * 1200);
+        Thread.sleep(CYCLE_IN_SECONDS * 1100);
         // 此时应该发生过下标切换
 
         Assert.assertEquals("date2, " + new Date(), 0, statReporter.getOtherStatData().size());
