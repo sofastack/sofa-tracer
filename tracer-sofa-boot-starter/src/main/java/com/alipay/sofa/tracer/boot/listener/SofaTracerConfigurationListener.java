@@ -22,7 +22,7 @@ import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 import org.springframework.boot.bind.PropertiesConfigurationFactory;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.core.PriorityOrdered;
+import org.springframework.core.Ordered;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.Assert;
@@ -37,7 +37,7 @@ import org.springframework.validation.BindException;
 public class SofaTracerConfigurationListener
                                             implements
                                             ApplicationListener<ApplicationEnvironmentPreparedEvent>,
-                                            PriorityOrdered {
+                                            Ordered {
 
     public final static String SOFA_TRACER_CONFIGURATION_PREFIX = "com.alipay.sofa.tracer";
 
