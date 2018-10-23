@@ -87,6 +87,6 @@ public class SofaTracerConfigurationListener
 
     @Override
     public int getOrder() {
-        return HIGHEST_PRECEDENCE + 10;
+        return HIGHEST_PRECEDENCE + 20;
     }
 }

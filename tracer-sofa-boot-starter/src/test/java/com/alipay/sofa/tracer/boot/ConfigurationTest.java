@@ -35,10 +35,8 @@ import java.util.Map;
  * @author qilong.zql
  * @since 2.2.2
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = SpringBootWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(locations = "classpath:application-config.properties")
-public class ConfigurationTest {
+@ActiveProfiles("config")
+public class ConfigurationTest extends AbstractTestBase {
 
     @Test
     public void testAdvanceTracerConfig() {
