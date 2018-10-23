@@ -16,6 +16,7 @@
  */
 package com.alipay.common.tracer.core.reporter.stat;
 
+import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
@@ -58,11 +59,10 @@ public class SofaTracerStatisticReporterImplTest {
 
     @After
     public void afterClass() throws InterruptedException, IOException {
-        Thread.sleep(10000);
-        File file = new File(System.getProperty("user.home") + File.separator + "logs"
-                             + File.separator + "tracelog" + File.separator + "tracer-self.log");
+        Thread.sleep(1000);
+        File file = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "tracer-self.log");
         if (file.exists()) {
-            FileUtils.writeStringToFile(file, "");
+            file.createNewFile();
         }
     }
 
@@ -75,7 +75,7 @@ public class SofaTracerStatisticReporterImplTest {
      * 测试keys太多，定时清空的场景 如单独测试，可以把TracerConfiguration.CLEAR_STAT_KEY_THRESHOLD调小以方便测试
      */
     @Test
-    public void testClearKeys() throws InterruptedException {
+    public void testClearKeys() throws InterruptedException, IOException {
         String name = "testClearKeys";
         AbstractSofaTracerStatisticReporter statReporter = new AbstractSofaTracerStatisticReporter(
             name, CYCLE_IN_SECONDS, AbstractSofaTracerStatisticReporter.DEFAULT_CYCLE,
@@ -88,22 +88,16 @@ public class SofaTracerStatisticReporterImplTest {
             }
 
         };
-        //注册
-        SofaTracerStatisticReporterCycleTimesManager.registerStatReporter(statReporter);
-        Thread.sleep(2000);
-
-        //        statAppender.addStatReporter(statReporter);
 
         // case 1: 切换时没有达到阈值
         for (int i = 0; i < SofaTracerStatisticReporterManager.CLEAR_STAT_KEY_THRESHOLD; i++) {
             StatKey statKey = new StatKey();
             statKey.setKey(String.valueOf(i));
-            //todo test finish 完成假设
             statReporter.addStat(statKey, i);
         }
 
         // 此时应该发生过下标切换
-        Thread.sleep((int) (CYCLE_IN_SECONDS * 5000));
+        Thread.sleep((int) (CYCLE_IN_SECONDS * 1200));
         //发生打印过了
         Assert.assertEquals(0, statReporter.getStatData().size());
         Assert.assertEquals(SofaTracerStatisticReporterManager.CLEAR_STAT_KEY_THRESHOLD,
@@ -115,28 +109,12 @@ public class SofaTracerStatisticReporterImplTest {
             statKey.setKey(String.valueOf(i));
             statReporter.addStat(statKey, i);
         }
-        Thread.sleep((int) (3 * CYCLE_IN_SECONDS * 1000));
+        Thread.sleep(CYCLE_IN_SECONDS * 1200);
         // 此时应该发生过下标切换
 
         Assert.assertEquals("date2, " + new Date(), 0, statReporter.getOtherStatData().size());
         Assert.assertEquals(SofaTracerStatisticReporterManager.CLEAR_STAT_KEY_THRESHOLD,
             statReporter.getStatData().size());
-
-        Thread.sleep(3000);
-
-        SelfLog.flush();
-
-        Thread.sleep(3000);
-
-        File file = new File(System.getProperty("user.home") + File.separator + "logs"
-                             + File.separator + "tracelog" + File.separator + "tracer-self.log");
-        if (file.exists()) {
-            try {
-                FileUtils.writeStringToFile(file, "");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
 }
