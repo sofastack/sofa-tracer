@@ -16,20 +16,14 @@
  */
 package com.alipay.sofa.tracer.boot.configuration;
 
-import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.listener.SpanReportListenerHolder;
-import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -41,41 +35,10 @@ import java.util.List;
  */
 @Configuration
 @EnableConfigurationProperties(SofaTracerProperties.class)
-public class SofaTracerAutoConfiguration implements BeanPostProcessor {
+public class SofaTracerAutoConfiguration {
 
     @Autowired(required = false)
     private List<SpanReportListener> spanReportListenerList;
-
-    @Autowired
-    public SofaTracerAutoConfiguration(SofaTracerProperties sofaTracerProperties,
-                                       Environment environment) {
-        String applicationName = environment
-            .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
-        Assert.isTrue(!StringUtils.isBlank(applicationName),
-            SofaTracerConfiguration.TRACER_APPNAME_KEY + " must be configured!");
-        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY,
-            applicationName);
-        //properties convert to tracer
-        SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY,
-            sofaTracerProperties.getDisableDigestLog());
-        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.DISABLE_DIGEST_LOG_KEY,
-            sofaTracerProperties.getDisableConfiguration());
-        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.TRACER_GLOBAL_ROLLING_KEY,
-            sofaTracerProperties.getTracerGlobalRollingPolicy());
-        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.TRACER_GLOBAL_LOG_RESERVE_DAY,
-            sofaTracerProperties.getTracerGlobalLogReserveDay());
-        //stat
-        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL,
-            sofaTracerProperties.getStatLogInterval());
-        //baggage length
-        SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.TRACER_PENETRATE_ATTRIBUTE_MAX_LENGTH,
-            sofaTracerProperties.getBaggageMaxLength());
-        SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.TRACER_SYSTEM_PENETRATE_ATTRIBUTE_MAX_LENGTH,
-            sofaTracerProperties.getBaggageMaxLength());
-    }
 
     @Bean
     @ConditionalOnMissingBean
@@ -85,19 +48,5 @@ public class SofaTracerAutoConfiguration implements BeanPostProcessor {
             SpanReportListenerHolder.addSpanReportListeners(spanReportListenerList);
         }
         return null;
-    }
-
-    @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName)
-                                                                               throws BeansException {
-        //do nothing
-        return bean;
-    }
-
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName)
-                                                                              throws BeansException {
-        //do nothing
-        return bean;
     }
 }

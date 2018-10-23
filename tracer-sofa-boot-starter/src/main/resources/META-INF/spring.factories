@@ -6,3 +6,5 @@ com.alipay.sofa.tracer.boot.configuration.SofaTracerAutoConfiguration,\
 com.alipay.sofa.tracer.boot.springmvc.configuration.OpenTracingSpringMvcAutoConfiguration,\
 com.alipay.sofa.tracer.boot.zipkin.configuration.ZipkinSofaTracerAutoConfiguration,\
 com.alipay.sofa.tracer.boot.datasource.configuration.SofaTracerDataSourceAutoConfiguration
+
+org.springframework.context.ApplicationListener=com.alipay.sofa.tracer.boot.listener.SofaTracerConfigurationListener
