@@ -16,7 +16,6 @@
  */
 package com.alipay.common.tracer.core.reporter.stat;
 
-import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
@@ -24,8 +23,6 @@ import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import org.junit.*;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -84,9 +81,15 @@ public class SofaTracerStatisticReporterImplTest {
             statReporter.addStat(statKey, i);
         }
 
-        // 此时应该发生过下标切换
-        Thread.sleep(CYCLE_IN_SECONDS * 1100);
-        //发生打印过了
+        int currentSize = statReporter.getStatData().size();
+        while (true) {
+            if (statReporter.getStatData().size() != currentSize) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+
+        // 此时发生过下标切换
         Assert.assertEquals(0, statReporter.getStatData().size());
         Assert.assertEquals(SofaTracerStatisticReporterManager.CLEAR_STAT_KEY_THRESHOLD,
             statReporter.getOtherStatData().size());
@@ -97,8 +100,15 @@ public class SofaTracerStatisticReporterImplTest {
             statKey.setKey(String.valueOf(i));
             statReporter.addStat(statKey, i);
         }
-        Thread.sleep(CYCLE_IN_SECONDS * 1100);
+
         // 此时应该发生过下标切换
+        currentSize = statReporter.getStatData().size();
+        while (true) {
+            if (statReporter.getStatData().size() != currentSize) {
+                break;
+            }
+            Thread.sleep(100);
+        }
 
         Assert.assertEquals("date2, " + new Date(), 0, statReporter.getOtherStatData().size());
         Assert.assertEquals(SofaTracerStatisticReporterManager.CLEAR_STAT_KEY_THRESHOLD,
