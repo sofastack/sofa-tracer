@@ -28,7 +28,6 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -40,7 +39,7 @@ public class TimedRollingFileAppenderTest extends AbstractTestBase {
     private PathMatchingResourcePatternResolver resolver               = new PathMatchingResourcePatternResolver();
 
     @Before
-    public void init() throws IOException {
+    public void init() {
         timedRollingFileAppender = new TimedRollingFileAppender(ROLLING_TEST_FILE_NAME,
             AbstractRollingFileAppender.DEFAULT_BUFFER_SIZE, true, "'.'yyyy-MM-dd.HH:mm:ss");
     }
@@ -49,9 +48,13 @@ public class TimedRollingFileAppenderTest extends AbstractTestBase {
     public void test() throws IOException, InterruptedException {
         String content = "adsfadsfadsfd" + StringUtils.NEWLINE;
         timedRollingFileAppender.append(content);
-        TimeUnit.SECONDS.sleep(1);
+
+        // wait to rolling
+        Thread.sleep(1100);
+
         timedRollingFileAppender.append(content);
         timedRollingFileAppender.flush();
+
         Resource[] resources = resolver.getResources("file:" + TracerLogRootDaemon.LOG_FILE_DIR
                                                      + File.separator + ROLLING_TEST_FILE_NAME
                                                      + "*");

@@ -21,6 +21,7 @@ import com.alipay.sofa.tracer.plugins.datasource.BaseDataSource;
 import com.alipay.sofa.tracer.plugins.datasource.DBType;
 import com.alipay.sofa.tracer.plugins.datasource.Interceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sofa.tracer.plugins.datasource.TestUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -36,7 +37,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.when;
 
@@ -279,11 +279,9 @@ public abstract class BaseTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try {
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+
+        TestUtil.waitForAsyncLog();
+
         List<String> lines = readLines(DATASOURCE_CLIENT_DIGEST_LOG_FILE);
         String thisLog = lines.get(lines.size() - 1);
         ObjectMapper mapper = new ObjectMapper();

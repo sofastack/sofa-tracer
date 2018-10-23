@@ -31,7 +31,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -52,7 +51,7 @@ public class AsyncHttpClientTracerTest extends AbstractTestBase {
     }
 
     @After
-    public void after() throws NoSuchFieldException, IllegalAccessException {
+    public void after() {
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL, "");
     }
 
@@ -69,17 +68,20 @@ public class AsyncHttpClientTracerTest extends AbstractTestBase {
         String path = "/httpclient";
         String responseStr = new HttpAsyncClientInstance().executeGet(httpGetUrl + path);
         assertFalse(StringUtils.isBlank(responseStr));
-        Thread.sleep(2000);
+
+        TestUtil.waitForAsyncLog();
+
         //wait for async output
-        List<String> contents = FileUtils.readLines(new File(logDirectoryPath
-                                                             + File.separator
-                                                             + HttpClientLogEnum.HTTP_CLIENT_DIGEST
-                                                                 .getDefaultLogName()));
+        List<String> contents = FileUtils
+            .readLines(customFileLog(HttpClientLogEnum.HTTP_CLIENT_DIGEST.getDefaultLogName()));
         assertTrue(contents.size() == expectedLength);
+
+        // stat log print cycle: 1s
+        Thread.sleep(1000);
+
         //stat log
-        List<String> statContents = FileUtils.readLines(new File(
-            logDirectoryPath + File.separator
-                    + HttpClientLogEnum.HTTP_CLIENT_STAT.getDefaultLogName()));
+        List<String> statContents = FileUtils
+            .readLines(customFileLog(HttpClientLogEnum.HTTP_CLIENT_STAT.getDefaultLogName()));
         assertTrue(statContents.size() == expectedLength);
     }
 
@@ -98,25 +100,24 @@ public class AsyncHttpClientTracerTest extends AbstractTestBase {
         sofaTracerParentSpan.setBaggageItem("key2", "baggage2");
         sofaTraceContext.push(sofaTracerParentSpan);
 
-        //        Map<String, String> body = JSON.parseObject(JSON.toJSONString(postBody), Map.class);
         String responseStr = new HttpAsyncClientInstance().executePost(httpUrl,
             JSON.toJSONString(postBody));
 
         PostBody resultPostBody = JSON.parseObject(responseStr, PostBody.class);
         assertEquals(postBody, resultPostBody);
-        Thread.sleep(3000);
-        //
+
         assertEquals(sofaTraceContext.getCurrentSpan(), sofaTracerParentSpan);
         //wait for async output
-        List<String> contents = FileUtils.readLines(new File(logDirectoryPath
-                                                             + File.separator
-                                                             + HttpClientLogEnum.HTTP_CLIENT_DIGEST
-                                                                 .getDefaultLogName()));
+        List<String> contents = FileUtils
+            .readLines(customFileLog(HttpClientLogEnum.HTTP_CLIENT_DIGEST.getDefaultLogName()));
         assertTrue(contents.size() == expectedLength);
+
+        // stat log print cycle: 1s
+        Thread.sleep(1000);
+
         //stat log
-        List<String> statContents = FileUtils.readLines(new File(
-            logDirectoryPath + File.separator
-                    + HttpClientLogEnum.HTTP_CLIENT_STAT.getDefaultLogName()));
+        List<String> statContents = FileUtils
+            .readLines(customFileLog(HttpClientLogEnum.HTTP_CLIENT_STAT.getDefaultLogName()));
         assertTrue(statContents.size() == expectedLength);
     }
 }
