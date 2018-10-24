@@ -39,8 +39,6 @@ public class SofaTracerConfigurationListener
                                             ApplicationListener<ApplicationEnvironmentPreparedEvent>,
                                             Ordered {
 
-    public final static String SOFA_TRACER_CONFIGURATION_PREFIX = "com.alipay.sofa.tracer";
-
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         ConfigurableEnvironment environment = event.getEnvironment();
@@ -54,7 +52,7 @@ public class SofaTracerConfigurationListener
         SofaTracerProperties tempTarget = new SofaTracerProperties();
         PropertiesConfigurationFactory<SofaTracerProperties> binder = new PropertiesConfigurationFactory<SofaTracerProperties>(
             tempTarget);
-        binder.setTargetName(SOFA_TRACER_CONFIGURATION_PREFIX);
+        binder.setTargetName(SofaTracerProperties.SOFA_TRACER_CONFIGURATION_PREFIX);
         binder.setConversionService(new DefaultConversionService());
         binder.setPropertySources(environment.getPropertySources());
         try {

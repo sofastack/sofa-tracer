@@ -32,42 +32,45 @@ import static com.alipay.common.tracer.core.configuration.SofaTracerConfiguratio
  * @author yangguanchao
  * @since 2018/04/30
  */
-@ConfigurationProperties("com.alipay.sofa.tracer")
+@ConfigurationProperties(SofaTracerProperties.SOFA_TRACER_CONFIGURATION_PREFIX)
 public class SofaTracerProperties {
+
+    public final static String  SOFA_TRACER_CONFIGURATION_PREFIX = "com.alipay.sofa.tracer";
 
     /***
      * com.alipay.sofa.tracer.disableDigestLog Configure disable all digest
      *
      */
-    private String              disableDigestLog          = "false";
+    private String              disableDigestLog                 = "false";
 
     /***
      *  com.alipay.sofa.tracer.disableConfiguration[logType]=true
      *  disable custom log digest
      */
-    private Map<String, String> disableConfiguration      = new HashMap<String, String>();
+    private Map<String, String> disableConfiguration             = new HashMap<String, String>();
 
     /***
      * com.alipay.sofa.tracer.tracerGlobalRollingPolicy=.yyyy-MM-dd
      */
-    private String              tracerGlobalRollingPolicy = TimedRollingFileAppender.DAILY_ROLLING_PATTERN;
+    private String              tracerGlobalRollingPolicy        = TimedRollingFileAppender.DAILY_ROLLING_PATTERN;
 
     /***
      * com.alipay.sofa.tracer.tracerGlobalLogReserveDay
      */
-    private String              tracerGlobalLogReserveDay = String.valueOf(DEFAULT_LOG_RESERVE_DAY);
+    private String              tracerGlobalLogReserveDay        = String
+                                                                     .valueOf(DEFAULT_LOG_RESERVE_DAY);
 
     /***
      * com.alipay.sofa.tracer.statLogInterval
      */
-    private String              statLogInterval           = String
-                                                              .valueOf(SofaTracerStatisticReporterManager.DEFAULT_CYCLE_SECONDS);
+    private String              statLogInterval                  = String
+                                                                     .valueOf(SofaTracerStatisticReporterManager.DEFAULT_CYCLE_SECONDS);
 
     /***
      *  com.alipay.sofa.tracer.baggageMaxLength
      */
-    private String              baggageMaxLength          = String
-                                                              .valueOf(SofaTracerConfiguration.PEN_ATTRS_LENGTH_TRESHOLD);
+    private String              baggageMaxLength                 = String
+                                                                     .valueOf(SofaTracerConfiguration.PEN_ATTRS_LENGTH_TRESHOLD);
 
     public String getDisableDigestLog() {
         return disableDigestLog;
