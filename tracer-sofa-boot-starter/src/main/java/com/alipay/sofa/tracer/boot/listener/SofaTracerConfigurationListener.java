@@ -21,8 +21,10 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 import org.springframework.boot.bind.PropertiesConfigurationFactory;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.Assert;
@@ -52,7 +54,17 @@ public class SofaTracerConfigurationListener
         SofaTracerProperties tempTarget = new SofaTracerProperties();
         PropertiesConfigurationFactory<SofaTracerProperties> binder = new PropertiesConfigurationFactory<SofaTracerProperties>(
             tempTarget);
-        binder.setTargetName(SofaTracerProperties.SOFA_TRACER_CONFIGURATION_PREFIX);
+        ConfigurationProperties configurationPropertiesAnnotation = this
+            .getConfigurationPropertiesAnnotation(tempTarget);
+        if (configurationPropertiesAnnotation != null
+            && StringUtils.isNotBlank(configurationPropertiesAnnotation.prefix())) {
+            //consider compatible Spring Boot 1.5.X and 2.x
+            binder.setIgnoreInvalidFields(configurationPropertiesAnnotation.ignoreInvalidFields());
+            binder.setIgnoreUnknownFields(configurationPropertiesAnnotation.ignoreUnknownFields());
+            binder.setTargetName(configurationPropertiesAnnotation.prefix());
+        } else {
+            binder.setTargetName(SofaTracerProperties.SOFA_TRACER_CONFIGURATION_PREFIX);
+        }
         binder.setConversionService(new DefaultConversionService());
         binder.setPropertySources(environment.getPropertySources());
         try {
@@ -86,5 +98,10 @@ public class SofaTracerConfigurationListener
     @Override
     public int getOrder() {
         return HIGHEST_PRECEDENCE + 20;
+    }
+
+    private ConfigurationProperties getConfigurationPropertiesAnnotation(Object targetObject) {
+        return AnnotationUtils.findAnnotation(targetObject.getClass(),
+            ConfigurationProperties.class);
     }
 }
