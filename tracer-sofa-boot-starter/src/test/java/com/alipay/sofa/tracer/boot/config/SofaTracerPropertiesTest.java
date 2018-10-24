@@ -45,6 +45,8 @@ import static org.junit.Assert.assertTrue;
 @ActiveProfiles("configerror")
 public class SofaTracerPropertiesTest {
 
+    private static Map<String, Object> map = null;
+
     @BeforeClass
     public static void beforeClassRun() throws Exception {
         AbstractTestBase.beforeClass();
@@ -53,7 +55,7 @@ public class SofaTracerPropertiesTest {
         InvocationHandler invocationHandler = Proxy.getInvocationHandler(configurationProperties);
         Field valueCacheField = invocationHandler.getClass().getDeclaredField("valueCache");
         valueCacheField.setAccessible(true);
-        Map<String, Object> map = (Map<String, Object>) valueCacheField.get(invocationHandler);
+        map = (Map<String, Object>) valueCacheField.get(invocationHandler);
         map.put("prefix", "com.alipay.sofa.tracer.test");
         map.put("value", "com.alipay.sofa.tracer.test");
         map.put("ignoreUnknownFields", false);
@@ -69,5 +71,9 @@ public class SofaTracerPropertiesTest {
             isErrorParseProperties = true;
         }
         assertTrue(isErrorParseProperties);
+        //recover
+        map.put("ignoreUnknownFields", true);
+        map.put("prefix", SofaTracerProperties.SOFA_TRACER_CONFIGURATION_PREFIX);
+        map.put("value", SofaTracerProperties.SOFA_TRACER_CONFIGURATION_PREFIX);
     }
 }
