@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SofaTracerPercentageBasedSampler implements Sampler {
 
-    static final String             TYPE    = "PercentageBasedSampler";
+    public static final String      TYPE    = "PercentageBasedSampler";
 
     private final AtomicInteger     counter = new AtomicInteger(0);
     private final BitSet            sampleDecisions;

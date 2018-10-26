@@ -18,9 +18,11 @@ package com.alipay.common.tracer.core.reporter.common;
 
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
 import com.alipay.common.tracer.core.reporter.type.TracerSystemLogEnum;
+import com.alipay.common.tracer.core.samplers.SofaTracerPercentageBasedSampler;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tags.SpanTags;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
@@ -56,7 +58,10 @@ public class CommonSpanEncoderTest extends AbstractTestBase {
 
     @Before
     public void setup() throws Exception {
-
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
+            SofaTracerPercentageBasedSampler.TYPE);
+        SofaTracerConfiguration.setProperty(
+            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "1");
         DiskReporterImpl clientDigestReporter = new DiskReporterImpl(clientLogType,
             new ClientSpanEncoder());
 

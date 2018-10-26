@@ -16,6 +16,7 @@
  */
 package com.alipay.common.tracer.core.samplers;
 
+import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 
 /**
@@ -35,6 +36,7 @@ public class SamplerFactory {
                 .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY));
             samplerProperties.setPercentage(percentage);
         } catch (Exception e) {
+            SelfLog.error("It will be use default percentage value :1;", e);
             samplerProperties.setPercentage(0.1f);
         }
         samplerProperties.setRuleClassName(SofaTracerConfiguration

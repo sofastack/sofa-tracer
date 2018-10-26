@@ -23,6 +23,7 @@ import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
 import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.samplers.Sampler;
+import com.alipay.common.tracer.core.samplers.SofaTracerPercentageBasedSampler;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.core.tracertest.encoder.ServerSpanEncoder;
@@ -69,6 +70,11 @@ public class SofaTracerTest extends AbstractTestBase {
 
     @Before
     public void beforeInstance() throws IOException {
+
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
+            SofaTracerPercentageBasedSampler.TYPE);
+        SofaTracerConfiguration.setProperty(
+            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "1");
 
         //client
         DiskReporterImpl clientReporter = new DiskReporterImpl(
@@ -231,10 +237,10 @@ public class SofaTracerTest extends AbstractTestBase {
         Sampler sampler = mock(Sampler.class);
         SofaTracer sofaTracer = new SofaTracer.Builder(tracerType).withClientReporter(reporter)
             .withSampler(sampler).build();
-
         sofaTracer.close();
         //确认被调用
         verify(reporter).close();
+        sampler.close();
         verify(sampler).close();
     }
 
@@ -528,7 +534,7 @@ public class SofaTracerTest extends AbstractTestBase {
      */
     @Test
     public void testWithSampler() throws Exception {
-        assertTrue(this.sofaTracer.getSampler() == null);
+        assertTrue(this.sofaTracer.getSampler() != null);
     }
 
 }
