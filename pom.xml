@@ -5,11 +5,11 @@
     <parent>
         <groupId>com.alipay.sofa</groupId>
         <artifactId>sofaboot-dependencies</artifactId>
-        <version>2.5.1</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>tracer-all-parent</artifactId>
-    <version>2.2.2</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>tracer-all-parent</name>
@@ -32,9 +32,9 @@
 
     <properties>
         <opentracing.version>0.22.0</opentracing.version>
-        <sofa.tracer.version>2.2.2</sofa.tracer.version>
-        <java.compiler.source.version>1.6</java.compiler.source.version>
-        <java.compiler.target.version>1.6</java.compiler.target.version>
+        <sofa.tracer.version>3.0.0-SNAPSHOT</sofa.tracer.version>
+        <java.compiler.source.version>1.8</java.compiler.source.version>
+        <java.compiler.target.version>1.8</java.compiler.target.version>
         <jmh.version>1.9.3</jmh.version>
         <project.encoding>UTF-8</project.encoding>
         <main.user.dir>${user.dir}</main.user.dir>

@@ -16,19 +16,19 @@
  */
 package com.alipay.sofa.tracer.boot.listener;
 
-import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
-import com.alipay.common.tracer.core.utils.StringUtils;
-import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
-import org.springframework.boot.bind.PropertiesConfigurationFactory;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.Bindable;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.Assert;
-import org.springframework.validation.BindException;
+
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 
 /**
  * Parse SOFATracer Configuration in early stage.
@@ -56,27 +56,14 @@ public class SofaTracerConfigurationListener
             System.setProperty("logging.path", loggingPath);
         }
 
+        // static binding
         SofaTracerProperties tempTarget = new SofaTracerProperties();
-        PropertiesConfigurationFactory<SofaTracerProperties> binder = new PropertiesConfigurationFactory<SofaTracerProperties>(
-            tempTarget);
-        ConfigurationProperties configurationPropertiesAnnotation = this
-            .getConfigurationPropertiesAnnotation(tempTarget);
-        if (configurationPropertiesAnnotation != null
-            && StringUtils.isNotBlank(configurationPropertiesAnnotation.prefix())) {
-            //consider compatible Spring Boot 1.5.X and 2.x
-            binder.setIgnoreInvalidFields(configurationPropertiesAnnotation.ignoreInvalidFields());
-            binder.setIgnoreUnknownFields(configurationPropertiesAnnotation.ignoreUnknownFields());
-            binder.setTargetName(configurationPropertiesAnnotation.prefix());
-        } else {
-            binder.setTargetName(SofaTracerProperties.SOFA_TRACER_CONFIGURATION_PREFIX);
-        }
-        binder.setConversionService(new DefaultConversionService());
-        binder.setPropertySources(environment.getPropertySources());
-        try {
-            binder.bindPropertiesToTarget();
-        } catch (BindException ex) {
-            throw new IllegalStateException("Cannot bind to SofaTracerProperties", ex);
-        }
+        ConfigurationProperties configurationProperties = AnnotationUtils.findAnnotation(
+            SofaTracerProperties.class, ConfigurationProperties.class);
+        Binder binder = Binder.get(environment);
+        Bindable bindable = Bindable.of(SofaTracerProperties.class).withExistingValue(tempTarget)
+            .withAnnotations(configurationProperties);
+        binder.bind(SofaTracerProperties.SOFA_TRACER_CONFIGURATION_PREFIX, bindable);
 
         //properties convert to tracer
         SofaTracerConfiguration.setProperty(
@@ -103,10 +90,5 @@ public class SofaTracerConfigurationListener
     @Override
     public int getOrder() {
         return HIGHEST_PRECEDENCE + 20;
-    }
-
-    private ConfigurationProperties getConfigurationPropertiesAnnotation(Object targetObject) {
-        return AnnotationUtils.findAnnotation(targetObject.getClass(),
-            ConfigurationProperties.class);
     }
 }
