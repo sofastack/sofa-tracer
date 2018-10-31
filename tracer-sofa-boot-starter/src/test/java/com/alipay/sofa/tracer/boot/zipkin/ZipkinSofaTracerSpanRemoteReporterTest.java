@@ -181,7 +181,7 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         sofaTracerServerSpan.setOperationName("mockOperationName");
         //ss TL
         this.remoteTracer.serverSend("0");
-        //异步汇报,所以 sleep 10s
+        //异步汇报,所以 sleep 1s
         Thread.sleep(1000);
         //assert
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
@@ -224,7 +224,7 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         assertEquals(sofaTracerServerSpan, sofaTraceContext.getCurrentSpan());
         //ss TL
         this.remoteTracer.serverSend("0");
-        //异步汇报,所以 sleep 10s
+        //异步汇报,所以 sleep 1s
         Thread.sleep(1000);
         //assert
         assertTrue(sofaTraceContext.isEmpty());
