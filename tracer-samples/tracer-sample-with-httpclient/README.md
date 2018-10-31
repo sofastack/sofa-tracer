@@ -61,12 +61,12 @@ logging.path=./logs
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>tracer-sofa-boot-starter</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>2.3.0-SNAPSHOT</version>
 </dependency>
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-tracer-httpclient-plugin</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>2.3.0-SNAPSHOT</version>
 </dependency>
 <!-- HttpClient Dependency -->
 <dependency>
