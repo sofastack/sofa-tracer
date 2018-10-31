@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.tracer.plugins.httpclient.base;
 
+import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.reporter.digest.manager.SofaTracerDigestReporterAsyncManager;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
 import com.alipay.sofa.tracer.plugins.httpclient.HttpClientTracer;
@@ -47,10 +48,7 @@ import java.lang.reflect.Field;
 @TestPropertySource(locations = "classpath:application.properties")
 public abstract class AbstractTestBase {
 
-    protected static String    logDirectoryPath = System.getProperty("user.home") + File.separator
-                                                  + "logs" + File.separator + "tracelog";
-
-    private static File        logDirectory     = new File(logDirectoryPath);
+    protected static String    logDirectoryPath = TracerLogRootDaemon.LOG_FILE_DIR;
 
     @LocalServerPort
     private int                definedPort;
@@ -77,10 +75,15 @@ public abstract class AbstractTestBase {
      * @throws IOException
      */
     public static void cleanLogDirectory() throws IOException {
-        if (!logDirectory.exists()) {
+        File file = new File(logDirectoryPath);
+        if (!file.exists()) {
             return;
         }
-        FileUtils.cleanDirectory(logDirectory);
+        FileUtils.cleanDirectory(file);
+    }
+
+    protected static File customFileLog(String fileName) {
+        return new File(logDirectoryPath + File.separator + fileName);
     }
 
     private static void reflectHttpClientClear() throws NoSuchFieldException,

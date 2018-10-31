@@ -16,16 +16,16 @@
  */
 package com.alipay.common.tracer.core.appender.manager;
 
-import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
+import com.alipay.common.tracer.core.TestUtil;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import static org.junit.Assert.*;
 
 /**
  * @description: [test unit for StringConsumerExceptionHandler]
@@ -40,7 +40,7 @@ public class StringConsumerExceptionHandlerTest extends AbstractTestBase {
     private StringEvent                    stringEvent;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         stringConsumerExceptionHandler = new StringConsumerExceptionHandler();
         stringEvent = new StringEvent();
         stringEvent.setString("test_StringEvent");
@@ -48,39 +48,41 @@ public class StringConsumerExceptionHandlerTest extends AbstractTestBase {
 
     @After
     public void clean() throws IOException {
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
-        FileUtils.writeStringToFile(log, "");
+        File log = customFileLog("sync.log");
+        if (log.exists()) {
+            FileUtils.writeStringToFile(log, "");
+        }
     }
 
     @Test
-    public void handleEventExceptionWithEventNull() throws IOException {
+    public void handleEventExceptionWithEventNull() throws IOException, InterruptedException {
         stringConsumerExceptionHandler.handleEventException(new Throwable(), 2, null);
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
-        List<String> logs = FileUtils.readLines(log);
-        assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
+        Assert.assertTrue(checkFileContainError());
     }
 
     @Test
-    public void handleEventExceptionWithEventNotNull() throws IOException {
+    public void handleEventExceptionWithEventNotNull() throws IOException, InterruptedException {
         stringConsumerExceptionHandler.handleEventException(new Throwable(), 2, stringEvent);
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
-        List<String> logs = FileUtils.readLines(log);
-        assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
+        Assert.assertTrue(checkFileContainError());
     }
 
     @Test
-    public void handleOnStartException() throws IOException {
+    public void handleOnStartException() throws IOException, InterruptedException {
         stringConsumerExceptionHandler.handleOnStartException(new Throwable());
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
-        List<String> logs = FileUtils.readLines(log);
-        assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
+        Assert.assertTrue(checkFileContainError());
     }
 
     @Test
-    public void handleOnShutdownException() throws IOException {
+    public void handleOnShutdownException() throws IOException, InterruptedException {
         stringConsumerExceptionHandler.handleOnShutdownException(new Throwable());
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
+        Assert.assertTrue(checkFileContainError());
+    }
+
+    private boolean checkFileContainError() throws IOException, InterruptedException {
+        TestUtil.waitForAsyncLog();
+
+        File log = customFileLog("sync.log");
         List<String> logs = FileUtils.readLines(log);
-        assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
+        return logs.get(0).contains("[ERROR]");
     }
 }

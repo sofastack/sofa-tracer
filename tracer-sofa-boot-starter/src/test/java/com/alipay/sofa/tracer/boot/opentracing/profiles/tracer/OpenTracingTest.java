@@ -22,14 +22,11 @@ import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
 import com.alipay.sofa.tracer.boot.base.controller.SampleRestController;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcLogEnum;
-import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -84,9 +81,7 @@ public class OpenTracingTest extends AbstractTestBase {
     }
 
     @Test
-    public void testNoDigestLog() throws Exception {
-
-        assertNotNull(testRestTemplate);
+    public void testNoDigestLog() {
         String restUrl = urlHttpPrefix + "/noDigestLog";
         ResponseEntity<SampleRestController.Greeting> response = testRestTemplate.getForEntity(
             restUrl, SampleRestController.Greeting.class);
@@ -94,15 +89,8 @@ public class OpenTracingTest extends AbstractTestBase {
         assertTrue(greetingResponse.isSuccess());
         // http://docs.spring.io/spring-boot/docs/1.4.2.RELEASE/reference/htmlsingle/#boot-features-testing
         assertTrue(greetingResponse.getId() >= 0);
-        Thread.sleep(2000);
+
         //wait for async output
-        boolean isException = false;
-        try {
-            FileUtils.readLines(new File(logDirectoryPath + File.separator
-                                         + SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName()));
-        } catch (FileNotFoundException exception) {
-            isException = true;
-        }
-        assertTrue(isException);
+        assertTrue(!customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName()).exists());
     }
 }

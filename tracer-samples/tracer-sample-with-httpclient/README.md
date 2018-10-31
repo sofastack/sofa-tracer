@@ -28,7 +28,7 @@
 <parent>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofaboot-dependencies</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>2.5.1</version>
 </parent>
 ```
 
@@ -38,7 +38,7 @@
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>tracer-sofa-boot-starter</artifactId>
-    <version>2.3.0-SNAPSHOT</version>
+    <version>2.5.1</version>
 </dependency>
 ```
 
@@ -61,12 +61,12 @@ logging.path=./logs
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>tracer-sofa-boot-starter</artifactId>
-    <version>2.3.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
 </dependency>
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-tracer-httpclient-plugin</artifactId>
-    <version>2.3.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
 </dependency>
 <!-- HttpClient Dependency -->
 <dependency>
