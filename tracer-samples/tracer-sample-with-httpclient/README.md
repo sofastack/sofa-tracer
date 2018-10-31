@@ -28,9 +28,10 @@
 <parent>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofaboot-dependencies</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>${sofa.boot.version}</version>
 </parent>
 ```
+这里的 ${sofa.boot.version} 指定具体的 SOFABoot 版本，参考[发布历史](https://github.com/alipay/sofa-build/releases)。
 
 然后，在工程中添加 SOFATracer 依赖：
 
@@ -38,7 +39,6 @@
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>tracer-sofa-boot-starter</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
