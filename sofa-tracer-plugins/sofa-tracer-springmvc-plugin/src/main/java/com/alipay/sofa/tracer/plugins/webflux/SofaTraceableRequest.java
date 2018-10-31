@@ -22,7 +22,7 @@ import java.net.URI;
 
 /**
  * @author qilong.zql
- * @since 2.3.0
+ * @since 3.0.0
  */
 public interface SofaTraceableRequest {
     /**

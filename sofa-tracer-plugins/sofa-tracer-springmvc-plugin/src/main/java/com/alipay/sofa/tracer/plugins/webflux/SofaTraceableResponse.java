@@ -20,7 +20,7 @@ import org.springframework.http.HttpHeaders;
 
 /**
  * @author qilong.zql
- * @since 2.3.0
+ * @since 3.0.0
  */
 public interface SofaTraceableResponse {
     /**
