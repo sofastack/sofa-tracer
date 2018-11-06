@@ -53,10 +53,6 @@ public class SpringMvcDigestEncoder extends AbstractDigestSpanEncoder {
         Map<String, Number> tagWithNumber = sofaTracerSpan.getTagsWithNumber();
         //appName
         xsb.append(tagWithStr.get(CommonSpanTags.LOCAL_APP));
-        //remote address, webflux
-        if (tagWithStr.get(CommonSpanTags.REMOTE_APP) != null) {
-            xsb.append(tagWithStr.get(CommonSpanTags.REMOTE_APP));
-        }
         //TraceId
         xsb.append(context.getTraceId());
         //RpcId
