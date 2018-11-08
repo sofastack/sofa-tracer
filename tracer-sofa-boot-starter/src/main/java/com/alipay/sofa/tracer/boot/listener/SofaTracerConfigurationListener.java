@@ -55,6 +55,9 @@ public class SofaTracerConfigurationListener
             .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
         Assert.isTrue(!StringUtils.isBlank(applicationName),
             SofaTracerConfiguration.TRACER_APPNAME_KEY + " must be configured!");
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY,
+            applicationName);
+
         // set loggingPath
         String loggingPath = environment.getProperty("logging.path");
         if (StringUtils.isNotBlank(loggingPath)) {
