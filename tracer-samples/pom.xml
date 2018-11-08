@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.alipay.sofa</groupId>
         <artifactId>tracer-all-parent</artifactId>
-        <version>2.2.0-SNAPSHOT</version>
+        <version>2.2.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,6 +17,8 @@
         <module>tracer-sample-with-zipkin</module>
         <module>tracer-sample-with-slf4j</module>
         <module>tracer-sample-with-sofarpc</module>
+        <module>tracer-sample-with-httpclient</module>
+        <module>tracer-sample-with-h2</module>
     </modules>
 
     <properties>

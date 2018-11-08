@@ -22,10 +22,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -63,6 +60,19 @@ public class HttpClientInstance {
             .setSocketTimeout(soTimeoutMilliseconds)
             .setConnectionRequestTimeout(connectionRequestTimeout).build();
         this.httpClient = this.getHttpClient();
+    }
+
+    public String executeHead(String url) throws Exception {
+        if (StringUtils.isBlank(url)) {
+            return null;
+        }
+        if (!url.startsWith("http://")) {
+            url = "http://" + url;
+        }
+        HttpHead httpHead = new HttpHead(url);
+        httpHead.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+        httpHead.setConfig(defaultRequestConfig);
+        return this.execute(httpHead);
     }
 
     public String executeGet(String url) throws Exception {

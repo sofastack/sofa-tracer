@@ -16,19 +16,19 @@
  */
 package com.alipay.common.tracer.core.base;
 
-import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
-import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.common.tracer.core.TestUtil;
+import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
+import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
+import com.alipay.common.tracer.core.reporter.type.TracerSystemLogEnum;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -42,78 +42,83 @@ public abstract class AbstractTestBase {
 
     public static final String MAP_PREFIX       = "M|";
 
-    public static String       logDirectoryPath = System.getProperty("user.home") + File.separator
-                                                  + "logs" + File.separator + "tracelog";
+    /**
+     * Tracer Log Root Director Path
+     */
+    public static String       logDirectoryPath = TracerLogRootDaemon.LOG_FILE_DIR;
 
-    //    public static String logDirectoryPath = "." + File.separator            + "logs" + File.separator + "tracelog";
-
-    public static File         logDirectory     = new File(logDirectoryPath);
-
-    public static String       FUZZY_STR        = "fuzzy";
-
+    /**
+     * Clean Tracer Log Root Directory
+     */
     @BeforeClass
-    public static void beforeClass() throws IOException {
-        System.setProperty("com.alipay.ldc.zone", "GZ00A");
-        String directoryCleaned = System.getProperty("DIRECTORY_CLEANED");
-        if (directoryCleaned == null) {
-            cleanLogDirectory();
-            System.setProperty("DIRECTORY_CLEANED", "true");
+    public static void beforeClass() {
+        for (File file : customFileLog("").listFiles()) {
+            if (file.getPath().contains("tracer-self.log") || file.getPath().contains("sync.log")
+                || file.getPath().contains("rpc-profile.log")
+                || file.getPath().contains("middleware_error.log")) {
+                continue;
+            }
+            FileUtils.deleteQuietly(file);
         }
     }
 
-    @After
-    public void after() throws Exception {
-        checkSelfLogContainsError();
-        clearConfig();
-    }
-
-    public void clearConfig() throws Exception {
-        SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY, "false");
-        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.DISABLE_DIGEST_LOG_KEY,
-            new HashMap<String, String>());
+    @Before
+    public void commonBeforeMethod() throws IOException {
+        File file = customFileLog(TracerSystemLogEnum.MIDDLEWARE_ERROR.getDefaultLogName());
+        if (file.exists()) {
+            FileUtils.writeStringToFile(file, "");
+        }
+        file = customFileLog(TracerSystemLogEnum.RPC_PROFILE.getDefaultLogName());
+        if (file.exists()) {
+            FileUtils.writeStringToFile(file, "");
+        }
+        file = tracerSelfLog();
+        if (file.exists()) {
+            FileUtils.writeStringToFile(file, "");
+        }
     }
 
     /**
-     * 清理日志文件夹
+     * Check whether is error message printed.
      *
-     * @throws java.io.IOException
+     * @return
+     * @throws IOException
      */
-    public static void cleanLogDirectory() throws IOException {
-        if (!logDirectory.exists()) {
-            return;
-        }
-
-        FileUtils.cleanDirectory(logDirectory);
-    }
-
-    /**
-     * 检查 Tracer 本身是否含有错误
-     */
-    protected void checkSelfLogContainsError() throws IOException {
-        File tracerSelfLog = new File(logDirectory + File.separator + "tracer-self.log");
-
+    protected boolean checkSelfLogContainsError() throws IOException {
+        File tracerSelfLog = tracerSelfLog();
         if (!tracerSelfLog.exists()) {
-            return;
+            return false;
         }
         String selfLogContent = FileUtils.readFileToString(tracerSelfLog);
-        boolean result = (selfLogContent == null || !selfLogContent.contains("ERROR"));
-        Assert.assertTrue("Tracer 中包含错误" + selfLogContent, result);
+        return selfLogContent.contains("ERROR");
+    }
+
+    protected static File customFileLog(String fileName) {
+        return new File(logDirectoryPath + File.separator + fileName);
+    }
+
+    protected static File tracerSelfLog() {
+        return new File(logDirectoryPath + File.separator + "tracer-self.log");
+    }
+
+    protected static File middlewareErrorLog() {
+        return new File(logDirectoryPath + File.separator
+                        + TracerSystemLogEnum.MIDDLEWARE_ERROR.getDefaultLogName());
     }
 
     /**
      * 检查传入的参数和日志中的内容是否匹配
      *
-     * @param params
-     * @param logContent
+     * @param params String Array which is compared with logContent.
+     * @param logContent String Content which is split up with comma
      * @return
      */
     public static boolean checkResult(List<String> params, String logContent) {
-        if (logContent == null || logContent.length() == 0) {
-            return params.isEmpty();
-        }
+        Assert.assertNotNull(params);
+        Assert.assertNotNull(logContent);
 
-        List<String> slots = Arrays.asList(logContent.split(","));
+        List<String> slots = Arrays.asList(logContent.split(String
+            .valueOf(XStringBuilder.DEFAULT_SEPARATOR)));
 
         assertEquals("日志内容中的栏位数量为 " + slots.size() + ";参数的栏位数量为" + params.size() + ";两者不一致",
             params.size(), slots.size());
@@ -127,19 +132,13 @@ public abstract class AbstractTestBase {
                 }
             }
             if (param.length() > 2 && param.startsWith("M|")) {
-                Map<String, String> paramMap = new HashMap<String, String>();
-                StringUtils.stringToMap(param.substring(2), paramMap);
-                Map<String, String> slotMap = new HashMap<String, String>();
-                StringUtils.stringToMap(slot, slotMap);
-
-                assertEquals("日志和参数中的第 " + i + " 栏内容不一致，日志中为 " + slot + ";参数中为 " + param, paramMap,
-                    slotMap);
+                Assert.assertTrue("日志和参数中的第 " + i + " 栏内容不一致，日志中为 " + slot + ";参数中为 " + param,
+                    TestUtil.compareSlotMap(param.substring(2), slot));
             } else {
-                assertEquals("日志和参数中的第 " + i + " 栏内容不一致，日志中为 " + slot + ";参数中为 " + param, param,
-                    slot);
+                Assert.assertTrue("日志和参数中的第 " + i + " 栏内容不一致，日志中为 " + slot + ";参数中为 " + param,
+                    param.equals(slot));
             }
         }
-
         return true;
     }
 
