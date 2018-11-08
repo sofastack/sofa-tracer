@@ -81,8 +81,9 @@ public abstract class AbstractHttpRequestInterceptor {
         //length
         if (httpRequest instanceof HttpEntityEnclosingRequest) {
             HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
-            httpClientSpan.setTag(CommonSpanTags.REQ_SIZE, httpEntityEnclosingRequest.getEntity()
-                .getContentLength());
+            HttpEntity httpEntity = httpEntityEnclosingRequest.getEntity();
+            httpClientSpan.setTag(CommonSpanTags.REQ_SIZE,
+                httpEntity == null ? -1 : httpEntity.getContentLength());
         }
         //carrier
         this.processHttpClientRequestCarrier(httpRequest, httpClientSpan);
@@ -92,8 +93,9 @@ public abstract class AbstractHttpRequestInterceptor {
                                                  SofaTracerSpan httpClientSpan) {
         //length
         if (httpClientSpan != null) {
-            httpClientSpan.setTag(CommonSpanTags.RESP_SIZE, httpResponse.getEntity()
-                .getContentLength());
+            HttpEntity httpEntity = httpResponse.getEntity();
+            long contentLength = httpEntity == null ? -1 : httpEntity.getContentLength();
+            httpClientSpan.setTag(CommonSpanTags.RESP_SIZE, contentLength);
             httpClientSpan.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread()
                 .getName());
         }

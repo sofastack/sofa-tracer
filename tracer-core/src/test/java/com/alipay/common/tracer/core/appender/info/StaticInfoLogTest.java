@@ -16,17 +16,15 @@
  */
 package com.alipay.common.tracer.core.appender.info;
 
+import com.alipay.common.tracer.core.TestUtil;
 import com.alipay.common.tracer.core.appender.TraceAppender;
-import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -43,22 +41,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class StaticInfoLogTest extends AbstractTestBase {
 
-    @Before
-    public void setup() {
-        File logDirectoryStaticInfoFile = new File(TracerLogRootDaemon.LOG_FILE_DIR
-                                                   + File.separator + "static-info.log");
-        if (!logDirectoryStaticInfoFile.exists()) {
-            return;
-        }
-        try {
-            FileUtils.forceDelete(logDirectoryStaticInfoFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        assertTrue("LogRoot : " + TracerLogRootDaemon.LOG_FILE_DIR,
-            TracerLogRootDaemon.LOG_FILE_DIR.contains("tracelog"));
-    }
-
     @Test
     public void testLogStaticInfo() throws IOException, InterruptedException, NoSuchFieldException,
                                    IllegalAccessException {
@@ -67,19 +49,16 @@ public class StaticInfoLogTest extends AbstractTestBase {
         reflect();
         StaticInfoLog.logStaticInfo();
 
-        Thread.sleep(1000);
+        TestUtil.waitForAsyncLog();
 
         List<String> params = new ArrayList<String>();
         params.add(TracerUtils.getPID());
         params.add(TracerUtils.getInetAddress());
         params.add(TracerUtils.getCurrentZone());
         params.add(TracerUtils.getDefaultTimeZone());
-        List<String> contents = FileUtils.readLines(new File(AbstractTestBase.logDirectoryPath
-                                                             + File.separator + "static-info.log"));
-        if (contents.size() == 0) {
-            Assert.assertFalse("静态信息日志没有内容", false);
-        }
-        assertTrue(AbstractTestBase.checkResult(params, contents.get(contents.size() - 1)));
+        List<String> contents = FileUtils.readLines(customFileLog("static-info.log"));
+        Assert.assertFalse("静态信息日志没有内容", contents.isEmpty());
+        assertTrue(checkResult(params, contents.get(0)));
     }
 
     private static void reflect() throws NoSuchFieldException, IllegalAccessException {
