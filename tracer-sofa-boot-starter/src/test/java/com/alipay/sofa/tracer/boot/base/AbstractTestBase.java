@@ -17,11 +17,13 @@
 package com.alipay.sofa.tracer.boot.base;
 
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.digest.manager.SofaTracerDigestReporterAsyncManager;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import org.apache.commons.io.FileUtils;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -102,5 +104,16 @@ public abstract class AbstractTestBase {
             .getDeclaredField("statReporters");
         fieldStat.setAccessible(true);
         fieldStat.set(statReporterManager, new ConcurrentHashMap<>());
+    }
+
+    @AfterClass
+    public static void afterClass() throws Exception {
+        clearTracerProperties();
+    }
+
+    private static void clearTracerProperties() throws Exception {
+        Field propertiesField = SofaTracerConfiguration.class.getDeclaredField("properties");
+        propertiesField.setAccessible(true);
+        propertiesField.set(null, new ConcurrentHashMap<>());
     }
 }
