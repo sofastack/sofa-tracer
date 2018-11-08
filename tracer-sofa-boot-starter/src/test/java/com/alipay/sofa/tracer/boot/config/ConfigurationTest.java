@@ -16,22 +16,48 @@
  */
 package com.alipay.sofa.tracer.boot.config;
 
-import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
-import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
-import com.alipay.sofa.tracer.boot.base.ConfigurationHolder;
-import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
-import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.test.context.ActiveProfiles;
-
+import java.io.File;
 import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
+import com.alipay.sofa.tracer.boot.base.ConfigurationHolder;
+import com.alipay.sofa.tracer.boot.base.SpringBootWebApplication;
+import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 
 /**
  * @author qilong.zql
  * @since 2.2.2
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = SpringBootWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestPropertySource(locations = "classpath:application.properties")
 @ActiveProfiles("config")
-public class ConfigurationTest extends AbstractTestBase {
+public class ConfigurationTest {
+
+    @BeforeClass
+    public static void before() {
+        File defaultDir = new File(System.getProperty("user.home") + File.separator + "logs"
+                                   + File.separator + "tracelog");
+        File configDir = new File(System.getProperty("user.dir") + File.separator + "logs"
+                                  + File.separator + "tracelog");
+        if (defaultDir.exists()) {
+            FileUtils.deleteQuietly(defaultDir);
+        }
+        if (configDir.exists()) {
+            FileUtils.deleteQuietly(configDir);
+        }
+    }
 
     @Test
     public void testAdvanceTracerConfig() {
@@ -48,6 +74,16 @@ public class ConfigurationTest extends AbstractTestBase {
         Assert.assertEquals("1", sofaTracerProperties.getTracerGlobalLogReserveDay());
         Assert.assertEquals("1", sofaTracerProperties.getStatLogInterval());
         Assert.assertEquals("1", sofaTracerProperties.getBaggageMaxLength());
+    }
+
+    @Test
+    public void testTracerLogDir() {
+        File defaultDir = new File(System.getProperty("user.home") + File.separator + "logs"
+                                   + File.separator + "tracelog");
+        File configDir = new File(System.getProperty("user.dir") + File.separator + "logs"
+                                  + File.separator + "tracelog");
+        Assert.assertFalse(defaultDir.exists());
+        Assert.assertTrue(configDir.exists());
     }
 
 }
