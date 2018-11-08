@@ -17,6 +17,7 @@
 package com.alipay.common.tracer.core.tracertest;
 
 import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.TestUtil;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
@@ -37,14 +38,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -69,7 +64,6 @@ public class SofaTracerTest extends AbstractTestBase {
 
     @Before
     public void beforeInstance() throws IOException {
-
         //client
         DiskReporterImpl clientReporter = new DiskReporterImpl(
             TracerTestLogEnum.RPC_CLIENT.getDefaultLogName(), new ClientSpanEncoder());
@@ -77,7 +71,7 @@ public class SofaTracerTest extends AbstractTestBase {
         //server
         DiskReporterImpl serverReporter = new DiskReporterImpl(
             TracerTestLogEnum.RPC_SERVER.getDefaultLogName(), new ServerSpanEncoder());
-        sofaTracer = new SofaTracer.Builder(tracerType).withTag("tracer", "tracertest")
+        sofaTracer = new SofaTracer.Builder(tracerType).withTag("tracer", "tracerTest")
             .withClientReporter(clientReporter).withServerReporter(serverReporter)
             .withTag(tracerGlobalTagKey, tracerGlobalTagValue).build();
     }
@@ -86,7 +80,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * Method: buildSpan(String operationName)
      */
     @Test
-    public void testBuildSpan() throws Exception {
+    public void testBuildSpan() {
         String expectedOperation = "operation";
         SofaTracerSpan sofaTracerSpan = (SofaTracerSpan) this.sofaTracer.buildSpan(
             expectedOperation).start();
@@ -97,7 +91,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * Method: inject(SpanContext spanContext, Format<C> format, C carrier)
      */
     @Test
-    public void testInject() throws Exception {
+    public void testInject() {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testInjectSpan").start();
         TextMap carrier = new TextMap() {
 
@@ -119,7 +113,7 @@ public class SofaTracerTest extends AbstractTestBase {
 
         SofaTracerSpanContext extractSpanContext = (SofaTracerSpanContext) this.sofaTracer.extract(
             Format.Builtin.TEXT_MAP, carrier);
-        assertTrue("\nOrigin Context : " + originContext.toString(),
+        assertTrue("Origin Context : " + originContext.toString(),
             StringUtils.isBlank(extractSpanContext.getParentId()));
         assertTrue("Extract Context : " + extractSpanContext,
             originContext.equals(extractSpanContext));
@@ -134,12 +128,11 @@ public class SofaTracerTest extends AbstractTestBase {
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         //report 不要禁写
         span.finish();
-        //验证摘要日志
-        TimeUnit.SECONDS.sleep(3);
-        List<String> contents = FileUtils.readLines(new File(logDirectoryPath
-                                                             + File.separator
-                                                             + TracerTestLogEnum.RPC_CLIENT
-                                                                 .getDefaultLogName()));
+
+        TestUtil.waitForAsyncLog();
+
+        List<String> contents = FileUtils.readLines(customFileLog(TracerTestLogEnum.RPC_CLIENT
+            .getDefaultLogName()));
         assertTrue(contents.get(0), contents.size() == 1);
         String contextStr = contents.get(0);
         //测试打印一条只放了一个 tags
@@ -151,7 +144,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * Method: isDisableDigestLog(SofaTracerSpan span)
      */
     @Test
-    public void testIsDisableAllDigestLog() throws Exception {
+    public void testIsDisableAllDigestLog() {
         //全局关闭摘要日志
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY, "true");
@@ -159,23 +152,14 @@ public class SofaTracerTest extends AbstractTestBase {
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         //report
         span.finish();
-        //验证摘要日志
-        TimeUnit.SECONDS.sleep(1);
-
-        boolean isException = false;
-        try {
-            List<String> contents = FileUtils.readLines(new File(logDirectoryPath
-                                                                 + File.separator
-                                                                 + TracerTestLogEnum.RPC_CLIENT
-                                                                     .getDefaultLogName()));
-        } catch (FileNotFoundException exception) {
-            isException = true;
-        }
-        assertTrue(isException);
+        assertTrue(!customFileLog(TracerTestLogEnum.RPC_CLIENT.getDefaultLogName()).exists());
+        // reset
+        SofaTracerConfiguration.setProperty(
+            SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY, "");
     }
 
     @Test
-    public void testIsDisableClientDigestLog() throws Exception {
+    public void testIsDisableClientDigestLog() {
         //关闭client摘要日志
         String clientLogTypeName = TracerTestLogEnum.RPC_CLIENT.getDefaultLogName();
 
@@ -187,46 +171,28 @@ public class SofaTracerTest extends AbstractTestBase {
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         //report
         span.finish();
-        //验证摘要日志
-        TimeUnit.SECONDS.sleep(1);
-
-        boolean isException = false;
-        try {
-            List<String> contents = FileUtils.readLines(new File(logDirectoryPath + File.separator
-                                                                 + clientLogTypeName));
-        } catch (FileNotFoundException exception) {
-            isException = true;
-        }
-        assertTrue(isException);
+        assertTrue(!customFileLog(clientLogTypeName).exists());
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.DISABLE_DIGEST_LOG_KEY,
+            new HashMap<String, String>());
     }
 
     /**
      * Method: close()
      */
     @Test
-    public void testClose() throws Exception {
+    public void testClose() {
         //create
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testClose")
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         this.sofaTracer.close();
         //report
         span.finish();
-        //验证摘要日志
-        TimeUnit.SECONDS.sleep(1);
-        //关闭client摘要日志
         String clientLogTypeName = TracerTestLogEnum.RPC_CLIENT.getDefaultLogName();
-        boolean isException = false;
-        try {
-            List<String> contents = FileUtils.readLines(new File(logDirectoryPath + File.separator
-                                                                 + clientLogTypeName));
-        } catch (FileNotFoundException exception) {
-            isException = true;
-        }
-        assertTrue(isException);
+        assertTrue(!customFileLog(clientLogTypeName).exists());
     }
 
     @Test
-    public void testTracerClose() throws Exception {
+    public void testTracerClose() {
         Reporter reporter = mock(Reporter.class);
         Sampler sampler = mock(Sampler.class);
         SofaTracer sofaTracer = new SofaTracer.Builder(tracerType).withClientReporter(reporter)
@@ -242,7 +208,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * Method: getTracerType()
      */
     @Test
-    public void testGetTracerType() throws Exception {
+    public void testGetTracerType() {
         String tracerType = this.sofaTracer.getTracerType();
         assertTrue(tracerType.equals(this.tracerType));
     }
@@ -251,7 +217,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * Method: getClientSofaTracerDigestReporter()
      */
     @Test
-    public void testGetSofaTracerDigestReporter() throws Exception {
+    public void testGetSofaTracerDigestReporter() {
         assertTrue(this.sofaTracer.getClientReporter() != null);
     }
 
@@ -259,7 +225,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * Method: getClientSofaTracerStatisticReporter()
      */
     @Test
-    public void testGetSofaTracerStatisticReporter() throws Exception {
+    public void testGetSofaTracerStatisticReporter() {
         assertTrue(this.sofaTracer.getClientReporter() != null);
         assertTrue(this.sofaTracer.getClientReporter() instanceof DiskReporterImpl);
         DiskReporterImpl clientReporter = (DiskReporterImpl) this.sofaTracer.getClientReporter();
@@ -271,7 +237,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * Method: getTracerTags()
      */
     @Test
-    public void testGetTracerTags() throws Exception {
+    public void testGetTracerTags() {
         Map<String, Object> tags = this.sofaTracer.getTracerTags();
         assertTrue(tags.keySet().contains(this.tracerGlobalTagKey));
         for (Map.Entry<String, Object> entry : tags.entrySet()) {
@@ -288,7 +254,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * Method: asChildOf(SpanContext parent)
      */
     @Test
-    public void testAsChildOfParent() throws Exception {
+    public void testAsChildOfParent() {
         //create
         Map<String, String> bizBaggage = new HashMap<String, String>();
         bizBaggage.put("biz", "value");
@@ -328,7 +294,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * Method: asChildOf(SpanContext parent)
      */
     @Test
-    public void testAsChildOfParentTestBizBaggageAndSysBaggage() throws Exception {
+    public void testAsChildOfParentTestBizBaggageAndSysBaggage() {
         //create
         SofaTracerSpan spanParent = (SofaTracerSpan) this.sofaTracer.buildSpan("spanParent")
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER).start();
@@ -351,7 +317,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * 多个的时候，baggage 复用 只选择第一个父亲
      */
     @Test
-    public void testAsChildOfMultiParentSpan() throws Exception {
+    public void testAsChildOfMultiParentSpan() {
         //create
         SofaTracerSpan spanParent = (SofaTracerSpan) this.sofaTracer.buildSpan("spanParent")
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER).start();
@@ -411,8 +377,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * Method: addReference(String referenceType, SpanContext referencedContext)
      */
     @Test
-    public void testAddReferenceForReferenceTypeReferencedContextAndBaggageMultipleReferences()
-                                                                                               throws Exception {
+    public void testAddReferenceForReferenceTypeReferencedContextAndBaggageMultipleReferences() {
         //create
         SofaTracerSpan spanParent = (SofaTracerSpan) this.sofaTracer
             .buildSpan(
@@ -470,7 +435,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * Method: withTag(String key, String value)
      */
     @Test
-    public void testWithTagForKeyValue() throws Exception {
+    public void testWithTagForKeyValue() {
         //create
         SofaTracerSpan spanParent = (SofaTracerSpan) this.sofaTracer
             .buildSpan("testWithTagForKeyValue")
@@ -504,7 +469,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * Method: withStartTimestamp(long microseconds)
      */
     @Test
-    public void testWithStartTimestampMicroseconds() throws Exception {
+    public void testWithStartTimestampMicroseconds() {
         long startTime = 111;
         //create
         SofaTracerSpan spanParent = (SofaTracerSpan) this.sofaTracer
@@ -519,7 +484,7 @@ public class SofaTracerTest extends AbstractTestBase {
      * Method: withClientStatsReporter(SofaTracerDigestReporter sofaTracerDigestReporter)
      */
     @Test
-    public void testWithStatsReporterSofaTracerDigestReporter() throws Exception {
+    public void testWithStatsReporterSofaTracerDigestReporter() {
         assertTrue(this.sofaTracer.getServerReporter() != null);
     }
 

@@ -5,11 +5,11 @@
     <parent>
         <groupId>com.alipay.sofa</groupId>
         <artifactId>sofaboot-dependencies</artifactId>
-        <version>2.4.9</version>
+        <version>2.5.1</version>
     </parent>
 
     <artifactId>tracer-all-parent</artifactId>
-    <version>2.2.0-SNAPSHOT</version>
+    <version>2.2.2</version>
     <packaging>pom</packaging>
 
     <name>tracer-all-parent</name>
@@ -20,6 +20,7 @@
         <module>tracer-extensions</module>
         <module>sofa-tracer-plugins/sofa-tracer-springmvc-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-httpclient-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-datasource-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-zipkin-plugin</module>
         <module>tracer-all</module>
         <module>tracer-sofa-boot-starter</module>
@@ -28,12 +29,11 @@
         <module>tracer-test/logback-test</module>
         <module>tracer-test/log4j2-test</module>
         <module>tracer-test/log4j-test</module>
-        <module>tracer-sofa-boot-plugin</module>
     </modules>
 
     <properties>
         <opentracing.version>0.22.0</opentracing.version>
-        <sofa.tracer.version>2.2.0-SNAPSHOT</sofa.tracer.version>
+        <sofa.tracer.version>2.2.2</sofa.tracer.version>
         <java.compiler.source.version>1.6</java.compiler.source.version>
         <java.compiler.target.version>1.6</java.compiler.target.version>
         <jmh.version>1.9.3</jmh.version>
@@ -98,6 +98,11 @@
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-datasource-plugin</artifactId>
+                <version>${sofa.tracer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-zipkin-plugin</artifactId>
                 <version>${sofa.tracer.version}</version>
             </dependency>
@@ -145,13 +150,11 @@
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>4.5.3</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpasyncclient</artifactId>
                 <version>4.1.3</version>
-                <scope>provided</scope>
             </dependency>
             <!-- test 依赖 -->
             <dependency>
@@ -327,7 +330,6 @@
                         <!-- 这里需要根据自己的需要指定要跑的单元测试 -->
                         <include>**/*Test.java</include>
                     </includes>
-                    <forkMode>once</forkMode>
                 </configuration>
             </plugin>
 

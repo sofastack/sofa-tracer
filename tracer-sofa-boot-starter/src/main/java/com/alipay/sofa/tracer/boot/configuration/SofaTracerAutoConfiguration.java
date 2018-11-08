@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.tracer.boot.configuration;
 
-import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.listener.SpanReportListenerHolder;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
@@ -24,9 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 
 import java.util.List;
 
@@ -38,42 +35,10 @@ import java.util.List;
  */
 @Configuration
 @EnableConfigurationProperties(SofaTracerProperties.class)
-@ComponentScan(value = { "com.alipay.sofa.tracer.boot" })
 public class SofaTracerAutoConfiguration {
 
     @Autowired(required = false)
     private List<SpanReportListener> spanReportListenerList;
-
-    @Autowired
-    public SofaTracerAutoConfiguration(SofaTracerProperties sofaTracerProperties,
-                                       Environment environment) {
-        String applicationName = environment.getProperty("spring.application.name");
-        //appName
-        if (applicationName != null) {
-            SofaTracerConfiguration.setProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY,
-                applicationName);
-        }
-        //properties convert to tracer
-        SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY,
-            sofaTracerProperties.getDisableDigestLog());
-        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.DISABLE_DIGEST_LOG_KEY,
-            sofaTracerProperties.getDisableConfiguration());
-        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.TRACER_GLOBAL_ROLLING_KEY,
-            sofaTracerProperties.getTracerGlobalRollingPolicy());
-        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.TRACER_GLOBAL_LOG_RESERVE_DAY,
-            sofaTracerProperties.getTracerGlobalLogReserveDay());
-        //stat
-        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL,
-            sofaTracerProperties.getStatLogInterval());
-        //baggage length
-        SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.TRACER_PENETRATE_ATTRIBUTE_MAX_LENGTH,
-            sofaTracerProperties.getBaggageMaxLength());
-        SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.TRACER_SYSTEM_PENETRATE_ATTRIBUTE_MAX_LENGTH,
-            sofaTracerProperties.getBaggageMaxLength());
-    }
 
     @Bean
     @ConditionalOnMissingBean
