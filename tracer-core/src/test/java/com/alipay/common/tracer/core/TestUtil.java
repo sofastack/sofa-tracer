@@ -14,29 +14,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.initializer;
+package com.alipay.common.tracer.core;
 
 import com.alipay.common.tracer.core.utils.StringUtils;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.Environment;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * SofaTracerInitializer
- *
- * @author yangguanchao
- * @since 2018/05/01
+ * @author qilong.zql
+ * @since 2.2.2
  */
-public class SofaTracerInitializer implements
-                                  ApplicationContextInitializer<ConfigurableApplicationContext> {
+public class TestUtil {
 
-    @Override
-    public void initialize(ConfigurableApplicationContext applicationContext) {
-        //logging.path for trace log
-        Environment environment = applicationContext.getEnvironment();
-        String loggingPath = environment.getProperty("logging.path");
-        if (StringUtils.isNotBlank(loggingPath)) {
-            System.setProperty("logging.path", loggingPath);
+    public static boolean compareSlotMap(String a, String b) {
+        Map<String, String> aMap = new HashMap<String, String>();
+        StringUtils.stringToMap(a, aMap);
+        Map<String, String> bMap = new HashMap<String, String>();
+        StringUtils.stringToMap(b, bMap);
+
+        if (aMap.size() != bMap.size()) {
+            return false;
         }
+
+        for (String aKey : aMap.keySet()) {
+            if (!aMap.get(aKey).equals(bMap.get(aKey))) {
+                return false;
+            }
+        }
+
+        return true;
     }
+
+    public static void waitForAsyncLog() throws InterruptedException {
+        // wait flush log to file... (500ms is just expected time)
+        Thread.sleep(500);
+    }
+
 }

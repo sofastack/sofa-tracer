@@ -16,7 +16,6 @@
  */
 package com.alipay.common.tracer.core.tracertest.encoder;
 
-import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
@@ -27,24 +26,4 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
  * @since 2017/07/01
  */
 public class ServerSpanEncoder extends ClientSpanEncoder implements SpanEncoder<SofaTracerSpan> {
-
-    XStringBuilder xsb = new XStringBuilder();
-
-    //测试用 客户端 和 服务端 一起测试
-
-    //    @Override
-    //    public void encode(SofaTracerSpan span, TraceAppender appender) throws IOException {
-    //        SofaTracerSpanContext spanContext = span.getSofaTracerSpanContext();
-    //        xsb.reset();
-    //
-    //        xsb.append(Timestamp.format(span.getStartTime())).append(span.getTagsWithStr())
-    //            .append(span.getTagsWithBool().toString()).append(span.getTagsWithNumber().toString())
-    //            .appendEnd(spanContext.getBaggage());
-    //
-    //        if (appender instanceof LoadTestAwareAppender) {
-    //            ((LoadTestAwareAppender) appender).append(xsb.toString(), TracerUtils.isLoadTest(span));
-    //        } else {
-    //            appender.append(xsb.toString());
-    //        }
-    //    }
 }

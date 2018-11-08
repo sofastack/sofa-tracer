@@ -46,7 +46,7 @@ public class SofaTracerRunnableTest {
     }
 
     @Test
-    public void testIntrumentedRunnable() {
+    public void testInstrumentedRunnable() {
         Runnable wrappedRunnable = mock(Runnable.class);
         SofaTracerRunnable runnable = new SofaTracerRunnable(wrappedRunnable, traceContext);
 
@@ -59,7 +59,7 @@ public class SofaTracerRunnableTest {
     }
 
     @Test
-    public void testIntrumentedRunnableNoCurrentSpan() {
+    public void testInstrumentedRunnableNoCurrentSpan() {
         when(traceContext.isEmpty()).thenReturn(true);
 
         Runnable wrappedRunnable = mock(Runnable.class);

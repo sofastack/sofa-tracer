@@ -16,20 +16,15 @@
  */
 package com.alipay.sofa.tracer.boot.springmvc;
 
-import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
-import com.alipay.common.tracer.core.reporter.digest.manager.SofaTracerDigestReporterAsyncManager;
+import com.alipay.sofa.tracer.boot.TestUtil;
 import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
 import com.alipay.sofa.tracer.boot.base.controller.SampleRestController;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcLogEnum;
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
@@ -46,11 +41,6 @@ public class SpringMvcFilterTest extends AbstractTestBase {
 
     @Test
     public void testSofaRestGet() throws Exception {
-        //clear log file handler and reoutput
-        reflectSpringMVCClear();
-        //avoid close digest print
-        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.DISABLE_DIGEST_LOG_KEY,
-            new HashMap<String, String>());
         assertNotNull(testRestTemplate);
         String restUrl = urlHttpPrefix + "/greeting";
 
@@ -60,23 +50,12 @@ public class SpringMvcFilterTest extends AbstractTestBase {
         assertTrue(greetingResponse.isSuccess());
         // http://docs.spring.io/spring-boot/docs/1.4.2.RELEASE/reference/htmlsingle/#boot-features-testing
         assertTrue(greetingResponse.getId() >= 0);
-        Thread.sleep(4000);
-        //wait for async output
-        List<String> contents = FileUtils.readLines(new File(logDirectoryPath
-                                                             + File.separator
-                                                             + SpringMvcLogEnum.SPRING_MVC_DIGEST
-                                                                 .getDefaultLogName()));
-        assertTrue(contents.size() == 1);
-    }
 
-    private static void reflectSpringMVCClear() throws NoSuchFieldException, IllegalAccessException {
-        Field field = SpringMvcTracer.class.getDeclaredField("springMvcTracer");
-        field.setAccessible(true);
-        field.set(null, null);
-        //clear
-        Field fieldAsync = SofaTracerDigestReporterAsyncManager.class
-            .getDeclaredField("asyncCommonDigestAppenderManager");
-        fieldAsync.setAccessible(true);
-        fieldAsync.set(null, null);
+        TestUtil.waitForAsyncLog();
+
+        //wait for async output
+        List<String> contents = FileUtils
+            .readLines(customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName()));
+        assertTrue(contents.size() == 1);
     }
 }
