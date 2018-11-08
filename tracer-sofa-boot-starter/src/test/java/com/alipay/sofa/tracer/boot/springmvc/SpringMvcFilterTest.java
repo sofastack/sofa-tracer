@@ -16,8 +16,6 @@
  */
 package com.alipay.sofa.tracer.boot.springmvc;
 
-import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
-import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.sofa.tracer.boot.TestUtil;
 import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
 import com.alipay.sofa.tracer.boot.base.controller.SampleRestController;
@@ -50,8 +48,6 @@ public class SpringMvcFilterTest extends AbstractTestBase {
     public void testSofaRestGet() throws Exception {
         assertNotNull(testRestTemplate);
         String restUrl = urlHttpPrefix + "/greeting";
-
-        SofaTracerSpan span = SofaTraceContextHolder.getSofaTraceContext().getCurrentSpan();
 
         ResponseEntity<SampleRestController.Greeting> response = testRestTemplate.getForEntity(
             restUrl, SampleRestController.Greeting.class);
