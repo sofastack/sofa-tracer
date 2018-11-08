@@ -51,6 +51,11 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
         //当前应用名
         jsonStringBuilder
             .append(CommonSpanTags.LOCAL_APP, tagWithStr.get(CommonSpanTags.LOCAL_APP));
+        //remote address, webflux
+        if (tagWithStr.get(CommonSpanTags.REMOTE_APP) != null) {
+            jsonStringBuilder.append(CommonSpanTags.REMOTE_APP,
+                tagWithStr.get(CommonSpanTags.REMOTE_APP));
+        }
         //TraceId
         jsonStringBuilder.append("traceId", context.getTraceId());
         //RpcId

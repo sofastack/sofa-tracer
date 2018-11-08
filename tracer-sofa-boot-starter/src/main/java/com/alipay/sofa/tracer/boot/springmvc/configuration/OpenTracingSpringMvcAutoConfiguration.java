@@ -20,12 +20,17 @@ import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.sofa.tracer.boot.springmvc.properties.OpenTracingSpringMvcProperties;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcSofaTracerFilter;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
+import com.alipay.sofa.tracer.plugins.webflux.WebfluxSofaTracerFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.web.server.WebFilter;
 
 import java.util.List;
 
@@ -44,6 +49,7 @@ public class OpenTracingSpringMvcAutoConfiguration {
     private OpenTracingSpringMvcProperties openTracingSpringProperties;
 
     @Bean
+    @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
     public FilterRegistrationBean springMvcDelegatingFilterProxy() {
         //decide output format  json or digest
         if (openTracingSpringProperties.isJsonOutput()) {
@@ -64,5 +70,18 @@ public class OpenTracingSpringMvcAutoConfiguration {
         filterRegistrationBean.setAsyncSupported(true);
         filterRegistrationBean.setOrder(openTracingSpringProperties.getFilterOrder());
         return filterRegistrationBean;
+    }
+
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE + 10)
+    @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
+    @ConditionalOnMissingBean
+    public WebFilter webfluxSofaTracerFilter() {
+        //decide output format  json or digest
+        if (openTracingSpringProperties.isJsonOutput()) {
+            SofaTracerConfiguration.setProperty(SpringMvcTracer.SPRING_MVC_JSON_FORMAT_OUTPUT,
+                "true");
+        }
+        return new WebfluxSofaTracerFilter();
     }
 }
