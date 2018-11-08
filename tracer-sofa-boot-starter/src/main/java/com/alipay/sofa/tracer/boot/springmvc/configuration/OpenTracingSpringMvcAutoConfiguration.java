@@ -77,6 +77,11 @@ public class OpenTracingSpringMvcAutoConfiguration {
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
     @ConditionalOnMissingBean
     public WebFilter webfluxSofaTracerFilter() {
+        //decide output format  json or digest
+        if (openTracingSpringProperties.isJsonOutput()) {
+            SofaTracerConfiguration.setProperty(SpringMvcTracer.SPRING_MVC_JSON_FORMAT_OUTPUT,
+                "true");
+        }
         return new WebfluxSofaTracerFilter();
     }
 }
