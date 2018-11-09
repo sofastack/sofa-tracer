@@ -118,3 +118,36 @@ public class SampleRestController {
 ```
 {"time":"2018-05-17 22:20:34.279","local.app":"SOFATracerSpringMVC","traceId":"0a0fe9391526566833985100139443","spanId":"0","request.url":"http://localhost:8080/springmvc","method":"GET","result.code":"200","req.size.bytes":-1,"resp.size.bytes":69,"time.cost.milliseconds":284,"current.thread.name":"http-nio-8080-exec-1","baggage":""}
 ```
+
+## 对于标准servlet容器的支持（tomcat/jetty等）
+
+sofa-tracer-springmvc-plugin 插件提供了对标准servlet-api的支持，因此，凡基于标准servlet规范的容器，也均可以使用此插件来收集链路数据。
+
+### 依赖引入
+
+上面的案例是基于 springboot/SOFABoot 使用的；如果在非springboot/SOFABoot 中使用，仅需引入插件依赖即可：
+
+```
+<dependency>
+    <groupId>com.alipay.sofa</groupId>
+    <artifactId>sofa-tracer-springmvc-plugin</artifactId>
+    <version>2.2.0</version>
+</dependency>
+```
+
+### 配置 filter
+
+在工程的 web.xml  配置 filter
+
+```
+<filter>
+  <filter-name>SpringMvcSofaTracerFilter</filter-name>
+  <filter-class>com.alipay.sofa.tracer.plugins.springmvc.SpringMvcSofaTracerFilter</filter-class>
+</filter>
+<filter-mapping>
+  <filter-name>SpringMvcSofaTracerFilter</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping>
+
+```
+这样应用通过 tomcat 或者 jetty 启动时，即可将 servlet 容器的链路数据打印到日志中了。
