@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.tracer.boot.condition;
 
+import com.alipay.sofa.tracer.boot.annotation.ExcludeClasses;
 import com.alipay.sofa.tracer.boot.base.SpringBootWebApplication;
 import com.alipay.sofa.tracer.boot.junit.SeparateClassloaderTestRunner;
 import org.junit.Test;
@@ -32,6 +33,7 @@ import org.springframework.context.ApplicationContextAware;
  */
 @RunWith(SeparateClassloaderTestRunner.class)
 @SpringBootTest(classes = SpringBootWebApplication.class)
+@ExcludeClasses({ "com.alipay.sofa.tracer.plugins.springmvc.SpringMvcSofaTracerFilter" })
 public class ConditionOnClassTest implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 

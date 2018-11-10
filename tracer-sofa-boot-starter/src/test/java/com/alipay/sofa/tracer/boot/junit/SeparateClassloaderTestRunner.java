@@ -16,7 +16,7 @@
  */
 package com.alipay.sofa.tracer.boot.junit;
 
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcSofaTracerFilter;
+import com.alipay.sofa.tracer.boot.annotation.ExcludeClasses;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.manipulation.*;
@@ -34,6 +34,7 @@ import java.net.URLClassLoader;
  */
 public class SeparateClassloaderTestRunner extends SpringJUnit4ClassRunner {
     private final SeparateClassloader separateClassloader = new SeparateClassloader();
+    private String[]                  excludeClasses      = new String[] {};
     private Class                     clazzLoadBySeparateClassloader;
     private Method                    runMethod;
     private Object                    runnerObject;
@@ -44,9 +45,14 @@ public class SeparateClassloaderTestRunner extends SpringJUnit4ClassRunner {
             Class springJUnit4ClassRunnerClass = separateClassloader
                 .loadClass(SpringJUnit4ClassRunner.class.getName());
             Constructor constructor = springJUnit4ClassRunnerClass.getConstructor(Class.class);
+            ExcludeClasses annotation = clazz.getAnnotation(ExcludeClasses.class);
+
             clazzLoadBySeparateClassloader = separateClassloader.loadClass(clazz.getName());
             runnerObject = constructor.newInstance(clazzLoadBySeparateClassloader);
             runMethod = springJUnit4ClassRunnerClass.getMethod("run", RunNotifier.class);
+            if (annotation != null) {
+                excludeClasses = annotation.value();
+            }
         } catch (Throwable e) {
             throw new InitializationError(e);
         }
@@ -80,15 +86,17 @@ public class SeparateClassloaderTestRunner extends SpringJUnit4ClassRunner {
         ((Sortable) runnerObject).sort(sorter);
     }
 
-    public static class SeparateClassloader extends URLClassLoader {
+    private class SeparateClassloader extends URLClassLoader {
         public SeparateClassloader() {
             super(((URLClassLoader) getSystemClassLoader()).getURLs(), null);
         }
 
         @Override
         public Class<?> loadClass(String name) throws ClassNotFoundException {
-            if (name.equals(SpringMvcSofaTracerFilter.class.getName())) {
-                throw new ClassNotFoundException();
+            for (String excludeClass : excludeClasses) {
+                if (name.startsWith(excludeClass)) {
+                    throw new ClassNotFoundException();
+                }
             }
 
             if (name.startsWith("org.junit") || name.startsWith("java")) {
