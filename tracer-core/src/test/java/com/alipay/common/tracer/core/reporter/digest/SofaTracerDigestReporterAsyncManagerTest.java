@@ -49,9 +49,10 @@ public class SofaTracerDigestReporterAsyncManagerTest {
         AtomicInteger npeCount = new AtomicInteger();
         AtomicInteger successCount = new AtomicInteger();
         int testTimes = 1000;
+        int threadCount = 100;
         CountDownLatch latch = new CountDownLatch(testTimes);
         for (int times = 0 ; times < testTimes; times ++) {
-            Executors.newFixedThreadPool(20).execute(() ->  {
+            Executors.newFixedThreadPool(threadCount).execute(() ->  {
                     try {
                         AsyncCommonDigestAppenderManager sofaTracerDigestReporterAsyncManager =
                                 SofaTracerDigestReporterAsyncManager.getSofaTracerDigestReporterAsyncManager();
