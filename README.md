@@ -61,6 +61,7 @@ SOFATracer 的编译环境的要求为 JDK7 或者 JDK8，需要采用 [Apache M
 * [SOFATracer 示例工程（基于日志编程接口 SLF4J 示例打印 traceId）](./tracer-samples/tracer-sample-with-slf4j)
 * [SOFATracer 示例工程（基于 DataSource 示例落地日志）](./tracer-samples/tracer-sample-with-h2)
 * [SOFATracer 示例工程（基于 HttpClient 示例落地日志）](./tracer-samples/tracer-sample-with-httpclient)
+* [SOFATracer 示例工程（SOFATracer 采样策略）](./tracer-samples/tracer-sample-with-sampler)
  
 ## 六、文档
 
