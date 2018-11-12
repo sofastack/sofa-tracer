@@ -47,8 +47,6 @@ public class RestTemplateDemoApplication {
             "http://sac.alipay.net:8080/asyncrest", String.class);
         //async
         logger.info("Async Response is {}", forEntity.get().getBody());
-
-        logger.info("test finish .......");
     }
 
 }
