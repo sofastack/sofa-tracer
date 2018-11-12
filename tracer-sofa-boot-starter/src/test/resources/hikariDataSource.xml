@@ -9,4 +9,5 @@
         <property name="username" value="sofa"/>
         <property name="password" value="123456"/>
     </bean>
+    <bean class="com.alipay.sofa.tracer.boot.base.DatasourceBeanDefinitionRegistry"/>
 </beans>

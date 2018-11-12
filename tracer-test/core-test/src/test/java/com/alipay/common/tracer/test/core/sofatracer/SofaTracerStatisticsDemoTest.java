@@ -16,18 +16,14 @@
  */
 package com.alipay.common.tracer.test.core.sofatracer;
 
-import com.alipay.common.tracer.core.SofaTracer;
-import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
-import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
-import com.alipay.common.tracer.core.generator.TraceIdGenerator;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.common.tracer.test.TestUtil;
 import com.alipay.common.tracer.test.base.AbstractTestBase;
 import com.alipay.common.tracer.test.core.sofatracer.type.TracerTestLogEnum;
-import io.opentracing.tag.Tags;
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -43,52 +39,33 @@ import static org.junit.Assert.*;
  */
 public class SofaTracerStatisticsDemoTest extends AbstractTestBase {
 
-    protected String buildString(String[] keys) {
-        XStringBuilder sb = new XStringBuilder();
-        int i;
-        for (i = 0; i < keys.length - 1; i++) {
-            sb.append(keys[i] == null ? "" : keys[i]);
+    @Before
+    public void beforeTest() throws Exception {
+        File f = customFileLog(TracerTestLogEnum.RPC_SERVER_DIGEST.getDefaultLogName());
+        if (f.exists()) {
+            FileUtils.writeStringToFile(f, "");
         }
-        sb.appendRaw(keys[i] == null ? "" : keys[i]);
-        return sb.toString();
+
+        File f1 = customFileLog(TracerTestLogEnum.RPC_CLIENT_STAT.getDefaultLogName());
+        if (f1.exists()) {
+            FileUtils.writeStringToFile(f1, "");
+        }
+
+        File f2 = customFileLog(TracerTestLogEnum.RPC_SERVER_STAT.getDefaultLogName());
+        if (f2.exists()) {
+            FileUtils.writeStringToFile(f2, "");
+        }
+
+        File f3 = customFileLog(TracerTestLogEnum.RPC_CLIENT_DIGEST.getDefaultLogName());
+        if (f3.exists()) {
+            FileUtils.writeStringToFile(f3, "");
+        }
     }
 
     @Test
     public void testBuildTracerStatisticsTest() throws Exception {
-
         //清除上下文避免影响
         SofaTraceContextHolder.getSofaTraceContext().clear();
-
-        //避免上一个测试用例对统计日志的影响
-        Thread.sleep(70000);
-
-        int rpcServerDigestInitSize = 0;
-        File f = new File(logDirectoryPath + File.separator
-                          + TracerTestLogEnum.RPC_SERVER_DIGEST.getDefaultLogName());
-        if (f.exists()) {
-            rpcServerDigestInitSize = FileUtils.readLines(f).size();
-        }
-
-        int rpcClientStatInitSize = 0;
-        File f1 = new File(logDirectoryPath + File.separator
-                           + TracerTestLogEnum.RPC_CLIENT_STAT.getDefaultLogName());
-        if (f1.exists()) {
-            rpcClientStatInitSize = FileUtils.readLines(f1).size();
-        }
-
-        int rpcServerStatInitSize = 0;
-        File f2 = new File(logDirectoryPath + File.separator
-                           + TracerTestLogEnum.RPC_SERVER_STAT.getDefaultLogName());
-        if (f2.exists()) {
-            rpcServerStatInitSize = FileUtils.readLines(f2).size();
-        }
-
-        int rpcClientDigestInitSize = 0;
-        File f3 = new File(logDirectoryPath + File.separator
-                           + TracerTestLogEnum.RPC_CLIENT_DIGEST.getDefaultLogName());
-        if (f3.exists()) {
-            rpcClientDigestInitSize = FileUtils.readLines(f3).size();
-        }
 
         String serverSpanId = "0.2.3";
         SofaTracerSpan serverSpan = recoverServerSpan(serverSpanId);
@@ -98,21 +75,20 @@ public class SofaTracerStatisticsDemoTest extends AbstractTestBase {
         //在调用5次
         int times = 5;
         callClientTimes(times);
-        //dodo
-        //dodo
+
         SofaTracerSpan parentSpan1 = sofaTraceContext.pop();
         assertSame(parentSpan1, serverSpan);
         parentSpan1.finish();
-        //statistics
-        Thread.sleep(70 * 1000);
+
+        TestUtil.waitForAsyncLog();
+
         //assert
         //client digest
-        List<String> clientDigestContents = FileUtils.readLines(new File(
-            logDirectoryPath + File.separator
-                    + TracerTestLogEnum.RPC_CLIENT_DIGEST.getDefaultLogName()));
+        List<String> clientDigestContents = FileUtils
+            .readLines(customFileLog(TracerTestLogEnum.RPC_CLIENT_DIGEST.getDefaultLogName()));
         assertEquals(5, times);
         String traceId = serverSpan.getSofaTracerSpanContext().getTraceId();
-        for (int i = rpcClientDigestInitSize; i < clientDigestContents.size(); i++) {
+        for (int i = 0; i < clientDigestContents.size(); i++) {
             String log = clientDigestContents.get(i);
             String[] logArray = log.split(",");
             assertEquals(traceId, logArray[1]);
@@ -122,23 +98,25 @@ public class SofaTracerStatisticsDemoTest extends AbstractTestBase {
             assertTrue(Integer.parseInt(endId) <= times);
         }
         //server digest
-        List<String> serverDigestContents = FileUtils.readLines(new File(
-            logDirectoryPath + File.separator
-                    + TracerTestLogEnum.RPC_SERVER_DIGEST.getDefaultLogName()));
-        assertTrue((serverDigestContents.size() - rpcServerDigestInitSize) == 1);
+        List<String> serverDigestContents = FileUtils
+            .readLines(customFileLog(TracerTestLogEnum.RPC_SERVER_DIGEST.getDefaultLogName()));
+        assertTrue(serverDigestContents.size() == 1);
+
+        // stat cycle 1s
+        Thread.sleep(1000);
+
         //client stat
-        List<String> clientStatContents = FileUtils.readLines(new File(
-            logDirectoryPath + File.separator
-                    + TracerTestLogEnum.RPC_CLIENT_STAT.getDefaultLogName()));
-        assertTrue((clientStatContents.size() - rpcClientStatInitSize) == 1);
+        List<String> clientStatContents = FileUtils
+            .readLines(customFileLog(TracerTestLogEnum.RPC_CLIENT_STAT.getDefaultLogName()));
+        assertTrue(clientStatContents.size() == 1);
+
         //统计
         String[] clientArray = clientStatContents.get(clientStatContents.size() - 1).split(",");
         assertEquals(clientArray[6], String.valueOf(times * duration));
         //server stat
-        List<String> serverStatContents = FileUtils.readLines(new File(
-            logDirectoryPath + File.separator
-                    + TracerTestLogEnum.RPC_SERVER_STAT.getDefaultLogName()));
-        assertTrue((serverStatContents.size() - rpcServerStatInitSize) == 1);
+        List<String> serverStatContents = FileUtils
+            .readLines(customFileLog(TracerTestLogEnum.RPC_SERVER_STAT.getDefaultLogName()));
+        assertTrue(serverStatContents.size() == 1);
     }
 
     public void callClientTimes(int times) {
@@ -150,35 +128,5 @@ public class SofaTracerStatisticsDemoTest extends AbstractTestBase {
             assertSame(client, clientSpan);
             sofaTraceContext.push(client.getParentSofaTracerSpan());
         }
-    }
-
-    public SofaTracerSpan recoverServerSpan(String serverSpanId) {
-        //假设反序列化回的信息
-        //生成 traceId
-        String traceId = TraceIdGenerator.generate();
-        //默认不采样
-        SofaTracerSpanContext spanContext = new SofaTracerSpanContext(traceId, serverSpanId,
-            StringUtils.EMPTY_STRING, false);
-
-        String callServiceName = "callServiceName";
-        //create server
-        SofaTracerSpan serverSpan = new SofaTracerSpan(tracer, System.currentTimeMillis(),
-            callServiceName, spanContext, null);
-        serverSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
-        return serverSpan;
-    }
-
-    public SofaTracerSpan createClientSpan() {
-        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        //pop
-        SofaTracerSpan serverSpan = sofaTraceContext.pop();
-        SofaTracer.SofaTracerSpanBuilder sofaTracerSpanBuilder = (SofaTracer.SofaTracerSpanBuilder) tracer
-            .buildSpan("callService").asChildOf(serverSpan != null ? serverSpan.context() : null)
-            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
-        SofaTracerSpan clientSpan = (SofaTracerSpan) sofaTracerSpanBuilder.start();
-        clientSpan.setParentSofaTracerSpan(serverSpan);
-        //push
-        sofaTraceContext.push(clientSpan);
-        return clientSpan;
     }
 }
