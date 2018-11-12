@@ -51,8 +51,6 @@ spring.application.name=HttpClientDemo
 logging.path=./logs
 ```
 
-
-
 ## 添加 RestTemplate、SOFATracer 依赖和 SOFATracer 的 RestTemplate 插件
 
 ```
