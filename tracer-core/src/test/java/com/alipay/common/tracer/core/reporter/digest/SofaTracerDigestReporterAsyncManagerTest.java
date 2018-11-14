@@ -32,8 +32,7 @@ import static org.mockito.Mockito.mock;
 /**
  *
  * @author abby.zh
- * @version $Id: SofaTracerDigestReporterAsyncManagerTest.java, v 0.1 2018/11/12 4:55 PM abby.zh Exp $
- * @since 3.0.1
+ * @since 2.5.1
  */
 public class SofaTracerDigestReporterAsyncManagerTest {
 
