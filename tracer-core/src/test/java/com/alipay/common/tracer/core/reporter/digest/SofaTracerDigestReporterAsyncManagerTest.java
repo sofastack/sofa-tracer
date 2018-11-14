@@ -46,13 +46,15 @@ public class SofaTracerDigestReporterAsyncManagerTest {
 
     @Test
     public void testGetSofaTracerDigestReporterAsyncManager() throws Exception{
-        AtomicInteger npeCount = new AtomicInteger();
-        AtomicInteger successCount = new AtomicInteger();
+        final AtomicInteger npeCount = new AtomicInteger();
+        final AtomicInteger successCount = new AtomicInteger();
         int testTimes = 1000;
         int threadCount = 100;
-        CountDownLatch latch = new CountDownLatch(testTimes);
+        final CountDownLatch latch = new CountDownLatch(testTimes);
         for (int times = 0 ; times < testTimes; times ++) {
-            Executors.newFixedThreadPool(threadCount).execute(() ->  {
+            Executors.newFixedThreadPool(threadCount).execute(new Runnable() {
+                @Override
+                public void run() {
                     try {
                         AsyncCommonDigestAppenderManager sofaTracerDigestReporterAsyncManager =
                                 SofaTracerDigestReporterAsyncManager.getSofaTracerDigestReporterAsyncManager();
@@ -63,6 +65,7 @@ public class SofaTracerDigestReporterAsyncManagerTest {
                     }finally {
                         latch.countDown();
                     }
+                }
             });
         }
         latch.await();
