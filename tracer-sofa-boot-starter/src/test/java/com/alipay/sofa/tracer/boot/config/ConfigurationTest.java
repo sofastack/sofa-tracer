@@ -82,9 +82,6 @@ public class ConfigurationTest {
                                    + File.separator + "tracelog");
         File configDir = new File(System.getProperty("user.dir") + File.separator + "logs"
                                   + File.separator + "tracelog");
-        System.out.println(System.getProperty("user.home"));
-        System.out.println(System.getProperty("logging.path"));
-        System.out.println(System.getProperty("user.dir"));
         Assert.assertFalse(defaultDir.exists());
         Assert.assertTrue(configDir.exists());
     }

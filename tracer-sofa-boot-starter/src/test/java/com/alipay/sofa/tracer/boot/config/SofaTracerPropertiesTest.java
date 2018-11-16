@@ -19,6 +19,7 @@ package com.alipay.sofa.tracer.boot.config;
 import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
 import com.alipay.sofa.tracer.boot.base.SpringBootWebApplication;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,5 +76,10 @@ public class SofaTracerPropertiesTest {
         map.put("ignoreUnknownFields", true);
         map.put("prefix", SofaTracerProperties.SOFA_TRACER_CONFIGURATION_PREFIX);
         map.put("value", SofaTracerProperties.SOFA_TRACER_CONFIGURATION_PREFIX);
+    }
+
+    @AfterClass
+    public static void reset() {
+        System.getProperties().remove("spring.profiles.active");
     }
 }
