@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 import org.springframework.boot.bind.PropertiesConfigurationFactory;
+import com.alipay.sofa.infra.utils.SOFABootEnvUtils;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationListener;
@@ -44,6 +45,10 @@ public class SofaTracerConfigurationListener
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         ConfigurableEnvironment environment = event.getEnvironment();
+
+        if (SOFABootEnvUtils.isSpringCloudBootstrapEnvironment(environment)) {
+            return;
+        }
 
         // check spring.application.name
         String applicationName = environment
