@@ -19,6 +19,7 @@ package com.alipay.sofa.tracer.boot.config;
 import java.io.File;
 import java.util.Map;
 
+import com.alipay.common.tracer.core.appender.TraceAppender;
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.info.StaticInfoLog;
 import com.alipay.common.tracer.core.utils.StringUtils;
@@ -112,7 +113,7 @@ public class ConfigurationTest {
 
     @Test
     public void testTracerLogDir() throws Throwable {
-        StaticInfoLog.logStaticInfo();
+        new TimedRollingFileAppender("configuration-test.log", true);
         File defaultDir = new File(System.getProperty("user.home") + File.separator + "logs"
                                    + File.separator + "tracelog");
         File configDir = new File(System.getProperty("user.dir") + File.separator + "logs"
