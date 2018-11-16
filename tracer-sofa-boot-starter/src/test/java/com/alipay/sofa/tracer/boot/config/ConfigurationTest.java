@@ -47,6 +47,7 @@ public class ConfigurationTest {
 
     @BeforeClass
     public static void before() {
+        System.getProperties().remove("logging.path");
         File defaultDir = new File(System.getProperty("user.home") + File.separator + "logs"
                                    + File.separator + "tracelog");
         File configDir = new File(System.getProperty("user.dir") + File.separator + "logs"
