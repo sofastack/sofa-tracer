@@ -50,6 +50,12 @@ public class SofaTracerConfigurationListener
             return;
         }
 
+        // set loggingPath
+        String loggingPath = environment.getProperty("logging.path");
+        if (StringUtils.isNotBlank(loggingPath)) {
+            System.setProperty("logging.path", loggingPath);
+        }
+
         // check spring.application.name
         String applicationName = environment
             .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
@@ -57,12 +63,6 @@ public class SofaTracerConfigurationListener
             SofaTracerConfiguration.TRACER_APPNAME_KEY + " must be configured!");
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY,
             applicationName);
-
-        // set loggingPath
-        String loggingPath = environment.getProperty("logging.path");
-        if (StringUtils.isNotBlank(loggingPath)) {
-            System.setProperty("logging.path", loggingPath);
-        }
 
         SofaTracerProperties tempTarget = new SofaTracerProperties();
         PropertiesConfigurationFactory<SofaTracerProperties> binder = new PropertiesConfigurationFactory<SofaTracerProperties>(
