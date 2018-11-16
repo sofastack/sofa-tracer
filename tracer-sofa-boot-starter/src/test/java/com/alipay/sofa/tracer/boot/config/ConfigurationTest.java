@@ -21,7 +21,6 @@ import java.util.Map;
 
 import com.alipay.common.tracer.core.appender.TraceAppender;
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
-import com.alipay.common.tracer.core.appender.info.StaticInfoLog;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 import org.apache.commons.io.FileUtils;
@@ -113,7 +112,10 @@ public class ConfigurationTest {
 
     @Test
     public void testTracerLogDir() throws Throwable {
-        new TimedRollingFileAppender("configuration-test.log", true);
+        TraceAppender appender = new TimedRollingFileAppender("configuration-test.log", true);
+        appender.append("configuration test.");
+        appender.flush();
+        System.out.println(TracerLogRootDaemon.LOG_FILE_DIR);
         File defaultDir = new File(System.getProperty("user.home") + File.separator + "logs"
                                    + File.separator + "tracelog");
         File configDir = new File(System.getProperty("user.dir") + File.separator + "logs"
