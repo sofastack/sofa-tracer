@@ -19,6 +19,7 @@ package com.alipay.sofa.tracer.boot.config;
 import java.io.File;
 import java.util.Map;
 
+import com.alipay.common.tracer.core.appender.info.StaticInfoLog;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,7 +48,6 @@ public class ConfigurationTest {
 
     @BeforeClass
     public static void before() {
-        System.getProperties().remove("logging.path");
         File defaultDir = new File(System.getProperty("user.home") + File.separator + "logs"
                                    + File.separator + "tracelog");
         File configDir = new File(System.getProperty("user.dir") + File.separator + "logs"
@@ -78,7 +78,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void testTracerLogDir() {
+    public void testTracerLogDir() throws Throwable {
         File defaultDir = new File(System.getProperty("user.home") + File.separator + "logs"
                                    + File.separator + "tracelog");
         File configDir = new File(System.getProperty("user.dir") + File.separator + "logs"
