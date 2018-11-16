@@ -324,8 +324,6 @@
                         <!-- 这里需要根据自己的需要指定要跑的单元测试 -->
                         <include>**/*Test.java</include>
                     </includes>
-                    <forkCount>1</forkCount>
-                    <reuseForks>false</reuseForks>
                 </configuration>
             </plugin>
 

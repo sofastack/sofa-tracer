@@ -19,12 +19,12 @@ package com.alipay.sofa.tracer.boot.config;
 import java.io.File;
 import java.util.Map;
 
+import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.info.StaticInfoLog;
+import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.common.tracer.core.utils.TracerUtils;
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -36,6 +36,8 @@ import com.alipay.sofa.tracer.boot.base.ConfigurationHolder;
 import com.alipay.sofa.tracer.boot.base.SpringBootWebApplication;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 
+import static com.alipay.common.tracer.core.appender.TracerLogRootDaemon.TRACER_APPEND_PID_TO_LOG_PATH_KEY;
+
 /**
  * @author qilong.zql
  * @since 2.2.2
@@ -46,8 +48,11 @@ import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 @ActiveProfiles("config")
 public class ConfigurationTest {
 
+    private String oldPath;
+
     @BeforeClass
     public static void before() {
+        System.getProperties().remove("logging.path");
         File defaultDir = new File(System.getProperty("user.home") + File.separator + "logs"
                                    + File.separator + "tracelog");
         File configDir = new File(System.getProperty("user.dir") + File.separator + "logs"
@@ -58,6 +63,34 @@ public class ConfigurationTest {
         if (configDir.exists()) {
             FileUtils.deleteQuietly(configDir);
         }
+    }
+
+    @Before
+    public void beforeMethod() {
+        oldPath = TracerLogRootDaemon.LOG_FILE_DIR;
+        String loggingRoot = System.getProperty("loggingRoot");
+        if (StringUtils.isBlank(loggingRoot)) {
+            loggingRoot = System.getProperty("logging.path");
+        }
+
+        String appendPidToLogPathString = System.getProperty(TRACER_APPEND_PID_TO_LOG_PATH_KEY);
+        boolean appendPidToLogPath = "true".equalsIgnoreCase(appendPidToLogPathString);
+
+        if (StringUtils.isBlank(loggingRoot)) {
+            loggingRoot = System.getProperty("user.home") + File.separator + "logs";
+        }
+
+        String tempLogFileDir = loggingRoot + File.separator + "tracelog";
+
+        if (appendPidToLogPath) {
+            tempLogFileDir = tempLogFileDir + File.separator + TracerUtils.getPID();
+        }
+        TracerLogRootDaemon.LOG_FILE_DIR = tempLogFileDir;
+    }
+
+    @After
+    public void afterMethod() {
+        TracerLogRootDaemon.LOG_FILE_DIR = oldPath;
     }
 
     @Test
@@ -79,6 +112,7 @@ public class ConfigurationTest {
 
     @Test
     public void testTracerLogDir() throws Throwable {
+        StaticInfoLog.logStaticInfo();
         File defaultDir = new File(System.getProperty("user.home") + File.separator + "logs"
                                    + File.separator + "tracelog");
         File configDir = new File(System.getProperty("user.dir") + File.separator + "logs"
