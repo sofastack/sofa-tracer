@@ -52,6 +52,7 @@ public class SofaTracerConfigurationListener
 
         // set loggingPath
         String loggingPath = environment.getProperty("logging.path");
+        System.out.println("----" + loggingPath+ "-----");
         if (StringUtils.isNotBlank(loggingPath)) {
             System.setProperty("logging.path", loggingPath);
         }
