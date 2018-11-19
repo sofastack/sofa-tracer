@@ -22,11 +22,13 @@ import com.alipay.sofa.tracer.boot.base.controller.SampleRestController;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcLogEnum;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -38,6 +40,9 @@ import static org.junit.Assert.assertTrue;
  */
 @ActiveProfiles("zipkin")
 public class SpringMvcFilterTest extends AbstractTestBase {
+
+    @Value("${spring.application.name}")
+    private String appName;
 
     @Test
     public void testSofaRestGet() throws Exception {
@@ -57,5 +62,8 @@ public class SpringMvcFilterTest extends AbstractTestBase {
         List<String> contents = FileUtils
             .readLines(customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName()));
         assertTrue(contents.size() == 1);
+
+        String logAppName = contents.get(0).split(",")[1];
+        assertEquals(appName, logAppName);
     }
 }
