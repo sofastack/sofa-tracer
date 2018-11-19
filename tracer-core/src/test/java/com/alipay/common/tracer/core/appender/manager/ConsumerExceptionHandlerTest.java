@@ -17,7 +17,7 @@
 package com.alipay.common.tracer.core.appender.manager;
 
 import com.alipay.common.tracer.core.SofaTracer;
-import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
+import com.alipay.common.tracer.core.TestUtil;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
 import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
 import com.alipay.common.tracer.core.reporter.facade.Reporter;
@@ -65,39 +65,53 @@ public class ConsumerExceptionHandlerTest extends AbstractTestBase {
 
     @After
     public void afterClean() throws IOException {
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
-        FileUtils.writeStringToFile(log, "");
+        File log = customFileLog("sync.log");
+        if (log.exists()) {
+            FileUtils.writeStringToFile(log, "");
+        }
     }
 
     @Test
-    public void handleEventExceptionWithEventNull() throws IOException {
+    public void handleEventExceptionWithEventNull() throws IOException, InterruptedException {
         consumerExceptionHandler.handleEventException(new Throwable(), 1, null);
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
+
+        TestUtil.waitForAsyncLog();
+
+        File log = customFileLog("sync.log");
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
     }
 
     @Test
-    public void handleEventExceptionWithEventNotNull() throws IOException {
+    public void handleEventExceptionWithEventNotNull() throws IOException, InterruptedException {
         sofaTracerSpanEvent.setSofaTracerSpan(sofaTracerSpan);
         consumerExceptionHandler.handleEventException(new Throwable(), 1, sofaTracerSpanEvent);
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
+
+        TestUtil.waitForAsyncLog();
+
+        File log = customFileLog("sync.log");
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
     }
 
     @Test
-    public void handleOnStartException() throws IOException {
+    public void handleOnStartException() throws IOException, InterruptedException {
         consumerExceptionHandler.handleOnStartException(new Throwable());
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
+
+        TestUtil.waitForAsyncLog();
+
+        File log = customFileLog("sync.log");
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
     }
 
     @Test
-    public void handleOnShutdownException() throws IOException {
+    public void handleOnShutdownException() throws IOException, InterruptedException {
         consumerExceptionHandler.handleOnShutdownException(new Throwable());
-        File log = new File(TracerLogRootDaemon.LOG_FILE_DIR + File.separator + "sync.log");
+
+        TestUtil.waitForAsyncLog();
+
+        File log = customFileLog("sync.log");
         List<String> logs = FileUtils.readLines(log);
         assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
     }

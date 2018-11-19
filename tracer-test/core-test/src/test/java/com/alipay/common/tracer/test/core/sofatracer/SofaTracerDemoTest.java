@@ -16,21 +16,16 @@
  */
 package com.alipay.common.tracer.test.core.sofatracer;
 
-import com.alipay.common.tracer.core.SofaTracer;
-import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
-
-import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
-import com.alipay.common.tracer.core.generator.TraceIdGenerator;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.common.tracer.test.TestUtil;
 import com.alipay.common.tracer.test.base.AbstractTestBase;
 import com.alipay.common.tracer.test.core.sofatracer.type.TracerTestLogEnum;
-import io.opentracing.tag.Tags;
 import org.apache.commons.io.FileUtils;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -47,14 +42,14 @@ import static org.junit.Assert.*;
  */
 public class SofaTracerDemoTest extends AbstractTestBase {
 
-    protected String buildString(String[] keys) {
-        XStringBuilder sb = new XStringBuilder();
-        int i;
-        for (i = 0; i < keys.length - 1; i++) {
-            sb.append(keys[i] == null ? "" : keys[i]);
+    @Before
+    public void beforeMethod() throws IOException {
+        SofaTraceContextHolder.getSofaTraceContext().clear();
+
+        File file = customFileLog(TracerTestLogEnum.RPC_SERVER_DIGEST.getDefaultLogName());
+        if (file.exists()) {
+            FileUtils.writeStringToFile(file, "");
         }
-        sb.appendRaw(keys[i] == null ? "" : keys[i]);
-        return sb.toString();
     }
 
     /****
@@ -64,32 +59,20 @@ public class SofaTracerDemoTest extends AbstractTestBase {
      */
     @Test
     public void testBuildTracer() throws Exception {
-
-        SofaTraceContextHolder.getSofaTraceContext().clear();
-
-        int serverInitSize = 0;
-        File f = new File(logDirectoryPath + File.separator
-                          + TracerTestLogEnum.RPC_SERVER_DIGEST.getDefaultLogName());
-        if (f.exists()) {
-            serverInitSize = FileUtils.readLines(f).size();
-        }
-
         String serverSpanId = "0.1";
         SofaTracerSpan serverSpan = recoverServerSpan(serverSpanId);
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         //放到线程上下文
         sofaTraceContext.push(serverSpan);
-        //假设处理很多逻辑 do start
 
         //create client1
         SofaTracerSpan clientSpan = createClientSpan();
-        //do do do
-
-        //pop client
         SofaTracerSpan client = sofaTraceContext.pop();
         assertEquals(clientSpan, client);
         client.finish();
-        Thread.sleep(1000);
+
+        TestUtil.waitForAsyncLog();
+
         SofaTracerSpan parentSpan = clientSpan.getParentSofaTracerSpan();
         if (parentSpan != null) {
             sofaTraceContext.push(parentSpan);
@@ -97,7 +80,6 @@ public class SofaTracerDemoTest extends AbstractTestBase {
 
         //client 2
         SofaTracerSpan clientSpan2 = createClientSpan();
-        //do do do
         SofaTracerSpan client2 = sofaTraceContext.pop();
         assertEquals("Client2 : " + clientSpan2, clientSpan2, client2);
         client2.finish();
@@ -107,24 +89,27 @@ public class SofaTracerDemoTest extends AbstractTestBase {
         //server finish
         SofaTracerSpan parentSpan3 = sofaTraceContext.pop();
         parentSpan3.finish();
-        Thread.sleep(5000);
+
+        TestUtil.waitForAsyncLog();
+
         //assert
         assertSame(serverSpan, parentSpan);
         assertSame(parentSpan, parentSpan2);
         assertSame(parentSpan2, parentSpan3);
         //server digest
-        List<String> serverDigestContents = FileUtils.readLines(new File(
-            logDirectoryPath + File.separator
-                    + TracerTestLogEnum.RPC_SERVER_DIGEST.getDefaultLogName()));
-        assertTrue((serverDigestContents.size() - serverInitSize) == 1);
-        String[] servers = serverDigestContents.get(serverDigestContents.size() - 1).split(",");
+        List<String> serverDigestContents = FileUtils
+            .readLines(customFileLog(TracerTestLogEnum.RPC_SERVER_DIGEST.getDefaultLogName()));
+        assertTrue(serverDigestContents.size() == 1);
+
+        String[] servers = serverDigestContents.get(0).split(",");
         assertEquals(serverSpanId, servers[2]);
+
         //assert digest log contents
-        List<String> clientDigestContents = FileUtils.readLines(new File(
-            logDirectoryPath + File.separator
-                    + TracerTestLogEnum.RPC_CLIENT_DIGEST.getDefaultLogName()));
+        List<String> clientDigestContents = FileUtils
+            .readLines(customFileLog(TracerTestLogEnum.RPC_CLIENT_DIGEST.getDefaultLogName()));
         assertTrue("clientDigestContentSize: " + clientDigestContents.size(),
             clientDigestContents.size() >= 2);
+
         String[] client1Strs = clientDigestContents.get(clientDigestContents.size() - 2).split(",");
         assertTrue(client1Strs[2].contains(serverSpanId));
 
@@ -132,35 +117,4 @@ public class SofaTracerDemoTest extends AbstractTestBase {
         assertTrue(client2Strs[2].contains(serverSpanId));
 
     }
-
-    public SofaTracerSpan recoverServerSpan(String serverSpanId) {
-        //假设反序列化回的信息
-        //生成 traceId
-        String traceId = TraceIdGenerator.generate();
-        //默认不采样
-        SofaTracerSpanContext spanContext = new SofaTracerSpanContext(traceId, serverSpanId,
-            StringUtils.EMPTY_STRING, false);
-
-        String callServiceName = "callServiceName";
-        //create server
-        SofaTracerSpan serverSpan = new SofaTracerSpan(tracer, System.currentTimeMillis(),
-            callServiceName, spanContext, null);
-        serverSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
-        return serverSpan;
-    }
-
-    public SofaTracerSpan createClientSpan() {
-        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        //pop
-        SofaTracerSpan serverSpan = sofaTraceContext.pop();
-        SofaTracer.SofaTracerSpanBuilder sofaTracerSpanBuilder = (SofaTracer.SofaTracerSpanBuilder) tracer
-            .buildSpan("callService").asChildOf(serverSpan != null ? serverSpan.context() : null)
-            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
-        SofaTracerSpan clientSpan = (SofaTracerSpan) sofaTracerSpanBuilder.start();
-        clientSpan.setParentSofaTracerSpan(serverSpan);
-        //push
-        sofaTraceContext.push(clientSpan);
-        return clientSpan;
-    }
-
 }

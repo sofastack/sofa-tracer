@@ -18,20 +18,18 @@ package com.alipay.sofa.tracer.boot.springmvc;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
-import com.alipay.common.tracer.core.reporter.digest.manager.SofaTracerDigestReporterAsyncManager;
+import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
+import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
+import com.alipay.sofa.tracer.boot.TestUtil;
 import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
 import com.alipay.sofa.tracer.boot.base.controller.SampleRestController;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcLogEnum;
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.util.Assert;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,14 +46,7 @@ public class SpringMvcFilterJsonOutputTest extends AbstractTestBase {
 
     @Test
     public void testSofaRestGet() throws Exception {
-        //clear
-        reflectSpringMVCClear();
-        //avoid close digest print
-        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.DISABLE_DIGEST_LOG_KEY,
-            new HashMap<String, String>());
-        assertNotNull(testRestTemplate);
         String restUrl = urlHttpPrefix + "/greeting";
-
         int countTimes = 5;
         for (int i = 0; i < countTimes; i++) {
             ResponseEntity<SampleRestController.Greeting> response = testRestTemplate.getForEntity(
@@ -66,50 +57,43 @@ public class SpringMvcFilterJsonOutputTest extends AbstractTestBase {
             assertTrue(greetingResponse.getId() >= 0);
         }
 
-        Thread.sleep(2000);
+        TestUtil.waitForAsyncLog();
+
         //wait for async output
-        List<String> contents = FileUtils.readLines(new File(logDirectoryPath
-                                                             + File.separator
-                                                             + SpringMvcLogEnum.SPRING_MVC_DIGEST
-                                                                 .getDefaultLogName()));
+        List<String> contents = FileUtils
+            .readLines(customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName()));
         assertTrue(contents.size() == countTimes);
         for (int i = 0; i < contents.size(); i++) {
             String logValue = contents.get(i);
             Map<String, String> jsonMap = parseToMap(logValue, String.class, String.class);
             assertTrue(jsonMap.size() > 0);
         }
-        //stat log : 设置了周期 3s 输出一次
-        Thread.sleep(4000);
-        //
+
+        // wait another 500ms to reach a cycle of stat_internal_log
+        Thread.sleep(500);
+
         for (int i = 0; i < countTimes; i++) {
             ResponseEntity<SampleRestController.Greeting> response = testRestTemplate.getForEntity(
                 restUrl, SampleRestController.Greeting.class);
             SampleRestController.Greeting greetingResponse = response.getBody();
             assertTrue(greetingResponse.isSuccess());
         }
-        //stat log : 设置了周期 3s 输出一次
-        Thread.sleep(4000);
+        SofaTracerStatisticReporterManager s = SofaTracerStatisticReporterCycleTimesManager
+            .getSofaTracerStatisticReporterManager(1L);
+        Assert.notNull(s.getStatReporters().get(
+            SpringMvcLogEnum.SPRING_MVC_STAT.getDefaultLogName()));
+
+        //stat log : 设置了周期 1s 输出一次
+        Thread.sleep(2000);
+
         //wait for async output
-        List<String> statContents = FileUtils.readLines(new File(logDirectoryPath
-                                                                 + File.separator
-                                                                 + SpringMvcLogEnum.SPRING_MVC_STAT
-                                                                     .getDefaultLogName()));
+        List<String> statContents = FileUtils
+            .readLines(customFileLog(SpringMvcLogEnum.SPRING_MVC_STAT.getDefaultLogName()));
         assertEquals(2, statContents.size());
     }
 
     private static <K, V> Map<K, V> parseToMap(String json, Class<K> keyType, Class<V> valueType) {
         return JSON.parseObject(json, new TypeReference<Map<K, V>>(keyType, valueType) {
         });
-    }
-
-    private static void reflectSpringMVCClear() throws NoSuchFieldException, IllegalAccessException {
-        Field field = SpringMvcTracer.class.getDeclaredField("springMvcTracer");
-        field.setAccessible(true);
-        field.set(null, null);
-        //clear
-        Field fieldAsync = SofaTracerDigestReporterAsyncManager.class
-            .getDeclaredField("asyncCommonDigestAppenderManager");
-        fieldAsync.setAccessible(true);
-        fieldAsync.set(null, null);
     }
 }

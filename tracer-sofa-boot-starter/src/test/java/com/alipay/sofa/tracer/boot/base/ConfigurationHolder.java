@@ -14,16 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.common.tracer.core.tracertest.encoder;
+package com.alipay.sofa.tracer.boot.base;
 
-import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
-import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 
 /**
- * ClientSpanEncoder
- *
- * @author yangguanchao
- * @since 2017/07/01
+ * @author qilong.zql
+ * @since 2.2.2
  */
-public class ServerSpanEncoder extends ClientSpanEncoder implements SpanEncoder<SofaTracerSpan> {
+public class ConfigurationHolder {
+    public static SofaTracerProperties sofaTracerProperties;
+
+    public static SofaTracerProperties getSofaTracerProperties() {
+        return sofaTracerProperties;
+    }
+
+    public static void setSofaTracerProperties(SofaTracerProperties sofaTracerProperties) {
+        ConfigurationHolder.sofaTracerProperties = sofaTracerProperties;
+    }
 }

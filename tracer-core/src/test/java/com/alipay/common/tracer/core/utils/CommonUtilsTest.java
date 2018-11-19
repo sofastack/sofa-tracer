@@ -26,13 +26,13 @@ import static junit.framework.TestCase.assertEquals;
 
 public class CommonUtilsTest {
     @Test
-    public void hexToDualLong() throws Exception {
+    public void hexToDualLong() {
         String traceIdOrig;
         String traceIdResult;
         Random rand = new Random();
         BigInteger traceIdNum;
         //Testing process random long long large than 120 bits
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 10; i++) {
             traceIdNum = new BigInteger(125, 100, rand);
             traceIdOrig = traceIdNum.toString(16);
             long[] ids = CommonUtils.hexToDualLong(traceIdOrig);
@@ -40,7 +40,7 @@ public class CommonUtilsTest {
             assertEquals(traceIdOrig, traceIdResult);
         }
         //Testing process sofa generated traceId
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 10; i++) {
             traceIdOrig = TraceIdGenerator.generate();
             long[] ids = CommonUtils.hexToDualLong(traceIdOrig);
             // avoid hexadecimal high bit lost 0
@@ -54,13 +54,13 @@ public class CommonUtilsTest {
     }
 
     @Test
-    public void hexToLong() throws Exception {
+    public void hexToLong() {
         String traceIdOrig;
         String traceIdResult;
         Random rand = new Random();
         BigInteger traceIdNum;
         //Testing process random long long large than 120 bits
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 10; i++) {
             traceIdNum = new BigInteger(64, 100, rand);
             traceIdOrig = traceIdNum.toString(16);
             long id = CommonUtils.hexToLong(traceIdOrig);

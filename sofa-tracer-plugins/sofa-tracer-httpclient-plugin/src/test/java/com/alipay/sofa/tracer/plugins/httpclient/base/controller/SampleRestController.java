@@ -56,4 +56,14 @@ public class SampleRestController {
     public PostBody postBody(@RequestBody PostBody postBody) {
         return postBody;
     }
+
+    /**
+     * Request http://localhost:8080/httpclient
+     *
+     */
+    @RequestMapping(value = "/httpclient", method = RequestMethod.HEAD)
+    @ResponseBody
+    public void head() {
+        // do nothing
+    }
 }

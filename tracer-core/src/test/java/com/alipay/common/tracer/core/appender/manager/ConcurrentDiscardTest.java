@@ -56,8 +56,12 @@ public class ConcurrentDiscardTest {
     int                 traceId4Discard = 0;
     int                 traceId5Discard = 0;
 
-    File                f               = new File(System.getProperty("user.home") + File.separator
-                                                   + "logs/tracelog" + File.separator + "sync.log");
+    File                f               = new File(fileNameRoot + "sync.log");
+    File                f1              = new File(fileNameRoot + fileName1);
+    File                f2              = new File(fileNameRoot + fileName2);
+    File                f3              = new File(fileNameRoot + fileName3);
+    File                f4              = new File(fileNameRoot + fileName4);
+    File                f5              = new File(fileNameRoot + fileName5);
 
     @Before
     public void beforeClean() throws Exception {
@@ -70,39 +74,16 @@ public class ConcurrentDiscardTest {
     }
 
     private void cleanDir() throws Exception {
-        Thread.sleep(2000);
-        File file = new File(System.getProperty("user.home") + File.separator + "logs/tracelog"
-                             + File.separator + "sync.log");
-        if (file.exists()) {
-            FileUtils.writeStringToFile(file, "");
-        }
-        File f1 = new File(fileNameRoot + fileName1);
-        if (f1.exists()) {
-            FileUtils.writeStringToFile(f1, "");
-        }
-        File f2 = new File(fileNameRoot + fileName2);
-        if (f2.exists()) {
-            FileUtils.writeStringToFile(f2, "");
-        }
-        File f3 = new File(fileNameRoot + fileName3);
-        if (f3.exists()) {
-            FileUtils.writeStringToFile(f3, "");
-        }
-        File f4 = new File(fileNameRoot + fileName4);
-        if (f4.exists()) {
-            FileUtils.writeStringToFile(f4, "");
-        }
-        File f5 = new File(fileNameRoot + fileName5);
-        if (f5.exists()) {
-            FileUtils.writeStringToFile(f5, "");
-        }
+        FileUtils.writeStringToFile(f, "");
+        FileUtils.deleteQuietly(f1);
+        FileUtils.deleteQuietly(f2);
+        FileUtils.deleteQuietly(f3);
+        FileUtils.deleteQuietly(f4);
+        FileUtils.deleteQuietly(f5);
     }
 
     @Test
     public void testConcurrentDiscard() throws InterruptedException, IOException {
-
-        SelfLog.info("tracerselflog exist? " + f.exists());
-
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.TRACER_ASYNC_APPENDER_ALLOW_DISCARD, "true");
         SofaTracerConfiguration.setProperty(
@@ -148,7 +129,7 @@ public class ConcurrentDiscardTest {
                     SofaTracerSpan span4 = ManagerTestUtil.createSofaTracerSpan(4);
                     SofaTracerSpan span5 = ManagerTestUtil.createSofaTracerSpan(5);
 
-                    for (int j = 0; j < 200; j++) {
+                    for (int j = 0; j < 100; j++) {
                         if (!asyncCommonDigestAppenderManager.append(span1)) {
                             discardNum.incrementAndGet();
                         }
@@ -165,7 +146,7 @@ public class ConcurrentDiscardTest {
                             discardNum.incrementAndGet();
                         }
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(10);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -177,9 +158,8 @@ public class ConcurrentDiscardTest {
         }
 
         countDownLatch.await();
+        Thread.sleep(3000);
         SynchronizingSelfLog.flush();
-
-        Thread.sleep(5000);
 
         /**校验*/
         int log1Num = getLineNum(fileName1);
@@ -192,7 +172,7 @@ public class ConcurrentDiscardTest {
         /**落地日志 + 丢失日志 = 打印日志*/
         SelfLog.info("落地日志：" + allNum);
         SelfLog.info("丢失日志：" + discardNum.get());
-        Assert.assertEquals(50000, allNum + discardNum.get());
+        Assert.assertEquals(25000, allNum + discardNum.get());
         /**sync.log丢失日志数据小于实际丢失数*/
         int logDiscard = getDiscardNumFromTracerSelfLog();
         SelfLog.info("sync.log记录丢失日志数：" + logDiscard);
@@ -209,26 +189,18 @@ public class ConcurrentDiscardTest {
 
     public int getLineNum(String fileName) throws IOException {
         int num = 0;
-
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(
             fileNameRoot + fileName)));
-
         while (reader.readLine() != null) {
             num++;
         }
-
         return num;
     }
 
     public int getDiscardNumFromTracerSelfLog() throws IOException {
-
-        SelfLog.info("tracerselflog exist? " + f.exists() + " in discard");
-
         int num = 0;
-
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(
             fileNameRoot + "sync.log")));
-
         String line;
         while ((line = reader.readLine()) != null) {
             if (line.contains("discarded 500 logs")) {
@@ -250,7 +222,6 @@ public class ConcurrentDiscardTest {
                 traceId5Discard++;
             }
         }
-
         return num;
     }
 
