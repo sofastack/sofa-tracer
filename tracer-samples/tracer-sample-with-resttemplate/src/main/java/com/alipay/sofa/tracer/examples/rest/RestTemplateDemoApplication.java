@@ -20,8 +20,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- *  RestTemplateDemoApplication
+ * RestTemplateDemoApplication
  * @author: guolei.sgl
+ * @since v2.3.0
  */
 @SpringBootApplication
 public class RestTemplateDemoApplication {

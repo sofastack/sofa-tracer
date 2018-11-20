@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  *  SampleController
  * @author: guolei.sgl
- * @since : 18/10/16
+ * @since : v2.3.0
  */
 @RestController
 public class SampleController {
