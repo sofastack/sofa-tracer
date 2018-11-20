@@ -65,7 +65,7 @@ public class RestTemplateTest extends AbstractTestBase {
         RestTemplate restTemplate = SofaTracerRestTemplateBuilder.buildRestTemplate();
         ResponseEntity<Map> forEntity = restTemplate.getForEntity(urlHttpPrefix, Map.class);
         Assert.assertTrue(forEntity.getBody().containsKey("name"));
-        Thread.sleep(3000);
+        Thread.sleep(1000);
         //wait for async output
         List<String> contents = FileUtils.readLines(new File(
             logDirectoryPath + File.separator
@@ -86,7 +86,7 @@ public class RestTemplateTest extends AbstractTestBase {
         ResponseEntity<PostBody> postBodyResponseEntity = restTemplate.postForEntity(urlHttpPrefix,
             postBody, PostBody.class);
         Assert.assertTrue(postBodyResponseEntity.getBody().getName().equals("weiheng"));
-        Thread.sleep(3000);
+        Thread.sleep(1000);
         //wait for async output
         List<String> contents = FileUtils.readLines(new File(
             logDirectoryPath + File.separator
