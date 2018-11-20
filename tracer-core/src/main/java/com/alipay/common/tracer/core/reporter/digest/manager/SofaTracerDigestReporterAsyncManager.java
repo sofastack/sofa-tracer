@@ -40,8 +40,10 @@ public final class SofaTracerDigestReporterAsyncManager {
         if (asyncCommonDigestAppenderManager == null) {
             synchronized (SofaTracerDigestReporterAsyncManager.class) {
                 if (asyncCommonDigestAppenderManager == null) {
-                    asyncCommonDigestAppenderManager = new AsyncCommonDigestAppenderManager(1024);
-                    asyncCommonDigestAppenderManager.start("NetworkAppender");
+                    AsyncCommonDigestAppenderManager localManager = new AsyncCommonDigestAppenderManager(
+                        1024);
+                    localManager.start("NetworkAppender");
+                    asyncCommonDigestAppenderManager = localManager;
                 }
             }
         }
