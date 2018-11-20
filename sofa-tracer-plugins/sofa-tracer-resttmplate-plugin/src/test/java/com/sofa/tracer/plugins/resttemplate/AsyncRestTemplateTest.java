@@ -52,7 +52,7 @@ public class AsyncRestTemplateTest extends AbstractTestBase {
     }
 
     @After
-    public void after() throws IOException {
+    public void after() {
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL, "");
     }
 
@@ -77,6 +77,7 @@ public class AsyncRestTemplateTest extends AbstractTestBase {
                 Assert.assertTrue(result.getBody().containsKey("name"));
             }
         });
+
         Thread.sleep(1000);
         //wait for async output
         List<String> contents = FileUtils.readLines(new File(
