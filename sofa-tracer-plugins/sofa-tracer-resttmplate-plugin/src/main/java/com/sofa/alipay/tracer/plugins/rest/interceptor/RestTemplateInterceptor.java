@@ -57,7 +57,7 @@ public class RestTemplateInterceptor implements ClientHttpRequestInterceptor {
         try {
             return response = execution.execute(request, body);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw e;
         } finally {
             if (response != null) {
                 SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
