@@ -20,7 +20,7 @@ package com.sofa.tracer.plugins.resttemplate.base;
  * PostBody
  *
  * @author yangguanchao
- * @since 2018/08/09
+ * @since v2.3.0
  */
 public class PostBody {
 

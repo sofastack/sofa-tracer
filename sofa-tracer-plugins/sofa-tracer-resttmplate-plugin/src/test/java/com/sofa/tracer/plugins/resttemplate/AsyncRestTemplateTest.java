@@ -42,7 +42,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * AsyncRestTemplateTest
  * @author: guolei.sgl
- * @since : 18/10/17
+ * @since : v2.3.0
  */
 public class AsyncRestTemplateTest extends AbstractTestBase {
     @Before
@@ -77,7 +77,7 @@ public class AsyncRestTemplateTest extends AbstractTestBase {
                 Assert.assertTrue(result.getBody().containsKey("name"));
             }
         });
-        Thread.sleep(3000);
+        Thread.sleep(1000);
         //wait for async output
         List<String> contents = FileUtils.readLines(new File(
             logDirectoryPath + File.separator
@@ -99,7 +99,7 @@ public class AsyncRestTemplateTest extends AbstractTestBase {
             .postForEntity(urlHttpPrefix, entity, PostBody.class);
         ResponseEntity<PostBody> postBodyResponseEntity = responseEntityListenableFuture.get();
         Assert.assertTrue(postBodyResponseEntity.getBody().getName().equals("weiheng"));
-        Thread.sleep(3000);
+        Thread.sleep(1000);
         //wait for async output
         List<String> contents = FileUtils.readLines(new File(
             logDirectoryPath + File.separator

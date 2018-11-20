@@ -58,7 +58,7 @@ public class AsyncRestTemplateRequestInterceptor implements AsyncClientHttpReque
             result.addCallback(new SofaTraceListenableFutureCallback(restTemplateTracer,
                 sofaTracerSpan));
             return result;
-        } catch (RuntimeException e) {
+        } catch (IOException e) {
             restTemplateTracer.clientReceiveTagFinish(sofaTracerSpan, String.valueOf(500));
             throw e;
         }
@@ -88,13 +88,14 @@ public class AsyncRestTemplateRequestInterceptor implements AsyncClientHttpReque
         @Override
         public void onSuccess(ClientHttpResponse response) {
             //finish
+            int statusCode;
             try {
-                int statusCode = response.getStatusCode().value();
+                statusCode = response.getStatusCode().value();
                 appendRestTemplateResponseSpanTags(response, sofaTracerSpan);
                 restTemplateTracer.clientReceiveTagFinish(sofaTracerSpan,
                     String.valueOf(statusCode));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                restTemplateTracer.clientReceiveTagFinish(sofaTracerSpan, String.valueOf(500));
             }
         }
 

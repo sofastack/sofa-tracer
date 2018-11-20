@@ -39,7 +39,7 @@ import static org.junit.Assert.assertTrue;
 /**
  *  TestTemplateTest
  * @author: guolei.sgl
- * @since : 18/10/17
+ * @since : v2.3.0
  */
 public class RestTemplateTest extends AbstractTestBase {
 

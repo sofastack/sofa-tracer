@@ -22,7 +22,7 @@ import org.springframework.boot.SpringApplication;
  * SpringBootWebApplication
  *
  * @author yangguanchao
- * @since 2018/08/07
+ * @since v2.3.0
  */
 @org.springframework.boot.autoconfigure.SpringBootApplication
 public class SpringBootWebApplication {

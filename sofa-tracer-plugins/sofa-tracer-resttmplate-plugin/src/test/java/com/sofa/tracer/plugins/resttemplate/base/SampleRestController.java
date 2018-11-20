@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * SampleRestController
  *
  * @author yangguanchao
- * @since 2018/08/07
+ * @since v2.3.0
  */
 @RestController
 public class SampleRestController {

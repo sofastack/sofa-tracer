@@ -36,7 +36,7 @@ import java.lang.reflect.Field;
  * <p>
  * <p>
  * @author yangguanchao
- * @since 2018/08/07
+ * @since v2.3.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SpringBootWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
