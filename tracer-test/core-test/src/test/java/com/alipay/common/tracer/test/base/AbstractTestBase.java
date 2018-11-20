@@ -17,9 +17,14 @@
 package com.alipay.common.tracer.test.base;
 
 import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
+import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
+import com.alipay.common.tracer.core.generator.TraceIdGenerator;
+import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.reporter.stat.SofaTracerStatisticReporter;
@@ -31,6 +36,7 @@ import com.alipay.common.tracer.core.utils.TracerUtils;
 import com.alipay.common.tracer.test.core.sofatracer.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.test.core.sofatracer.encoder.ServerSpanEncoder;
 import com.alipay.common.tracer.test.core.sofatracer.type.TracerTestLogEnum;
+import io.opentracing.tag.Tags;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -38,12 +44,7 @@ import org.junit.BeforeClass;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * AbstractTestBase
@@ -53,16 +54,9 @@ import static org.junit.Assert.assertEquals;
  */
 public abstract class AbstractTestBase {
 
-    public static final String  MAP_PREFIX       = "M|";
-
-    public static String        logDirectoryPath = System.getProperty("user.home") + File.separator
-                                                   + "logs" + File.separator + "tracelog";
-
-    //    public static String logDirectoryPath = "." + File.separator            + "logs" + File.separator + "tracelog";
+    public static String        logDirectoryPath = TracerLogRootDaemon.LOG_FILE_DIR;
 
     public static File          logDirectory     = new File(logDirectoryPath);
-
-    public static String        FUZZY_STR        = "fuzzy";
 
     /***
      * 为了测试方便定义一个常量
@@ -73,7 +67,7 @@ public abstract class AbstractTestBase {
 
     static {
         AbstractSofaTracerStatisticReporter statClientReporter = new AbstractSofaTracerStatisticReporter(
-            TracerTestLogEnum.RPC_CLIENT_STAT.getDefaultLogName(), 60, 0,
+            TracerTestLogEnum.RPC_CLIENT_STAT.getDefaultLogName(), 1, 0,
             TimedRollingFileAppender.DAILY_ROLLING_PATTERN, "0D1H") {
             @Override
             public void doReportStat(SofaTracerSpan sofaTracerSpan) {
@@ -83,7 +77,6 @@ public abstract class AbstractTestBase {
                 String zone = "targetZone";
                 String serviceName = "service";
                 String methodName = "method";
-                //key 关键字 {@link com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter.print}
                 statKey
                     .setKey(buildString(new String[] { fromApp, toApp, serviceName, methodName }));
                 statKey.setResult(true ? "Y" : "N");
@@ -96,13 +89,11 @@ public abstract class AbstractTestBase {
 
                 //次数和耗时，最后一个耗时是单独打印的字段
                 long values[] = new long[] { 1, duration };
-                this.addStat(statKey, values);
+                addStat(statKey, values);
             }
         };
         //摘要日志
         String clientLogType = TracerTestLogEnum.RPC_CLIENT_DIGEST.getDefaultLogName();
-        //    public static final String  DAILY_ROLLING_PATTERN   = "'.'yyyy-MM-dd";
-        //        public static final String  HOURLY_ROLLING_PATTERN  = "'.'yyyy-MM-dd_HH";
         //client
         DiskReporterImpl clientDigestReporter = new DiskReporterImpl(clientLogType,
             SofaTracerConfiguration.getRollingPolicy(TracerTestLogEnum.RPC_CLIENT_DIGEST
@@ -111,13 +102,13 @@ public abstract class AbstractTestBase {
                 .getLogReverseKey()), new ClientSpanEncoder(), statClientReporter);
 
         SofaTracerStatisticReporter statServerReporter = new AbstractSofaTracerStatisticReporter(
-            TracerTestLogEnum.RPC_SERVER_STAT.getDefaultLogName(), 60, 0,
+            TracerTestLogEnum.RPC_SERVER_STAT.getDefaultLogName(), 1, 0,
             TimedRollingFileAppender.DAILY_ROLLING_PATTERN, "0D1H") {
             @Override
             public void doReportStat(SofaTracerSpan sofaTracerSpan) {
                 StatKey statKey = new StatKey();
-                String fromApp = "client";
-                String toApp = "server";
+                String fromApp = "server";
+                String toApp = "client";
                 String zone = "targetZone";
                 String serviceName = "service";
                 String methodName = "method";
@@ -134,7 +125,7 @@ public abstract class AbstractTestBase {
 
                 //次数和耗时，最后一个耗时是单独打印的字段
                 long values[] = new long[] { 1, duration };
-                this.addStat(statKey, values);
+                addStat(statKey, values);
             }
         };
 
@@ -142,11 +133,9 @@ public abstract class AbstractTestBase {
         //server
         DiskReporterImpl serverDigestReporter = new DiskReporterImpl(serverLogType,
             SofaTracerConfiguration.getRollingPolicy(TracerTestLogEnum.RPC_SERVER_DIGEST
-                .getRollingKey())
-            //默认 7 天
-            , SofaTracerConfiguration.getLogReserveConfig(TracerTestLogEnum.RPC_SERVER_DIGEST
+                .getRollingKey()),
+            SofaTracerConfiguration.getLogReserveConfig(TracerTestLogEnum.RPC_SERVER_DIGEST
                 .getLogReverseKey()), new ServerSpanEncoder(), statServerReporter);
-        //统计日志
 
         tracer = new SofaTracer.Builder("SofaTracerDemoTest").withTag("tracer", "SofaTracer")
             .withClientReporter(clientDigestReporter).withServerReporter(serverDigestReporter)
@@ -169,7 +158,7 @@ public abstract class AbstractTestBase {
         clearConfig();
     }
 
-    public void clearConfig() throws Exception {
+    public void clearConfig() {
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY, "false");
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.DISABLE_DIGEST_LOG_KEY,
@@ -204,40 +193,38 @@ public abstract class AbstractTestBase {
         Assert.assertTrue("Tracer 中包含错误" + selfLogContent, result);
     }
 
-    /**
-     * 检查传入的参数和日志中的内容是否匹配
-     *
-     * @param params
-     * @param logContent
-     * @return
-     */
-    public static boolean checkResult(List<String> params, String logContent) {
-        if (logContent == null || logContent.length() == 0) {
-            return params.isEmpty();
-        }
+    protected static File customFileLog(String fileName) {
+        return new File(logDirectoryPath + File.separator + fileName);
+    }
 
-        List<String> slots = Arrays.asList(logContent.split(","));
+    public SofaTracerSpan recoverServerSpan(String serverSpanId) {
+        //假设反序列化回的信息
+        //生成 traceId
+        String traceId = TraceIdGenerator.generate();
+        //默认不采样
+        SofaTracerSpanContext spanContext = new SofaTracerSpanContext(traceId, serverSpanId,
+            StringUtils.EMPTY_STRING, false);
 
-        assertEquals("日志内容中的栏位数量为 " + slots.size() + ";参数的栏位数量为" + params.size() + ";两者不一致",
-            params.size(), slots.size());
+        String callServiceName = "callServiceName";
+        //create server
+        SofaTracerSpan serverSpan = new SofaTracerSpan(tracer, System.currentTimeMillis(),
+            callServiceName, spanContext, null);
+        serverSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
+        return serverSpan;
+    }
 
-        for (int i = 0; i < params.size(); i++) {
-            String param = params.get(i);
-            String slot = slots.get(i);
-            if (param.length() > 2 && param.startsWith("M|")) {
-                Map<String, String> paramMap = new HashMap<String, String>();
-                StringUtils.stringToMap(param.substring(2), paramMap);
-                Map<String, String> slotMap = new HashMap<String, String>();
-                StringUtils.stringToMap(slot, slotMap);
-
-                assertEquals("日志和参数中的第 " + i + " 栏内容不一致，日志中为 " + slot + ";参数中为 " + param, paramMap,
-                    slotMap);
-            } else {
-                assertEquals("日志和参数中的第 " + i + " 栏内容不一致，日志中为 " + slot + ";参数中为 " + param, param,
-                    slot);
-            }
-        }
-        return true;
+    public SofaTracerSpan createClientSpan() {
+        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+        //pop
+        SofaTracerSpan serverSpan = sofaTraceContext.pop();
+        SofaTracer.SofaTracerSpanBuilder sofaTracerSpanBuilder = (SofaTracer.SofaTracerSpanBuilder) tracer
+            .buildSpan("callService").asChildOf(serverSpan != null ? serverSpan.context() : null)
+            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
+        SofaTracerSpan clientSpan = (SofaTracerSpan) sofaTracerSpanBuilder.start();
+        clientSpan.setParentSofaTracerSpan(serverSpan);
+        //push
+        sofaTraceContext.push(clientSpan);
+        return clientSpan;
     }
 
 }

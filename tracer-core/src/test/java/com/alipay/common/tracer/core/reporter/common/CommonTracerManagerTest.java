@@ -17,6 +17,7 @@
 package com.alipay.common.tracer.core.reporter.common;
 
 import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.TestUtil;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.reporter.type.TracerSystemLogEnum;
@@ -26,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
@@ -42,9 +44,9 @@ public class CommonTracerManagerTest extends AbstractTestBase {
     private SofaTracer sofaTracer;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         sofaTracer = new SofaTracer.Builder("CommonTracerManagerTest").withTag("tracer",
-            "tracertest").build();
+            "tracerTest").build();
     }
 
     /**
@@ -62,11 +64,13 @@ public class CommonTracerManagerTest extends AbstractTestBase {
         //注意：对于 commonSpan 一定要设置日志类型
         commonLogSpan.setLogType(logType);
         CommonTracerManager.reportCommonSpan(commonLogSpan);
-        File file = new File(logDirectoryPath + File.separator + logType);
+
+        TestUtil.waitForAsyncLog();
+
+        File file = customFileLog(logType);
         assertTrue(file.exists());
-        Thread.sleep(2000);
-        List<String> errorContents = FileUtils.readLines(new File(logDirectoryPath + File.separator
-                                                                  + logType));
+
+        List<String> errorContents = FileUtils.readLines(file);
         assertTrue(errorContents.toString(), errorContents.size() == 1);
     }
 
@@ -77,7 +81,7 @@ public class CommonTracerManagerTest extends AbstractTestBase {
     @Test
     public void testRegisterAndReportCommonSpanChar() throws Exception {
         char logType = '3';
-        String logTypeStr = new String(new char[] { logType });
+        String logTypeStr = String.valueOf(logType);
         String fileName = "test.log.char";
         CommonTracerManager.register(logType, fileName, "", "");
         CommonLogSpan commonLogSpan = new CommonLogSpan(this.sofaTracer,
@@ -89,11 +93,13 @@ public class CommonTracerManagerTest extends AbstractTestBase {
         commonLogSpan.addSlot("hello");
         commonLogSpan.addSlot("word");
         CommonTracerManager.reportCommonSpan(commonLogSpan);
-        Thread.sleep(2000);
-        File file = new File(logDirectoryPath + File.separator + fileName);
-        assertTrue("\n" + file, file.exists());
-        List<String> contents = FileUtils.readLines(new File(logDirectoryPath + File.separator
-                                                             + fileName));
+
+        TestUtil.waitForAsyncLog();
+
+        File file = customFileLog(fileName);
+        assertTrue(file.exists());
+
+        List<String> contents = FileUtils.readLines(file);
         assertTrue(contents.toString(), contents.size() == 1);
         assertTrue(contents.get(0).contains("hello") && contents.get(0).contains("word"));
 
@@ -104,23 +110,18 @@ public class CommonTracerManagerTest extends AbstractTestBase {
      */
     @Test
     public void testReportProfile() throws Exception {
-
         String logType = TracerSystemLogEnum.MIDDLEWARE_ERROR.getDefaultLogName();
-
-        int initSize = 0;
-        File f = new File(logDirectoryPath + File.separator + logType);
-        if (f.exists()) {
-            initSize = FileUtils.readLines(f).size();
-        }
 
         CommonTracerManager.reportError(new CommonLogSpan(this.sofaTracer, System
             .currentTimeMillis(), "testReportProfile", SofaTracerSpanContext.rootStart(), null));
-        File file = new File(logDirectoryPath + File.separator + logType);
-        assertTrue("\n" + file, file.exists());
-        Thread.sleep(2000);
-        List<String> errorContents = FileUtils.readLines(new File(logDirectoryPath + File.separator
-                                                                  + logType));
-        assertTrue(errorContents.toString(), errorContents.size() - initSize == 1);
+
+        TestUtil.waitForAsyncLog();
+
+        File file = customFileLog(logType);
+        assertTrue(file.exists());
+
+        List<String> errorContents = FileUtils.readLines(file);
+        assertTrue(errorContents.toString(), errorContents.size() == 1);
     }
 
     /**
@@ -131,11 +132,13 @@ public class CommonTracerManagerTest extends AbstractTestBase {
         CommonTracerManager.reportProfile(new CommonLogSpan(this.sofaTracer, System
             .currentTimeMillis(), "testReportProfile", SofaTracerSpanContext.rootStart(), null));
         String logType = TracerSystemLogEnum.RPC_PROFILE.getDefaultLogName();
-        File file = new File(logDirectoryPath + File.separator + logType);
-        assertTrue("\n" + file, file.exists());
-        Thread.sleep(2000);
-        List<String> profileContents = FileUtils.readLines(new File(logDirectoryPath
-                                                                    + File.separator + logType));
+
+        TestUtil.waitForAsyncLog();
+
+        File file = customFileLog(logType);
+        assertTrue(file.exists());
+
+        List<String> profileContents = FileUtils.readLines(file);
         assertTrue(profileContents.toString(), profileContents.size() == 1);
     }
 

@@ -26,6 +26,7 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.core.tracertest.type.TracerTestLogEnum;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.tag.Tags;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +68,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
     private SofaTracerSpan    sofaTracerSpan;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         this.clientReporter = new DiskReporterImpl(clientLogType, expectRollingPolicy,
             expectLogReserveConfig, expectedClientSpanEncoder);
         this.sofaTracerSpan = mock(SofaTracerSpan.class);
@@ -77,7 +78,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
      * Method: getStatReporter()
      */
     @Test
-    public void testGetSetStatReporter() throws Exception {
+    public void testGetSetStatReporter() {
         SofaTracerStatisticReporter statisticReporter = mock(SofaTracerStatisticReporter.class);
         this.clientReporter.setStatReporter(statisticReporter);
         assertEquals(statisticReporter, this.clientReporter.getStatReporter());
@@ -87,7 +88,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
      * Method: getDigestReporterType()
      */
     @Test
-    public void testGetDigestReporterType() throws Exception {
+    public void testGetDigestReporterType() {
         assertEquals(clientLogType, this.clientReporter.getDigestLogType());
     }
 
@@ -95,7 +96,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
      * Method: getStatReporterType()
      */
     @Test
-    public void testGetStatReporterType() throws Exception {
+    public void testGetStatReporterType() {
         assertTrue(StringUtils.isBlank(this.clientReporter.getStatReporterType()));
     }
 
@@ -103,7 +104,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
      * Method: digestReport(SofaTracerSpan span)
      */
     @Test
-    public void testDigestReport() throws Exception {
+    public void testDigestReport() {
         this.clientReporter.digestReport(this.sofaTracerSpan);
         assertEquals(true, this.clientReporter.getIsDigestFileInited().get());
     }
@@ -112,7 +113,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
      * Method: getDigestLogType()
      */
     @Test
-    public void testGetDigestLogType() throws Exception {
+    public void testGetDigestLogType() {
         assertEquals(this.clientLogType, this.clientReporter.getDigestLogType());
     }
 
@@ -120,7 +121,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
      * Method: getDigestRollingPolicy()
      */
     @Test
-    public void testGetDigestRollingPolicy() throws Exception {
+    public void testGetDigestRollingPolicy() {
         String rollingPolicy = this.clientReporter.getDigestRollingPolicy();
         assertEquals(expectRollingPolicy, rollingPolicy);
     }
@@ -129,7 +130,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
      * Method: getDigestLogReserveConfig()
      */
     @Test
-    public void testGetDigestLogReserveConfig() throws Exception {
+    public void testGetDigestLogReserveConfig() {
         String logReserveConfig = this.clientReporter.getDigestLogReserveConfig();
         assertEquals(expectLogReserveConfig, logReserveConfig);
     }
@@ -139,7 +140,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
      * Method: getLogNameKey()
      */
     @Test
-    public void testGetContextEncoder() throws Exception {
+    public void testGetContextEncoder() {
         assertEquals(expectedClientSpanEncoder, this.clientReporter.getContextEncoder());
         String logNameKey = this.clientReporter.getLogNameKey();
         assertTrue(StringUtils.isBlank(logNameKey));
@@ -160,10 +161,9 @@ public class DiskReporterImplTest extends AbstractTestBase {
             Runnable worker = new WorkerInitThread(this.clientReporter, "" + i);
             executor.execute(worker);
         }
-        Thread.sleep(6 * 1000);
+        Thread.sleep(3 * 1000);
         //未控制并发初始化时,report span 会报错;修复方法即初始化未完成时,其他线程需要等待初始化完成
-        List<String> contents = FileUtils.readLines(new File(logDirectoryPath + File.separator
-                                                             + "tracer-self.log"));
+        List<String> contents = FileUtils.readLines(tracerSelfLog());
         assertTrue("Actual concurrent init file size = " + contents.size(), contents.size() == 1);
     }
 
@@ -186,6 +186,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
         private void processCommand() {
             SofaTracerSpan span = new SofaTracerSpan(mock(SofaTracer.class),
                 System.currentTimeMillis(), "open", SofaTracerSpanContext.rootStart(), null);
+            span.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
             this.reporter.digestReport(span);
         }
 

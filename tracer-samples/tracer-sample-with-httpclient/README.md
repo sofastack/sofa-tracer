@@ -28,9 +28,10 @@
 <parent>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofaboot-dependencies</artifactId>
-    <version>2.4.9</version>
+    <version>${sofa.boot.version}</version>
 </parent>
 ```
+这里的 ${sofa.boot.version} 指定具体的 SOFABoot 版本，参考[发布历史](https://github.com/alipay/sofa-build/releases)。
 
 然后，在工程中添加 SOFATracer 依赖：
 
@@ -38,7 +39,7 @@
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>tracer-sofa-boot-starter</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.3</version>
 </dependency>
 ```
 
@@ -61,12 +62,12 @@ logging.path=./logs
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>tracer-sofa-boot-starter</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.3</version>
 </dependency>
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofa-tracer-httpclient-plugin</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.3</version>
 </dependency>
 <!-- HttpClient Dependency -->
 <dependency>
