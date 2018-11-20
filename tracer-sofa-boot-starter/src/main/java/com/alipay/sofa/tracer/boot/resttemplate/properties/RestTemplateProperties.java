@@ -14,20 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.examples.rest;
+package com.alipay.sofa.tracer.boot.resttemplate.properties;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- *  RestTemplateDemoApplication
- * @author: guolei.sgl
- */
-@SpringBootApplication
-public class RestTemplateDemoApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(RestTemplateDemoApplication.class, args);
-    }
-
+ * RestTemplateProperties
+ *
+ * @version 1.0
+ * @author: guolei.sgl 18/11/19 下午11:03
+ * @since: v2.3.0
+ **/
+@ConfigurationProperties("com.alipay.sofa.tracer.resttemplate")
+public class RestTemplateProperties {
 }

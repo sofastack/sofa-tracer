@@ -28,9 +28,10 @@
 <parent>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>sofaboot-dependencies</artifactId>
-    <version>2.4.9</version>
+    <version>${sofa.boot.version}</version>
 </parent>
 ```
+这里的 ${sofa.boot.version} 指定具体的 SOFABoot 版本，[参考发布历史](https://github.com/alipay/sofa-boot/releases)。
 
 然后，在工程中添加 SOFATracer 依赖：
 
@@ -38,7 +39,6 @@
 <dependency>
     <groupId>com.alipay.sofa</groupId>
     <artifactId>tracer-sofa-boot-starter</artifactId>
-    <version>2.3.0</version>
 </dependency>
 ```
 
@@ -94,9 +94,7 @@ public class SampleController {
 }
 ```
 
-
-
-## 构造 RestTemplate 发起一次对上文的 RESTful 服务的调用
+## 以 API 方式构造 RestTemplate 发起一次对上文的 RESTful 服务的调用
 
 * 构造 RestTemplate 同步调用实例
 
@@ -115,6 +113,12 @@ ListenableFuture<ResponseEntity<String>> forEntity = asyncRestTemplate.getForEnt
             "http://sac.alipay.net:8080/asyncrest", String.class);
 ```
 
+## 以自动注入的方式获取 RestTemplate
+
+```
+@Autowired
+RestTemplate             restTemplate;
+```
 
 
 ## 运行

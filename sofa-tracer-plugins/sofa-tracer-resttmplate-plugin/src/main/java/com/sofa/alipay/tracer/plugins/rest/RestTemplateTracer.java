@@ -25,7 +25,7 @@ import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
 /**
  * RestTemplateTracer
  * @author: guolei.sgl
- * @since: 18/10/15
+ * @since: v2.3.0
  */
 public class RestTemplateTracer extends AbstractClientTracer {
 

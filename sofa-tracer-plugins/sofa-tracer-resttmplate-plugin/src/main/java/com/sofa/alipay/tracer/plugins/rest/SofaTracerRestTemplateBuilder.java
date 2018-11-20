@@ -30,7 +30,7 @@ import java.util.List;
 /**
  *  SofaTracerRestTemplateBuilder
  * @author: guolei.sgl
- * @since: 18/10/15
+ * @since: v2.3.0
  */
 public class SofaTracerRestTemplateBuilder {
 

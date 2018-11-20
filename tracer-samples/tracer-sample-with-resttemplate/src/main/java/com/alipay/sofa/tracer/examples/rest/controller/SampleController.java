@@ -16,11 +16,21 @@
  */
 package com.alipay.sofa.tracer.examples.rest.controller;
 
+import com.alipay.sofa.tracer.examples.rest.RestTemplateDemoApplication;
+import com.sofa.alipay.tracer.plugins.rest.SofaTracerRestTemplateBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.AsyncRestTemplate;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -31,6 +41,10 @@ import java.util.concurrent.atomic.AtomicLong;
 @RestController
 public class SampleController {
     private final AtomicLong counter = new AtomicLong(0);
+    private static Logger    logger  = LoggerFactory.getLogger(RestTemplateDemoApplication.class);
+
+    @Autowired
+    RestTemplate             restTemplate;
 
     /**
      * Request http://localhost:8080/rest?name=
@@ -48,7 +62,37 @@ public class SampleController {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("count", counter.incrementAndGet());
         Thread.sleep(5000);
-        System.out.println("asyncrest execute finish ...");
         return map;
     }
+
+    @RequestMapping("/api")
+    public Map<String, Object> test() throws ExecutionException, InterruptedException {
+        RestTemplate restTemplateApi = SofaTracerRestTemplateBuilder.buildRestTemplate();
+        ResponseEntity<String> responseEntity = restTemplateApi.getForEntity(
+            "http://sac.alipay.net:8080/rest", String.class);
+        logger.info("Response is {}", responseEntity.getBody());
+
+        AsyncRestTemplate asyncRestTemplate = SofaTracerRestTemplateBuilder
+            .buildAsyncRestTemplate();
+        ListenableFuture<ResponseEntity<String>> forEntity = asyncRestTemplate.getForEntity(
+            "http://sac.alipay.net:8080/asyncrest", String.class);
+        //async
+        logger.info("Async Response is {}", forEntity.get().getBody());
+
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("count", counter.incrementAndGet());
+        return map;
+    }
+
+    @RequestMapping("/auto")
+    public Map<String, Object> testAuto() {
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(
+            "http://sac.alipay.net:8080/rest", String.class);
+        logger.info("Response is {}", responseEntity.getBody());
+
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("count", counter.incrementAndGet());
+        return map;
+    }
+
 }

@@ -19,7 +19,7 @@ package com.sofa.alipay.tracer.plugins.rest;
 /**
  * RestTemplateLogEnum
  * @author: guolei.sgl
- * @since: 18/10/15
+ * @since: v2.3.0
  */
 public enum RestTemplateLogEnum {
 

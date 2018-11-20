@@ -38,7 +38,7 @@ import java.util.List;
 /**
  * RestTemplateInterceptor
  * @author: guolei.sgl
- * @since: 18/10/15
+ * @since:  v2.3.0
  */
 public class RestTemplateInterceptor implements ClientHttpRequestInterceptor {
 
@@ -56,7 +56,7 @@ public class RestTemplateInterceptor implements ClientHttpRequestInterceptor {
         ClientHttpResponse response = null;
         try {
             return response = execution.execute(request, body);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             if (response != null) {

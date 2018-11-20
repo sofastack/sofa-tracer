@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * RestTemplateDigestJsonEncoder
  * @author: guolei.sgl
- * @since: 18/10/15
+ * @since: v2.3.0
  */
 public class RestTemplateDigestJsonEncoder extends AbstractDigestSpanEncoder {
 
