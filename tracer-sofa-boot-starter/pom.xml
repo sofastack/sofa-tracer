@@ -8,7 +8,6 @@
         <version>2.3.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
     <artifactId>tracer-sofa-boot-starter</artifactId>
 
     <properties>
