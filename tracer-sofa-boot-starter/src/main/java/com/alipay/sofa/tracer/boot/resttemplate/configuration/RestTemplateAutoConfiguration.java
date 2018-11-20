@@ -43,7 +43,7 @@ public class RestTemplateAutoConfiguration {
     public RestTemplate restTemplateCustomizer(RestTemplateProperties restTemplateProperties) {
         RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
         RestTemplate restTemplate = restTemplateBuilder.build();
-        if (restTemplateProperties.isEnable()){
+        if (restTemplateProperties.isEnable()) {
             CustomRestTemplateCustomizer customRestTemplateCustomizer = new CustomRestTemplateCustomizer();
             customRestTemplateCustomizer.customize(restTemplate);
         }
