@@ -18,6 +18,7 @@ package com.alipay.sofa.tracer.boot.resttemplate.configuration;
 
 import com.alipay.sofa.tracer.boot.resttemplate.CustomRestTemplateCustomizer;
 import com.alipay.sofa.tracer.boot.resttemplate.properties.RestTemplateProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -36,12 +37,16 @@ import org.springframework.web.client.RestTemplate;
 @EnableConfigurationProperties(RestTemplateProperties.class)
 @ConditionalOnWebApplication
 public class RestTemplateAutoConfiguration {
+
     @Bean
-    public RestTemplate restTemplateCustomizer() {
+    @ConditionalOnMissingBean
+    public RestTemplate restTemplateCustomizer(RestTemplateProperties restTemplateProperties) {
         RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
-        CustomRestTemplateCustomizer customRestTemplateCustomizer = new CustomRestTemplateCustomizer();
         RestTemplate restTemplate = restTemplateBuilder.build();
-        customRestTemplateCustomizer.customize(restTemplate);
+        if (restTemplateProperties.isEnable()){
+            CustomRestTemplateCustomizer customRestTemplateCustomizer = new CustomRestTemplateCustomizer();
+            customRestTemplateCustomizer.customize(restTemplate);
+        }
         return restTemplate;
     }
 }
