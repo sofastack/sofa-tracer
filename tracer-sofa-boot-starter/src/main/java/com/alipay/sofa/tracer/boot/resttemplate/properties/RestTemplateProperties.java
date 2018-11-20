@@ -28,7 +28,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("com.alipay.sofa.tracer.resttemplate")
 public class RestTemplateProperties {
 
-    private boolean enable;
+    private boolean enable = true;
 
     public boolean isEnable() {
         return enable;
