@@ -56,6 +56,9 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         remoteTracer = new MockAbstractTracer("mockSendTracerSpan");
         RestTemplate restTemplate = new RestTemplate();
         ZipkinSofaTracerProperties zipkinProperties = new ZipkinSofaTracerProperties();
+        zipkinProperties.setBaseUrl("http://localhost:9411");
+        zipkinProperties.setEnabled(true);
+        zipkinProperties.setGzipped(true);
         ZipkinSofaTracerRestTemplateCustomizer restTemplateCustomizer = new ZipkinSofaTracerRestTemplateCustomizer(
             zipkinProperties.isGzipped());
         restTemplateCustomizer.customize(restTemplate);
