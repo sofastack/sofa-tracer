@@ -42,9 +42,9 @@
 </dependency>
 ```
 
-最后，在工程的 `application.properties` 文件下添加一个 SOFATracer 要使用的参数，包括`spring.application.name` 用于标示当前应用的名称；`logging.path` 用于指定日志的输出目录。
+最后，在工程的 `application.properties` 文件下添加一个 SOFATracer 要使用的参数，包括 `spring.application.name` 用于标示当前应用的名称；`logging.path` 用于指定日志的输出目录。
 
-```
+```properties
 # Application Name
 spring.application.name=SOFATracerSpringMVC
 # logging path
@@ -116,6 +116,39 @@ public class SampleRestController {
 
 通过访问 [http://localhost:8080/springmvc](http://localhost:8080/springmvc) SOFATracer 会记录每一次访问的摘要日志，可以打开 `spring-mvc-digest.log` 看到具体的输出内容，而对于每一个输出字段的含义可以看 SOFATracer 的说明文档。
 
-```
+```json
 {"time":"2018-05-17 22:20:34.279","local.app":"SOFATracerSpringMVC","traceId":"0a0fe9391526566833985100139443","spanId":"0","request.url":"http://localhost:8080/springmvc","method":"GET","result.code":"200","req.size.bytes":-1,"resp.size.bytes":69,"time.cost.milliseconds":284,"current.thread.name":"http-nio-8080-exec-1","baggage":""}
 ```
+
+## 对于标准 servlet 容器的支持（ tomcat/jetty 等）
+
+sofa-tracer-springmvc-plugin 插件提供了对标准 servlet-api 的支持，因此，凡基于标准 servlet 规范的容器，也均可以使用此插件来收集链路数据。
+
+### 依赖引入
+
+上面的案例是基于 springboot/SOFABoot 使用的；如果在非 springboot/SOFABoot 中使用，仅需引入插件依赖即可：
+
+```xml
+<dependency>
+    <groupId>com.alipay.sofa</groupId>
+    <artifactId>sofa-tracer-springmvc-plugin</artifactId>
+    <version>2.2.0</version>
+</dependency>
+```
+
+### 配置 filter
+
+在工程的 web.xml  配置 filter
+
+```xml
+<filter>
+  <filter-name>SpringMvcSofaTracerFilter</filter-name>
+  <filter-class>com.alipay.sofa.tracer.plugins.springmvc.SpringMvcSofaTracerFilter</filter-class>
+</filter>
+<filter-mapping>
+  <filter-name>SpringMvcSofaTracerFilter</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping>
+
+```
+这样应用通过 tomcat 或者 jetty 启动时，即可将 servlet 容器的链路数据打印到日志中了。

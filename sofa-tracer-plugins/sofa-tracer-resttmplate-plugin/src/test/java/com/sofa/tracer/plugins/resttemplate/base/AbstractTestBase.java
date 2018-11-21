@@ -14,106 +14,77 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.base;
+package com.sofa.tracer.plugins.resttemplate.base;
 
-import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
-import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.digest.manager.SofaTracerDigestReporterAsyncManager;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
-import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
+import com.sofa.alipay.tracer.plugins.rest.SofaTracerRestTemplateBuilder;
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * referenced document: http://docs.spring.io/spring-boot/docs/1.4.2.RELEASE/reference/htmlsingle/#boot-features-testing
- *
+ * <p>
+ * <p>
  * @author yangguanchao
+ * @since v2.3.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SpringBootWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application.properties")
 public abstract class AbstractTestBase {
+    protected static String logDirectoryPath = System.getProperty("user.home") + File.separator
+                                               + "logs" + File.separator + "tracelog";
 
-    protected static String    logDirectoryPath = TracerLogRootDaemon.LOG_FILE_DIR;
-
+    private static File     logDirectory     = new File(logDirectoryPath);
     @LocalServerPort
-    private int                definedPort;
+    private int             definedPort;
 
-    @Autowired
-    protected TestRestTemplate testRestTemplate;
-
-    protected String           urlHttpPrefix;
+    protected String        urlHttpPrefix;
 
     @BeforeClass
-    public static void beforeClass() throws IOException {
+    public static void beforeClass() throws Exception {
         cleanLogDirectory();
+        resetCondition();
     }
 
     @Before
     public void setUp() throws Exception {
         urlHttpPrefix = "http://localhost:" + definedPort;
-        reflectSpringMVCClear();
     }
 
     /**
      * clear directory
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public static void cleanLogDirectory() throws IOException {
-        File file = new File(logDirectoryPath);
-        if (file.exists()) {
-            FileUtils.cleanDirectory(file);
+        if (!logDirectory.exists()) {
+            return;
         }
+        FileUtils.cleanDirectory(logDirectory);
     }
 
-    protected static File customFileLog(String fileName) {
-        return new File(logDirectoryPath + File.separator + fileName);
-    }
-
-    protected static void reflectSpringMVCClear() throws NoSuchFieldException,
-                                                 IllegalAccessException {
-        Field field = SpringMvcTracer.class.getDeclaredField("springMvcTracer");
+    private static void resetCondition() throws NoSuchFieldException, IllegalAccessException {
+        // set restTemplateTracer as null
+        Field field = SofaTracerRestTemplateBuilder.class.getDeclaredField("restTemplateTracer");
         field.setAccessible(true);
         field.set(null, null);
-        //clear digest
+        //stat
+        SofaTracerStatisticReporterCycleTimesManager.getCycleTimesManager().clear();
+        //clear
         Field fieldAsync = SofaTracerDigestReporterAsyncManager.class
             .getDeclaredField("asyncCommonDigestAppenderManager");
         fieldAsync.setAccessible(true);
         fieldAsync.set(null, null);
-
-        // clear stat
-        SofaTracerStatisticReporterManager statReporterManager = SofaTracerStatisticReporterCycleTimesManager
-            .getSofaTracerStatisticReporterManager(1l);
-        Field fieldStat = SofaTracerStatisticReporterManager.class
-            .getDeclaredField("statReporters");
-        fieldStat.setAccessible(true);
-        fieldStat.set(statReporterManager, new ConcurrentHashMap<>());
-    }
-
-    @AfterClass
-    public static void afterClass() throws Exception {
-        clearTracerProperties();
-    }
-
-    private static void clearTracerProperties() throws Exception {
-        Field propertiesField = SofaTracerConfiguration.class.getDeclaredField("properties");
-        propertiesField.setAccessible(true);
-        propertiesField.set(null, new ConcurrentHashMap<>());
     }
 }

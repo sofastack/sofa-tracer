@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 import org.springframework.boot.bind.PropertiesConfigurationFactory;
+import com.alipay.sofa.infra.utils.SOFABootEnvUtils;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationListener;
@@ -45,16 +46,23 @@ public class SofaTracerConfigurationListener
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         ConfigurableEnvironment environment = event.getEnvironment();
 
-        // check spring.application.name
-        String applicationName = environment
-            .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
-        Assert.isTrue(!StringUtils.isBlank(applicationName),
-            SofaTracerConfiguration.TRACER_APPNAME_KEY + " must be configured!");
+        if (SOFABootEnvUtils.isSpringCloudBootstrapEnvironment(environment)) {
+            return;
+        }
+
         // set loggingPath
         String loggingPath = environment.getProperty("logging.path");
         if (StringUtils.isNotBlank(loggingPath)) {
             System.setProperty("logging.path", loggingPath);
         }
+
+        // check spring.application.name
+        String applicationName = environment
+            .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
+        Assert.isTrue(!StringUtils.isBlank(applicationName),
+            SofaTracerConfiguration.TRACER_APPNAME_KEY + " must be configured!");
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY,
+            applicationName);
 
         SofaTracerProperties tempTarget = new SofaTracerProperties();
         PropertiesConfigurationFactory<SofaTracerProperties> binder = new PropertiesConfigurationFactory<SofaTracerProperties>(
