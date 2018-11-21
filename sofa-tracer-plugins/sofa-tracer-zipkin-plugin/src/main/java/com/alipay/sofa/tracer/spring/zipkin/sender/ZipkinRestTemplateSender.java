@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.zipkin.sender;
+package com.alipay.sofa.tracer.spring.zipkin.sender;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,14 +30,11 @@ import java.util.List;
 
 /**
  * ZipkinRestTemplateSender
- *
- * @author yangguanchao
- * @since 2018/05/01
+ * @author guolei.sgl
  */
 public class ZipkinRestTemplateSender extends Sender {
 
     private RestTemplate restTemplate;
-
     private String       url;
 
     public ZipkinRestTemplateSender(RestTemplate restTemplate, String baseUrl) {

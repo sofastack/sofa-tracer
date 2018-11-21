@@ -14,18 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.zipkin.properties;
-
-import com.alipay.common.tracer.core.samplers.SamplerProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+package com.alipay.sofa.tracer.spring.zipkin.properties;
 
 /**
- * ZipkinSofaTracerSamplerProperties
- *
- * @author yangguanchao
- * @since 2018/05/01
+ * ZipkinProperties
+ * @author guolei.sgl
+ * @since v2.3.0
  */
-@ConfigurationProperties("com.alipay.sofa.tracer.sampler")
-public class ZipkinSofaTracerSamplerProperties extends SamplerProperties {
+public class ZipkinProperties {
+
+    public static final String ZIPKIN_IS_ENABLED_KEY = "com.alipay.sofa.tracer.zipkin.enabled";
+    public static final String ZIPKIN_BASE_URL_KEY   = "com.alipay.sofa.tracer.zipkin.baseUrl";
+    public static final String ZIPKIN_IS_GZIPPED_KEY = "com.alipay.sofa.tracer.zipkin.gzipped";
 
 }
