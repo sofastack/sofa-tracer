@@ -22,9 +22,8 @@ import org.junit.Test;
 /**
  * ZipkinSofaTracerSpanRemoteReporterTest
  *
- * @version 1.0
  * @author: guolei.sgl
- * @since: 18/11/21 下午7:39
+ * @since: v2.3.0
  **/
 public class ZipkinSofaTracerSpanRemoteReporterTest {
 

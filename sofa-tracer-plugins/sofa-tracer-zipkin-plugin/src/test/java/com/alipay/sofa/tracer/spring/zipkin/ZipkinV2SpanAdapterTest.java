@@ -30,7 +30,6 @@ import java.util.Map;
 /**
  * ZipkinV2SpanAdapterTest
  *
- * @version 1.0
  * @author: guolei.sgl
  * @since: v2.3.0
  **/

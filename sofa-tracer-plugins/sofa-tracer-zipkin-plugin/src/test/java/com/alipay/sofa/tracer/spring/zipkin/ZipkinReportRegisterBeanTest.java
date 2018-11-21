@@ -26,9 +26,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 /**
  * ZipkinReportRegisterBeanTest
  *
- * @version 1.0
  * @author: guolei.sgl
- * @since: 18/11/21 下午5:54
+ * @since: v2.3.0
  **/
 public class ZipkinReportRegisterBeanTest {
 
