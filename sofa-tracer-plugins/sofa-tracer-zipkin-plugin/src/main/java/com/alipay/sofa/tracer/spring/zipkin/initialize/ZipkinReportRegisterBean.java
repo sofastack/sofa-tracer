@@ -30,13 +30,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * register zipkin report listeners
+ * ZipkinReportRegisterBean to parse properties and register zipkin report listeners
+ *
  * @author guolei.sgl
+ * @since v2.3.0
  */
 public class ZipkinReportRegisterBean implements InitializingBean {
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         // if do not match report condition,it will be return right now
         boolean enabled = false;
         String enabledStr = SofaTracerConfiguration
@@ -47,9 +49,17 @@ public class ZipkinReportRegisterBean implements InitializingBean {
         if (!enabled) {
             return;
         }
+
+        boolean gzipped = false;
+        String gzippedStr = SofaTracerConfiguration
+            .getProperty(ZipkinProperties.ZIPKIN_IS_GZIPPED_KEY);
+        if (StringUtils.isNotBlank(gzippedStr) && "true".equalsIgnoreCase(gzippedStr)) {
+            gzipped = true;
+        }
+
         RestTemplate restTemplate = new RestTemplate();
         ZipkinSofaTracerRestTemplateCustomizer zipkinSofaTracerRestTemplateCustomizer = new ZipkinSofaTracerRestTemplateCustomizer(
-            ZipkinProperties.getCompression());
+            gzipped);
         zipkinSofaTracerRestTemplateCustomizer.customize(restTemplate);
         String baseUrl = SofaTracerConfiguration.getProperty(ZipkinProperties.ZIPKIN_BASE_URL_KEY);
         SpanReportListener spanReportListener = new ZipkinSofaTracerSpanRemoteReporter(

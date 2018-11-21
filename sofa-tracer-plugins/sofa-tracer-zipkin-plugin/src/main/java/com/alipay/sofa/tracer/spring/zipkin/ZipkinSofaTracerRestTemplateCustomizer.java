@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.tracer.spring.zipkin;
 
-import com.alipay.sofa.tracer.spring.zipkin.properties.ZipkinProperties;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -29,22 +28,21 @@ import java.util.zip.GZIPOutputStream;
 /**
  * ZipkinSofaTracerRestTemplateCustomizer
  * @author guolei.sgl
+ * @since v2.3.0
  */
 public class ZipkinSofaTracerRestTemplateCustomizer {
 
-    private ZipkinProperties.Compression compression;
+    private boolean gzipped;
 
-    public ZipkinSofaTracerRestTemplateCustomizer(ZipkinProperties.Compression compression) {
-        this.compression = compression;
+    public ZipkinSofaTracerRestTemplateCustomizer(boolean gzipped) {
+        this.gzipped = gzipped;
     }
 
     public void customize(RestTemplate restTemplate) {
-        if (this.compression == null || restTemplate == null) {
+        if (!this.gzipped || restTemplate == null) {
             return;
         }
-        if (this.compression.isEnabled()) {
-            restTemplate.getInterceptors().add(0, new GzipInterceptor());
-        }
+        restTemplate.getInterceptors().add(0, new GzipInterceptor());
     }
 
     private class GzipInterceptor implements ClientHttpRequestInterceptor {

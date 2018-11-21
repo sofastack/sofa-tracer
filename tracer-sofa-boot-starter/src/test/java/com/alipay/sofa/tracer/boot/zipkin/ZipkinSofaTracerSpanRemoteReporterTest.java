@@ -28,7 +28,6 @@ import com.alipay.sofa.tracer.boot.zipkin.properties.ZipkinSofaTracerProperties;
 import com.alipay.sofa.tracer.spring.zipkin.ZipkinSofaTracerRestTemplateCustomizer;
 import com.alipay.sofa.tracer.spring.zipkin.ZipkinSofaTracerSpanRemoteReporter;
 import com.alipay.sofa.tracer.spring.zipkin.adapter.ZipkinV2SpanAdapter;
-import com.alipay.sofa.tracer.spring.zipkin.properties.ZipkinProperties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,9 +42,8 @@ import static junit.framework.TestCase.assertTrue;
 /**
  * ZipkinSofaTracerSpanRemoteReporter Tester.
  *
- * @author <guanchao.ygc>
- * @version 1.0
- * @since <pre>五月 1, 2018</pre>
+ * @author guolei.sgl
+ * @since v2.3.0
  */
 public class ZipkinSofaTracerSpanRemoteReporterTest {
 
@@ -59,7 +57,7 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         RestTemplate restTemplate = new RestTemplate();
         ZipkinSofaTracerProperties zipkinProperties = new ZipkinSofaTracerProperties();
         ZipkinSofaTracerRestTemplateCustomizer restTemplateCustomizer = new ZipkinSofaTracerRestTemplateCustomizer(
-            ZipkinProperties.getCompression());
+            zipkinProperties.isGzipped());
         restTemplateCustomizer.customize(restTemplate);
         //host http://zipkin-cloud-3.inc.host.net:9411
         String baseUrl = "http://zipkin-cloud-3.inc.host.net:9411";

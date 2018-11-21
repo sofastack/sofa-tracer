@@ -19,31 +19,12 @@ package com.alipay.sofa.tracer.spring.zipkin.properties;
 /**
  * ZipkinProperties
  * @author guolei.sgl
+ * @since v2.3.0
  */
 public class ZipkinProperties {
 
     public static final String ZIPKIN_IS_ENABLED_KEY = "com.alipay.sofa.tracer.zipkin.enabled";
     public static final String ZIPKIN_BASE_URL_KEY   = "com.alipay.sofa.tracer.zipkin.baseUrl";
+    public static final String ZIPKIN_IS_GZIPPED_KEY = "com.alipay.sofa.tracer.zipkin.gzipped";
 
-    private static Compression compression           = new Compression();
-
-    /**
-     * When enabled, spans are gzipped before sent to the zipkin server
-     */
-    public static class Compression {
-
-        private boolean enabled = false;
-
-        public boolean isEnabled() {
-            return this.enabled;
-        }
-
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
-    }
-
-    public static Compression getCompression() {
-        return compression;
-    }
 }

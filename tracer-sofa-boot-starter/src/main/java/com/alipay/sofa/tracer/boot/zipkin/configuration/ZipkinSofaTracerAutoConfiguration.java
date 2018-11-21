@@ -17,10 +17,8 @@
 package com.alipay.sofa.tracer.boot.zipkin.configuration;
 
 import com.alipay.sofa.tracer.boot.zipkin.properties.ZipkinSofaTracerProperties;
-import com.alipay.sofa.tracer.boot.zipkin.properties.ZipkinSofaTracerSamplerProperties;
 import com.alipay.sofa.tracer.spring.zipkin.ZipkinSofaTracerRestTemplateCustomizer;
 import com.alipay.sofa.tracer.spring.zipkin.ZipkinSofaTracerSpanRemoteReporter;
-import com.alipay.sofa.tracer.spring.zipkin.properties.ZipkinProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -37,8 +35,7 @@ import org.springframework.web.client.RestTemplate;
  * @since 2018/05/01
  */
 @Configuration
-@EnableConfigurationProperties({ ZipkinSofaTracerProperties.class,
-                                ZipkinSofaTracerSamplerProperties.class })
+@EnableConfigurationProperties(ZipkinSofaTracerProperties.class)
 @ConditionalOnProperty(value = "com.alipay.sofa.tracer.zipkin.enabled", matchIfMissing = true)
 @ConditionalOnClass({ zipkin2.Span.class, zipkin2.reporter.AsyncReporter.class })
 public class ZipkinSofaTracerAutoConfiguration {
@@ -49,12 +46,12 @@ public class ZipkinSofaTracerAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ZipkinSofaTracerRestTemplateCustomizer zipkinSofaTracerRestTemplateCustomizer() {
-        return new ZipkinSofaTracerRestTemplateCustomizer(ZipkinProperties.getCompression());
+        return new ZipkinSofaTracerRestTemplateCustomizer(zipkinProperties.isGzipped());
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ZipkinSofaTracerSpanRemoteReporter zpkinSofaTracerSpanReporter(ZipkinSofaTracerRestTemplateCustomizer zipkinSofaTracerRestTemplateCustomizer) {
+    public ZipkinSofaTracerSpanRemoteReporter zipkinSofaTracerSpanReporter(ZipkinSofaTracerRestTemplateCustomizer zipkinSofaTracerRestTemplateCustomizer) {
         RestTemplate restTemplate = new RestTemplate();
         zipkinSofaTracerRestTemplateCustomizer.customize(restTemplate);
         return new ZipkinSofaTracerSpanRemoteReporter(restTemplate, zipkinProperties.getBaseUrl());

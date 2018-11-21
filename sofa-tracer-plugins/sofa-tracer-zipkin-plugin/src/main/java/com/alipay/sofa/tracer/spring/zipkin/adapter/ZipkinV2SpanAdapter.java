@@ -30,6 +30,7 @@ import java.util.Map;
 /***
  * ZipkinV2SpanAdapter : convent sofaTracer span model to zipkin span model
  * @author guolei.sgl 05/09/2018
+ * @since v.2.3.0
  */
 public class ZipkinV2SpanAdapter {
 
@@ -42,8 +43,8 @@ public class ZipkinV2SpanAdapter {
 
     /**
      * convent sofaTracerSpan model to zipKinSpan model
-     * @param sofaTracerSpan
-     * @return
+     * @param sofaTracerSpan original span
+     * @return zipkinSpan model
      */
     public Span convertToZipkinSpan(SofaTracerSpan sofaTracerSpan) {
         Span.Builder zipkinSpanBuilder = Span.newBuilder();

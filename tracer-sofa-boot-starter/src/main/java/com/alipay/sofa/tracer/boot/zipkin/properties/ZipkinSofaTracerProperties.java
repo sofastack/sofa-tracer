@@ -21,8 +21,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * ZipkinSofaTracerProperties
  *
- * @author yangguanchao
- * @since 2018/05/01
+ * @author guolei.sgl
+ * @since v2.3.0
  */
 @ConfigurationProperties("com.alipay.sofa.tracer.zipkin")
 public class ZipkinSofaTracerProperties {
@@ -30,9 +30,12 @@ public class ZipkinSofaTracerProperties {
     /**
      * URL of the zipkin query server instance.
      */
-    private String      baseUrl     = "http://localhost:9411/";
-    private boolean     enabled     = true;
-    private Compression compression = new Compression();
+    private String  baseUrl = "http://localhost:9411/";
+    private boolean enabled = true;
+    /**
+     * When enabled, spans are gzipped before sent to the zipkin server
+     */
+    private boolean gzipped = false;
 
     public String getBaseUrl() {
         return this.baseUrl;
@@ -40,10 +43,6 @@ public class ZipkinSofaTracerProperties {
 
     public boolean isEnabled() {
         return this.enabled;
-    }
-
-    public Compression getCompression() {
-        return this.compression;
     }
 
     public void setBaseUrl(String baseUrl) {
@@ -54,23 +53,11 @@ public class ZipkinSofaTracerProperties {
         this.enabled = enabled;
     }
 
-    public void setCompression(Compression compression) {
-        this.compression = compression;
+    public boolean isGzipped() {
+        return gzipped;
     }
 
-    /**
-     * When enabled, spans are gzipped before sent to the zipkin server
-     */
-    public static class Compression {
-
-        private boolean enabled = false;
-
-        public boolean isEnabled() {
-            return this.enabled;
-        }
-
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
+    public void setGzipped(boolean gzipped) {
+        this.gzipped = gzipped;
     }
 }

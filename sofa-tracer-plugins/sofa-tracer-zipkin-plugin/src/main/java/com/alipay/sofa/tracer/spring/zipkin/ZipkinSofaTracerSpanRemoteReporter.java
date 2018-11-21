@@ -27,11 +27,11 @@ import zipkin2.Span;
 import zipkin2.reporter.AsyncReporter;
 import java.io.Closeable;
 import java.io.Flushable;
-import java.io.IOException;
 
 /**
  * zipkin report
  * @author guolei.sgl
+ * @since v2.3.0
  */
 public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, Flushable, Closeable {
 
@@ -61,7 +61,7 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
     }
 
     @Override
-    public void flush() throws IOException {
+    public void flush() {
         this.delegate.flush();
     }
 
