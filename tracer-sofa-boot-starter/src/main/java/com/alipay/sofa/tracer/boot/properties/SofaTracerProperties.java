@@ -70,7 +70,7 @@ public class SofaTracerProperties {
                                                               .valueOf(SofaTracerConfiguration.PEN_ATTRS_LENGTH_TRESHOLD);
 
     private String              samplerName;
-    private float               samplerPercentage         = 0.1f;
+    private float               samplerPercentage         = 100;
     private String              samplerCustomRuleClassName;
 
     public String getDisableDigestLog() {

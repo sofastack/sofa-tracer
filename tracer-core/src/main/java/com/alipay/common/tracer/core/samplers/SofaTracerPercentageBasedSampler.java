@@ -37,7 +37,7 @@ public class SofaTracerPercentageBasedSampler implements Sampler {
     private final SamplerProperties configuration;
 
     public SofaTracerPercentageBasedSampler(SamplerProperties configuration) {
-        int outOf100 = (int) (configuration.getPercentage() * 100.0f);
+        int outOf100 = (int) (configuration.getPercentage());
         this.sampleDecisions = randomBitSet(100, outOf100, new Random());
         this.configuration = configuration;
     }

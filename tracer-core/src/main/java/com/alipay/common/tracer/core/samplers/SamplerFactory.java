@@ -18,6 +18,7 @@ package com.alipay.common.tracer.core.samplers;
 
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.utils.StringUtils;
 
 /**
  * SamplerFactory
@@ -32,12 +33,17 @@ public class SamplerFactory {
     static {
         samplerProperties = new SamplerProperties();
         try {
-            float percentage = Float.parseFloat(SofaTracerConfiguration
-                .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY));
+            float percentage = 100;
+
+            String perStr = SofaTracerConfiguration
+                .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY);
+            if (StringUtils.isNotBlank(perStr)) {
+                percentage = Float.parseFloat(perStr);
+            }
             samplerProperties.setPercentage(percentage);
         } catch (Exception e) {
-            SelfLog.error("It will be use default percentage value :1;", e);
-            samplerProperties.setPercentage(0.1f);
+            SelfLog.error("It will be use default percentage value :100;", e);
+            samplerProperties.setPercentage(100);
         }
         samplerProperties.setRuleClassName(SofaTracerConfiguration
             .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_CUSTOM_RULE_CLASS_NAME));
@@ -47,18 +53,15 @@ public class SamplerFactory {
      * getSampler by samplerName
      *
      * the samplerName is the user configuration
-     *
-     * @param samplerName
      * @return Sampler
      * @throws Exception
      */
-    public static Sampler getSampler(String samplerName) throws Exception {
-        if (samplerName.equals(OpenRulesSampler.TYPE)) {
-            return new OpenRulesSampler(samplerProperties);
+    public static Sampler getSampler() throws Exception {
+        // User-defined rules have high priority
+        if (StringUtils.isNotBlank(samplerProperties.getRuleClassName())) {
+            return (Sampler) Class.forName(samplerProperties.getRuleClassName()).newInstance();
         }
-        if (samplerName.equals(SofaTracerPercentageBasedSampler.TYPE)) {
-            return new SofaTracerPercentageBasedSampler(samplerProperties);
-        }
-        return null;
+        // default instance
+        return new SofaTracerPercentageBasedSampler(samplerProperties);
     }
 }

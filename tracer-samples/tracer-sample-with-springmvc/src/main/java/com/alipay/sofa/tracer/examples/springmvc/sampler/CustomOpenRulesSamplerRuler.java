@@ -16,22 +16,48 @@
  */
 package com.alipay.sofa.tracer.examples.springmvc.sampler;
 
-import com.alipay.common.tracer.core.samplers.OpenRulesSampler;
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
+import com.alipay.common.tracer.core.samplers.Sampler;
+import com.alipay.common.tracer.core.samplers.SamplingStatus;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * CustomOpenRulesSamplerRuler
  * @author: guolei.sgl
- * @since: 18/10/26
+ * @since: v2.3.0
  */
-public class CustomOpenRulesSamplerRuler extends OpenRulesSampler.Rule {
+public class CustomOpenRulesSamplerRuler implements Sampler {
+
+    private static final String TYPE = "CustomOpenRulesSamplerRuler";
 
     @Override
-    public boolean matches(SofaTracerSpan sofaTracerSpan) {
-        if (sofaTracerSpan.getSofaTracer().getTracerType().equals("springmvc")) {
-            return true;
+    public SamplingStatus sample(SofaTracerSpan sofaTracerSpan) {
+        SamplingStatus samplingStatus = new SamplingStatus();
+        Map<String, Object> tags = new HashMap<String, Object>();
+        tags.put(SofaTracerConstant.SAMPLER_TYPE_TAG_KEY, TYPE);
+        tags = Collections.unmodifiableMap(tags);
+        samplingStatus.setTags(tags);
+
+        if (sofaTracerSpan.isServer()) {
+            samplingStatus.setSampled(false);
+        } else {
+            samplingStatus.setSampled(true);
         }
-        return false;
+        return samplingStatus;
+    }
+
+    @Override
+    public String getType() {
+        return TYPE;
+    }
+
+    @Override
+    public void close() {
+
     }
 }

@@ -17,7 +17,6 @@
 package com.alipay.common.tracer.core;
 
 import com.alipay.common.tracer.core.appender.self.SelfLog;
-import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.generator.TraceIdGenerator;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
@@ -478,14 +477,10 @@ public class SofaTracer implements Tracer {
         }
 
         public SofaTracer build() {
-            String samplerName = SofaTracerConfiguration.getSofaTracerSamplerStrategy();
-            if (StringUtils.isNotBlank(samplerName)) {
-                try {
-                    sampler = SamplerFactory.getSampler(samplerName);
-                } catch (Exception e) {
-                    SelfLog.error("Failed to get tracer sampler strategy; samplerName is ["
-                                  + samplerName + "]");
-                }
+            try {
+                sampler = SamplerFactory.getSampler();
+            } catch (Exception e) {
+                SelfLog.error("Failed to get tracer sampler strategy;");
             }
             return new SofaTracer(this.tracerType, this.clientReporter, this.serverReporter,
                 this.sampler, this.tracerTags);

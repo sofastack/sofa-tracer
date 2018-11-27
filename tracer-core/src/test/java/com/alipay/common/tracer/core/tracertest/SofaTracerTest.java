@@ -74,7 +74,7 @@ public class SofaTracerTest extends AbstractTestBase {
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
             SofaTracerPercentageBasedSampler.TYPE);
         SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "1");
+            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "100");
 
         //client
         DiskReporterImpl clientReporter = new DiskReporterImpl(

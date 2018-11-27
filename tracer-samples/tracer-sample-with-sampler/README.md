@@ -9,21 +9,21 @@
 #### 在 application.properties 中增加采样相关配置项
 
 ```xml
-#采样率  0~1
-com.alipay.sofa.tracer.samplerPercentage=1
+#采样率  0~100
+com.alipay.sofa.tracer.samplerPercentage=100
 #采样模式类型名称
 com.alipay.sofa.tracer.samplerName=PercentageBasedSampler
 ```
 
 #### 验证方式
 
-* 当采样率设置为1时，每次都会打印摘要日志。
+* 当采样率设置为100时，每次都会打印摘要日志。
 * 当采样率设置为0时，不打印
-* 当采样率设置为0~1之间时，按概率打印
+* 当采样率设置为0~100之间时，按概率打印
 
 以请求 10 次来验证下结果。
 
-1、当采样率设置为1时，每次都会打印摘要日志
+1、当采样率设置为100时，每次都会打印摘要日志
 
 启动工程，浏览器中输入：http://localhost:8080/springmvc ；并且刷新地址10次，查看日志如下：
 
@@ -44,9 +44,9 @@ com.alipay.sofa.tracer.samplerName=PercentageBasedSampler
 
 启动工程，浏览器中输入：http://localhost:8080/springmvc ；并且刷新地址10次，查看 ./logs/tracerlog/ 目录，没有 spring-mvc-degist.log 日志文件
 
-3、当采样率设置为0~1之间时，按概率打印
+3、当采样率设置为0~100之间时，按概率打印
 
-这里设置成 0.2
+这里设置成 20
 
 * 刷新10次请求
 ```xml
@@ -70,8 +70,6 @@ SOFATracer 中提供了一个采样率计算的接口。采样模式需设置为
 
 
 ```xml
-#采样模式类型名称
-com.alipay.sofa.tracer.samplerName=OpenRulesSampler
 #自定义采样规则实现类全限定名
 com.alipay.sofa.tracer.samplerName.samplerCustomRuleClassName=com.alipay.sofa.tracer.examples.springmvc.sampler.CustomOpenRulesSamplerRuler
 ```
@@ -79,16 +77,37 @@ com.alipay.sofa.tracer.samplerName.samplerCustomRuleClassName=com.alipay.sofa.tr
 #### 自定义采样规则类
 
 ```java
-public class CustomOpenRulesSamplerRuler extends OpenRulesSampler.Rule {
+public class CustomOpenRulesSamplerRuler implements Sampler {
+
+    private static final String TYPE = "CustomOpenRulesSamplerRuler";
+
     @Override
-    public boolean matches(SofaTracerSpan sofaTracerSpan) {
-        if (sofaTracerSpan.getSofaTracer().getTracerType().equals("springmvc")){
-            return true;
+    public SamplingStatus sample(SofaTracerSpan sofaTracerSpan) {
+        SamplingStatus samplingStatus = new SamplingStatus();
+        Map<String, Object> tags = new HashMap<String, Object>();
+        tags.put(SofaTracerConstant.SAMPLER_TYPE_TAG_KEY, TYPE);
+        tags = Collections.unmodifiableMap(tags);
+        samplingStatus.setTags(tags);
+
+        if (sofaTracerSpan.isServer()) {
+            samplingStatus.setSampled(false);
+        } else {
+            samplingStatus.setSampled(true);
         }
-        return false;
+        return samplingStatus;
+    }
+
+    @Override
+    public String getType() {
+        return TYPE;
+    }
+
+    @Override
+    public void close() {
+        // do nothing 
     }
 }
 ```
 
-在 matches 方法中，用户可以根据当前 sofaTracerSpan 提供的信息来决定是否进行打印。这个案例是通过判断当前tracerType来决定是否采样，如果tracerType是springmvc则采样，否则不采样。
+在 sample 方法中，用户可以根据当前 sofaTracerSpan 提供的信息来决定是否进行打印。这个案例是通过判断 isServer 来决定是否采样，isServer=true,不采样，否则采样。
 相关实验结果，大家可以自行验证下。
