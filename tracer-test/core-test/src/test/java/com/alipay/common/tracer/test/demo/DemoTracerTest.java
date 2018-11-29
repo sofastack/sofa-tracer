@@ -17,7 +17,9 @@
 package com.alipay.common.tracer.test.demo;
 
 import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
+import com.alipay.common.tracer.core.samplers.SofaTracerPercentageBasedSampler;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.test.TestUtil;
 import com.alipay.common.tracer.test.base.AbstractTestBase;
@@ -43,7 +45,13 @@ public class DemoTracerTest extends AbstractTestBase {
     private SofaTracer sofaTracer;
 
     @Before
-    public void beforeInstance() {
+    public void beforeInstance() throws IOException {
+
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
+            SofaTracerPercentageBasedSampler.TYPE);
+        SofaTracerConfiguration.setProperty(
+            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "100");
+
         //client
         DiskReporterImpl clientReporter = new DiskReporterImpl("client-digest.log",
             new ClientSpanEncoder());

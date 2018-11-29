@@ -20,6 +20,7 @@
         <module>tracer-sample-with-httpclient</module>
         <module>tracer-sample-with-h2</module>
         <module>tracer-sample-with-resttemplate</module>
+        <module>tracer-sample-with-sampler</module>
     </modules>
 
     <properties>
