@@ -203,7 +203,7 @@ public abstract class AbstractTestBase {
         String traceId = TraceIdGenerator.generate();
         //默认不采样
         SofaTracerSpanContext spanContext = new SofaTracerSpanContext(traceId, serverSpanId,
-            StringUtils.EMPTY_STRING, false);
+            StringUtils.EMPTY_STRING, true);
 
         String callServiceName = "callServiceName";
         //create server

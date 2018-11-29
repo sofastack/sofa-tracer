@@ -8,7 +8,7 @@
 
 #### 在 application.properties 中增加采样相关配置项
 
-```xml
+```properties
 #采样率  0~100
 com.alipay.sofa.tracer.samplerPercentage=100
 #采样模式类型名称
@@ -27,7 +27,7 @@ com.alipay.sofa.tracer.samplerName=PercentageBasedSampler
 
 启动工程，浏览器中输入：http://localhost:8080/springmvc ；并且刷新地址10次，查看日志如下：
 
-```xml
+```json
 {"time":"2018-11-09 11:54:47.643","local.app":"SOFATracerSpringMVC","traceId":"0a0fe8ec154173568757510019269","spanId":"0.1","request.url":"http://localhost:8080/springmvc","method":"GET","result.code":"200","req.size.bytes":-1,"resp.size.bytes":0,"time.cost.milliseconds":68,"current.thread.name":"http-nio-8080-exec-1","baggage":""}
 {"time":"2018-11-09 11:54:50.980","local.app":"SOFATracerSpringMVC","traceId":"0a0fe8ec154173569097710029269","spanId":"0.1","request.url":"http://localhost:8080/springmvc","method":"GET","result.code":"200","req.size.bytes":-1,"resp.size.bytes":0,"time.cost.milliseconds":3,"current.thread.name":"http-nio-8080-exec-2","baggage":""}
 {"time":"2018-11-09 11:54:51.542","local.app":"SOFATracerSpringMVC","traceId":"0a0fe8ec154173569153910049269","spanId":"0.1","request.url":"http://localhost:8080/springmvc","method":"GET","result.code":"200","req.size.bytes":-1,"resp.size.bytes":0,"time.cost.milliseconds":3,"current.thread.name":"http-nio-8080-exec-4","baggage":""}
@@ -49,12 +49,12 @@ com.alipay.sofa.tracer.samplerName=PercentageBasedSampler
 这里设置成 20
 
 * 刷新10次请求
-```xml
+```json
 {"time":"2018-11-09 12:14:29.466","local.app":"SOFATracerSpringMVC","traceId":"0a0fe8ec154173686946410159846","spanId":"0.1","request.url":"http://localhost:8080/springmvc","method":"GET","result.code":"200","req.size.bytes":-1,"resp.size.bytes":0,"time.cost.milliseconds":2,"current.thread.name":"http-nio-8080-exec-5","baggage":""}
 ```
 
 * 刷新20次请求
-```xml
+```json
 {"time":"2018-11-09 12:14:29.466","local.app":"SOFATracerSpringMVC","traceId":"0a0fe8ec154173686946410159846","spanId":"0.1","request.url":"http://localhost:8080/springmvc","method":"GET","result.code":"200","req.size.bytes":-1,"resp.size.bytes":0,"time.cost.milliseconds":2,"current.thread.name":"http-nio-8080-exec-5","baggage":""}
 {"time":"2018-11-09 12:15:21.776","local.app":"SOFATracerSpringMVC","traceId":"0a0fe8ec154173692177410319846","spanId":"0.1","request.url":"http://localhost:8080/springmvc","method":"GET","result.code":"200","req.size.bytes":-1,"resp.size.bytes":0,"time.cost.milliseconds":2,"current.thread.name":"http-nio-8080-exec-2","baggage":""}
 {"time":"2018-11-09 12:15:22.439","local.app":"SOFATracerSpringMVC","traceId":"0a0fe8ec154173692243810359846","spanId":"0.1","request.url":"http://localhost:8080/springmvc","method":"GET","result.code":"200","req.size.bytes":-1,"resp.size.bytes":0,"time.cost.milliseconds":1,"current.thread.name":"http-nio-8080-exec-6","baggage":""}
@@ -69,7 +69,7 @@ SOFATracer 中提供了一个采样率计算的接口。采样模式需设置为
 #### 在 application.properties 中增加采样相关配置项
 
 
-```xml
+```properties
 #自定义采样规则实现类全限定名
 com.alipay.sofa.tracer.samplerName.samplerCustomRuleClassName=com.alipay.sofa.tracer.examples.springmvc.sampler.CustomOpenRulesSamplerRuler
 ```
