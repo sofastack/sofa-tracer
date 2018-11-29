@@ -117,12 +117,9 @@ public class SofaTracer implements Tracer {
         if (span == null) {
             return;
         }
-        //sampler is support
-        if (sampler != null) {
-            // if current span is root span
-            if (span.getParentSofaTracerSpan() == null) {
-                span.getSofaTracerSpanContext().setSampled(sampler.sample(span).isSampled());
-            }
+        // //sampler is support &  current span is root span
+        if (sampler != null && span.getParentSofaTracerSpan() == null) {
+            span.getSofaTracerSpanContext().setSampled(sampler.sample(span).isSampled());
         }
         //invoke listener
         this.invokeReportListeners(span);
