@@ -67,6 +67,8 @@ public class HttpClientTracerTest extends AbstractTestBase {
         testHttpClientGet(1);
         //post
         testHttpClientPost(2);
+        //head
+        testHttpClientHead(3);
     }
 
     private void testHttpClientGet(int expectedLength) throws Exception {
@@ -77,6 +79,28 @@ public class HttpClientTracerTest extends AbstractTestBase {
         String path = "/httpclient";
         String responseStr = new HttpClientInstance(10 * 1000).executeGet(httpGetUrl + path);
         assertFalse(StringUtils.isBlank(responseStr));
+        Thread.sleep(3000);
+        //wait for async output
+        List<String> contents = FileUtils.readLines(new File(logDirectoryPath
+                                                             + File.separator
+                                                             + HttpClientLogEnum.HTTP_CLIENT_DIGEST
+                                                                 .getDefaultLogName()));
+        assertTrue(contents.size() == expectedLength);
+        //stat log
+        List<String> statContents = FileUtils.readLines(new File(
+            logDirectoryPath + File.separator
+                    + HttpClientLogEnum.HTTP_CLIENT_STAT.getDefaultLogName()));
+        assertTrue(statContents.size() == expectedLength);
+    }
+
+    private void testHttpClientHead(int expectedLength) throws Exception {
+        HttpClientTracer httpClientTracer = HttpClientTracer.getHttpClientTracerSingleton();
+        HttpClientTracer httpClientTracer1 = HttpClientTracer.getHttpClientTracerSingleton();
+        assertEquals(httpClientTracer, httpClientTracer1);
+        String httpHeadUrl = urlHttpPrefix;
+        String path = "/httpclient";
+        String responseStr = new HttpClientInstance(10 * 1000).executeHead(httpHeadUrl + path);
+        assertTrue(StringUtils.isBlank(responseStr));
         Thread.sleep(3000);
         //wait for async output
         List<String> contents = FileUtils.readLines(new File(logDirectoryPath
