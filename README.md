@@ -69,7 +69,7 @@ SOFATracer 的编译环境的要求为 JDK7 或者 JDK8，需要采用 [Apache M
 
 ## 七、致谢
 
-SOFATracer 中的 TraceId 和 SpanId 的生成参考了阿里 EagleEye 组件的生成机制，感谢 EagleEye 的同学们。
+SOFATracer 中的部分实现参考了阿里的 EagleEye 组件，感谢 EagleEye 的同学们。
 
 
 
