@@ -66,5 +66,9 @@ SOFATracer 的编译环境的要求为 JDK7 或者 JDK8，需要采用 [Apache M
 
 请参考 [SOFATracer 官方文档](http://www.sofastack.tech/sofa-tracer/docs/Home)。
 
+## 七、致谢
+
+SOFATracer 中的 TraceId 和 SpanId 的生成参考了阿里 EagleEye 组件的生成机制，感谢 EagleEye 的同学们。
+
 
 
