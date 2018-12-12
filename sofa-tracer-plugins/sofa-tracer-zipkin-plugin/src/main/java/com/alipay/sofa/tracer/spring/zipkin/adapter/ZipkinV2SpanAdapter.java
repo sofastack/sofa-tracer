@@ -17,9 +17,11 @@
 package com.alipay.sofa.tracer.spring.zipkin.adapter;
 
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.tag.Tags;
 import zipkin2.Endpoint;
 import zipkin2.Span;
 import java.net.InetAddress;
@@ -37,9 +39,7 @@ public class ZipkinV2SpanAdapter {
     /**
      * cache and performance improve
      */
-    private int                 ipAddressInt        = -1;
-
-    private static final String SOFARPC_TRACER_TYPE = "RPC_TRACER";
+    private int ipAddressInt = -1;
 
     /**
      * convent sofaTracerSpan model to zipKinSpan model
@@ -47,57 +47,51 @@ public class ZipkinV2SpanAdapter {
      * @return zipkinSpan model
      */
     public Span convertToZipkinSpan(SofaTracerSpan sofaTracerSpan) {
-        Span.Builder zipkinSpanBuilder = Span.newBuilder();
-        zipkinSpanBuilder.timestamp(sofaTracerSpan.getStartTime() * 1000);
-        // Zipkin is in nanosecond  cr-cs
-        zipkinSpanBuilder
-            .duration((sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()) * 1000);
-        //Annotations
-        Endpoint endpoint = getZipkinEndpoint(sofaTracerSpan.getOperationName());
-        this.addZipkinAnnotations(zipkinSpanBuilder, sofaTracerSpan, endpoint);
-        this.addZipkinBinaryAnnotationsWithTags(zipkinSpanBuilder, sofaTracerSpan);
-        this.addZipkinBinaryAnnotationsWithBaggage(zipkinSpanBuilder, sofaTracerSpan);
-        //traceId
-        SofaTracerSpanContext sofaTracerSpanContext = sofaTracerSpan.getSofaTracerSpanContext();
-        // get current span's parentSpan
-        SofaTracerSpan parentSofaTracerSpan = sofaTracerSpan.getParentSofaTracerSpan();
-        // v2 span model will padLeft automatic
-        zipkinSpanBuilder.traceId(sofaTracerSpanContext.getTraceId());
-        String parentSpanId = sofaTracerSpanContext.getParentId();
-        // convent parentSpanId
-        if (sofaTracerSpan.isServer() && StringUtils.isNotBlank(parentSpanId)) {
-            // v2 span model Unsets the {@link Span#parentId()} if the input is 0.
-            zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
-        } else if (parentSofaTracerSpan != null) {
-            SofaTracerSpanContext parentSofaTracerSpanContext = parentSofaTracerSpan
-                .getSofaTracerSpanContext();
-            if (parentSofaTracerSpanContext != null) {
-                parentSpanId = parentSofaTracerSpanContext.getSpanId();
-                if (StringUtils.isNotBlank(parentSpanId)) {
-                    zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
-                }
-            }
+        if (sofaTracerSpan == null) {
+            return null;
         }
-        //convent spanId
-        String spanId = sofaTracerSpanContext.getSpanId();
-        zipkinSpanBuilder.id(spanIdToLong(spanId));
-        //convent span.kind
-        zipkinSpanBuilder.kind(sofaTracerSpan.isClient() ? Span.Kind.CLIENT : Span.Kind.SERVER);
-        //convent name
+        // spanId、parentId、tracerId
+        Span.Builder zipkinSpanBuilder = Span.newBuilder();
+        SofaTracerSpanContext context = sofaTracerSpan.getSofaTracerSpanContext();
+        zipkinSpanBuilder.traceId(context.getTraceId());
+        zipkinSpanBuilder.id(spanIdToLong(context.getSpanId()));
+        if (StringUtils.isNotBlank(context.getParentId())) {
+            zipkinSpanBuilder.parentId(spanIdToLong(context.getParentId()));
+        }
+
+        // timestamp & duration
+        long start = sofaTracerSpan.getStartTime() * 1000;
+        long finish = sofaTracerSpan.getEndTime() * 1000;
+        zipkinSpanBuilder.timestamp(start);
+        zipkinSpanBuilder.duration(finish - start);
+
+        // kind
+        Map<String, String> tagsWithStr = sofaTracerSpan.getTagsWithStr();
+        String kindStr = tagsWithStr.get(Tags.SPAN_KIND.getKey());
+        if (StringUtils.isNotBlank(kindStr) && kindStr.equals(Tags.SPAN_KIND_SERVER)) {
+            zipkinSpanBuilder.kind(Span.Kind.SERVER);
+        } else {
+            zipkinSpanBuilder.kind(Span.Kind.CLIENT);
+        }
+
+        // Endpoint
+        Endpoint endpoint = getZipkinEndpoint(sofaTracerSpan);
+        zipkinSpanBuilder.localEndpoint(endpoint);
+
+        // Tags
+        this.addZipkinTags(zipkinSpanBuilder, sofaTracerSpan);
+
+        // span name
         String operationName = sofaTracerSpan.getOperationName();
         if (StringUtils.isNotBlank(operationName)) {
             zipkinSpanBuilder.name(operationName);
         } else {
             zipkinSpanBuilder.name(StringUtils.EMPTY_STRING);
         }
-        // adapter SOFARPC span model
-        if (SOFARPC_TRACER_TYPE.equals(sofaTracerSpan.getSofaTracer().getTracerType())) {
-            //if current span's kind is rpcClient,set localEndpoint by parentSofaTracerSpan's operationName
-            if (sofaTracerSpan.isClient() && parentSofaTracerSpan != null) {
-                zipkinSpanBuilder.localEndpoint(getZipkinEndpoint(parentSofaTracerSpan
-                    .getOperationName()));
-            }
-        }
+
+        // Annotations
+        this.addZipkinAnnotations(zipkinSpanBuilder, sofaTracerSpan);
+
         return zipkinSpanBuilder.build();
     }
 
@@ -121,7 +115,7 @@ public class ZipkinV2SpanAdapter {
         return hash;
     }
 
-    private Endpoint getZipkinEndpoint(String operationName) {
+    private Endpoint getZipkinEndpoint(SofaTracerSpan span) {
         InetAddress ipAddress = null;
         if (this.ipAddressInt <= 0) {
             try {
@@ -132,25 +126,16 @@ public class ZipkinV2SpanAdapter {
                 this.ipAddressInt = 256 * 256 * 256 * 127 + 1;
             }
         }
-        return Endpoint.newBuilder().serviceName(operationName).ip(ipAddress).build();
+        String appName = span.getTagsWithStr().get(CommonSpanTags.LOCAL_APP);
+        return Endpoint.newBuilder().serviceName(appName).ip(ipAddress).build();
     }
 
     /**
-     * Adds binary annotation from the Open Tracing Span
+     * 将Baggage中的数据也放在tags中
+     * @param zipkinSpan
+     * @param span
      */
-    private void addZipkinBinaryAnnotationsWithTags(Span.Builder zipkinSpan, SofaTracerSpan span) {
-        for (Map.Entry<String, String> e : span.getTagsWithStr().entrySet()) {
-            zipkinSpan.putTag(e.getKey(), e.getValue());
-        }
-        for (Map.Entry<String, Number> e : span.getTagsWithNumber().entrySet()) {
-            zipkinSpan.putTag(e.getKey(), e.getValue().toString());
-        }
-        for (Map.Entry<String, Boolean> e : span.getTagsWithBool().entrySet()) {
-            zipkinSpan.putTag(e.getKey(), e.getValue().toString());
-        }
-    }
-
-    private void addZipkinBinaryAnnotationsWithBaggage(Span.Builder zipkinSpan, SofaTracerSpan span) {
+    private void addZipkinTagsWithBaggage(Span.Builder zipkinSpan, SofaTracerSpan span) {
         SofaTracerSpanContext sofaTracerSpanContext = span.getSofaTracerSpanContext();
         if (sofaTracerSpanContext != null) {
             Map<String, String> sysBaggage = sofaTracerSpanContext.getSysBaggage();
@@ -164,18 +149,46 @@ public class ZipkinV2SpanAdapter {
         }
     }
 
-    private void addZipkinAnnotations(Span.Builder zipkinSpan, SofaTracerSpan span,
-                                      Endpoint endpoint) {
+    /**
+     * convent Annotations
+     * @param zipkinSpan
+     * @param span
+     */
+    private void addZipkinAnnotations(Span.Builder zipkinSpan, SofaTracerSpan span) {
         for (LogData logData : span.getLogs()) {
             Map<String, ?> fields = logData.getFields();
             if (fields == null || fields.size() <= 0) {
                 continue;
             }
             for (Map.Entry<String, ?> entry : fields.entrySet()) {
-                zipkinSpan.addAnnotation(logData.getTime() * 1000, entry.getValue().toString())
-                    .localEndpoint(endpoint);
+                // zipkin has been support default log event depend on span kind & serviceName
+                if (!(entry.getValue().toString().equals(LogData.CLIENT_RECV_EVENT_VALUE)
+                      || entry.getValue().toString().equals(LogData.CLIENT_SEND_EVENT_VALUE)
+                      || entry.getValue().toString().equals(LogData.SERVER_RECV_EVENT_VALUE) || entry
+                    .getValue().toString().equals(LogData.SERVER_SEND_EVENT_VALUE))) {
+                    zipkinSpan.addAnnotation(logData.getTime() * 1000, entry.getValue().toString());
+                }
             }
         }
     }
 
+    /**
+     * convent tags
+     * @param zipkinSpan
+     * @param span
+     */
+    private void addZipkinTags(Span.Builder zipkinSpan, SofaTracerSpan span) {
+
+        for (Map.Entry<String, String> e : span.getTagsWithStr().entrySet()) {
+            zipkinSpan.putTag(e.getKey(), e.getValue());
+        }
+        for (Map.Entry<String, Number> e : span.getTagsWithNumber().entrySet()) {
+            zipkinSpan.putTag(e.getKey(), e.getValue().toString());
+        }
+        for (Map.Entry<String, Boolean> e : span.getTagsWithBool().entrySet()) {
+            zipkinSpan.putTag(e.getKey(), e.getValue().toString());
+        }
+
+        addZipkinTagsWithBaggage(zipkinSpan, span);
+    }
 }

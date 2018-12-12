@@ -17,6 +17,7 @@
 package com.alipay.sofa.tracer.spring.zipkin;
 
 import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.sofa.tracer.spring.zipkin.adapter.ZipkinV2SpanAdapter;
@@ -52,6 +53,7 @@ public class ZipkinV2SpanAdapterTest {
         sofaTracerSpan.setTag("tagsBooleankey", true);
         sofaTracerSpan.setTag("tagsBooleankey", 2018);
         sofaTracerSpan.setBaggageItem("baggageKey", "baggageVal");
+        sofaTracerSpan.setTag(CommonSpanTags.LOCAL_APP, "SofaTracerSpanTest");
         Map<String, String> logMap = new HashMap<String, String>();
         logMap.put("logKey", "logVal");
         LogData logData = new LogData(System.currentTimeMillis(), logMap);
@@ -66,7 +68,7 @@ public class ZipkinV2SpanAdapterTest {
         Span span = zipkinV2SpanAdapter.convertToZipkinSpan(sofaTracerSpan);
         Assert.assertTrue(span != null);
         Assert.assertTrue(span.name().equalsIgnoreCase(sofaTracerSpan.getOperationName()));
-        Assert.assertTrue(span.tags().size() == 3);
+        Assert.assertTrue(span.tags().size() == 4);
         // zipkin's tracerId will be high position 0
         Assert.assertTrue(span.traceId().contains(
             sofaTracerSpan.getSofaTracerSpanContext().getTraceId()));

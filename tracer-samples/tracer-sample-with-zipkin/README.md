@@ -68,12 +68,12 @@ com.alipay.sofa.tracer.zipkin.baseUrl=http://localhost:9411
  <dependency>
      <groupId>io.zipkin.zipkin2</groupId>
      <artifactId>zipkin</artifactId>
-     <version>2.11.1</version>
+     <version>2.11.12</version>
  </dependency>
  <dependency>
      <groupId>io.zipkin.reporter2</groupId>
      <artifactId>zipkin-reporter</artifactId>
-     <version>2.7.7</version>
+     <version>2.7.13</version>
  </dependency>
 ```
 
