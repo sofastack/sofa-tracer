@@ -66,6 +66,12 @@ public class SpringMvcSofaTracerFilter implements Filter {
             SofaTracerSpanContext spanContext = getSpanContextFromRequest(request);
             // sr
             springMvcSpan = springMvcTracer.serverReceive(spanContext);
+
+            if (!isRootSpan(request)) {
+                springMvcSpan.getSofaTracerSpanContext()
+                    .setSpanId(spanContext.nextChildContextId());
+            }
+
             if (StringUtils.isBlank(this.appName)) {
                 this.appName = SofaTracerConfiguration
                     .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
@@ -96,6 +102,18 @@ public class SpringMvcSofaTracerFilter implements Filter {
                 springMvcTracer.serverSend(String.valueOf(httpStatus));
             }
         }
+    }
+
+    private boolean isRootSpan(HttpServletRequest request) {
+        Enumeration headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String key = (String) headerNames.nextElement();
+            String value = request.getHeader(key);
+            if (key.equals("X-B3-TraceId") && StringUtils.isNotBlank(value)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -129,7 +147,6 @@ public class SpringMvcSofaTracerFilter implements Filter {
         SofaTracer tracer = springMvcTracer.getSofaTracer();
         SofaTracerSpanContext spanContext = (SofaTracerSpanContext) tracer.extract(
             ExtendFormat.Builtin.B3_HTTP_HEADERS, new SpringMvcHeadersCarrier(headers));
-        spanContext.setSpanId(spanContext.nextChildContextId());
         return spanContext;
     }
 
