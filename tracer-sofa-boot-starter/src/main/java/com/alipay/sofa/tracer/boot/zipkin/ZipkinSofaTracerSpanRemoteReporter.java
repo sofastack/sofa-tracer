@@ -14,201 +14,85 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.zipkin;
+package com.alipay.sofa.tracer.spring.zipkin.adapter;
 
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
-import com.alipay.common.tracer.core.listener.SpanReportListener;
+import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
-import com.alipay.common.tracer.core.utils.TracerUtils;
-import com.alipay.sofa.tracer.boot.zipkin.sender.ZipkinRestTemplateSender;
-import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
+import io.opentracing.tag.Tags;
 import zipkin2.Endpoint;
 import zipkin2.Span;
-import zipkin2.reporter.AsyncReporter;
-import java.io.Closeable;
-import java.io.Flushable;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-/**
- * ZipkinSofaTracerSpanRemoteReporter report {@link SofaTracerSpan} to Zipkin
- *
- * @author yangguanchao
- * @since 2018/05/01
+/***
+ * ZipkinV2SpanAdapter : convent sofaTracer span model to zipkin span model
+ * @author guolei.sgl 05/09/2018
+ * @since v.2.3.0
  */
-public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, Flushable, Closeable {
+public class ZipkinV2SpanAdapter {
 
-    private static String                  processId           = TracerUtils.getPID();
-
-    private final ZipkinRestTemplateSender sender;
-
-    private final AsyncReporter<Span>      delegate;
-
-    private static final String            SOFARPC_TRACER_TYPE = "RPC_TRACER";
-
-    /***
+    /**
      * cache and performance improve
      */
-    private int                            ipAddressInt        = -1;
-
-    public ZipkinSofaTracerSpanRemoteReporter(RestTemplate restTemplate, String baseUrl) {
-        this.sender = new ZipkinRestTemplateSender(restTemplate, baseUrl);
-        this.delegate = AsyncReporter.create(sender);
-    }
-
-    @Override
-    public void onSpanReport(SofaTracerSpan span) {
-        if (span == null) {
-            return;
-        }
-        //convert
-        Span zipkinSpan = convertToZipkinSpan(span);
-        this.delegate.report(zipkinSpan);
-    }
-
-    @Override
-    public void flush() throws IOException {
-        this.delegate.flush();
-    }
-
-    @Override
-    public void close() {
-        this.delegate.close();
-    }
+    private int ipAddressInt = -1;
 
     /**
      * convent sofaTracerSpan model to zipKinSpan model
-     * @param sofaTracerSpan
-     * @return
+     * @param sofaTracerSpan original span
+     * @return zipkinSpan model
      */
-    private Span convertToZipkinSpan(SofaTracerSpan sofaTracerSpan) {
-        Span.Builder zipkinSpanBuilder = Span.newBuilder();
-        zipkinSpanBuilder.timestamp(sofaTracerSpan.getStartTime() * 1000);
-        // Zipkin is in nanosecond  cr-cs
-        zipkinSpanBuilder
-            .duration((sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()) * 1000);
-        //Annotations
-        Endpoint endpoint = getZipkinEndpoint(sofaTracerSpan.getOperationName());
-        this.addZipkinAnnotations(zipkinSpanBuilder, sofaTracerSpan, endpoint);
-        this.addZipkinBinaryAnnotationsWithTags(zipkinSpanBuilder, sofaTracerSpan);
-        this.addZipkinBinaryAnnotationsWithBaggage(zipkinSpanBuilder, sofaTracerSpan);
-        //traceId
-        SofaTracerSpanContext sofaTracerSpanContext = sofaTracerSpan.getSofaTracerSpanContext();
-        // get current span's parentSpan
-        SofaTracerSpan parentSofaTracerSpan = sofaTracerSpan.getParentSofaTracerSpan();
-        /**
-         * Changes:
-         * 1.From using zipkin span's traceId alone, to using both traceid and traceIdHigh
-         * 2.From using part of SpanContext's traceId as radix 10, to using full traceId as hexadecimal(radix 16)
-         * So that the traceId in the zipkin trace data is consistent with the traceId in the application log files.
-         *
-         * 3.When traceId is received from the previous node, the original algorithm will not be able to cut
-         *   off the pid in tail of the traceId, because it does not know the pid of the sender.
-         *   resulting in over range when convert it to long type.
-         */
-
-        // v2 span model will padLeft automatic
-        zipkinSpanBuilder.traceId(sofaTracerSpanContext.getTraceId());
-        String parentSpanId = sofaTracerSpanContext.getParentId();
-        // convent parentSpanId
-        if (sofaTracerSpan.isServer() && parentSpanId != null
-            && StringUtils.isNotBlank(parentSpanId)) {
-            // v2 span model Unsets the {@link Span#parentId()} if the input is 0.
-            zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
-        } else if (parentSofaTracerSpan != null) {
-            SofaTracerSpanContext parentSofaTracerSpanContext = parentSofaTracerSpan
-                .getSofaTracerSpanContext();
-            if (parentSofaTracerSpanContext != null) {
-                parentSpanId = parentSofaTracerSpanContext.getSpanId();
-                if (parentSpanId != null && StringUtils.isNotBlank(parentSpanId)) {
-                    zipkinSpanBuilder.parentId(spanIdToLong(parentSpanId));
-                }
-            }
+    public Span convertToZipkinSpan(SofaTracerSpan sofaTracerSpan) {
+        if (sofaTracerSpan == null) {
+            return null;
         }
-        //convent spanId
-        String spanId = sofaTracerSpanContext.getSpanId();
-        zipkinSpanBuilder.id(spanIdToLong(spanId));
-        //convent span.kind
-        zipkinSpanBuilder.kind(sofaTracerSpan.isClient() ? Span.Kind.CLIENT : Span.Kind.SERVER);
-        //convent name
+        // spanId、parentId、tracerId
+        Span.Builder zipkinSpanBuilder = Span.newBuilder();
+        SofaTracerSpanContext context = sofaTracerSpan.getSofaTracerSpanContext();
+        zipkinSpanBuilder.traceId(context.getTraceId());
+        zipkinSpanBuilder.id(spanIdToLong(context.getSpanId()));
+        if (StringUtils.isNotBlank(context.getParentId())) {
+            zipkinSpanBuilder.parentId(spanIdToLong(context.getParentId()));
+        }
+
+        // timestamp & duration
+        long start = sofaTracerSpan.getStartTime() * 1000;
+        long finish = sofaTracerSpan.getEndTime() * 1000;
+        zipkinSpanBuilder.timestamp(start);
+        zipkinSpanBuilder.duration(finish - start);
+
+        // kind
+        Map<String, String> tagsWithStr = sofaTracerSpan.getTagsWithStr();
+        String kindStr = tagsWithStr.get(Tags.SPAN_KIND.getKey());
+        if (StringUtils.isNotBlank(kindStr) && kindStr.equals(Tags.SPAN_KIND_SERVER)) {
+            zipkinSpanBuilder.kind(Span.Kind.SERVER);
+        } else {
+            zipkinSpanBuilder.kind(Span.Kind.CLIENT);
+        }
+
+        // Endpoint
+        Endpoint endpoint = getZipkinEndpoint(sofaTracerSpan);
+        zipkinSpanBuilder.localEndpoint(endpoint);
+
+        // Tags
+        this.addZipkinTags(zipkinSpanBuilder, sofaTracerSpan);
+
+        // span name
         String operationName = sofaTracerSpan.getOperationName();
         if (StringUtils.isNotBlank(operationName)) {
             zipkinSpanBuilder.name(operationName);
         } else {
             zipkinSpanBuilder.name(StringUtils.EMPTY_STRING);
         }
-        // adapter SOFARPC span model
-        if (SOFARPC_TRACER_TYPE.equals(sofaTracerSpan.getSofaTracer().getTracerType())) {
-            //if current span's kind is rpcClient,set localEndpoint by parentSofaTracerSpan's operationName
-            if (sofaTracerSpan.isClient() && parentSofaTracerSpan != null) {
-                zipkinSpanBuilder.localEndpoint(getZipkinEndpoint(parentSofaTracerSpan
-                    .getOperationName()));
-            }
-        }
+
+        // Annotations
+        this.addZipkinAnnotations(zipkinSpanBuilder, sofaTracerSpan);
+
         return zipkinSpanBuilder.build();
-    }
-
-    private Endpoint getZipkinEndpoint(String operationName) {
-        InetAddress ipAddress = null;
-        if (this.ipAddressInt <= 0) {
-            try {
-                ipAddress = InetAddress.getLocalHost();
-                this.ipAddressInt = ByteBuffer.wrap(ipAddress.getAddress()).getInt();
-            } catch (UnknownHostException e) {
-                //127.0.0.1 256 进制
-                this.ipAddressInt = 256 * 256 * 256 * 127 + 1;
-            }
-        }
-        return Endpoint.newBuilder().serviceName(operationName).ip(ipAddress).build();
-    }
-
-    /**
-     * Adds binary annotation from the Open Tracing Span
-     */
-    private void addZipkinBinaryAnnotationsWithTags(Span.Builder zipkinSpan, SofaTracerSpan span) {
-        for (Map.Entry<String, String> e : span.getTagsWithStr().entrySet()) {
-            zipkinSpan.putTag(e.getKey(), e.getValue());
-        }
-        for (Map.Entry<String, Number> e : span.getTagsWithNumber().entrySet()) {
-            zipkinSpan.putTag(e.getKey(), e.getValue().toString());
-        }
-        for (Map.Entry<String, Boolean> e : span.getTagsWithBool().entrySet()) {
-            zipkinSpan.putTag(e.getKey(), e.getValue().toString());
-        }
-    }
-
-    private void addZipkinBinaryAnnotationsWithBaggage(Span.Builder zipkinSpan, SofaTracerSpan span) {
-        SofaTracerSpanContext sofaTracerSpanContext = span.getSofaTracerSpanContext();
-        if (sofaTracerSpanContext != null) {
-            Map<String, String> sysBaggage = sofaTracerSpanContext.getSysBaggage();
-            for (Map.Entry<String, String> e : sysBaggage.entrySet()) {
-                zipkinSpan.putTag(e.getKey(), e.getValue());
-            }
-            Map<String, String> bizBaggage = sofaTracerSpanContext.getBizBaggage();
-            for (Map.Entry<String, String> e : bizBaggage.entrySet()) {
-                zipkinSpan.putTag(e.getKey(), e.getValue());
-            }
-        }
-    }
-
-    private void addZipkinAnnotations(Span.Builder zipkinSpan, SofaTracerSpan span,
-                                      Endpoint endpoint) {
-        for (LogData logData : span.getLogs()) {
-            Map<String, ?> fields = logData.getFields();
-            if (fields == null || fields.size() <= 0) {
-                continue;
-            }
-            for (Map.Entry<String, ?> entry : fields.entrySet()) {
-                zipkinSpan.addAnnotation(logData.getTime() * 1000, entry.getValue().toString())
-                    .localEndpoint(endpoint);
-            }
-        }
     }
 
     public static long spanIdToLong(String spanId) {
@@ -231,28 +115,80 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         return hash;
     }
 
-    /***
-     * 功能:将 16 进制字符串转换为:十进制整数
-     * @param hexString 16 进制字符串
-     * @return 十进制整数
-     */
-    public static long traceIdToId(String hexString) {
-        Assert.hasText(hexString, "Can't convert empty hex string to long");
-        int length = hexString.length();
-        if (length < 1) {
-            throw new IllegalArgumentException("Malformed id(length must be more than zero): "
-                                               + hexString);
+    private Endpoint getZipkinEndpoint(SofaTracerSpan span) {
+        InetAddress ipAddress = null;
+        if (this.ipAddressInt <= 0) {
+            try {
+                ipAddress = InetAddress.getLocalHost();
+                this.ipAddressInt = ByteBuffer.wrap(ipAddress.getAddress()).getInt();
+            } catch (UnknownHostException e) {
+                //127.0.0.1 256 进制
+                this.ipAddressInt = 256 * 256 * 256 * 127 + 1;
+            }
         }
-        if (length <= 8) {
-            //hex
-            return Long.parseLong(hexString, 16);
-        } else if (hexString.endsWith(processId)) {
-            //time
-            return Long.parseLong(hexString.substring(8, hexString.lastIndexOf(processId)), 10);
-        } else {
-            //delete ip and processor id
-            return Long.parseLong(hexString.substring(8), 10);
+        String appName = span.getTagsWithStr().get(CommonSpanTags.LOCAL_APP);
+        return Endpoint.newBuilder().serviceName(appName).ip(ipAddress).build();
+    }
+
+    /**
+     * 将Baggage中的数据也放在tags中
+     * @param zipkinSpan
+     * @param span
+     */
+    private void addZipkinTagsWithBaggage(Span.Builder zipkinSpan, SofaTracerSpan span) {
+        SofaTracerSpanContext sofaTracerSpanContext = span.getSofaTracerSpanContext();
+        if (sofaTracerSpanContext != null) {
+            Map<String, String> sysBaggage = sofaTracerSpanContext.getSysBaggage();
+            for (Map.Entry<String, String> e : sysBaggage.entrySet()) {
+                zipkinSpan.putTag(e.getKey(), e.getValue());
+            }
+            Map<String, String> bizBaggage = sofaTracerSpanContext.getBizBaggage();
+            for (Map.Entry<String, String> e : bizBaggage.entrySet()) {
+                zipkinSpan.putTag(e.getKey(), e.getValue());
+            }
         }
     }
 
+    /**
+     * convent Annotations
+     * @param zipkinSpan
+     * @param span
+     */
+    private void addZipkinAnnotations(Span.Builder zipkinSpan, SofaTracerSpan span) {
+        for (LogData logData : span.getLogs()) {
+            Map<String, ?> fields = logData.getFields();
+            if (fields == null || fields.size() <= 0) {
+                continue;
+            }
+            for (Map.Entry<String, ?> entry : fields.entrySet()) {
+                // zipkin has been support default log event depend on span kind & serviceName
+                if (!(entry.getValue().toString().equals(LogData.CLIENT_RECV_EVENT_VALUE)
+                      || entry.getValue().toString().equals(LogData.CLIENT_SEND_EVENT_VALUE)
+                      || entry.getValue().toString().equals(LogData.SERVER_RECV_EVENT_VALUE) || entry
+                    .getValue().toString().equals(LogData.SERVER_SEND_EVENT_VALUE))) {
+                    zipkinSpan.addAnnotation(logData.getTime() * 1000, entry.getValue().toString());
+                }
+            }
+        }
+    }
+
+    /**
+     * convent tags
+     * @param zipkinSpan
+     * @param span
+     */
+    private void addZipkinTags(Span.Builder zipkinSpan, SofaTracerSpan span) {
+
+        for (Map.Entry<String, String> e : span.getTagsWithStr().entrySet()) {
+            zipkinSpan.putTag(e.getKey(), e.getValue());
+        }
+        for (Map.Entry<String, Number> e : span.getTagsWithNumber().entrySet()) {
+            zipkinSpan.putTag(e.getKey(), e.getValue().toString());
+        }
+        for (Map.Entry<String, Boolean> e : span.getTagsWithBool().entrySet()) {
+            zipkinSpan.putTag(e.getKey(), e.getValue().toString());
+        }
+
+        addZipkinTagsWithBaggage(zipkinSpan, span);
+    }
 }
