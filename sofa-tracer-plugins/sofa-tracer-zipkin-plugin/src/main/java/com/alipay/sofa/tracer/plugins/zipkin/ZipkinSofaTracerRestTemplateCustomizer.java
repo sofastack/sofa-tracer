@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.spring.zipkin;
+package com.alipay.sofa.tracer.plugins.zipkin;
 
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;

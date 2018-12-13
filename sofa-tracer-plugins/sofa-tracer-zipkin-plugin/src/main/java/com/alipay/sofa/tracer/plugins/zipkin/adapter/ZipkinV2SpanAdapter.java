@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.spring.zipkin.adapter;
+package com.alipay.sofa.tracer.plugins.zipkin.adapter;
 
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.span.CommonSpanTags;

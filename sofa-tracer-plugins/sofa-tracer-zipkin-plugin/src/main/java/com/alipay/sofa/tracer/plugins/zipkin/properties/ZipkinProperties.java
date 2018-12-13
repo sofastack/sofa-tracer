@@ -14,27 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.spring.zipkin;
-
-import org.junit.Assert;
-import org.junit.Test;
+package com.alipay.sofa.tracer.plugins.zipkin.properties;
 
 /**
- * ZipkinSofaTracerSpanRemoteReporterTest
- *
- * @author: guolei.sgl
- * @since: v2.3.0
- **/
-public class ZipkinSofaTracerSpanRemoteReporterTest {
+ * ZipkinProperties
+ * @author guolei.sgl
+ * @since v2.3.0
+ */
+public class ZipkinProperties {
 
-    @Test
-    public void testTraceIdToId() {
-        // hex to decimal
-        long ff = ZipkinSofaTracerSpanRemoteReporter.traceIdToId("FF");
-        Assert.assertTrue(ff == 255);
+    public static final String ZIPKIN_IS_ENABLED_KEY = "com.alipay.sofa.tracer.zipkin.enabled";
+    public static final String ZIPKIN_BASE_URL_KEY   = "com.alipay.sofa.tracer.zipkin.baseUrl";
+    public static final String ZIPKIN_IS_GZIPPED_KEY = "com.alipay.sofa.tracer.zipkin.gzipped";
 
-        long decimal88 = ZipkinSofaTracerSpanRemoteReporter.traceIdToId("8");
-        Assert.assertTrue(decimal88 == 8);
-
-    }
 }

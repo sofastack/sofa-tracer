@@ -17,8 +17,8 @@
 package com.alipay.sofa.tracer.boot.zipkin.configuration;
 
 import com.alipay.sofa.tracer.boot.zipkin.properties.ZipkinSofaTracerProperties;
-import com.alipay.sofa.tracer.spring.zipkin.ZipkinSofaTracerRestTemplateCustomizer;
-import com.alipay.sofa.tracer.spring.zipkin.ZipkinSofaTracerSpanRemoteReporter;
+import com.alipay.sofa.tracer.plugins.zipkin.ZipkinSofaTracerRestTemplateCustomizer;
+import com.alipay.sofa.tracer.plugins.zipkin.ZipkinSofaTracerSpanRemoteReporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

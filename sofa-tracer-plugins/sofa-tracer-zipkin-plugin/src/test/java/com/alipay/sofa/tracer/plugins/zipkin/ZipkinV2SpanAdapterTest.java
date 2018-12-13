@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.spring.zipkin;
+package com.alipay.sofa.tracer.plugins.zipkin;
 
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import com.alipay.sofa.tracer.spring.zipkin.adapter.ZipkinV2SpanAdapter;
+import com.alipay.sofa.tracer.plugins.zipkin.adapter.ZipkinV2SpanAdapter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
