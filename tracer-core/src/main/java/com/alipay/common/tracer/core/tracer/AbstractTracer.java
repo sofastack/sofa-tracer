@@ -205,6 +205,8 @@ public abstract class AbstractTracer {
                 //root 开始或者复用
                 if (sofaTracerSpanContext == null) {
                     sofaTracerSpanContext = SofaTracerSpanContext.rootStart();
+                } else {
+                    sofaTracerSpanContext.setSpanId(sofaTracerSpanContext.nextChildContextId());
                 }
                 sofaTracerSpanServer = this.genSeverSpanInstance(System.currentTimeMillis(),
                     StringUtils.EMPTY_STRING, sofaTracerSpanContext, null);
