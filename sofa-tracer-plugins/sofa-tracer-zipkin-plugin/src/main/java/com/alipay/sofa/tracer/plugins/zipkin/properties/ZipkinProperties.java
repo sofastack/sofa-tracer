@@ -14,19 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.examples.zipkin;
+package com.alipay.sofa.tracer.plugins.zipkin.properties;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+/**
+ * ZipkinProperties
+ * @author guolei.sgl
+ * @since v2.3.0
+ */
+public class ZipkinProperties {
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class DemoApplicationTests {
-
-    @Test
-    public void contextLoads() {
-    }
+    public static final String ZIPKIN_IS_ENABLED_KEY = "com.alipay.sofa.tracer.zipkin.enabled";
+    public static final String ZIPKIN_BASE_URL_KEY   = "com.alipay.sofa.tracer.zipkin.baseUrl";
+    public static final String ZIPKIN_IS_GZIPPED_KEY = "com.alipay.sofa.tracer.zipkin.gzipped";
 
 }
