@@ -16,6 +16,12 @@
  */
 package com.alipay.common.tracer.core.samplers;
 
+import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
+import com.alipay.common.tracer.core.reporter.facade.Reporter;
+import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
+import com.alipay.common.tracer.core.tracertest.encoder.ServerSpanEncoder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,13 +35,27 @@ import org.junit.Test;
  */
 public class SofaTracerPercentageBasedSamplerTest {
 
+    private final String             tracerType    = "SofaTracerSpanTest";
+    private final String             clientLogType = "client-log-test.log";
+    private final String             serverLogType = "server-log-test.log";
+
     SamplerProperties                samplerProperties;
     SofaTracerPercentageBasedSampler sofaTracerPercentageBasedSampler;
+
+    private SofaTracer               sofaTracer;
+    private SofaTracerSpan           sofaTracerSpan;
 
     @Before
     public void setUp() {
         samplerProperties = new SamplerProperties();
         sofaTracerPercentageBasedSampler = new SofaTracerPercentageBasedSampler(samplerProperties);
+        Reporter clientReporter = new DiskReporterImpl(clientLogType, new ClientSpanEncoder());
+        Reporter serverReporter = new DiskReporterImpl(serverLogType, new ServerSpanEncoder());
+        sofaTracer = new SofaTracer.Builder(tracerType)
+            .withTag("tracer", "SofaTraceContextHolderTest").withClientReporter(clientReporter)
+            .withServerReporter(serverReporter).build();
+        sofaTracerSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("").start();
+        sofaTracerSpan.getSofaTracerSpanContext().setTraceId("");
     }
 
     @After
@@ -46,11 +66,11 @@ public class SofaTracerPercentageBasedSamplerTest {
     @Test
     public void sample() {
         samplerProperties.setPercentage(0);
-        SamplingStatus sampleStatusFalse = sofaTracerPercentageBasedSampler.sample("", "");
+        SamplingStatus sampleStatusFalse = sofaTracerPercentageBasedSampler.sample(sofaTracerSpan);
         Assert.assertTrue(!sampleStatusFalse.isSampled());
 
         samplerProperties.setPercentage(100);
-        SamplingStatus sampleStatusTrue = sofaTracerPercentageBasedSampler.sample("", "");
+        SamplingStatus sampleStatusTrue = sofaTracerPercentageBasedSampler.sample(sofaTracerSpan);
         Assert.assertTrue(sampleStatusTrue.isSampled());
     }
 

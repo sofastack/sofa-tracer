@@ -16,8 +16,10 @@
  */
 package com.alipay.common.tracer.test.core.sofatracer;
 
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import com.alipay.common.tracer.core.samplers.SofaTracerPercentageBasedSampler;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.test.TestUtil;
 import com.alipay.common.tracer.test.base.AbstractTestBase;
@@ -41,6 +43,12 @@ public class SofaTracerStatisticsDemoTest extends AbstractTestBase {
 
     @Before
     public void beforeTest() throws Exception {
+
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
+            SofaTracerPercentageBasedSampler.TYPE);
+        SofaTracerConfiguration.setProperty(
+            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "100");
+
         File f = customFileLog(TracerTestLogEnum.RPC_SERVER_DIGEST.getDefaultLogName());
         if (f.exists()) {
             FileUtils.writeStringToFile(f, "");

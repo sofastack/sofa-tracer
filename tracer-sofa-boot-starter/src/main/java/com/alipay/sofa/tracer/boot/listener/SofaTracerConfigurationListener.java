@@ -106,6 +106,20 @@ public class SofaTracerConfigurationListener
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.TRACER_SYSTEM_PENETRATE_ATTRIBUTE_MAX_LENGTH,
             tempTarget.getBaggageMaxLength());
+
+        //sampler config
+        if (tempTarget.getSamplerName() != null) {
+            SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
+                tempTarget.getSamplerName());
+        }
+        if (StringUtils.isNotBlank(tempTarget.getSamplerCustomRuleClassName())) {
+            SofaTracerConfiguration.setProperty(
+                SofaTracerConfiguration.SAMPLER_STRATEGY_CUSTOM_RULE_CLASS_NAME,
+                tempTarget.getSamplerCustomRuleClassName());
+        }
+        SofaTracerConfiguration.setProperty(
+            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY,
+            String.valueOf(tempTarget.getSamplerPercentage()));
     }
 
     @Override

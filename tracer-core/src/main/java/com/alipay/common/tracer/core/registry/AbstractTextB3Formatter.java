@@ -146,6 +146,7 @@ public abstract class AbstractTextB3Formatter implements RegistryExtractorInject
         carrier.put(SPAN_ID_KEY_HEAD, encodedValue(spanContext.getSpanId()));
         carrier.put(PARENT_SPAN_ID_KEY_HEAD, encodedValue(spanContext.getParentId()));
         carrier.put(SPAN_ID_KEY_HEAD, encodedValue(spanContext.getSpanId()));
+        carrier.put(SAMPLED_KEY_HEAD, encodedValue(String.valueOf(spanContext.isSampled())));
         //System Baggage items
         for (Map.Entry<String, String> entry : spanContext.getSysBaggage().entrySet()) {
             String key = BAGGAGE_SYS_KEY_PREFIX + StringUtils.escapePercentEqualAnd(entry.getKey());

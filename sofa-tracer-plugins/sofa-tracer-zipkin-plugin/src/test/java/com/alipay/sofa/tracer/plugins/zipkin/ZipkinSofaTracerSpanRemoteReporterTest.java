@@ -14,18 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.zipkin.properties;
+package com.alipay.sofa.tracer.plugins.zipkin;
 
-import com.alipay.common.tracer.core.samplers.SamplerProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * ZipkinSofaTracerSamplerProperties
+ * ZipkinSofaTracerSpanRemoteReporterTest
  *
- * @author yangguanchao
- * @since 2018/05/01
- */
-@ConfigurationProperties("com.alipay.sofa.tracer.sampler")
-public class ZipkinSofaTracerSamplerProperties extends SamplerProperties {
+ * @author: guolei.sgl
+ * @since: v2.3.0
+ **/
+public class ZipkinSofaTracerSpanRemoteReporterTest {
 
+    @Test
+    public void testTraceIdToId() {
+        // hex to decimal
+        long ff = ZipkinSofaTracerSpanRemoteReporter.traceIdToId("FF");
+        Assert.assertTrue(ff == 255);
+
+        long decimal88 = ZipkinSofaTracerSpanRemoteReporter.traceIdToId("8");
+        Assert.assertTrue(decimal88 == 8);
+
+    }
 }
