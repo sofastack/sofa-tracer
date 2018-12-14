@@ -25,6 +25,7 @@ import com.alipay.common.tracer.core.registry.RegistryExtractorInjector;
 import com.alipay.common.tracer.core.registry.TracerFormatRegistry;
 import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.samplers.Sampler;
+import com.alipay.common.tracer.core.samplers.SamplerFactory;
 import com.alipay.common.tracer.core.samplers.SamplingStatus;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.span.SofaTracerSpanReferenceRelationship;
@@ -115,6 +116,10 @@ public class SofaTracer implements Tracer {
     public void reportSpan(SofaTracerSpan span) {
         if (span == null) {
             return;
+        }
+        // //sampler is support &  current span is root span
+        if (sampler != null && span.getParentSofaTracerSpan() == null) {
+            span.getSofaTracerSpanContext().setSampled(sampler.sample(span).isSampled());
         }
         //invoke listener
         this.invokeReportListeners(span);
@@ -289,7 +294,7 @@ public class SofaTracer implements Tracer {
             SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(SofaTracer.this, begin,
                 this.references, this.operationName, sofaTracerSpanContext, this.tags);
 
-            // calculate isSampled
+            // calculate isSampled，but do not change parent's sampler behaviour
             boolean isSampled = calculateSampler(sofaTracerSpan);
             sofaTracerSpanContext.setSampled(isSampled);
 
@@ -469,6 +474,11 @@ public class SofaTracer implements Tracer {
         }
 
         public SofaTracer build() {
+            try {
+                sampler = SamplerFactory.getSampler();
+            } catch (Exception e) {
+                SelfLog.error("Failed to get tracer sampler strategy;");
+            }
             return new SofaTracer(this.tracerType, this.clientReporter, this.serverReporter,
                 this.sampler, this.tracerTags);
         }

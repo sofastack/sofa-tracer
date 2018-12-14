@@ -89,8 +89,9 @@ public abstract class AbstractDiskReporter extends AbstractReporter {
             return true;
         }
         SofaTracerSpanContext sofaTracerSpanContext = (SofaTracerSpanContext) span.context();
-        if (sofaTracerSpanContext.isSampled()) {
-            return false;
+        // sampled is false; this span will not be report
+        if (!sofaTracerSpanContext.isSampled()) {
+            return true;
         }
         boolean allDisabled = Boolean.TRUE.toString().equalsIgnoreCase(
             SofaTracerConfiguration

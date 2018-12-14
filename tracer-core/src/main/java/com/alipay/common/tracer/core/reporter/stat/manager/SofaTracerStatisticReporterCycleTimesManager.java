@@ -64,8 +64,9 @@ public class SofaTracerStatisticReporterCycleTimesManager {
         if (existedManager == null) {
             synchronized (cycleTimesManager) {
                 if (cycleTimesManager.get(cycleTime) == null) {
-                    existedManager = new SofaTracerStatisticReporterManager(cycleTime);
-                    cycleTimesManager.put(cycleTime, existedManager);
+                    cycleTimesManager.put(cycleTime, new SofaTracerStatisticReporterManager(
+                        cycleTime));
+                    existedManager = cycleTimesManager.get(cycleTime);
                 }
             }
         }

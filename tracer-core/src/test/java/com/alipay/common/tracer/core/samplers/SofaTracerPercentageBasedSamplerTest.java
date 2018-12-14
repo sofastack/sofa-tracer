@@ -38,8 +38,10 @@ public class SofaTracerPercentageBasedSamplerTest {
     private final String             tracerType    = "SofaTracerSpanTest";
     private final String             clientLogType = "client-log-test.log";
     private final String             serverLogType = "server-log-test.log";
+
     SamplerProperties                samplerProperties;
     SofaTracerPercentageBasedSampler sofaTracerPercentageBasedSampler;
+
     private SofaTracer               sofaTracer;
     private SofaTracerSpan           sofaTracerSpan;
 
@@ -48,15 +50,12 @@ public class SofaTracerPercentageBasedSamplerTest {
         samplerProperties = new SamplerProperties();
         sofaTracerPercentageBasedSampler = new SofaTracerPercentageBasedSampler(samplerProperties);
         Reporter clientReporter = new DiskReporterImpl(clientLogType, new ClientSpanEncoder());
-
         Reporter serverReporter = new DiskReporterImpl(serverLogType, new ServerSpanEncoder());
-
         sofaTracer = new SofaTracer.Builder(tracerType)
             .withTag("tracer", "SofaTraceContextHolderTest").withClientReporter(clientReporter)
             .withServerReporter(serverReporter).build();
         sofaTracerSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("").start();
         sofaTracerSpan.getSofaTracerSpanContext().setTraceId("");
-
     }
 
     @After

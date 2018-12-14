@@ -16,17 +16,26 @@
  */
 package com.alipay.sofa.tracer.boot.springmvc;
 
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.reporter.digest.manager.SofaTracerDigestReporterAsyncManager;
+import com.alipay.common.tracer.core.samplers.SofaTracerPercentageBasedSampler;
 import com.alipay.sofa.tracer.boot.TestUtil;
 import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
 import com.alipay.sofa.tracer.boot.base.controller.SampleRestController;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcLogEnum;
+import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -39,8 +48,20 @@ import static org.junit.Assert.assertTrue;
 @ActiveProfiles("zipkin")
 public class SpringMvcFilterTest extends AbstractTestBase {
 
+    @Value("${spring.application.name}")
+    private String appName;
+
     @Test
     public void testSofaRestGet() throws Exception {
+
+        //avoid close digest print
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.DISABLE_DIGEST_LOG_KEY,
+            new HashMap<String, String>());
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
+            SofaTracerPercentageBasedSampler.TYPE);
+        SofaTracerConfiguration.setProperty(
+            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "100");
+
         assertNotNull(testRestTemplate);
         String restUrl = urlHttpPrefix + "/greeting";
 
@@ -57,5 +78,8 @@ public class SpringMvcFilterTest extends AbstractTestBase {
         List<String> contents = FileUtils
             .readLines(customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName()));
         assertTrue(contents.size() == 1);
+
+        String logAppName = contents.get(0).split(",")[1];
+        assertEquals(appName, logAppName);
     }
 }
