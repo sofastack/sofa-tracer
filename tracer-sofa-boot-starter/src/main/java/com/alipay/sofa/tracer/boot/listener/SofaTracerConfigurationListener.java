@@ -50,12 +50,6 @@ public class SofaTracerConfigurationListener
             return;
         }
 
-        // set loggingPath
-        String loggingPath = environment.getProperty("logging.path");
-        if (StringUtils.isNotBlank(loggingPath)) {
-            System.setProperty("logging.path", loggingPath);
-        }
-
         // check spring.application.name
         String applicationName = environment
             .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
@@ -97,6 +91,6 @@ public class SofaTracerConfigurationListener
 
     @Override
     public int getOrder() {
-        return HIGHEST_PRECEDENCE + 20;
+        return HIGHEST_PRECEDENCE + 30;
     }
 }
