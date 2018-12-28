@@ -17,12 +17,13 @@
 package com.alipay.sofa.tracer.boot.springmvc.configuration;
 
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.sofa.tracer.boot.configuration.SofaTracerAutoConfiguration;
 import com.alipay.sofa.tracer.boot.springmvc.properties.OpenTracingSpringMvcProperties;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcSofaTracerFilter;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import com.alipay.sofa.tracer.plugins.webflux.WebfluxSofaTracerFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -43,45 +44,51 @@ import java.util.List;
 @Configuration
 @EnableConfigurationProperties(OpenTracingSpringMvcProperties.class)
 @ConditionalOnWebApplication
+@AutoConfigureAfter(SofaTracerAutoConfiguration.class)
 public class OpenTracingSpringMvcAutoConfiguration {
 
     @Autowired
     private OpenTracingSpringMvcProperties openTracingSpringProperties;
 
-    @Bean
+    @Configuration
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-    public FilterRegistrationBean springMvcDelegatingFilterProxy() {
-        //decide output format  json or digest
-        if (openTracingSpringProperties.isJsonOutput()) {
-            //config
-            SofaTracerConfiguration.setProperty(SpringMvcTracer.SPRING_MVC_JSON_FORMAT_OUTPUT,
-                "true");
+    public class SpringMvcDelegatingFilterProxyConfiguration {
+        @Bean
+        public FilterRegistrationBean springMvcDelegatingFilterProxy() {
+            //decide output format  json or digest
+            if (openTracingSpringProperties.isJsonOutput()) {
+                //config
+                SofaTracerConfiguration.setProperty(SpringMvcTracer.SPRING_MVC_JSON_FORMAT_OUTPUT,
+                    "true");
+            }
+            FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+            SpringMvcSofaTracerFilter filter = new SpringMvcSofaTracerFilter();
+            filterRegistrationBean.setFilter(filter);
+            List<String> urlPatterns = openTracingSpringProperties.getUrlPatterns();
+            if (urlPatterns == null || urlPatterns.size() <= 0) {
+                filterRegistrationBean.addUrlPatterns("/*");
+            } else {
+                filterRegistrationBean.setUrlPatterns(urlPatterns);
+            }
+            filterRegistrationBean.setName(filter.getFilterName());
+            filterRegistrationBean.setAsyncSupported(true);
+            filterRegistrationBean.setOrder(openTracingSpringProperties.getFilterOrder());
+            return filterRegistrationBean;
         }
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
-        SpringMvcSofaTracerFilter filter = new SpringMvcSofaTracerFilter();
-        filterRegistrationBean.setFilter(filter);
-        List<String> urlPatterns = openTracingSpringProperties.getUrlPatterns();
-        if (urlPatterns == null || urlPatterns.size() <= 0) {
-            filterRegistrationBean.addUrlPatterns("/*");
-        } else {
-            filterRegistrationBean.setUrlPatterns(urlPatterns);
-        }
-        filterRegistrationBean.setName(filter.getFilterName());
-        filterRegistrationBean.setAsyncSupported(true);
-        filterRegistrationBean.setOrder(openTracingSpringProperties.getFilterOrder());
-        return filterRegistrationBean;
     }
 
-    @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE + 10)
+    @Configuration
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
-    @ConditionalOnMissingBean
-    public WebFilter webfluxSofaTracerFilter() {
-        //decide output format  json or digest
-        if (openTracingSpringProperties.isJsonOutput()) {
-            SofaTracerConfiguration.setProperty(SpringMvcTracer.SPRING_MVC_JSON_FORMAT_OUTPUT,
-                "true");
+    public class WebfluxSofaTracerFilterConfiguration {
+        @Bean
+        @Order(Ordered.HIGHEST_PRECEDENCE + 10)
+        public WebFilter webfluxSofaTracerFilter() {
+            //decide output format  json or digest
+            if (openTracingSpringProperties.isJsonOutput()) {
+                SofaTracerConfiguration.setProperty(SpringMvcTracer.SPRING_MVC_JSON_FORMAT_OUTPUT,
+                    "true");
+            }
+            return new WebfluxSofaTracerFilter();
         }
-        return new WebfluxSofaTracerFilter();
     }
 }
