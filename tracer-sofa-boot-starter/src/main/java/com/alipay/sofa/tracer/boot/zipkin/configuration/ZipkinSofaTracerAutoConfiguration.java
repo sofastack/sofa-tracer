@@ -49,7 +49,7 @@ public class ZipkinSofaTracerAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ZipkinSofaTracerSpanRemoteReporter zipkinSofaTracerSpanReporter(ZipkinSofaTracerProperties zipkinSofaTracerProperties,
-                                                                          ZipkinSofaTracerRestTemplateCustomizer zipkinSofaTracerRestTemplateCustomizer) {
+                                                                           ZipkinSofaTracerRestTemplateCustomizer zipkinSofaTracerRestTemplateCustomizer) {
         RestTemplate restTemplate = new RestTemplate();
         zipkinSofaTracerRestTemplateCustomizer.customize(restTemplate);
         return new ZipkinSofaTracerSpanRemoteReporter(restTemplate,
