@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,6 +50,7 @@ public class ConfigurationTest {
                                    + File.separator + "tracelog");
         File configDir = new File(System.getProperty("user.dir") + File.separator + "logs"
                                   + File.separator + "tracelog");
+        System.clearProperty("logging.path");
         if (defaultDir.exists()) {
             FileUtils.deleteQuietly(defaultDir);
         }
