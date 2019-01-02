@@ -17,10 +17,13 @@
 package com.alipay.common.tracer.core.reporter.common;
 
 import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.TestUtil;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
 import com.alipay.common.tracer.core.reporter.type.TracerSystemLogEnum;
+import com.alipay.common.tracer.core.samplers.SofaTracerPercentageBasedSampler;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tags.SpanTags;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
@@ -54,22 +57,18 @@ public class CommonSpanEncoderTest extends AbstractTestBase {
 
     private String     clientLogType = "clientLog.log";
 
+    private String     appName       = "appName";
+
     @Before
     public void setup() throws Exception {
-
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
+            SofaTracerPercentageBasedSampler.TYPE);
+        SofaTracerConfiguration.setProperty(
+            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "100");
         DiskReporterImpl clientDigestReporter = new DiskReporterImpl(clientLogType,
             new ClientSpanEncoder());
-
         sofaTracer = new SofaTracer.Builder("commonProfileTracerType")
-            .withTag("tracer", "tracertest").withClientReporter(clientDigestReporter).build();
-    }
-
-    @After
-    public void after() throws Exception {
-        File file = new File(logDirectoryPath + File.separator + "tracer-self.log");
-        if (file.exists()) {
-            FileUtils.writeStringToFile(file, "");
-        }
+            .withTag("tracer", "tracerTest").withClientReporter(clientDigestReporter).build();
     }
 
     /**
@@ -77,23 +76,10 @@ public class CommonSpanEncoderTest extends AbstractTestBase {
      */
     @Test
     public void testEncode() throws Exception {
-        int initSize = 0;
-        File f = new File(logDirectoryPath + File.separator + clientLogType);
-        if (f.exists()) {
-            initSize = FileUtils.readLines(f).size();
-        }
-
-        File f1 = new File(logDirectoryPath + File.separator
-                           + TracerSystemLogEnum.MIDDLEWARE_ERROR.getDefaultLogName());
-        if (f1.exists()) {
-            FileUtils.writeStringToFile(f1, "");
-        }
-
         SofaTracerSpan sofaTracerSpan = (SofaTracerSpan) this.sofaTracer
             .buildSpan("spanOperationName").withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-            .start();
-        String appName = "appName";
-        sofaTracerSpan.setTag(SpanTags.CURR_APP_TAG.getKey(), appName);
+            .withTag(SpanTags.CURR_APP_TAG.getKey(), appName).start();
+
         SofaTracerSpanContext sofaTracerSpanContext = sofaTracerSpan.getSofaTracerSpanContext();
         Exception exception = new RuntimeException("CommonSpanEncoderTest");
         String errorType = "timeout_error";
@@ -106,25 +92,25 @@ public class CommonSpanEncoderTest extends AbstractTestBase {
         sofaTracerSpan.setBaggageItem("baggage", "value");
         sofaTracerSpan.setBaggageItem("baggage1", "value1");
         sofaTracerSpan.setBaggageItem("baggage2", "value2");
+
         //记录一条错误日志
         sofaTracerSpan.reportError(errorType, context, exception, appName, errorSources);
         //记录一条client 日志
         sofaTracerSpan.finish();
-        Thread.sleep(1000);
+
+        TestUtil.waitForAsyncLog();
+
         //检查客户端日志
         //client digest
         List<String> clientDigestContents = FileUtils.readLines(new File(logDirectoryPath
                                                                          + File.separator
                                                                          + clientLogType));
-        assertTrue((clientDigestContents.size() - initSize) == 1);
+        assertTrue(clientDigestContents.size() == 1);
         assertTrue(clientDigestContents.get(0).contains(sofaTracerSpanContext.getTraceId()));
 
-        Thread.sleep(6000);
-
         //error log
-        List<String> errorContents = FileUtils.readLines(new File(
-            logDirectoryPath + File.separator
-                    + TracerSystemLogEnum.MIDDLEWARE_ERROR.getDefaultLogName()));
+        List<String> errorContents = FileUtils
+            .readLines(customFileLog(TracerSystemLogEnum.MIDDLEWARE_ERROR.getDefaultLogName()));
         //错误堆栈
         assertTrue(errorContents.size() > 1);
         assertTrue(errorContents.get(0).contains(sofaTracerSpanContext.getTraceId()));

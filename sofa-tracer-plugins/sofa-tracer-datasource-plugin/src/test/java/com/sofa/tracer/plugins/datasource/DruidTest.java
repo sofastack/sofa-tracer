@@ -20,6 +20,8 @@ import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.alibaba.druid.pool.DruidPooledPreparedStatement;
 import com.alibaba.druid.pool.DruidPooledStatement;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.samplers.SofaTracerPercentageBasedSampler;
 import com.alipay.sofa.tracer.plugins.datasource.BaseDataSource;
 import com.alipay.sofa.tracer.plugins.datasource.DBType;
 import com.alipay.sofa.tracer.plugins.datasource.SmartDataSource;
@@ -55,6 +57,12 @@ public class DruidTest extends BaseTest {
 
     @Before
     public void beforeTestCase() throws Exception {
+
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
+            SofaTracerPercentageBasedSampler.TYPE);
+        SofaTracerConfiguration.setProperty(
+            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "100");
+
         cn = druidPooledConnection;
         ps = druidPooledPreparedStatement;
         st = druidPooledStatement;

@@ -17,8 +17,11 @@
 package com.alipay.common.tracer.test.demo;
 
 import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
+import com.alipay.common.tracer.core.samplers.SofaTracerPercentageBasedSampler;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.test.TestUtil;
 import com.alipay.common.tracer.test.base.AbstractTestBase;
 import com.alipay.common.tracer.test.core.sofatracer.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.test.core.sofatracer.encoder.ServerSpanEncoder;
@@ -27,10 +30,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
@@ -46,6 +47,12 @@ public class DemoTracerTest extends AbstractTestBase {
 
     @Before
     public void beforeInstance() throws IOException {
+
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
+            SofaTracerPercentageBasedSampler.TYPE);
+        SofaTracerConfiguration.setProperty(
+            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "100");
+
         //client
         DiskReporterImpl clientReporter = new DiskReporterImpl("client-digest.log",
             new ClientSpanEncoder());
@@ -78,19 +85,15 @@ public class DemoTracerTest extends AbstractTestBase {
         //server finish
         serverSpan.finish();
 
-        //Log printed  asynchronous,but in order to show this demo we sleep 1 second
-        TimeUnit.SECONDS.sleep(1);
+        TestUtil.waitForAsyncLog();
 
         //check
         //client digest
-        List<String> clientDigestContents = FileUtils.readLines(new File(logDirectoryPath
-                                                                         + File.separator
-                                                                         + "client-digest.log"));
+        List<String> clientDigestContents = FileUtils.readLines(customFileLog("client-digest.log"));
         assertEquals(1, clientDigestContents.size());
+
         //server digest
-        List<String> serverDigestContents = FileUtils.readLines(new File(logDirectoryPath
-                                                                         + File.separator
-                                                                         + "server-digest.log"));
+        List<String> serverDigestContents = FileUtils.readLines(customFileLog("server-digest.log"));
         assertEquals(1, serverDigestContents.size());
     }
 }

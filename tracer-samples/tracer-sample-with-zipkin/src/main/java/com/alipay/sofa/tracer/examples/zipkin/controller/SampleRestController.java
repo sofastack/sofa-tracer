@@ -25,10 +25,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * SampleRestController
+ * SampleRestController for test
  *
- * @author yangguanchao
- * @since 2018/05/11
+ * @author guolei.sgl
+ * @since v.2.3.0
  */
 @RestController
 public class SampleRestController {
