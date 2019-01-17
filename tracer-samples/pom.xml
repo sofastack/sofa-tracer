@@ -18,6 +18,7 @@
         <module>tracer-sample-with-slf4j</module>
         <module>tracer-sample-with-sofarpc</module>
         <module>tracer-sample-with-httpclient</module>
+        <module>tracer-sample-with-okhttp</module>
         <module>tracer-sample-with-h2</module>
         <module>tracer-sample-with-resttemplate</module>
         <module>tracer-sample-with-sampler</module>
