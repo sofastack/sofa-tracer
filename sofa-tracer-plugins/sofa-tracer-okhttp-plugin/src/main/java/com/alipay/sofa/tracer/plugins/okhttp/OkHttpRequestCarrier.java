@@ -24,8 +24,7 @@ import java.util.Map;
 
 /**
  * @author xianglong.chen
- * @description
- * @time 2019/1/17 9:24
+ * @since 2019/1/17 9:24
  */
 public class OkHttpRequestCarrier implements TextMap {
 

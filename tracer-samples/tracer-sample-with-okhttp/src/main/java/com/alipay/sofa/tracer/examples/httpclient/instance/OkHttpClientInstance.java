@@ -25,9 +25,8 @@ import okhttp3.RequestBody;
 
 /**
  *
- * @description
  * @author xianglong.chen
- * @time 2019/1/17 13:33
+ * @since 2019/1/17 13:33
  */
 public class OkHttpClientInstance {
 

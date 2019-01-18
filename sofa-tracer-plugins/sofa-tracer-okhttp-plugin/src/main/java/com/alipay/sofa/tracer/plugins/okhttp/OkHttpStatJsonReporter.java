@@ -30,10 +30,8 @@ import com.alipay.common.tracer.core.utils.TracerUtils;
 import java.util.Map;
 
 /**
- *
- * @description
  * @author xianglong.chen
- * @time 2019/1/17 13:28
+ * @since 2019/1/17 13:28
  */
 public class OkHttpStatJsonReporter extends AbstractSofaTracerStatisticReporter {
 

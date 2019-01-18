@@ -22,9 +22,8 @@ import okhttp3.OkHttpClient;
 
 /**
  *
- * @description
  * @author xianglong.chen
- * @time 2019/1/17 13:29
+ * @since 2019/1/17 13:29
  */
 public class SofaTracerOkHttpBuilder {
 

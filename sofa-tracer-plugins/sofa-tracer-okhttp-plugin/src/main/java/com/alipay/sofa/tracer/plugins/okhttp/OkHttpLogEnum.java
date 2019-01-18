@@ -18,8 +18,7 @@ package com.alipay.sofa.tracer.plugins.okhttp;
 
 /**
  * @author xianglong.chen
- * @description
- * @time 2019/1/16 15:56
+ * @since 2019/1/16 15:56
  */
 public enum OkHttpLogEnum {
 

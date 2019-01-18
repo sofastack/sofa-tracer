@@ -28,9 +28,8 @@ import java.util.Map;
 
 /**
  *
- * @description
  * @author xianglong.chen
- * @time 2019/1/17 13:28
+ * @since 2019/1/17 13:28
  */
 public class OkHttpDigestJsonEncoder extends AbstractDigestSpanEncoder {
 
