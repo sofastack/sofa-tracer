@@ -24,9 +24,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  *
- * @description
  * @author xianglong.chen
- * @time 2019/1/17 13:29
+ * @since  2019/1/17 13:29
  */
 @RestController
 public class SampleRestController {

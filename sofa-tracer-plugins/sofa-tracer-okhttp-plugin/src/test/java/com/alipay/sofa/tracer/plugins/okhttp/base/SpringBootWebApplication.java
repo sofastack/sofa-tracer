@@ -20,9 +20,8 @@ import org.springframework.boot.SpringApplication;
 
 /**
  *
- * @description
  * @author xianglong.chen
- * @time 2019/1/17 13:29
+ * @since 2019/1/17 13:29
  */
 @org.springframework.boot.autoconfigure.SpringBootApplication
 public class SpringBootWebApplication {
