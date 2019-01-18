@@ -28,7 +28,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author xianglong.chen
  * @time 2019/1/17 13:29
  */
-@RestController public class SampleRestController {
+@RestController
+public class SampleRestController {
 
     private final AtomicLong counter = new AtomicLong(0);
 
@@ -37,8 +38,8 @@ import java.util.concurrent.atomic.AtomicLong;
      * @param name name
      * @return Map of Result
      */
-    @RequestMapping("/httpclient") public Map<String, Object> greeting(
-            @RequestParam(value = "name", defaultValue = "httpclient") String name) {
+    @RequestMapping("/httpclient")
+    public Map<String, Object> greeting(@RequestParam(value = "name", defaultValue = "httpclient") String name) {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("count", counter.incrementAndGet());
         map.put("name", name);
@@ -50,8 +51,9 @@ import java.util.concurrent.atomic.AtomicLong;
      * @param postBody body
      * @return Result
      */
-    @RequestMapping(value = "/httpclient", method = RequestMethod.POST) @ResponseBody public PostBody postBody(
-            @RequestBody PostBody postBody) {
+    @RequestMapping(value = "/httpclient", method = RequestMethod.POST)
+    @ResponseBody
+    public PostBody postBody(@RequestBody PostBody postBody) {
         return postBody;
     }
 
@@ -59,7 +61,9 @@ import java.util.concurrent.atomic.AtomicLong;
      * Request http://localhost:8080/httpclient
      *
      */
-    @RequestMapping(value = "/httpclient", method = RequestMethod.HEAD) @ResponseBody public void head() {
+    @RequestMapping(value = "/httpclient", method = RequestMethod.HEAD)
+    @ResponseBody
+    public void head() {
         // do nothing
     }
 }

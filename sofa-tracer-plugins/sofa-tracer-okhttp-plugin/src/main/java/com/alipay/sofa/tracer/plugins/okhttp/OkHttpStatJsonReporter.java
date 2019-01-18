@@ -47,7 +47,8 @@ public class OkHttpStatJsonReporter extends AbstractSofaTracerStatisticReporter 
         super(statTracerName, rollingPolicy, logReserveConfig);
     }
 
-    @Override public void doReportStat(SofaTracerSpan sofaTracerSpan) {
+    @Override
+    public void doReportStat(SofaTracerSpan sofaTracerSpan) {
         Map<String, String> tagsWithStr = sofaTracerSpan.getTagsWithStr();
         StatMapKey statKey = new StatMapKey();
         statKey.addKey(CommonSpanTags.LOCAL_APP, tagsWithStr.get(CommonSpanTags.LOCAL_APP));
@@ -58,7 +59,7 @@ public class OkHttpStatJsonReporter extends AbstractSofaTracerStatisticReporter 
         //success
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
         boolean success = (resultCode != null && resultCode.length() > 0 && this
-                .isHttpOrMvcSuccess(resultCode));
+            .isHttpOrMvcSuccess(resultCode));
         statKey.setResult(success ? "true" : "false");
         //end
         statKey.setEnd(TracerUtils.getLoadTestMark(sofaTracerSpan));
@@ -69,7 +70,8 @@ public class OkHttpStatJsonReporter extends AbstractSofaTracerStatisticReporter 
         this.addStat(statKey, values);
     }
 
-    @Override public void print(StatKey statKey, long[] values) {
+    @Override
+    public void print(StatKey statKey, long[] values) {
         if (this.isClosePrint.get()) {
             //close
             return;
@@ -90,8 +92,8 @@ public class OkHttpStatJsonReporter extends AbstractSofaTracerStatisticReporter 
             jsonBuffer.appendEnd("load.test", statMapKey.getEnd());
 
             if (appender instanceof LoadTestAwareAppender) {
-                ((LoadTestAwareAppender) appender)
-                        .append(jsonBuffer.toString(), statMapKey.isLoadTest());
+                ((LoadTestAwareAppender) appender).append(jsonBuffer.toString(),
+                    statMapKey.isLoadTest());
             } else {
                 appender.append(jsonBuffer.toString());
             }

@@ -40,7 +40,8 @@ public class SampleRestController {
      * @return Map of Result
      */
     @RequestMapping("/okhttp")
-    public Map<String, Object> greeting(@RequestParam(value = "name", defaultValue = "okhttp") String name, HttpServletRequest servletRequest) {
+    public Map<String, Object> greeting(@RequestParam(value = "name", defaultValue = "okhttp") String name,
+                                        HttpServletRequest servletRequest) {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("count", counter.incrementAndGet());
         map.put("name", name);

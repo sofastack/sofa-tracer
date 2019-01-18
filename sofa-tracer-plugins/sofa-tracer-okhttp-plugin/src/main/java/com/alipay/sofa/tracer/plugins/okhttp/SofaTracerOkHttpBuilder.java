@@ -34,8 +34,8 @@ public class SofaTracerOkHttpBuilder {
 
     public static OkHttpClient.Builder clientBuilder(OkHttpClient.Builder clientBuilder,
                                                      String currentApp, String targetApp) {
-        SofaTracerOkHttpInterceptor interceptor = new SofaTracerOkHttpInterceptor(getOkHttpTracer(),
-                currentApp, targetApp);
+        SofaTracerOkHttpInterceptor interceptor = new SofaTracerOkHttpInterceptor(
+            getOkHttpTracer(), currentApp, targetApp);
         return clientBuilder.addInterceptor(interceptor);
     }
 

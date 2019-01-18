@@ -24,7 +24,8 @@ import org.springframework.boot.SpringApplication;
  * @author xianglong.chen
  * @time 2019/1/17 13:29
  */
-@org.springframework.boot.autoconfigure.SpringBootApplication public class SpringBootWebApplication {
+@org.springframework.boot.autoconfigure.SpringBootApplication
+public class SpringBootWebApplication {
 
     public static void main(String[] args) throws Exception {
         SpringApplication springApplication = new SpringApplication(SpringBootWebApplication.class);

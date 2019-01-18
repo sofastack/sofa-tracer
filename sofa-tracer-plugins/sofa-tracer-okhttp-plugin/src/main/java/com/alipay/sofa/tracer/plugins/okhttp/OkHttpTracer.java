@@ -46,29 +46,34 @@ public class OkHttpTracer extends AbstractClientTracer {
         return okHttpTracer;
     }
 
-    @Override protected String getClientDigestReporterLogName() {
+    @Override
+    protected String getClientDigestReporterLogName() {
         return OkHttpLogEnum.OK_HTTP_DIGEST.getDefaultLogName();
     }
 
-    @Override protected String getClientDigestReporterRollingKey() {
+    @Override
+    protected String getClientDigestReporterRollingKey() {
         return OkHttpLogEnum.OK_HTTP_DIGEST.getRollingKey();
     }
 
-    @Override protected String getClientDigestReporterLogNameKey() {
+    @Override
+    protected String getClientDigestReporterLogNameKey() {
         return OkHttpLogEnum.OK_HTTP_DIGEST.getLogNameKey();
     }
 
-    @Override protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
+    @Override
+    protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
         return new OkHttpDigestJsonEncoder();
     }
 
-    @Override protected AbstractSofaTracerStatisticReporter generateClientStatReporter() {
+    @Override
+    protected AbstractSofaTracerStatisticReporter generateClientStatReporter() {
         OkHttpLogEnum okHttpLogEnum = OkHttpLogEnum.OK_HTTP_STAT;
         String statLog = okHttpLogEnum.getDefaultLogName();
-        String statRollingPolicy = SofaTracerConfiguration
-                .getRollingPolicy(okHttpLogEnum.getRollingKey());
-        String statLogReserveConfig = SofaTracerConfiguration
-                .getLogReserveConfig(okHttpLogEnum.getLogNameKey());
+        String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(okHttpLogEnum
+            .getRollingKey());
+        String statLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(okHttpLogEnum
+            .getLogNameKey());
         return this.getOkHttpStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
     }
 

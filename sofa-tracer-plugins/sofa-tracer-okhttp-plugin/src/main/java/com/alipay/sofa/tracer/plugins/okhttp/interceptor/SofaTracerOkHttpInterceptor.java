@@ -38,9 +38,9 @@ import java.util.List;
  */
 public class SofaTracerOkHttpInterceptor implements okhttp3.Interceptor {
 
-    protected String appName = null;
+    protected String         appName       = null;
 
-    protected String targetAppName = null;
+    protected String         targetAppName = null;
 
     protected AbstractTracer okHttpTracer;
 
@@ -51,7 +51,8 @@ public class SofaTracerOkHttpInterceptor implements okhttp3.Interceptor {
         this.targetAppName = targetAppName;
     }
 
-    @Override public Response intercept(Chain chain) throws IOException {
+    @Override
+    public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         SofaTracerSpan sofaTracerSpan = okHttpTracer.clientSend(request.method());
         return chain.proceed(appendOkHttpRequestSpanTags(request, sofaTracerSpan));
@@ -62,12 +63,12 @@ public class SofaTracerOkHttpInterceptor implements okhttp3.Interceptor {
             return null;
         }
         //appName
-        String appName = SofaTracerConfiguration
-                .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY, StringUtils.EMPTY_STRING);
+        String appName = SofaTracerConfiguration.getProperty(
+            SofaTracerConfiguration.TRACER_APPNAME_KEY, StringUtils.EMPTY_STRING);
         //methodName
         String methodName = request.method();
-        sofaTracerSpan.setTag(CommonSpanTags.LOCAL_APP,
-                appName == null ? StringUtils.EMPTY_STRING : appName);
+        sofaTracerSpan.setTag(CommonSpanTags.LOCAL_APP, appName == null ? StringUtils.EMPTY_STRING
+            : appName);
         //targetAppName
         sofaTracerSpan.setTag(CommonSpanTags.REMOTE_APP, StringUtils.EMPTY_STRING);
         sofaTracerSpan.setTag(CommonSpanTags.REQUEST_URL, request.url().toString());
@@ -78,8 +79,8 @@ public class SofaTracerOkHttpInterceptor implements okhttp3.Interceptor {
         if (headers != null) {
             List<String> contentLengthList = headers.values("Content-Length");
             if (contentLengthList != null && !contentLengthList.isEmpty()) {
-                sofaTracerSpan
-                        .setTag(CommonSpanTags.REQ_SIZE, Long.valueOf(contentLengthList.get(0)));
+                sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE,
+                    Long.valueOf(contentLengthList.get(0)));
             }
         } else {
             sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE, String.valueOf(-1));
@@ -94,7 +95,7 @@ public class SofaTracerOkHttpInterceptor implements okhttp3.Interceptor {
 
         SofaTracer sofaTracer = this.okHttpTracer.getSofaTracer();
         sofaTracer.inject(currentSpan.getSofaTracerSpanContext(),
-                ExtendFormat.Builtin.B3_HTTP_HEADERS, new OkHttpRequestCarrier(headerBuilder));
+            ExtendFormat.Builtin.B3_HTTP_HEADERS, new OkHttpRequestCarrier(headerBuilder));
 
         Request.Builder requestBuilder = request.newBuilder();
         return requestBuilder.headers(headerBuilder.build()).build();

@@ -24,9 +24,9 @@ package com.alipay.sofa.tracer.plugins.okhttp.base.controller;
  */
 public class PostBody {
 
-    private String name;
+    private String  name;
 
-    private int age;
+    private int     age;
 
     private boolean female;
 
@@ -54,7 +54,8 @@ public class PostBody {
         this.female = female;
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o)
             return true;
         if (!(o instanceof PostBody))
@@ -69,7 +70,8 @@ public class PostBody {
         return name != null ? name.equals(postBody.name) : postBody.name == null;
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + age;
         result = 31 * result + (female ? 1 : 0);

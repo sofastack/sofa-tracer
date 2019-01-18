@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.alipay.sofa.tracer.plugins.okhttp.base;
 
 import com.alibaba.fastjson.JSON;
@@ -27,23 +43,29 @@ import static org.junit.Assert.assertFalse;
  * @description
  * @time 2019/1/17 10:31
  */
-@RunWith(SpringJUnit4ClassRunner.class) @SpringBootTest(classes = SpringBootWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT) @TestPropertySource(locations = "classpath:application.properties") public class OkHttpTracerTest {
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = SpringBootWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestPropertySource(locations = "classpath:application.properties")
+public class OkHttpTracerTest {
 
-    @LocalServerPort private int definedPort;
+    @LocalServerPort
+    private int    definedPort;
 
     private String urlHttpPrefix;
 
-    @Before public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         urlHttpPrefix = "http://localhost:" + definedPort;
 
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL, "1");
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
-                SofaTracerPercentageBasedSampler.TYPE);
-        SofaTracerConfiguration
-                .setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "100");
+            SofaTracerPercentageBasedSampler.TYPE);
+        SofaTracerConfiguration.setProperty(
+            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "100");
     }
 
-    @Test public void testOkHttpTracer() throws Exception {
+    @Test
+    public void testOkHttpTracer() throws Exception {
         testOkHttpTracerUnique();
         //get
         testOkHttpGet();
@@ -68,14 +90,14 @@ import static org.junit.Assert.assertFalse;
         //baggage
         SofaTracer sofaTracer = OkHttpTracer.getOkHttpTracerSingleton().getSofaTracer();
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        SofaTracerSpan sofaTracerSpan = (SofaTracerSpan) sofaTracer
-                .buildSpan("HttpClientTracer Baggage").start();
+        SofaTracerSpan sofaTracerSpan = (SofaTracerSpan) sofaTracer.buildSpan(
+            "HttpClientTracer Baggage").start();
         sofaTracerSpan.setBaggageItem("key1", "baggage1");
         sofaTracerSpan.setBaggageItem("key2", "baggage2");
         sofaTraceContext.push(sofaTracerSpan);
 
-        String responseStr = new OkHttpClientInstance()
-                .executePost(httpGetUrl, JSON.toJSONString(postBody));
+        String responseStr = new OkHttpClientInstance().executePost(httpGetUrl,
+            JSON.toJSONString(postBody));
         PostBody resultPostBody = JSON.parseObject(responseStr, PostBody.class);
         assertEquals(postBody, resultPostBody);
     }

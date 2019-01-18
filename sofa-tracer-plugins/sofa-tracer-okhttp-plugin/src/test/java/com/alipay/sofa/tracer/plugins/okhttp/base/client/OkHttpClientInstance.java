@@ -32,7 +32,7 @@ public class OkHttpClientInstance {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    private OkHttpClient okHttpClient;
+    private OkHttpClient          okHttpClient;
 
     public OkHttpClientInstance() {
         this.okHttpClient = getOkHttpClient();

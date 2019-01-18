@@ -39,12 +39,14 @@ public class OkHttpRequestCarrier implements TextMap {
         this.headerBuilder = headerBuilder;
     }
 
-    @Override public Iterator<Map.Entry<String, String>> iterator() {
+    @Override
+    public Iterator<Map.Entry<String, String>> iterator() {
         // no operation
         throw new UnsupportedOperationException();
     }
 
-    @Override public void put(String key, String value) {
+    @Override
+    public void put(String key, String value) {
         headerBuilder.add(key, value);
     }
 }

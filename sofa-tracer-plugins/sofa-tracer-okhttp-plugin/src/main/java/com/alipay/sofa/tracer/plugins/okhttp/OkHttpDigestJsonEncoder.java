@@ -34,7 +34,8 @@ import java.util.Map;
  */
 public class OkHttpDigestJsonEncoder extends AbstractDigestSpanEncoder {
 
-    @Override public String encode(SofaTracerSpan span) throws IOException {
+    @Override
+    public String encode(SofaTracerSpan span) throws IOException {
         JsonStringBuilder jsonStringBuilder = new JsonStringBuilder();
         //span end time
         jsonStringBuilder.appendBegin("time", Timestamp.format(span.getEndTime()));
@@ -48,35 +49,35 @@ public class OkHttpDigestJsonEncoder extends AbstractDigestSpanEncoder {
         Map<String, Number> tagWithNumber = sofaTracerSpan.getTagsWithNumber();
         //app
         jsonStringBuilder
-                .append(CommonSpanTags.LOCAL_APP, tagWithStr.get(CommonSpanTags.LOCAL_APP));
+            .append(CommonSpanTags.LOCAL_APP, tagWithStr.get(CommonSpanTags.LOCAL_APP));
         //TraceId
         jsonStringBuilder.append("traceId", context.getTraceId());
         //SpanId
         jsonStringBuilder.append("spanId", context.getSpanId());
         //URL
-        jsonStringBuilder
-                .append(CommonSpanTags.REQUEST_URL, tagWithStr.get(CommonSpanTags.REQUEST_URL));
+        jsonStringBuilder.append(CommonSpanTags.REQUEST_URL,
+            tagWithStr.get(CommonSpanTags.REQUEST_URL));
         //POST/GET
         jsonStringBuilder.append(CommonSpanTags.METHOD, tagWithStr.get(CommonSpanTags.METHOD));
         //Http status code
-        jsonStringBuilder
-                .append(CommonSpanTags.RESULT_CODE, tagWithStr.get(CommonSpanTags.RESULT_CODE));
+        jsonStringBuilder.append(CommonSpanTags.RESULT_CODE,
+            tagWithStr.get(CommonSpanTags.RESULT_CODE));
         Number requestSize = tagWithNumber.get(CommonSpanTags.REQ_SIZE);
         //Request Body bytes length
         jsonStringBuilder.append(CommonSpanTags.REQ_SIZE,
-                (requestSize == null ? 0L : requestSize.longValue()));
+            (requestSize == null ? 0L : requestSize.longValue()));
         Number responseSize = tagWithNumber.get(CommonSpanTags.RESP_SIZE);
         //Response Body bytes length
-        jsonStringBuilder.append(CommonSpanTags.RESP_SIZE,
-                (responseSize == null ? 0L : responseSize.longValue()));
+        jsonStringBuilder.append(CommonSpanTags.RESP_SIZE, (responseSize == null ? 0L
+            : responseSize.longValue()));
         //time-consuming ms
         jsonStringBuilder.append("time.cost.milliseconds",
-                (sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()));
+            (sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()));
         jsonStringBuilder.append(CommonSpanTags.CURRENT_THREAD_NAME,
-                tagWithStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
+            tagWithStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
         //target appName
-        jsonStringBuilder
-                .append(CommonSpanTags.REMOTE_APP, tagWithStr.get(CommonSpanTags.REMOTE_APP));
+        jsonStringBuilder.append(CommonSpanTags.REMOTE_APP,
+            tagWithStr.get(CommonSpanTags.REMOTE_APP));
         this.appendBaggage(jsonStringBuilder, context);
     }
 

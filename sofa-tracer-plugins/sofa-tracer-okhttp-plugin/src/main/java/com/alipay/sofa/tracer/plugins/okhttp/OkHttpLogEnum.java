@@ -49,4 +49,5 @@ public enum OkHttpLogEnum {
 
     public String getRollingKey() {
         return rollingKey;
-    }}
+    }
+}

@@ -31,10 +31,9 @@ import okhttp3.RequestBody;
  */
 public class OkHttpClientInstance {
 
-    public static final MediaType JSON
-            = MediaType.parse("application/json; charset=utf-8");
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    private OkHttpClient okHttpClient;
+    private OkHttpClient          okHttpClient;
 
     public OkHttpClientInstance() {
         this.okHttpClient = getOkHttpClient();
@@ -56,9 +55,7 @@ public class OkHttpClientInstance {
         if (!url.startsWith("http://")) {
             url = "http://" + url;
         }
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+        Request request = new Request.Builder().url(url).build();
         return okHttpClient.newCall(request).execute().body().string();
     }
 
@@ -68,10 +65,7 @@ public class OkHttpClientInstance {
             url = "http://" + url;
         }
         RequestBody body = RequestBody.create(JSON, content);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .build();
+        Request request = new Request.Builder().url(url).post(body).build();
         return okHttpClient.newCall(request).execute().body().string();
     }
 }
