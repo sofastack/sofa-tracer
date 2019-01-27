@@ -64,7 +64,7 @@ com.alipay.sofa.tracer.samplerName=PercentageBasedSampler
 
 ### 自定义采样模式
 
-SOFATracer 中提供了一个采样率计算的接口。采样模式需设置为 OpenRulesSampler；当 com.alipay.sofa.tracer.samplerName=OpenRulesSampler时，用户需实现 OpenRulesSampler.Rule 这个抽象类。
+SOFATracer 提供一个采样率计算的接口。采样模式需设置为 CustomOpenRulesSamplerRuler，CustomOpenRulesSamplerRuler 自定义采样模式类需实现 Sampler 接口；当 com.alipay.sofa.tracer.samplerName=CustomOpenRulesSamplerRuler 时，用户需实现 CustomOpenRulesSamplerRuler 的 sample() 方法定义采样规则。
 
 #### 在 application.properties 中增加采样相关配置项
 
