@@ -42,22 +42,16 @@ public class DataSourceBFPPTest {
 
     @Test
     public void testDbType() {
-        Assert.assertTrue("oracle".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDbTypeFromUrl(jdbcUrl)));
-        Assert.assertTrue("oracle".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDbTypeFromUrl(jdbcUrl2)));
-        Assert.assertTrue("mysql".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDbTypeFromUrl(jdbcUrl4)));
-        Assert.assertTrue("mysql".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDbTypeFromUrl(jdbcUrl5)));
-        Assert.assertTrue("sqlserver".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDbTypeFromUrl(jdbcUrl6)));
-        Assert.assertTrue("sqlserver".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDbTypeFromUrl(jdbcUrl7)));
+        Assert.assertTrue("oracle".equals(DataSourceUtils.resolveDbTypeFromUrl(jdbcUrl)));
+        Assert.assertTrue("oracle".equals(DataSourceUtils.resolveDbTypeFromUrl(jdbcUrl2)));
+        Assert.assertTrue("mysql".equals(DataSourceUtils.resolveDbTypeFromUrl(jdbcUrl4)));
+        Assert.assertTrue("mysql".equals(DataSourceUtils.resolveDbTypeFromUrl(jdbcUrl5)));
+        Assert.assertTrue("sqlserver".equals(DataSourceUtils.resolveDbTypeFromUrl(jdbcUrl6)));
+        Assert.assertTrue("sqlserver".equals(DataSourceUtils.resolveDbTypeFromUrl(jdbcUrl7)));
 
         boolean error = false;
         try {
-            DataSourceBeanFactoryPostProcessor.resolveDbTypeFromUrl(jdbcUrl8);
+            DataSourceUtils.resolveDbTypeFromUrl(jdbcUrl8);
         } catch (InvalidParameterException ex) {
             error = true;
         }
@@ -66,24 +60,18 @@ public class DataSourceBFPPTest {
 
     @Test
     public void testDataBase() {
-        Assert.assertTrue("orcl".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDatabaseFromUrl(jdbcUrl)));
-        Assert.assertTrue("orcl.city.com".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDatabaseFromUrl(jdbcUrl2)));
+        Assert.assertTrue("orcl".equals(DataSourceUtils.resolveDatabaseFromUrl(jdbcUrl)));
+        Assert.assertTrue("orcl.city.com".equals(DataSourceUtils.resolveDatabaseFromUrl(jdbcUrl2)));
 
-        Assert.assertTrue("imooc".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDatabaseFromUrl(jdbcUrl4)));
-        Assert.assertTrue("dataBase".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDatabaseFromUrl(jdbcUrl5)));
+        Assert.assertTrue("imooc".equals(DataSourceUtils.resolveDatabaseFromUrl(jdbcUrl4)));
+        Assert.assertTrue("dataBase".equals(DataSourceUtils.resolveDatabaseFromUrl(jdbcUrl5)));
 
-        Assert.assertTrue("sample".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDatabaseFromUrl(jdbcUrl6)));
-        Assert.assertTrue("sample".equals(DataSourceBeanFactoryPostProcessor
-            .resolveDatabaseFromUrl(jdbcUrl7)));
+        Assert.assertTrue("sample".equals(DataSourceUtils.resolveDatabaseFromUrl(jdbcUrl6)));
+        Assert.assertTrue("sample".equals(DataSourceUtils.resolveDatabaseFromUrl(jdbcUrl7)));
 
         boolean error = false;
         try {
-            DataSourceBeanFactoryPostProcessor.resolveDbTypeFromUrl(jdbcUrl8);
+            DataSourceUtils.resolveDbTypeFromUrl(jdbcUrl8);
         } catch (InvalidParameterException ex) {
             error = true;
         }

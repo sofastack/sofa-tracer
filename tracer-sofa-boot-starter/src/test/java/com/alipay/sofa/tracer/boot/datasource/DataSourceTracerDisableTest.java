@@ -33,10 +33,10 @@ import javax.sql.DataSource;
 public class DataSourceTracerDisableTest extends AbstractTestBase {
 
     @Autowired
-    private DataSource dataSource;
+    private DataSource simpleDataSource;
 
     @Test
     public void testDataSource() {
-        Assert.assertTrue(dataSource instanceof HikariDataSource);
+        Assert.assertTrue(simpleDataSource instanceof HikariDataSource);
     }
 }
