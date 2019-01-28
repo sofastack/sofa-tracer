@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.tracer.boot.datasource;
 
-import com.alipay.sofa.tracer.boot.datasource.processor.DataSourceBeanFactoryPostProcessor;
 import com.alipay.sofa.tracer.plugins.datasource.tracer.Endpoint;
 import com.alipay.sofa.tracer.plugins.datasource.utils.DataSourceUtils;
 import org.junit.Assert;

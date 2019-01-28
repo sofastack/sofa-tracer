@@ -18,6 +18,8 @@ package com.alipay.sofa.tracer.boot.datasource;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alipay.common.tracer.core.utils.ReflectionUtils;
+import com.alipay.sofa.tracer.boot.datasource.bean.AbstractService;
+import com.alipay.sofa.tracer.boot.datasource.bean.ConcreteClassService;
 import com.alipay.sofa.tracer.plugins.datasource.utils.DataSourceUtils;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.zaxxer.hikari.HikariDataSource;
@@ -73,5 +75,16 @@ public class DataSourceUrlTest {
             DataSourceUtils.METHOD_GET_JDBC_URL);
         Assert.assertNotNull(method);
         Assert.assertEquals("test-url", method.invoke(hikariDataSource));
+    }
+
+    @Test
+    public void testReflectionUtils() throws Throwable {
+        ConcreteClassService concreteClassService = new ConcreteClassService();
+        Method method = ReflectionUtils.findMethod(concreteClassService.getClass(), "service");
+        Assert.assertEquals("concreteClassService", method.invoke(concreteClassService));
+        method = ReflectionUtils.findMethod(concreteClassService.getClass(), "serviceA");
+        Assert.assertEquals("serviceA", method.invoke(concreteClassService));
+        method = ReflectionUtils.findMethod(concreteClassService.getClass(), "serviceB");
+        Assert.assertEquals("serviceB", method.invoke(concreteClassService));
     }
 }
