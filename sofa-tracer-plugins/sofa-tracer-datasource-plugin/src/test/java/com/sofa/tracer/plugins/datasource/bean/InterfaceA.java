@@ -14,14 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.datasource.bean;
+package com.sofa.tracer.plugins.datasource.bean;
 
 /**
  * @author qilong.zql
- * @since 2.3.2
+ * @sicne 2.3.2
  */
-public class ConcreteClassService extends AbstractService {
-    public String service() {
-        return "concreteClassService";
-    }
+public interface InterfaceA extends InterfaceB {
+    String serviceA();
 }
