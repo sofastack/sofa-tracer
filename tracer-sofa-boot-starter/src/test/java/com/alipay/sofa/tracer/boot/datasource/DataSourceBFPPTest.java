@@ -29,18 +29,18 @@ import java.security.InvalidParameterException;
  */
 public class DataSourceBFPPTest {
 
-    private String jdbcUrl  = "jdbc:oracle:thin:@localhost:1521:orcl";
-    private String jdbcUrl2 = "jdbc:oracle:thin:@//localhost:1521/orcl.city.com";
-    private String jdbcUrl4 = "jdbc:mysql://127.0.0.1:3306/imooc?useUnicode=true&amp;characterEncoding=utf-8";
-    private String jdbcUrl5 = "jdbc:mysql://127.0.0.1:3306/dataBase";
-    private String jdbcUrl9 = "jdbc@:mysql://127.0.0.1:3306/dataBase";
+    private String jdbcUrl   = "jdbc:oracle:thin:@localhost:1521:orcl";
+    private String jdbcUrl2  = "jdbc:oracle:thin:@//localhost:1521/orcl.city.com";
+    private String jdbcUrl4  = "jdbc:mysql://127.0.0.1:3306/imooc?useUnicode=true&amp;characterEncoding=utf-8";
+    private String jdbcUrl5  = "jdbc:mysql://127.0.0.1:3306/dataBase";
+    private String jdbcUrl9  = "jdbc@:mysql://127.0.0.1:3306/dataBase";
     // SQL Server 2000
-    private String jdbcUrl6 = "jdbc:microsoft:sqlserver://localhost:1433; DatabaseName=sample ";
+    private String jdbcUrl6  = "jdbc:microsoft:sqlserver://localhost:1433; DatabaseName=sample ";
     private String jdbcUrl10 = "invalid:sqlserver://localhost:1433; DatabaseName=sample ";
     // SQL Server 2005
-    private String jdbcUrl7 = "jdbc:sqlserver://localhost:1433; DatabaseName=sample ";
+    private String jdbcUrl7  = "jdbc:sqlserver://localhost:1433; DatabaseName=sample ";
     private String jdbcUrl11 = "jdbc://localhost/1433; DatabaseName=sample ";
-    private String jdbcUrl8 = "invalid";
+    private String jdbcUrl8  = "invalid";
 
     @Test
     public void testDbType() {
