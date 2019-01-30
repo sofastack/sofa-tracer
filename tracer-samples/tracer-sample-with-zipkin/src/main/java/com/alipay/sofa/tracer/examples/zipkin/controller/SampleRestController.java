@@ -42,7 +42,7 @@ public class SampleRestController {
      * @param name name
      * @return map
      */
-    @RequestMapping("/zipkin")
+    @RequestMapping("/helloZipkin")
     public Map<String, Object> zipkin(@RequestParam(value = "name", defaultValue = "SOFATracer Zipkin Remote Report") String name) {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         resultMap.put("success", true);
