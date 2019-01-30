@@ -17,7 +17,6 @@
 package com.alipay.sofa.tracer.plugins.springmvc;
 
 import com.alipay.common.tracer.core.SofaTracer;
-import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.registry.ExtendFormat;
@@ -89,12 +88,8 @@ public class SpringMvcSofaTracerFilter implements Filter {
             //filter begin
             filterChain.doFilter(servletRequest, responseWrapper);
             //filter end
-
             httpStatus = responseWrapper.getStatus();
             responseSize = responseWrapper.getContentLength();
-        } catch (Exception e) {
-            SelfLog.error("Spring MVC Tracer error occurs in SpringMvcSofaTracerFilter.doFilter.",
-                e);
         } finally {
             if (springMvcSpan != null) {
                 springMvcSpan.setTag(CommonSpanTags.RESP_SIZE, responseSize);
