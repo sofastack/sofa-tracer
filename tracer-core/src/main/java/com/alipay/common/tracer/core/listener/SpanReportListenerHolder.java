@@ -16,8 +16,8 @@
  */
 package com.alipay.common.tracer.core.listener;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * SpanReportListenerHolder
@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class SpanReportListenerHolder {
 
-    private static List<SpanReportListener> spanReportListenersHolder = new ArrayList<SpanReportListener>();
+    private static List<SpanReportListener> spanReportListenersHolder = new CopyOnWriteArrayList<SpanReportListener>();
 
     public static List<SpanReportListener> getSpanReportListenersHolder() {
         return spanReportListenersHolder;
