@@ -16,10 +16,12 @@
  */
 package com.alipay.sofa.tracer.plugins.datasource.utils;
 
+import com.alipay.common.tracer.core.utils.AssertUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.datasource.tracer.Endpoint;
 
 import java.lang.reflect.Method;
+import java.security.InvalidParameterException;
 
 /**
  * @author shusong.yss
@@ -214,5 +216,61 @@ public class DataSourceUtils {
         endpoint.setHost(host);
         endpoint.setPort(port);
         return endpoint;
+    }
+
+    public static String resolveDbTypeFromUrl(String url) {
+        AssertUtils.isTrue(!StringUtils.isBlank(url), "Jdbc url must not be empty!");
+        int start = url.indexOf("jdbc:") + "jdbc:".length();
+        if (start < "jdbc:".length()) {
+            throw new InvalidParameterException("jdbc url is invalid!");
+        }
+        int end = url.indexOf(":", start);
+        if (end < 0) {
+            throw new InvalidParameterException("jdbc url is invalid!");
+        }
+        String dbType = url.substring(start, end);
+        // SQL Server 2000
+        if ("microsoft".equals(dbType)) {
+            start = end + 1;
+            end = url.indexOf(":", start);
+            if (end < 0) {
+                throw new InvalidParameterException("jdbc url is invalid!");
+            }
+            return url.substring(start, end);
+        } else {
+            return dbType;
+        }
+    }
+
+    public static String resolveDatabaseFromUrl(String url) {
+        AssertUtils.isTrue(!StringUtils.isBlank(url), "Jdbc url must not be empty!");
+        if ("sqlserver".equals(resolveDbTypeFromUrl(url))) {
+            String[] segments = url.split(";");
+            for (String segment : segments) {
+                if (segment.toLowerCase().contains("databasename=")) {
+                    int start = segment.toLowerCase().indexOf("databasename=")
+                                + "databasename=".length();
+                    return segment.substring(start).trim();
+                }
+            }
+            throw new InvalidParameterException("jdbc url is invalid!");
+        }
+
+        int start = url.lastIndexOf("/");
+        if (start < 0) {
+            /**
+             * oracle sid 格式，{@see jdbc:oracle:thin:@host:port:SID}
+             */
+            if ("oracle".equals(resolveDbTypeFromUrl(url))) {
+                start = url.lastIndexOf(":");
+            } else {
+                throw new InvalidParameterException("jdbc url is invalid!");
+            }
+        }
+        int end = url.indexOf("?", start);
+        if (end != -1) {
+            return url.substring(start + 1, end);
+        }
+        return url.substring(start + 1);
     }
 }
