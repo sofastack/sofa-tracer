@@ -57,7 +57,7 @@ public class SofaTracerCallable<T> implements Callable<T> {
     public T call() throws Exception {
         if (Thread.currentThread().getId() != tid) {
             if (currentSpan != null) {
-                traceContext.push(currentSpan);
+                traceContext.push(currentSpan.cloneInstance());
             }
         }
         try {

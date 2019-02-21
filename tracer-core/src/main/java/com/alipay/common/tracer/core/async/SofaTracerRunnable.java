@@ -56,7 +56,7 @@ public class SofaTracerRunnable implements Runnable {
     public void run() {
         if (Thread.currentThread().getId() != tid) {
             if (currentSpan != null) {
-                traceContext.push(currentSpan);
+                traceContext.push(currentSpan.cloneInstance());
             }
         }
         try {
