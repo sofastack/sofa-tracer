@@ -20,7 +20,7 @@ import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * SofaTracerPercentageBasedSampler
@@ -32,7 +32,7 @@ public class SofaTracerPercentageBasedSampler implements Sampler {
 
     public static final String      TYPE    = "PercentageBasedSampler";
 
-    private final AtomicInteger     counter = new AtomicInteger(0);
+    private final AtomicLong        counter = new AtomicLong(0);
     private final BitSet            sampleDecisions;
     private final SamplerProperties configuration;
 
@@ -58,12 +58,7 @@ public class SofaTracerPercentageBasedSampler implements Sampler {
             samplingStatus.setSampled(true);
             return samplingStatus;
         }
-        int i, j;
-        do {
-            i = this.counter.get();
-            j = (i + 1) % 100;
-        } while (!this.counter.compareAndSet(i, j));
-        boolean result = this.sampleDecisions.get(i);
+        boolean result = this.sampleDecisions.get((int) (this.counter.getAndIncrement() % 100));
         samplingStatus.setSampled(result);
         return samplingStatus;
     }
