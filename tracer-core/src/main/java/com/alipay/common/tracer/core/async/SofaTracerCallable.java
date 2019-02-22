@@ -17,6 +17,7 @@
 package com.alipay.common.tracer.core.async;
 
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
+import com.alipay.common.tracer.core.extensions.SpanExtensionFactory;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
@@ -57,7 +58,8 @@ public class SofaTracerCallable<T> implements Callable<T> {
     public T call() throws Exception {
         if (Thread.currentThread().getId() != tid) {
             if (currentSpan != null) {
-                traceContext.push(currentSpan.cloneInstance());
+                traceContext.push(currentSpan);
+                SpanExtensionFactory.logStartedSpan(currentSpan);
             }
         }
         try {
