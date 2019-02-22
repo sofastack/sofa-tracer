@@ -17,21 +17,18 @@
 package com.alipay.sofa.tracer.boot.springmvc;
 
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
-import com.alipay.common.tracer.core.reporter.digest.manager.SofaTracerDigestReporterAsyncManager;
+import com.alipay.common.tracer.core.listener.SpanReportListenerHolder;
 import com.alipay.common.tracer.core.samplers.SofaTracerPercentageBasedSampler;
 import com.alipay.sofa.tracer.boot.TestUtil;
 import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
 import com.alipay.sofa.tracer.boot.base.controller.SampleRestController;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcLogEnum;
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.File;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 
@@ -61,6 +58,8 @@ public class SpringMvcFilterTest extends AbstractTestBase {
             SofaTracerPercentageBasedSampler.TYPE);
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "100");
+        // do not report to zipkin
+        SpanReportListenerHolder.clear();
 
         assertNotNull(testRestTemplate);
         String restUrl = urlHttpPrefix + "/greeting";
