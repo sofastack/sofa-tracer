@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>tracer-all-parent</artifactId>
-    <version>2.3.1</version>
+    <version>2.3.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>tracer-all-parent</name>
     <description>Alipay SOFATracer Log Implemented by OpenTracing</description>
@@ -19,6 +19,7 @@
         <module>tracer-extensions</module>
         <module>sofa-tracer-plugins/sofa-tracer-springmvc-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-httpclient-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-okhttp-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-datasource-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-resttmplate-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-zipkin-plugin</module>
@@ -33,7 +34,7 @@
 
     <properties>
         <opentracing.version>0.22.0</opentracing.version>
-        <sofa.tracer.version>2.3.1</sofa.tracer.version>
+        <sofa.tracer.version>2.3.3-SNAPSHOT</sofa.tracer.version>
         <java.compiler.source.version>1.6</java.compiler.source.version>
         <java.compiler.target.version>1.6</java.compiler.target.version>
         <jmh.version>1.9.3</jmh.version>
