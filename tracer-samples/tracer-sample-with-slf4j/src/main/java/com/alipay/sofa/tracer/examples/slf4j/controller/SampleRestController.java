@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.tracer.examples.slf4j.controller;
 
+import com.alipay.common.tracer.core.async.SofaTracerRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,7 +53,19 @@ public class SampleRestController {
         resultMap.put("success", true);
         resultMap.put("id", counter.incrementAndGet());
         resultMap.put("content", String.format(TEMPLATE, name));
-        logger.info("SOFATracer Print TraceId and SpanId");
+        long id = Thread.currentThread().getId();
+        logger.info("SOFATracer Print TraceId and SpanId ");
+
+        // Asynchronous thread transparent transmission
+        final SofaTracerRunnable sofaTracerRunnable = new SofaTracerRunnable(new Runnable() {
+            @Override
+            public void run() {
+                logger.info("SOFATracer Print TraceId and SpanId In Child Thread.");
+            }
+        });
+
+        Thread thread = new Thread(sofaTracerRunnable);
+        thread.start();
         return resultMap;
     }
 }

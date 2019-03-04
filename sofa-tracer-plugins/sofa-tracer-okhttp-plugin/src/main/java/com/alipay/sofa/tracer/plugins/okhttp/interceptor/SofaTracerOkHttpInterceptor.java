@@ -54,7 +54,9 @@ public class SofaTracerOkHttpInterceptor implements okhttp3.Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         SofaTracerSpan sofaTracerSpan = okHttpTracer.clientSend(request.method());
-        return chain.proceed(appendOkHttpRequestSpanTags(request, sofaTracerSpan));
+        Response response = chain.proceed(appendOkHttpRequestSpanTags(request, sofaTracerSpan));
+        okHttpTracer.clientReceive(String.valueOf(response.code()));
+        return response;
     }
 
     private Request appendOkHttpRequestSpanTags(Request request, SofaTracerSpan sofaTracerSpan) {
