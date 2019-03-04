@@ -21,6 +21,7 @@
         <module>tracer-sample-with-h2</module>
         <module>tracer-sample-with-resttemplate</module>
         <module>tracer-sample-with-sampler</module>
+        <module>tracer-sample-with-dubbo</module>
     </modules>
 
     <properties>
