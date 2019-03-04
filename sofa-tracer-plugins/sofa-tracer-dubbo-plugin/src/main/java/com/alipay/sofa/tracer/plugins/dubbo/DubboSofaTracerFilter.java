@@ -84,6 +84,11 @@ public class DubboSofaTracerFilter implements Filter {
 
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
+        // 只有异步才进行回调打印
+        boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
+        if (!isAsync){
+            return result;
+        }
         String currentSpan = invocation.getAttachments().get(SPAN_INVOKE_KEY);
         if (StringUtils.isNotBlank(currentSpan)) {
             SofaTracerSpan sofaTracerSpan = FastJsonObjectUtil.deserializeSpan(currentSpan);
@@ -190,12 +195,15 @@ public class DubboSofaTracerFilter implements Filter {
 
     private void appendElapsedTimeTags(Invocation invocation, SofaTracerSpan sofaTracerSpan,
                                        Result result) {
+        if (sofaTracerSpan == null){
+            return;
+        }
         String elapsed = invocation.getAttachment(CommonSpanTags.CLIENT_SERIALIZE_TIME);
         //客户端请求序列化耗时
         if (StringUtils.isNotBlank(elapsed)) {
             sofaTracerSpan.setTag(CommonSpanTags.CLIENT_SERIALIZE_TIME, Integer.parseInt(elapsed));
         }
-        String deElapsed = invocation.getAttachment(CommonSpanTags.CLIENT_SERIALIZE_TIME);
+        String deElapsed = invocation.getAttachment(CommonSpanTags.CLIENT_DESERIALIZE_TIME);
         //客户端接受响应反序列化耗时
         if (StringUtils.isNotBlank(deElapsed)) {
             sofaTracerSpan.setTag(CommonSpanTags.CLIENT_DESERIALIZE_TIME,
