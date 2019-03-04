@@ -63,7 +63,8 @@ public class SpringMvcSofaTracerFilterTest extends AbstractTestBase {
         try {
             filter.doFilter(request, response, mockFilterChain);
         } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().equalsIgnoreCase("Has got exception..."));
+            String message = e.getMessage();
+            Assert.assertTrue(message.contains("Has got exception..."));
         }
         Thread.sleep(500);
         //wait for async output
