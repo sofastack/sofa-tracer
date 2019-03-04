@@ -29,6 +29,7 @@ import org.springframework.beans.factory.config.*;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.EnvironmentAware;
+import org.springframework.core.PriorityOrdered;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 
@@ -44,7 +45,7 @@ import static com.alipay.common.tracer.core.configuration.SofaTracerConfiguratio
  * @since 2.2.0
  */
 public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProcessor,
-                                               EnvironmentAware {
+                                               PriorityOrdered, EnvironmentAware {
 
     public static final String SOFA_TRACER_DATASOURCE = "s_t_d_s_";
 
@@ -145,5 +146,10 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
     @Override
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    @Override
+    public int getOrder() {
+        return LOWEST_PRECEDENCE;
     }
 }

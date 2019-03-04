@@ -24,6 +24,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.EnvironmentAware;
+import org.springframework.core.PriorityOrdered;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 
@@ -37,7 +38,8 @@ import static com.alipay.common.tracer.core.configuration.SofaTracerConfiguratio
  * @author qilong.zql
  * @since 2.3.2
  */
-public class DataSourceBeanPostProcessor implements BeanPostProcessor, EnvironmentAware {
+public class DataSourceBeanPostProcessor implements BeanPostProcessor, EnvironmentAware,
+                                        PriorityOrdered {
 
     private Environment environment;
 
@@ -99,5 +101,10 @@ public class DataSourceBeanPostProcessor implements BeanPostProcessor, Environme
     @Override
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    @Override
+    public int getOrder() {
+        return LOWEST_PRECEDENCE;
     }
 }
