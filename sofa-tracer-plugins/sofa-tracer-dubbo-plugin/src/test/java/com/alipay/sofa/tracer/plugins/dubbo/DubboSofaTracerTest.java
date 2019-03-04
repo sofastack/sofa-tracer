@@ -25,6 +25,7 @@ import com.alipay.sofa.tracer.plugins.dubbo.service.DubboService;
 import org.apache.commons.io.FileUtils;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.config.*;
+import com.alibaba.dubbo.config.ApplicationConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +60,7 @@ public class DubboSofaTracerTest {
         protocol.setSerialization("hessian2");
         // 服务提供者连接注册中心，设置属性
         DubboServiceImpl dubboServiceImpl = new DubboServiceImpl();
-        ServiceConfig<DubboService> service = new ServiceConfig<DubboService>(); // 此实例很重，封装了与注册中心的连接，请自行缓存，否则可能造成内存和连接泄漏
+        ServiceConfig<DubboService> service = new ServiceConfig<DubboService>();
         service.setApplication(application);
         service.setProtocol(protocol); // 多个协议可以用setProtocols()
         service.setInterface(DubboService.class.getName());
@@ -78,18 +79,12 @@ public class DubboSofaTracerTest {
 
     @Test
     public void testTracer() throws Exception {
-        ApplicationConfig application = new ApplicationConfig();
-        application.setName("test-client");
         RegistryConfig registryConfig = new RegistryConfig();
         registryConfig.setAddress("N/A");
         // 服务调用者连接注册中心，设置属性
         ReferenceConfig<DubboService> reference = new ReferenceConfig<DubboService>(); // 此实例很重，封装了与注册中心的连接以及与提供者的连接，请自行缓存，否则可能造成内存和连接泄漏
         reference.setInterface(DubboService.class);
-        if (reference.getApplication() != null) {
-            reference.getApplication().setName("test-client");
-        }
         reference.setRegistry(registryConfig);
-        address = address.replace("application=test-server", "application=test-client");
         reference.setUrl(address);
         reference.setVersion("1.0");
         reference.setGroup("tracer");
