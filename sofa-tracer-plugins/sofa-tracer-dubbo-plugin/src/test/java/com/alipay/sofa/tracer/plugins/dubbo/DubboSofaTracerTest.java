@@ -40,7 +40,8 @@ public class DubboSofaTracerTest {
     protected static String logDirectoryPath = System.getProperty("user.home") + File.separator
                                                + "logs" + File.separator + "tracelog";
 
-    private static String address = "";
+    private static String   address          = "";
+
     @Before
     public void testBefore() throws Exception {
         cleanFile();
@@ -71,7 +72,7 @@ public class DubboSofaTracerTest {
         // 暴露及注册服务
         service.export();
         List<URL> exportedUrls = service.getExportedUrls();
-        Assert.assertTrue(exportedUrls.size()==1);
+        Assert.assertTrue(exportedUrls.size() == 1);
         address = exportedUrls.get(0).toString();
     }
 
@@ -84,11 +85,11 @@ public class DubboSofaTracerTest {
         // 服务调用者连接注册中心，设置属性
         ReferenceConfig<DubboService> reference = new ReferenceConfig<DubboService>(); // 此实例很重，封装了与注册中心的连接以及与提供者的连接，请自行缓存，否则可能造成内存和连接泄漏
         reference.setInterface(DubboService.class);
-        if(reference.getApplication()!=null){
+        if (reference.getApplication() != null) {
             reference.getApplication().setName("test-client");
         }
         reference.setRegistry(registryConfig);
-        address = address.replace("application=test-server","application=test-client");
+        address = address.replace("application=test-server", "application=test-client");
         reference.setUrl(address);
         reference.setVersion("1.0");
         reference.setGroup("tracer");

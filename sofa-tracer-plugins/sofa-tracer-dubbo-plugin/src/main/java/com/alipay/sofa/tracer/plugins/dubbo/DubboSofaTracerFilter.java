@@ -86,7 +86,7 @@ public class DubboSofaTracerFilter implements Filter {
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         // 只有异步才进行回调打印
         boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
-        if (!isAsync){
+        if (!isAsync) {
             return result;
         }
         String currentSpan = invocation.getAttachments().get(SPAN_INVOKE_KEY);
@@ -195,7 +195,7 @@ public class DubboSofaTracerFilter implements Filter {
 
     private void appendElapsedTimeTags(Invocation invocation, SofaTracerSpan sofaTracerSpan,
                                        Result result) {
-        if (sofaTracerSpan == null){
+        if (sofaTracerSpan == null) {
             return;
         }
         String elapsed = invocation.getAttachment(CommonSpanTags.CLIENT_SERIALIZE_TIME);
