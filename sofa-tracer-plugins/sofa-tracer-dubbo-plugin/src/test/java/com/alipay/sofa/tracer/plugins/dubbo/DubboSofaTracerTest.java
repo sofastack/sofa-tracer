@@ -25,7 +25,6 @@ import com.alipay.sofa.tracer.plugins.dubbo.service.DubboService;
 import org.apache.commons.io.FileUtils;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.config.*;
-import com.alibaba.dubbo.config.ApplicationConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
