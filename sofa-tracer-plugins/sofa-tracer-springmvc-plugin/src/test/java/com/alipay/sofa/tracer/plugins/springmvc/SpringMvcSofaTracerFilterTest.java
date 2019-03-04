@@ -68,6 +68,11 @@ public class SpringMvcSofaTracerFilterTest extends AbstractTestBase {
         Thread.sleep(500);
         //wait for async output
         File file = new File(logDirectoryPath + File.separator + "tracer-self.log");
+        if (file.exists()) {
+            List<String> result = FileUtils.readLines(new File(logDirectoryPath + File.separator
+                                                               + "tracer-self.log"));
+            Assert.assertTrue(result.size() == 1);
+        }
         Assert.assertTrue(!file.exists());
     }
 
