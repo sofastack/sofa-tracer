@@ -97,7 +97,7 @@ public class SpringMvcFilterJsonOutputTest extends AbstractTestBase {
         SofaTracerStatisticReporterManager s = SofaTracerStatisticReporterCycleTimesManager
             .getSofaTracerStatisticReporterManager(1L);
         Assert.notNull(s.getStatReporters().get(
-            SpringMvcLogEnum.SPRING_MVC_STAT.getDefaultLogName()));
+            SpringMvcLogEnum.SPRING_MVC_STAT.getDefaultLogName()),"mvc reporter cannot be null");
 
         //stat log : 设置了周期 1s 输出一次
         Thread.sleep(2000);
