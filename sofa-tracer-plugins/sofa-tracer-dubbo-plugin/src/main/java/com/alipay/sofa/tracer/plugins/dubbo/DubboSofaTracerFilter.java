@@ -28,7 +28,6 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboConsumerSofaTracer;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboProviderSofaTracer;
-import com.alipay.sofa.tracer.plugins.dubbo.utils.FastJsonObjectUtil;
 import io.opentracing.tag.Tags;
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.extension.Activate;
@@ -36,6 +35,7 @@ import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.support.RpcUtils;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/2/26 2:02 PM
@@ -44,19 +44,21 @@ import java.util.Map;
 @Activate(group = { Constants.PROVIDER, Constants.CONSUMER }, value = "dubboSofaTracerFilter", order = 1)
 public class DubboSofaTracerFilter implements Filter {
 
-    private String                  appName         = StringUtils.EMPTY_STRING;
+    private String                             appName         = StringUtils.EMPTY_STRING;
 
-    private static final String     BLANK           = StringUtils.EMPTY_STRING;
+    private static final String                BLANK           = StringUtils.EMPTY_STRING;
 
-    private static final String     SUCCESS_CODE    = "00";
+    private static final String                SUCCESS_CODE    = "00";
 
-    private static final String     FAILED_CODE     = "99";
+    private static final String                FAILED_CODE     = "99";
 
-    private static final String     SPAN_INVOKE_KEY = "sofa.current.span.key";
+    private static final String                SPAN_INVOKE_KEY = "sofa.current.span.key";
 
-    private DubboConsumerSofaTracer dubboConsumerSofaTracer;
+    private DubboConsumerSofaTracer            dubboConsumerSofaTracer;
 
-    private DubboProviderSofaTracer dubboProviderSofaTracer;
+    private DubboProviderSofaTracer            dubboProviderSofaTracer;
+
+    private static Map<String, SofaTracerSpan> TracerSpanMap   = new ConcurrentHashMap<String, SofaTracerSpan>();
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
@@ -84,31 +86,38 @@ public class DubboSofaTracerFilter implements Filter {
 
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
-        // 只有异步才进行回调打印
-        boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
-        if (!isAsync) {
-            return result;
-        }
-        String currentSpan = invocation.getAttachments().get(SPAN_INVOKE_KEY);
-        if (StringUtils.isNotBlank(currentSpan)) {
-            SofaTracerSpan sofaTracerSpan = FastJsonObjectUtil.deserializeSpan(currentSpan);
-            // to build tracer instance
-            if (dubboConsumerSofaTracer == null) {
-                this.dubboConsumerSofaTracer = DubboConsumerSofaTracer
-                    .getDubboConsumerSofaTracerSingleton();
+        String spanKey = getTracerSpanMapKey(invoker);
+        try {
+            // 只有异步才进行回调打印
+            boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
+            if (!isAsync) {
+                return result;
             }
-            String resultCode = SUCCESS_CODE;
-            if (result.hasException()) {
-                if (result.getException() instanceof RpcException) {
-                    resultCode = Integer.toString(((RpcException) result.getException()).getCode());
-                    sofaTracerSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
-                } else {
-                    resultCode = FAILED_CODE;
+            if (TracerSpanMap.containsKey(spanKey)) {
+                SofaTracerSpan sofaTracerSpan = TracerSpanMap.get(spanKey);
+                // to build tracer instance
+                if (dubboConsumerSofaTracer == null) {
+                    this.dubboConsumerSofaTracer = DubboConsumerSofaTracer
+                        .getDubboConsumerSofaTracerSingleton();
                 }
+                String resultCode = SUCCESS_CODE;
+                if (result.hasException()) {
+                    if (result.getException() instanceof RpcException) {
+                        resultCode = Integer.toString(((RpcException) result.getException())
+                            .getCode());
+                        sofaTracerSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
+                    } else {
+                        resultCode = FAILED_CODE;
+                    }
+                }
+                // add elapsed time
+                appendElapsedTimeTags(invocation, sofaTracerSpan, result);
+                dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, resultCode);
             }
-            // add elapsed time
-            appendElapsedTimeTags(invocation, sofaTracerSpan, result);
-            dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, resultCode);
+        } finally {
+            if (TracerSpanMap.containsKey(spanKey)) {
+                TracerSpanMap.remove(spanKey);
+            }
         }
         return result;
     }
@@ -184,10 +193,11 @@ public class DubboSofaTracerFilter implements Filter {
                     resultCode = FAILED_CODE;
                 }
             }
-            invocation.getAttachments().put(SPAN_INVOKE_KEY,
-                FastJsonObjectUtil.serializeSpan(sofaTracerSpan));
+
             if (!isAsync) {
                 dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, resultCode);
+            } else {
+                TracerSpanMap.put(getTracerSpanMapKey(invoker), sofaTracerSpan);
             }
         }
         return result;
@@ -372,5 +382,9 @@ public class DubboSofaTracerFilter implements Filter {
 
     private String spanKind(RpcContext rpcContext) {
         return rpcContext.isConsumerSide() ? Tags.SPAN_KIND_CLIENT : Tags.SPAN_KIND_SERVER;
+    }
+
+    private String getTracerSpanMapKey(Invoker<?> invoker) {
+        return SPAN_INVOKE_KEY + "." + invoker.hashCode();
     }
 }
