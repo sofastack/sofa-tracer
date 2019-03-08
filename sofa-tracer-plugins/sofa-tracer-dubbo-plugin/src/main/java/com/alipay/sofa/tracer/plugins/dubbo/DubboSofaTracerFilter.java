@@ -31,15 +31,17 @@ import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboProviderSofaTracer;
 import io.opentracing.tag.Tags;
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.extension.Activate;
+import org.apache.dubbo.remoting.TimeoutException;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.support.RpcUtils;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/2/26 2:02 PM
- * @since:
+ * @since: 2.3.4
  **/
 @Activate(group = { Constants.PROVIDER, Constants.CONSUMER }, value = "dubboSofaTracerFilter", order = 1)
 public class DubboSofaTracerFilter implements Filter {
@@ -198,6 +200,12 @@ public class DubboSofaTracerFilter implements Filter {
                 dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, resultCode);
             } else {
                 TracerSpanMap.put(getTracerSpanMapKey(invoker), sofaTracerSpan);
+                CompletableFuture<Object> future = (CompletableFuture<Object>) RpcContext.getContext().getFuture();
+                future.whenComplete((object, throwable)-> {
+                    if (throwable != null && throwable instanceof TimeoutException) {
+                        dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, "03");
+                    }
+                });
             }
         }
         return result;
