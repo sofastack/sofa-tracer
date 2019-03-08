@@ -63,11 +63,17 @@ public class SpringMvcSofaTracerFilterTest extends AbstractTestBase {
         try {
             filter.doFilter(request, response, mockFilterChain);
         } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().equalsIgnoreCase("Has got exception..."));
+            String message = e.getMessage();
+            Assert.assertTrue(message.contains("Has got exception..."));
         }
         Thread.sleep(500);
         //wait for async output
         File file = new File(logDirectoryPath + File.separator + "tracer-self.log");
+        if (file.exists()) {
+            List<String> result = FileUtils.readLines(new File(logDirectoryPath + File.separator
+                                                               + "tracer-self.log"));
+            Assert.assertTrue(result.size() == 1);
+        }
         Assert.assertTrue(!file.exists());
     }
 
