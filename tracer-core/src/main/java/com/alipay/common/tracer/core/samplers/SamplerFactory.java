@@ -36,7 +36,7 @@ public class SamplerFactory {
             float percentage = 100;
 
             String perStr = SofaTracerConfiguration
-                    .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY);
+                .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY);
             if (StringUtils.isNotBlank(perStr)) {
                 percentage = Float.parseFloat(perStr);
             }
@@ -46,7 +46,7 @@ public class SamplerFactory {
             samplerProperties.setPercentage(100);
         }
         samplerProperties.setRuleClassName(SofaTracerConfiguration
-                .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_CUSTOM_RULE_CLASS_NAME));
+            .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_CUSTOM_RULE_CLASS_NAME));
     }
 
     /**
