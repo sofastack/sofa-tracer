@@ -16,20 +16,20 @@
  */
 package com.alipay.sofa.tracer.boot.listener;
 
-import com.alipay.sofa.infra.utils.SOFABootEnvUtils;
-import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.Bindable;
-import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.context.ApplicationListener;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.util.Assert;
-
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
+import org.springframework.boot.bind.PropertiesConfigurationFactory;
+import com.alipay.sofa.infra.utils.SOFABootEnvUtils;
+import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.ApplicationListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.util.Assert;
+import org.springframework.validation.BindException;
 
 /**
  * Parse SOFATracer Configuration in early stage.
@@ -50,6 +50,12 @@ public class SofaTracerConfigurationListener
             return;
         }
 
+        // set loggingPath
+        String loggingPath = environment.getProperty("logging.path");
+        if (StringUtils.isNotBlank(loggingPath)) {
+            System.setProperty("logging.path", loggingPath);
+        }
+
         // check spring.application.name
         String applicationName = environment
             .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
@@ -58,14 +64,27 @@ public class SofaTracerConfigurationListener
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY,
             applicationName);
 
-        // static binding
         SofaTracerProperties tempTarget = new SofaTracerProperties();
-        ConfigurationProperties configurationProperties = AnnotationUtils.findAnnotation(
-            SofaTracerProperties.class, ConfigurationProperties.class);
-        Binder binder = Binder.get(environment);
-        Bindable bindable = Bindable.of(SofaTracerProperties.class).withExistingValue(tempTarget)
-            .withAnnotations(configurationProperties);
-        binder.bind(SofaTracerProperties.SOFA_TRACER_CONFIGURATION_PREFIX, bindable);
+        PropertiesConfigurationFactory<SofaTracerProperties> binder = new PropertiesConfigurationFactory<SofaTracerProperties>(
+            tempTarget);
+        ConfigurationProperties configurationPropertiesAnnotation = this
+            .getConfigurationPropertiesAnnotation(tempTarget);
+        if (configurationPropertiesAnnotation != null
+            && StringUtils.isNotBlank(configurationPropertiesAnnotation.prefix())) {
+            //consider compatible Spring Boot 1.5.X and 2.x
+            binder.setIgnoreInvalidFields(configurationPropertiesAnnotation.ignoreInvalidFields());
+            binder.setIgnoreUnknownFields(configurationPropertiesAnnotation.ignoreUnknownFields());
+            binder.setTargetName(configurationPropertiesAnnotation.prefix());
+        } else {
+            binder.setTargetName(SofaTracerProperties.SOFA_TRACER_CONFIGURATION_PREFIX);
+        }
+        binder.setConversionService(new DefaultConversionService());
+        binder.setPropertySources(environment.getPropertySources());
+        try {
+            binder.bindPropertiesToTarget();
+        } catch (BindException ex) {
+            throw new IllegalStateException("Cannot bind to SofaTracerProperties", ex);
+        }
 
         //properties convert to tracer
         SofaTracerConfiguration.setProperty(
@@ -87,10 +106,29 @@ public class SofaTracerConfigurationListener
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.TRACER_SYSTEM_PENETRATE_ATTRIBUTE_MAX_LENGTH,
             tempTarget.getBaggageMaxLength());
+
+        //sampler config
+        if (tempTarget.getSamplerName() != null) {
+            SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
+                tempTarget.getSamplerName());
+        }
+        if (StringUtils.isNotBlank(tempTarget.getSamplerCustomRuleClassName())) {
+            SofaTracerConfiguration.setProperty(
+                SofaTracerConfiguration.SAMPLER_STRATEGY_CUSTOM_RULE_CLASS_NAME,
+                tempTarget.getSamplerCustomRuleClassName());
+        }
+        SofaTracerConfiguration.setProperty(
+            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY,
+            String.valueOf(tempTarget.getSamplerPercentage()));
     }
 
     @Override
     public int getOrder() {
-        return HIGHEST_PRECEDENCE + 30;
+        return HIGHEST_PRECEDENCE + 20;
+    }
+
+    private ConfigurationProperties getConfigurationPropertiesAnnotation(Object targetObject) {
+        return AnnotationUtils.findAnnotation(targetObject.getClass(),
+            ConfigurationProperties.class);
     }
 }

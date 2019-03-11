@@ -43,5 +43,11 @@ public class ConfigurationHolderListener implements
         sofaTracerProperties.setBaggageMaxLength(SofaTracerConfiguration
             .getProperty(SofaTracerConfiguration.TRACER_PENETRATE_ATTRIBUTE_MAX_LENGTH));
         ConfigurationHolder.setSofaTracerProperties(sofaTracerProperties);
+        sofaTracerProperties.setSamplerName(SofaTracerConfiguration
+            .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY));
+        sofaTracerProperties.setSamplerCustomRuleClassName(SofaTracerConfiguration
+            .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_CUSTOM_RULE_CLASS_NAME));
+        sofaTracerProperties.setSamplerPercentage(Float.valueOf(SofaTracerConfiguration
+            .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY)));
     }
 }

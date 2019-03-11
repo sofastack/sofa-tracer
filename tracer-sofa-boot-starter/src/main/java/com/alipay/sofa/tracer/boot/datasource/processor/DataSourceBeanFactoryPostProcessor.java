@@ -33,7 +33,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
-import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -121,9 +120,10 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
         Assert.isTrue(!StringUtils.isBlank(appName), TRACER_APPNAME_KEY + " must be configured!");
         values.add("appName", appName);
         values.add("delegate", new RuntimeBeanReference(transformDatasourceBeanName(beanName)));
-        values.add("dbType", resolveDbTypeFromUrl(unwrapPropertyValue(originValues.get(jdbcUrl))));
+        values.add("dbType",
+            DataSourceUtils.resolveDbTypeFromUrl(unwrapPropertyValue(originValues.get(jdbcUrl))));
         values.add("database",
-            resolveDatabaseFromUrl(unwrapPropertyValue(originValues.get(jdbcUrl))));
+            DataSourceUtils.resolveDatabaseFromUrl(unwrapPropertyValue(originValues.get(jdbcUrl))));
         proxiedBeanDefinition.setPropertyValues(values);
         beanDefinitionRegistry.registerBeanDefinition(beanName, proxiedBeanDefinition);
     }
@@ -140,62 +140,6 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
 
     public static String transformDatasourceBeanName(String originName) {
         return SOFA_TRACER_DATASOURCE + originName;
-    }
-
-    public static String resolveDbTypeFromUrl(String url) {
-        Assert.isTrue(!StringUtils.isBlank(url), "Jdbc url must not be empty!");
-        int start = url.indexOf("jdbc:") + "jdbc:".length();
-        if (start < "jdbc:".length()) {
-            throw new InvalidParameterException("jdbc url is invalid!");
-        }
-        int end = url.indexOf(":", start);
-        if (end < 0) {
-            throw new InvalidParameterException("jdbc url is invalid!");
-        }
-        String dbType = url.substring(start, end);
-        // SQL Server 2000
-        if ("microsoft".equals(dbType)) {
-            start = end + 1;
-            end = url.indexOf(":", start);
-            if (end < 0) {
-                throw new InvalidParameterException("jdbc url is invalid!");
-            }
-            return url.substring(start, end);
-        } else {
-            return dbType;
-        }
-    }
-
-    public static String resolveDatabaseFromUrl(String url) {
-        Assert.isTrue(!StringUtils.isBlank(url), "Jdbc url must not be empty!");
-        if ("sqlserver".equals(resolveDbTypeFromUrl(url))) {
-            String[] segments = url.split(";");
-            for (String segment : segments) {
-                if (segment.toLowerCase().contains("databasename=")) {
-                    int start = segment.toLowerCase().indexOf("databasename=")
-                                + "databasename=".length();
-                    return segment.substring(start).trim();
-                }
-            }
-            throw new InvalidParameterException("jdbc url is invalid!");
-        }
-
-        int start = url.lastIndexOf("/");
-        if (start < 0) {
-            /**
-             * oracle sid 格式，{@see jdbc:oracle:thin:@host:port:SID}
-             */
-            if ("oracle".equals(resolveDbTypeFromUrl(url))) {
-                start = url.lastIndexOf(":");
-            } else {
-                throw new InvalidParameterException("jdbc url is invalid!");
-            }
-        }
-        int end = url.indexOf("?", start);
-        if (end != -1) {
-            return url.substring(start + 1, end);
-        }
-        return url.substring(start + 1);
     }
 
     @Override
