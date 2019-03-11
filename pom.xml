@@ -20,6 +20,7 @@
         <module>tracer-extensions</module>
         <module>sofa-tracer-plugins/sofa-tracer-springmvc-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-httpclient-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-okhttp-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-datasource-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-zipkin-plugin</module>
         <module>tracer-all</module>
