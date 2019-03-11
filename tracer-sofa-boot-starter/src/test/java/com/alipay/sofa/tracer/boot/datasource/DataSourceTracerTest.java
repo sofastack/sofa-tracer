@@ -18,7 +18,6 @@ package com.alipay.sofa.tracer.boot.datasource;
 
 import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
 import com.alipay.sofa.tracer.plugins.datasource.SmartDataSource;
-import com.zaxxer.hikari.HikariDataSource;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,19 +31,11 @@ import javax.sql.DataSource;
 public class DataSourceTracerTest extends AbstractTestBase {
 
     @Autowired
-    private DataSource simpleDataSource;
-
-    @Autowired
-    private DataSource hikariDataSource;
+    private DataSource dataSource;
 
     @Test
     public void testDataSource() {
-        Assert.assertTrue(simpleDataSource instanceof SmartDataSource);
-        Assert.assertTrue(hikariDataSource instanceof SmartDataSource);
-        Assert.assertFalse(((SmartDataSource) simpleDataSource).getDelegate().equals(
-            ((SmartDataSource) hikariDataSource).getDelegate()));
-        Assert
-            .assertTrue(((SmartDataSource) hikariDataSource).getDelegate() instanceof HikariDataSource);
+        Assert.assertTrue(dataSource instanceof SmartDataSource);
     }
 
 }

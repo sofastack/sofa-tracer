@@ -25,7 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import javax.sql.DataSource;
 
-/**DataSourceUtils
+/**
  * @author qilong.zql
  * @sicne 2.2.0
  */
@@ -33,10 +33,10 @@ import javax.sql.DataSource;
 public class DataSourceTracerDisableTest extends AbstractTestBase {
 
     @Autowired
-    private DataSource simpleDataSource;
+    private DataSource dataSource;
 
     @Test
     public void testDataSource() {
-        Assert.assertTrue(simpleDataSource instanceof HikariDataSource);
+        Assert.assertTrue(dataSource instanceof HikariDataSource);
     }
 }

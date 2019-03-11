@@ -151,4 +151,5 @@ public class SynchronizingSelfLog {
             t.printStackTrace();
         }
     }
+
 }
