@@ -111,6 +111,15 @@ public class SofaTracerConfiguration {
 
     private static SofaTracerExternalConfiguration sofaTracerExternalConfiguration              = null;
 
+    /***************** 采样配置项  end ***************/
+
+    /** 采样策略名称key */
+    public static final String                     SAMPLER_STRATEGY_NAME_KEY                    = "tracer_sampler_strategy_name_key";
+    /** 自定义采样规则类名 */
+    public static final String                     SAMPLER_STRATEGY_CUSTOM_RULE_CLASS_NAME      = "tracer_sampler_strategy_custom_rule_class_name";
+    /** 采样率key */
+    public static final String                     SAMPLER_STRATEGY_PERCENTAGE_KEY              = "tracer_sampler_strategy_percentage_key";
+
     static {
         InputStream inputStream = null;
         try {
@@ -268,5 +277,13 @@ public class SofaTracerConfiguration {
 
     public static void setSofaTracerExternalConfiguration(SofaTracerExternalConfiguration sofaTracerExternalConfiguration) {
         SofaTracerConfiguration.sofaTracerExternalConfiguration = sofaTracerExternalConfiguration;
+    }
+
+    public static String getSofaTracerSamplerStrategy() {
+        String samplerName = getProperty(SAMPLER_STRATEGY_NAME_KEY);
+        if (StringUtils.isBlank(samplerName)) {
+            return null;
+        }
+        return samplerName;
     }
 }

@@ -29,9 +29,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -55,11 +52,7 @@ public abstract class AbstractTestBase {
      */
     @BeforeClass
     public static void beforeClass() {
-        File[] traceFiles = customFileLog("").listFiles();
-        if (traceFiles == null) {
-            return;
-        }
-        for (File file : traceFiles) {
+        for (File file : customFileLog("").listFiles()) {
             if (file.getPath().contains("tracer-self.log") || file.getPath().contains("sync.log")
                 || file.getPath().contains("rpc-profile.log")
                 || file.getPath().contains("middleware_error.log")) {

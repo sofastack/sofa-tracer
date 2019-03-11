@@ -17,9 +17,10 @@
 package com.alipay.common.tracer.core.samplers;
 
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
+import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * SofaTracerPercentageBasedSampler
@@ -29,20 +30,20 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SofaTracerPercentageBasedSampler implements Sampler {
 
-    static final String             TYPE    = "PercentageBasedSampler";
+    public static final String      TYPE    = "PercentageBasedSampler";
 
-    private final AtomicInteger     counter = new AtomicInteger(0);
+    private final AtomicLong        counter = new AtomicLong(0);
     private final BitSet            sampleDecisions;
     private final SamplerProperties configuration;
 
     public SofaTracerPercentageBasedSampler(SamplerProperties configuration) {
-        int outOf100 = (int) (configuration.getPercentage() * 100.0f);
+        int outOf100 = (int) (configuration.getPercentage());
         this.sampleDecisions = randomBitSet(100, outOf100, new Random());
         this.configuration = configuration;
     }
 
     @Override
-    public SamplingStatus sample(String operation, String traceId) {
+    public SamplingStatus sample(SofaTracerSpan sofaTracerSpan) {
         SamplingStatus samplingStatus = new SamplingStatus();
         Map<String, Object> tags = new HashMap<String, Object>();
         tags.put(SofaTracerConstant.SAMPLER_TYPE_TAG_KEY, TYPE);
@@ -57,12 +58,7 @@ public class SofaTracerPercentageBasedSampler implements Sampler {
             samplingStatus.setSampled(true);
             return samplingStatus;
         }
-        int i, j;
-        do {
-            i = this.counter.get();
-            j = (i + 1) % 100;
-        } while (!this.counter.compareAndSet(i, j));
-        boolean result = this.sampleDecisions.get(i);
+        boolean result = this.sampleDecisions.get((int) (this.counter.getAndIncrement() % 100));
         samplingStatus.setSampled(result);
         return samplingStatus;
     }

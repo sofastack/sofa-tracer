@@ -65,4 +65,5 @@ public class CommonSpanTags {
      * 响应大小
      */
     public static final String RESP_SIZE           = "resp.size.bytes";
+
 }

@@ -38,12 +38,12 @@ public class SamplerPropertiesTest {
 
     @Test
     public void getPercentage() {
-        Assert.assertTrue(samplerProperties.getPercentage() == 0.1f);
+        Assert.assertTrue(samplerProperties.getPercentage() == 100);
     }
 
     @Test
     public void setPercentage() {
-        samplerProperties.setPercentage(0.2f);
-        Assert.assertTrue(samplerProperties.getPercentage() == 0.2f);
+        samplerProperties.setPercentage(20);
+        Assert.assertTrue(samplerProperties.getPercentage() == 20);
     }
 }
