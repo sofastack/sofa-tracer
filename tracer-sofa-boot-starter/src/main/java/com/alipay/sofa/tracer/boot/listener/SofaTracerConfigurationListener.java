@@ -105,11 +105,6 @@ public class SofaTracerConfigurationListener
 
     @Override
     public int getOrder() {
-        return HIGHEST_PRECEDENCE + 20;
-    }
-
-    private ConfigurationProperties getConfigurationPropertiesAnnotation(Object targetObject) {
-        return AnnotationUtils.findAnnotation(targetObject.getClass(),
-            ConfigurationProperties.class);
+        return HIGHEST_PRECEDENCE + 30;
     }
 }

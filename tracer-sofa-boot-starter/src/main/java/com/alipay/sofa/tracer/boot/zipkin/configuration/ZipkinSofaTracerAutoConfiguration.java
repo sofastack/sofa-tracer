@@ -37,7 +37,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @EnableConfigurationProperties(ZipkinSofaTracerProperties.class)
 @ConditionalOnProperty(value = "com.alipay.sofa.tracer.zipkin.enabled", matchIfMissing = true)
-@ConditionalOnClass({ zipkin2.Span.class, zipkin2.reporter.AsyncReporter.class })
+@ConditionalOnClass({ zipkin2.Span.class, zipkin2.reporter.AsyncReporter.class, RestTemplate.class })
 public class ZipkinSofaTracerAutoConfiguration {
 
     @Autowired
