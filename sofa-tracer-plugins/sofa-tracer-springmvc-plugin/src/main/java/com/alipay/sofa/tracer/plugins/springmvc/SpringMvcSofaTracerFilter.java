@@ -88,6 +88,7 @@ public class SpringMvcSofaTracerFilter implements Filter {
             //filter begin
             filterChain.doFilter(servletRequest, responseWrapper);
             //filter end
+
             httpStatus = responseWrapper.getStatus();
             responseSize = responseWrapper.getContentLength();
         } finally {
