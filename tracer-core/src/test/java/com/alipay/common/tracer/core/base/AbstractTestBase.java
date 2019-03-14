@@ -52,7 +52,11 @@ public abstract class AbstractTestBase {
      */
     @BeforeClass
     public static void beforeClass() {
-        for (File file : customFileLog("").listFiles()) {
+        File[] traceFiles = customFileLog("").listFiles();
+        if (traceFiles == null) {
+            return;
+        }
+        for (File file : traceFiles) {
             if (file.getPath().contains("tracer-self.log") || file.getPath().contains("sync.log")
                 || file.getPath().contains("rpc-profile.log")
                 || file.getPath().contains("middleware_error.log")) {
