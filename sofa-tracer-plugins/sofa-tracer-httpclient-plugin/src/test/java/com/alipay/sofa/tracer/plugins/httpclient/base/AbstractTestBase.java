@@ -75,10 +75,11 @@ public abstract class AbstractTestBase {
      * @throws IOException
      */
     public static void cleanLogDirectory() throws IOException {
-        File file = customFileLog("");
-        if (file.exists()) {
-            FileUtils.cleanDirectory(file);
+        File file = new File(logDirectoryPath);
+        if (!file.exists()) {
+            return;
         }
+        FileUtils.cleanDirectory(file);
     }
 
     protected static File customFileLog(String fileName) {

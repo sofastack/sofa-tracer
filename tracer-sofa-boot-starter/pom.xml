@@ -53,10 +53,6 @@
             <groupId>com.alipay.sofa</groupId>
             <artifactId>infra-sofa-boot-starter</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.alipay.sofa.common</groupId>
-            <artifactId>log-sofa-boot-starter</artifactId>
-        </dependency>
         <!-- optional -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
