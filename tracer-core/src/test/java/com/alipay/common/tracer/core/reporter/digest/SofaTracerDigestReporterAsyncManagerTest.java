@@ -22,7 +22,6 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
