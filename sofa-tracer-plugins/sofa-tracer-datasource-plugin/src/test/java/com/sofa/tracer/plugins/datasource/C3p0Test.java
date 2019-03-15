@@ -16,8 +16,6 @@
  */
 package com.sofa.tracer.plugins.datasource;
 
-import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
-import com.alipay.common.tracer.core.samplers.SofaTracerPercentageBasedSampler;
 import com.alipay.sofa.tracer.plugins.datasource.BaseDataSource;
 import com.alipay.sofa.tracer.plugins.datasource.DBType;
 import com.alipay.sofa.tracer.plugins.datasource.SmartDataSource;
@@ -44,12 +42,6 @@ public class C3p0Test extends BaseTest {
 
     @Before
     public void beforeTestCase() throws Exception {
-
-        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
-            SofaTracerPercentageBasedSampler.TYPE);
-        SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY, "100");
-
         sqlExecutionMock();
         when(comboPooledDataSource.getJdbcUrl())
             .thenReturn("jdbc:oracle:thin:@//mockJdbcHost:9336");
