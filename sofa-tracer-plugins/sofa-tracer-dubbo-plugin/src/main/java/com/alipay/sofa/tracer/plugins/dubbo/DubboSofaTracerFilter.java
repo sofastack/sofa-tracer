@@ -199,7 +199,18 @@ public class DubboSofaTracerFilter implements Filter {
             if (!isAsync) {
                 dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, resultCode);
             } else {
+                SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+                SofaTracerSpan clientSpan = sofaTraceContext.pop();
+                if (clientSpan != null) {
+                    // Record client send event
+                    sofaTracerSpan.log(LogData.CLIENT_SEND_EVENT_VALUE);
+                }
+                // 将当前 span 缓存
                 TracerSpanMap.put(getTracerSpanMapKey(invoker), sofaTracerSpan);
+                if (clientSpan != null && clientSpan.getParentSofaTracerSpan() != null) {
+                    //restore parent
+                    sofaTraceContext.push(clientSpan.getParentSofaTracerSpan());
+                }
                 CompletableFuture<Object> future = (CompletableFuture<Object>) RpcContext.getContext().getFuture();
                 future.whenComplete((object, throwable)-> {
                     if (throwable != null && throwable instanceof TimeoutException) {
