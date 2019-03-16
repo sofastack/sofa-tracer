@@ -197,7 +197,7 @@ public class DubboSofaTracerFilter implements Filter {
             }
 
             if (!isAsync) {
-                dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, resultCode);
+                dubboConsumerSofaTracer.clientReceive(resultCode);
             } else {
                 SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
                 SofaTracerSpan clientSpan = sofaTraceContext.pop();
