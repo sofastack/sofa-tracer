@@ -25,10 +25,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * SampleRestController
+ * SampleRestController for test
  *
- * @author yangguanchao
- * @since 2018/05/11
+ * @author guolei.sgl
+ * @since v.2.3.0
  */
 @RestController
 public class SampleRestController {
@@ -42,7 +42,7 @@ public class SampleRestController {
      * @param name name
      * @return map
      */
-    @RequestMapping("/zipkin")
+    @RequestMapping("/helloZipkin")
     public Map<String, Object> zipkin(@RequestParam(value = "name", defaultValue = "SOFATracer Zipkin Remote Report") String name) {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         resultMap.put("success", true);

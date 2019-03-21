@@ -28,7 +28,6 @@ import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.tag.Tags;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +57,7 @@ public class CommonSpanEncoderTest extends AbstractTestBase {
     private String     appName       = "appName";
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         DiskReporterImpl clientDigestReporter = new DiskReporterImpl(clientLogType,
             new ClientSpanEncoder());
         sofaTracer = new SofaTracer.Builder("commonProfileTracerType")
@@ -66,7 +65,7 @@ public class CommonSpanEncoderTest extends AbstractTestBase {
     }
 
     /**
-     * Method: encode(SofaTracerSpan span)4
+     * Method: encode(SofaTracerSpan span)
      */
     @Test
     public void testEncode() throws Exception {

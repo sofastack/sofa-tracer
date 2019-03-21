@@ -72,6 +72,10 @@ public class SofaTracerProperties {
     private String              baggageMaxLength                 = String
                                                                      .valueOf(SofaTracerConfiguration.PEN_ATTRS_LENGTH_TRESHOLD);
 
+    private String              samplerName;
+    private float               samplerPercentage                = 100;
+    private String              samplerCustomRuleClassName;
+
     public String getDisableDigestLog() {
         return disableDigestLog;
     }
@@ -118,5 +122,29 @@ public class SofaTracerProperties {
 
     public void setBaggageMaxLength(String baggageMaxLength) {
         this.baggageMaxLength = baggageMaxLength;
+    }
+
+    public String getSamplerName() {
+        return samplerName;
+    }
+
+    public void setSamplerName(String samplerName) {
+        this.samplerName = samplerName;
+    }
+
+    public float getSamplerPercentage() {
+        return samplerPercentage;
+    }
+
+    public void setSamplerPercentage(float samplerPercentage) {
+        this.samplerPercentage = samplerPercentage;
+    }
+
+    public String getSamplerCustomRuleClassName() {
+        return samplerCustomRuleClassName;
+    }
+
+    public void setSamplerCustomRuleClassName(String samplerCustomRuleClassName) {
+        this.samplerCustomRuleClassName = samplerCustomRuleClassName;
     }
 }

@@ -17,7 +17,6 @@
 package com.alipay.sofa.tracer.plugins.springmvc;
 
 import com.alipay.common.tracer.core.SofaTracer;
-import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.registry.ExtendFormat;
@@ -52,7 +51,7 @@ public class SpringMvcSofaTracerFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-                         FilterChain filterChain) throws IOException, ServletException {
+                         FilterChain filterChain) {
 
         if (this.springMvcTracer == null) {
             this.springMvcTracer = SpringMvcTracer.getSpringMvcTracerSingleton();
@@ -66,6 +65,12 @@ public class SpringMvcSofaTracerFilter implements Filter {
             SofaTracerSpanContext spanContext = getSpanContextFromRequest(request);
             // sr
             springMvcSpan = springMvcTracer.serverReceive(spanContext);
+
+            if (!isRootSpan(request)) {
+                springMvcSpan.getSofaTracerSpanContext()
+                    .setSpanId(spanContext.nextChildContextId());
+            }
+
             if (StringUtils.isBlank(this.appName)) {
                 this.appName = SofaTracerConfiguration
                     .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
@@ -83,12 +88,12 @@ public class SpringMvcSofaTracerFilter implements Filter {
             //filter begin
             filterChain.doFilter(servletRequest, responseWrapper);
             //filter end
-
             httpStatus = responseWrapper.getStatus();
             responseSize = responseWrapper.getContentLength();
-        } catch (Exception e) {
-            SelfLog.error("Spring MVC Tracer error occurs in SpringMvcSofaTracerFilter.doFilter.",
-                e);
+        } catch (Throwable t) {
+            httpStatus = 500;
+            // 异常抛出
+            throw new RuntimeException(t);
         } finally {
             if (springMvcSpan != null) {
                 springMvcSpan.setTag(CommonSpanTags.RESP_SIZE, responseSize);
@@ -96,6 +101,18 @@ public class SpringMvcSofaTracerFilter implements Filter {
                 springMvcTracer.serverSend(String.valueOf(httpStatus));
             }
         }
+    }
+
+    private boolean isRootSpan(HttpServletRequest request) {
+        Enumeration headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String key = (String) headerNames.nextElement();
+            String value = request.getHeader(key);
+            if (key.equals("X-B3-TraceId") && StringUtils.isNotBlank(value)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -118,18 +135,20 @@ public class SpringMvcSofaTracerFilter implements Filter {
      */
     public SofaTracerSpanContext getSpanContextFromRequest(HttpServletRequest request) {
         HashMap<String, String> headers = new HashMap<String, String>();
-
         Enumeration headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String key = (String) headerNames.nextElement();
             String value = request.getHeader(key);
             headers.put(key, value);
         }
+        // Delay the initialization of the SofaTracerSpanContext to execute the serverReceive method
+        if (headers.isEmpty() || !headers.containsKey("X-B3-TraceId")) {
+            return null;
+        }
 
         SofaTracer tracer = springMvcTracer.getSofaTracer();
         SofaTracerSpanContext spanContext = (SofaTracerSpanContext) tracer.extract(
             ExtendFormat.Builtin.B3_HTTP_HEADERS, new SpringMvcHeadersCarrier(headers));
-        spanContext.setSpanId(spanContext.nextChildContextId());
         return spanContext;
     }
 

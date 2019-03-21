@@ -32,6 +32,10 @@
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-tracer-httpclient-plugin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-tracer-datasource-plugin</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

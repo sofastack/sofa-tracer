@@ -23,9 +23,11 @@ import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.listener.SpanReportListenerHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import com.alipay.sofa.tracer.boot.zipkin.configuration.ZipkinSofaTracerRestTemplateCustomizer;
 import com.alipay.sofa.tracer.boot.zipkin.mock.MockAbstractTracer;
 import com.alipay.sofa.tracer.boot.zipkin.properties.ZipkinSofaTracerProperties;
+import com.alipay.sofa.tracer.plugins.zipkin.ZipkinSofaTracerRestTemplateCustomizer;
+import com.alipay.sofa.tracer.plugins.zipkin.ZipkinSofaTracerSpanRemoteReporter;
+import com.alipay.sofa.tracer.plugins.zipkin.adapter.ZipkinV2SpanAdapter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,22 +42,25 @@ import static junit.framework.TestCase.assertTrue;
 /**
  * ZipkinSofaTracerSpanRemoteReporter Tester.
  *
- * @author <guanchao.ygc>
- * @version 1.0
- * @since <pre>五月 1, 2018</pre>
+ * @author guolei.sgl
+ * @since v2.3.0
  */
 public class ZipkinSofaTracerSpanRemoteReporterTest {
 
-    private MockAbstractTracer remoteTracer;
+    private MockAbstractTracer  remoteTracer;
+    private ZipkinV2SpanAdapter zipkinV2SpanAdapter;
 
     @Before
     public void before() throws Exception {
-
+        zipkinV2SpanAdapter = new ZipkinV2SpanAdapter();
         remoteTracer = new MockAbstractTracer("mockSendTracerSpan");
         RestTemplate restTemplate = new RestTemplate();
         ZipkinSofaTracerProperties zipkinProperties = new ZipkinSofaTracerProperties();
+        zipkinProperties.setBaseUrl("http://localhost:9411");
+        zipkinProperties.setEnabled(true);
+        zipkinProperties.setGzipped(true);
         ZipkinSofaTracerRestTemplateCustomizer restTemplateCustomizer = new ZipkinSofaTracerRestTemplateCustomizer(
-            zipkinProperties);
+            zipkinProperties.isGzipped());
         restTemplateCustomizer.customize(restTemplate);
         //host http://zipkin-cloud-3.inc.host.net:9411
         String baseUrl = "http://zipkin-cloud-3.inc.host.net:9411";
@@ -149,7 +154,7 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
     }
 
     private void entranceHash(Map<Long, Long> map, String data) {
-        long hashCode = ZipkinSofaTracerSpanRemoteReporter.FNV64HashCode(data);
+        long hashCode = zipkinV2SpanAdapter.FNV64HashCode(data);
         this.putMap(hashCode, map);
     }
 

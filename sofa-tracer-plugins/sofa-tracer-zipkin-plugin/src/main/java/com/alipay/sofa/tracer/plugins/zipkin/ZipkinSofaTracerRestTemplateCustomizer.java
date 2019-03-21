@@ -14,44 +14,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.zipkin.configuration;
+package com.alipay.sofa.tracer.plugins.zipkin;
 
-import com.alipay.sofa.tracer.boot.zipkin.properties.ZipkinSofaTracerProperties;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.RestTemplate;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 
 /**
  * ZipkinSofaTracerRestTemplateCustomizer
- *
- * @author yangguanchao
- * @since 2018/05/01
+ * @author guolei.sgl
+ * @since v2.3.0
  */
 public class ZipkinSofaTracerRestTemplateCustomizer {
 
-    private ZipkinSofaTracerProperties zipkinSofaTracerProperties;
+    private boolean gzipped;
 
-    public ZipkinSofaTracerRestTemplateCustomizer(ZipkinSofaTracerProperties zipkinSofaTracerProperties) {
-        this.zipkinSofaTracerProperties = zipkinSofaTracerProperties;
+    public ZipkinSofaTracerRestTemplateCustomizer(boolean gzipped) {
+        this.gzipped = gzipped;
     }
 
     public void customize(RestTemplate restTemplate) {
-        if (this.zipkinSofaTracerProperties == null || restTemplate == null) {
+        if (!this.gzipped || restTemplate == null) {
             return;
         }
-        if (this.zipkinSofaTracerProperties.getCompression().isEnabled()) {
-            restTemplate.getInterceptors().add(0, new GzipInterceptor());
-        }
+        restTemplate.getInterceptors().add(0, new GzipInterceptor());
     }
 
     private class GzipInterceptor implements ClientHttpRequestInterceptor {
 
+        @Override
         public ClientHttpResponse intercept(HttpRequest request, byte[] body,
                                             ClientHttpRequestExecution execution)
                                                                                  throws IOException {

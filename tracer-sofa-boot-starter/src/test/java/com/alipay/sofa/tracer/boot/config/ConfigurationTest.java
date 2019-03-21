@@ -76,14 +76,14 @@ public class ConfigurationTest {
         Assert.assertEquals("1", sofaTracerProperties.getBaggageMaxLength());
     }
 
-    @Test
-    public void testTracerLogDir() {
-        File defaultDir = new File(System.getProperty("user.home") + File.separator + "logs"
-                                   + File.separator + "tracelog");
-        File configDir = new File(System.getProperty("user.dir") + File.separator + "logs"
-                                  + File.separator + "tracelog");
-        Assert.assertFalse(defaultDir.exists());
-        Assert.assertTrue(configDir.exists());
-    }
+    //    @Test
+    //    public void testTracerLogDir() {
+    //        File defaultDir = new File(System.getProperty("user.home") + File.separator + "logs"
+    //                                   + File.separator + "tracelog");
+    //        File configDir = new File(System.getProperty("user.dir") + File.separator + "logs"
+    //                                  + File.separator + "tracelog");
+    //        Assert.assertFalse(defaultDir.exists());
+    //        Assert.assertTrue(configDir.exists());
+    //    }
 
 }

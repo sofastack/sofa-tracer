@@ -21,7 +21,7 @@ import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
-import com.alipay.sofa.tracer.boot.zipkin.ZipkinSofaTracerSpanRemoteReporter;
+import com.alipay.sofa.tracer.plugins.zipkin.ZipkinSofaTracerSpanRemoteReporter;
 
 /**
  * MockAbstractTracer

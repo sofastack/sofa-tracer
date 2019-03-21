@@ -25,6 +25,7 @@ import com.alipay.common.tracer.core.registry.RegistryExtractorInjector;
 import com.alipay.common.tracer.core.registry.TracerFormatRegistry;
 import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.samplers.Sampler;
+import com.alipay.common.tracer.core.samplers.SamplerFactory;
 import com.alipay.common.tracer.core.samplers.SamplingStatus;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.span.SofaTracerSpanReferenceRelationship;
@@ -115,6 +116,10 @@ public class SofaTracer implements Tracer {
     public void reportSpan(SofaTracerSpan span) {
         if (span == null) {
             return;
+        }
+        // //sampler is support &  current span is root span
+        if (sampler != null && span.getParentSofaTracerSpan() == null) {
+            span.getSofaTracerSpanContext().setSampled(sampler.sample(span).isSampled());
         }
         //invoke listener
         this.invokeReportListeners(span);
@@ -288,24 +293,37 @@ public class SofaTracer implements Tracer {
             long begin = this.startTime > 0 ? this.startTime : System.currentTimeMillis();
             SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(SofaTracer.this, begin,
                 this.references, this.operationName, sofaTracerSpanContext, this.tags);
+
+            // calculate isSampled，but do not change parent's sampler behaviour
+            boolean isSampled = calculateSampler(sofaTracerSpan);
+            sofaTracerSpanContext.setSampled(isSampled);
+
             return sofaTracerSpan;
+        }
+
+        private boolean calculateSampler(SofaTracerSpan sofaTracerSpan) {
+            boolean isSampled = false;
+            if (this.references != null && this.references.size() > 0) {
+                SofaTracerSpanContext preferredReference = preferredReference();
+                isSampled = preferredReference.isSampled();
+            } else {
+                if (sampler != null) {
+                    SamplingStatus samplingStatus = sampler.sample(sofaTracerSpan);
+                    if (samplingStatus.isSampled()) {
+                        isSampled = true;
+                        //发生采样后,将相关属性记录
+                        this.tags.putAll(samplingStatus.getTags());
+                    }
+                }
+            }
+
+            return isSampled;
         }
 
         private SofaTracerSpanContext createRootSpanContext() {
             //生成 traceId
             String traceId = TraceIdGenerator.generate();
-            //默认不采样
-            boolean isSampled = false;
-            if (sampler != null) {
-                SamplingStatus samplingStatus = sampler.sample(this.operationName, traceId);
-                if (samplingStatus.isSampled()) {
-                    isSampled = true;
-                    //发生采样后,将相关属性记录
-                    this.tags.putAll(samplingStatus.getTags());
-                }
-            }
-            return new SofaTracerSpanContext(traceId, ROOT_SPAN_ID, StringUtils.EMPTY_STRING,
-                isSampled);
+            return new SofaTracerSpanContext(traceId, ROOT_SPAN_ID, StringUtils.EMPTY_STRING);
         }
 
         private SofaTracerSpanContext createChildContext() {
@@ -456,6 +474,11 @@ public class SofaTracer implements Tracer {
         }
 
         public SofaTracer build() {
+            try {
+                sampler = SamplerFactory.getSampler();
+            } catch (Exception e) {
+                SelfLog.error("Failed to get tracer sampler strategy;");
+            }
             return new SofaTracer(this.tracerType, this.clientReporter, this.serverReporter,
                 this.sampler, this.tracerTags);
         }
