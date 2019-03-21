@@ -40,9 +40,11 @@ import java.util.HashMap;
  */
 public class SpringMvcSofaTracerFilter implements Filter {
 
-    private String          appName = StringUtils.EMPTY_STRING;
+    private String              appName           = StringUtils.EMPTY_STRING;
 
-    private SpringMvcTracer springMvcTracer;
+    private SpringMvcTracer     springMvcTracer;
+
+    private static final String TRACE_ID_KEY_HEAD = "X-B3-TraceId";
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -65,11 +67,6 @@ public class SpringMvcSofaTracerFilter implements Filter {
             SofaTracerSpanContext spanContext = getSpanContextFromRequest(request);
             // sr
             springMvcSpan = springMvcTracer.serverReceive(spanContext);
-
-            if (!isRootSpan(request)) {
-                springMvcSpan.getSofaTracerSpanContext()
-                    .setSpanId(spanContext.nextChildContextId());
-            }
 
             if (StringUtils.isBlank(this.appName)) {
                 this.appName = SofaTracerConfiguration
@@ -103,18 +100,6 @@ public class SpringMvcSofaTracerFilter implements Filter {
         }
     }
 
-    private boolean isRootSpan(HttpServletRequest request) {
-        Enumeration headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String key = (String) headerNames.nextElement();
-            String value = request.getHeader(key);
-            if (key.equals("X-B3-TraceId") && StringUtils.isNotBlank(value)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     @Override
     public void destroy() {
         // no operation
@@ -134,15 +119,19 @@ public class SpringMvcSofaTracerFilter implements Filter {
      * @return SofaTracerSpanContext Tracing context extract from request
      */
     public SofaTracerSpanContext getSpanContextFromRequest(HttpServletRequest request) {
+        boolean isRootSpan = true;
         HashMap<String, String> headers = new HashMap<String, String>();
         Enumeration headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String key = (String) headerNames.nextElement();
+            if (isRootSpan && TRACE_ID_KEY_HEAD.equalsIgnoreCase(key)) {
+                isRootSpan = false;
+            }
             String value = request.getHeader(key);
             headers.put(key, value);
         }
         // Delay the initialization of the SofaTracerSpanContext to execute the serverReceive method
-        if (headers.isEmpty() || !headers.containsKey("X-B3-TraceId")) {
+        if (headers.isEmpty() || isRootSpan) {
             return null;
         }
 
