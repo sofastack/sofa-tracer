@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.tracer.plugins.zipkin.sender;
 
+import com.alipay.common.tracer.core.appender.self.SelfLog;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -64,9 +65,7 @@ public class ZipkinRestTemplateSender extends Sender {
             byte[] message = BytesMessageEncoder.JSON.encode(encodedSpans);
             post(message);
         } catch (Throwable e) {
-            if (e instanceof Error) {
-                throw (Error) e;
-            }
+            SelfLog.error("Failed to report span to remote server. Current rest url is " + url,e);
         }
         return null;
     }
