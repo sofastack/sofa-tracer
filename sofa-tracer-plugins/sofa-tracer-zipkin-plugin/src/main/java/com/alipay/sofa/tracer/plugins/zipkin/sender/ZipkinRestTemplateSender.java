@@ -65,7 +65,7 @@ public class ZipkinRestTemplateSender extends Sender {
             byte[] message = BytesMessageEncoder.JSON.encode(encodedSpans);
             post(message);
         } catch (Throwable e) {
-            SelfLog.error("Failed to report span to remote server. Current rest url is " + url,e);
+            SelfLog.error("Failed to report span to remote server. Current rest url is " + url, e);
         }
         return null;
     }
