@@ -19,11 +19,11 @@ package com.alipay.sofa.tracer.plugins.springmvc;
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import com.alipay.common.tracer.core.registry.AbstractTextB3Formatter;
 import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
-
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -119,19 +119,15 @@ public class SpringMvcSofaTracerFilter implements Filter {
      * @return SofaTracerSpanContext Tracing context extract from request
      */
     public SofaTracerSpanContext getSpanContextFromRequest(HttpServletRequest request) {
-        boolean isRootSpan = true;
         HashMap<String, String> headers = new HashMap<String, String>();
         Enumeration headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String key = (String) headerNames.nextElement();
-            if (isRootSpan && TRACE_ID_KEY_HEAD.equalsIgnoreCase(key)) {
-                isRootSpan = false;
-            }
             String value = request.getHeader(key);
             headers.put(key, value);
         }
         // Delay the initialization of the SofaTracerSpanContext to execute the serverReceive method
-        if (headers.isEmpty() || isRootSpan) {
+        if (headers.isEmpty() || !isContainSofaTracerMark(headers)) {
             return null;
         }
 
@@ -139,6 +135,18 @@ public class SpringMvcSofaTracerFilter implements Filter {
         SofaTracerSpanContext spanContext = (SofaTracerSpanContext) tracer.extract(
             ExtendFormat.Builtin.B3_HTTP_HEADERS, new SpringMvcHeadersCarrier(headers));
         return spanContext;
+    }
+
+    /**
+     * To check is contain sofaTracer mark
+     * @param headers
+     * @return
+     */
+    private boolean isContainSofaTracerMark(HashMap<String, String> headers) {
+        return (headers.containsKey(AbstractTextB3Formatter.TRACE_ID_KEY_HEAD.toLowerCase()) || headers
+            .containsKey(AbstractTextB3Formatter.TRACE_ID_KEY_HEAD))
+               && (headers.containsKey(AbstractTextB3Formatter.SPAN_ID_KEY_HEAD.toLowerCase()) || headers
+                   .containsKey(AbstractTextB3Formatter.SPAN_ID_KEY_HEAD));
     }
 
     class ResponseWrapper extends HttpServletResponseWrapper {
