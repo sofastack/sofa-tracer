@@ -44,8 +44,6 @@ public class SpringMvcSofaTracerFilter implements Filter {
 
     private SpringMvcTracer     springMvcTracer;
 
-    private static final String TRACE_ID_KEY_HEAD = "X-B3-TraceId";
-
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         // no operation and lazy init
