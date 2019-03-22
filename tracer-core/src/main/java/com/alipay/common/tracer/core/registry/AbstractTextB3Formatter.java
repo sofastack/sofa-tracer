@@ -27,32 +27,32 @@ public abstract class AbstractTextB3Formatter implements RegistryExtractorInject
     /**
      * 128/64 bit traceId lower-hex string (required)
      */
-    static final String TRACE_ID_KEY_HEAD       = "X-B3-TraceId";
+    public static final String TRACE_ID_KEY_HEAD       = "X-B3-TraceId";
     /**
      * 64 bit spanId lower-hex string (required)
      */
-    static final String SPAN_ID_KEY_HEAD        = "X-B3-SpanId";
+    public static final String SPAN_ID_KEY_HEAD        = "X-B3-SpanId";
     /**
      * 64 bit parentSpanId lower-hex string (absent on root span)
      */
-    static final String PARENT_SPAN_ID_KEY_HEAD = "X-B3-ParentSpanId";
+    public static final String PARENT_SPAN_ID_KEY_HEAD = "X-B3-ParentSpanId";
     /**
      * "1" means report this span to the tracing system, "0" means do not. (absent means defer the
      * decision to the receiver of this header).
      */
-    static final String SAMPLED_KEY_HEAD        = "X-B3-Sampled";
+    public static final String SAMPLED_KEY_HEAD        = "X-B3-Sampled";
     /**
      * "1" implies sampled and is a request to override collection-tier sampling policy.
      */
-    static final String FLAGS_KEY_HEAD          = "X-B3-Flags";
+    static final String        FLAGS_KEY_HEAD          = "X-B3-Flags";
     /**
      * Baggage items prefix
      */
-    static final String BAGGAGE_KEY_PREFIX      = "baggage-";
+    static final String        BAGGAGE_KEY_PREFIX      = "baggage-";
     /**
      * System Baggage items prefix
      */
-    static final String BAGGAGE_SYS_KEY_PREFIX  = "baggage-sys-";
+    static final String        BAGGAGE_SYS_KEY_PREFIX  = "baggage-sys-";
 
     @Override
     public SofaTracerSpanContext extract(TextMap carrier) {
