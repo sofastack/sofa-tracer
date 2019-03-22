@@ -40,9 +40,9 @@ import java.util.HashMap;
  */
 public class SpringMvcSofaTracerFilter implements Filter {
 
-    private String              appName           = StringUtils.EMPTY_STRING;
+    private String          appName = StringUtils.EMPTY_STRING;
 
-    private SpringMvcTracer     springMvcTracer;
+    private SpringMvcTracer springMvcTracer;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
