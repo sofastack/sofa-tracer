@@ -105,22 +105,20 @@ public abstract class AbstractTracer {
     protected abstract AbstractSofaTracerStatisticReporter generateServerStatReporter();
 
     /**
-     * 注意:生成的 Span 未放入线程上下文中
+     * Stage CS , This stage will produce a new span
+     * If there is a span in the current sofaTraceContext, it is the parent of the current Span
      *
-     * 在发生一次网络调用之前。创建一个新的上下文
-     *
-     * @param operationName 操作名称
-     * @return 新的 span 上下文,不设置到线程上下文中
+     * @param operationName as span name
+     * @return              a new spam
      */
     public SofaTracerSpan clientSend(String operationName) {
-        //客户端的启动
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         SofaTracerSpan serverSpan = sofaTraceContext.pop();
         SofaTracerSpan clientSpan = null;
         try {
             clientSpan = (SofaTracerSpan) this.sofaTracer.buildSpan(operationName)
                 .asChildOf(serverSpan).start();
-            //需要主动缓存自己的 serverSpan,原因是:asChildOf 关注的是 spanContext
+            // Need to actively cache your own serverSpan, because: asChildOf is concerned about spanContext
             clientSpan.setParentSofaTracerSpan(serverSpan);
             return clientSpan;
         } catch (Throwable throwable) {
@@ -138,31 +136,31 @@ public abstract class AbstractTracer {
                 clientSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
                 clientSpan.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread()
                     .getName());
-                //log
+                // log
                 clientSpan.log(LogData.CLIENT_SEND_EVENT_VALUE);
-                //放入线程上下文
+                // Put into the thread context
                 sofaTraceContext.push(clientSpan);
             }
         }
         return clientSpan;
     }
 
-    /***
-     * 客户端接收响应
-     * @param resultCode 结果码
+    /**
+     *
+     * Stage CR, This stage will end a span
+     *
+     * @param resultCode resultCode to mark success or fail
      */
     public void clientReceive(String resultCode) {
-        //客户端
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         SofaTracerSpan clientSpan = sofaTraceContext.pop();
         if (clientSpan == null) {
             return;
         }
-        //finish
+        // finish and to report
         this.clientReceiveTagFinish(clientSpan, resultCode);
-        //client span
+        // restore parent span
         if (clientSpan.getParentSofaTracerSpan() != null) {
-            //restore parent
             sofaTraceContext.push(clientSpan.getParentSofaTracerSpan());
         }
     }
@@ -174,16 +172,23 @@ public abstract class AbstractTracer {
      */
     public void clientReceiveTagFinish(SofaTracerSpan clientSpan, String resultCode) {
         if (clientSpan != null) {
-            //log
+            // log event
             clientSpan.log(LogData.CLIENT_RECV_EVENT_VALUE);
+            // set resultCode
             clientSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
-            //finish client
+            // finish client span
             clientSpan.finish();
         }
     }
 
     /**
-     * 收到请求
+     * Stage SR , This stage will produce a new span.
+     *
+     * For example, the SpringMVC component accepts a network request,
+     * we need to create an mvc span to record related information.
+     *
+     * we do not care SofaTracerSpanContext, just as root span
+     *
      * @return SofaTracerSpan
      */
     public SofaTracerSpan serverReceive() {
@@ -191,31 +196,35 @@ public abstract class AbstractTracer {
     }
 
     /**
-     * 收到请求
+     * server receive request
      * @param sofaTracerSpanContext 要恢复的上下文
      * @return SofaTracerSpan
      */
     public SofaTracerSpan serverReceive(SofaTracerSpanContext sofaTracerSpanContext) {
-        SofaTracerSpan sofaTracerSpanServer = null;
-        //pop LogContext
+        SofaTracerSpan newSpan = null;
+        // pop LogContext
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         SofaTracerSpan serverSpan = sofaTraceContext.pop();
+        boolean isCalculateSampled = false;
         try {
             if (serverSpan == null) {
-                //root 开始或者复用
                 if (sofaTracerSpanContext == null) {
                     sofaTracerSpanContext = SofaTracerSpanContext.rootStart();
+                    isCalculateSampled = true;
                 } else {
                     sofaTracerSpanContext.setSpanId(sofaTracerSpanContext.nextChildContextId());
                 }
-                sofaTracerSpanServer = this.genSeverSpanInstance(System.currentTimeMillis(),
+                newSpan = this.genSeverSpanInstance(System.currentTimeMillis(),
                     StringUtils.EMPTY_STRING, sofaTracerSpanContext, null);
+                // calculate sampled
+                if (isCalculateSampled) {
+                    sofaTracerSpanContext.setSampled(this.sofaTracer.getSampler().sample(newSpan)
+                        .isSampled());
+                }
             } else {
-                //没有 setLogContextAndPush 操作,会 span == null,所以不会抛出 cast 异常
-                sofaTracerSpanServer = serverSpan;
+                // Without the setLogContextAndPush operation, span == null, so cast exception will not be thrown
+                newSpan = serverSpan;
             }
-            //push
-            sofaTraceContext.push(sofaTracerSpanServer);
         } catch (Throwable throwable) {
             SelfLog.errorWithTraceId("Middleware server received and restart root span", throwable);
             SelfLog.flush();
@@ -225,24 +234,26 @@ public abstract class AbstractTracer {
                 bizBaggage = serverSpan.getSofaTracerSpanContext().getBizBaggage();
                 sysBaggage = serverSpan.getSofaTracerSpanContext().getSysBaggage();
             }
-            sofaTracerSpanServer = this.errorRecover(bizBaggage, sysBaggage);
-            sofaTraceContext.push(sofaTracerSpanServer);
+            newSpan = this.errorRecover(bizBaggage, sysBaggage);
         } finally {
-            if (sofaTracerSpanServer != null) {
-                //log
-                sofaTracerSpanServer.log(LogData.SERVER_RECV_EVENT_VALUE);
-                //server tags 必须设置
-                sofaTracerSpanServer.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
-                sofaTracerSpanServer.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread
-                    .currentThread().getName());
+            if (newSpan != null) {
+                // log
+                newSpan.log(LogData.SERVER_RECV_EVENT_VALUE);
+                // server tags
+                newSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
+                newSpan
+                    .setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread().getName());
+                // push to sofaTraceContext
+                sofaTraceContext.push(newSpan);
             }
         }
-        return sofaTracerSpanServer;
+        return newSpan;
     }
 
     /**
-     * 请求处理完成
-     * @param resultCode 结果码
+     * Stage SS, This stage will end a span
+     *
+     * @param resultCode
      */
     public void serverSend(String resultCode) {
         try {
@@ -251,13 +262,13 @@ public abstract class AbstractTracer {
             if (serverSpan == null) {
                 return;
             }
-            //log
+            // log
             serverSpan.log(LogData.SERVER_SEND_EVENT_VALUE);
-            // 结果码
+            // resultCode
             serverSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
             serverSpan.finish();
         } finally {
-            //记得处理完成要清空 TL
+            // clear TreadLocalContext
             this.clearTreadLocalContext();
         }
     }
@@ -270,18 +281,21 @@ public abstract class AbstractTracer {
     }
 
     /**
-     * 清理全部调用上下文信息:注意服务端接收完毕才可以清理;而客户端是没有合适的时机进行清理的(只能判断 size <= 1)
+     * Clean up all call context information: Note that the server can be cleaned up after receiving it;
+     * the client does not have the right time to clean up (can only judge size <= 1)
      */
     private void clearTreadLocalContext() {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         sofaTraceContext.clear();
     }
 
-    /***
-     * 当发生错误进行补救,从根节点重新计数开始
-     * @param bizBaggage 业务透传
-     * @param sysBaggage 系统透传
-     * @return 从根节点开始的上下文
+    /**
+     *
+     * When an error occurs to remedy, start counting from the root node
+     *
+     * @param bizBaggage Business transparent transmission
+     * @param sysBaggage System transparent transmission
+     * @return root span
      */
     protected SofaTracerSpan errorRecover(Map<String, String> bizBaggage,
                                           Map<String, String> sysBaggage) {

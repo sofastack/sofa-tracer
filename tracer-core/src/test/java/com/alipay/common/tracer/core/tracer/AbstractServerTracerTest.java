@@ -17,6 +17,8 @@
 package com.alipay.common.tracer.core.tracer;
 
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
+import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import org.junit.Assert;
@@ -65,6 +67,27 @@ public class AbstractServerTracerTest {
         //user super method
         SpanEncoder<SofaTracerSpan> clientDigestEncoder = serverTracer.getClientDigestEncoder();
         Assert.assertTrue(clientDigestEncoder == null);
+    }
+
+    /**
+     *  case 1 : sofaTracerSpanContext ==null & by default sampler
+     */
+    @Test
+    public void testServerReceive_null() {
+        SofaTracerSpan sofaTracerSpan = serverTracer.serverReceive();
+        Assert.assertTrue(sofaTracerSpan.getSofaTracerSpanContext().isSampled());
+    }
+
+    /**
+     *  case 2 : sofaTracerSpanContext !=null & by default sampler
+     */
+    @Test
+    public void testServerReceive_sofaTracerSpanContext() {
+        SofaTraceContextHolder.getSofaTraceContext().clear();
+        // sofaTracerSpanContext's sampler is false
+        SofaTracerSpanContext sofaTracerSpanContext = new SofaTracerSpanContext("123", "0");
+        SofaTracerSpan sofaTracerSpan = serverTracer.serverReceive(sofaTracerSpanContext);
+        Assert.assertTrue(!sofaTracerSpan.getSofaTracerSpanContext().isSampled());
     }
 
     @Test
