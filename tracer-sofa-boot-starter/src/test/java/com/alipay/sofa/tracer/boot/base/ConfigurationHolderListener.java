@@ -17,9 +17,12 @@
 package com.alipay.sofa.tracer.boot.base;
 
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.infra.utils.SOFABootEnvUtils;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
  * @author qilong.zql
@@ -29,6 +32,12 @@ public class ConfigurationHolderListener implements
                                         ApplicationListener<ApplicationEnvironmentPreparedEvent> {
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
+        ConfigurableEnvironment environment = event.getEnvironment();
+        final String appName = SofaTracerConfiguration
+                .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
+        if (SOFABootEnvUtils.isSpringCloudBootstrapEnvironment(environment)) {
+            return;
+        }
         SofaTracerProperties sofaTracerProperties = new SofaTracerProperties();
         sofaTracerProperties.setDisableDigestLog(SofaTracerConfiguration
             .getProperty(SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY));
@@ -42,12 +51,14 @@ public class ConfigurationHolderListener implements
             .getProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL));
         sofaTracerProperties.setBaggageMaxLength(SofaTracerConfiguration
             .getProperty(SofaTracerConfiguration.TRACER_PENETRATE_ATTRIBUTE_MAX_LENGTH));
-        ConfigurationHolder.setSofaTracerProperties(sofaTracerProperties);
         sofaTracerProperties.setSamplerName(SofaTracerConfiguration
             .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY));
         sofaTracerProperties.setSamplerCustomRuleClassName(SofaTracerConfiguration
             .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_CUSTOM_RULE_CLASS_NAME));
-        sofaTracerProperties.setSamplerPercentage(Float.valueOf(SofaTracerConfiguration
-            .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY)));
+        String property = SofaTracerConfiguration
+            .getProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY);
+        sofaTracerProperties
+            .setSamplerPercentage(Float.valueOf(StringUtils.isBlank(property) ? "100" : property));
+        ConfigurationHolder.setSofaTracerProperties(sofaTracerProperties);
     }
 }
