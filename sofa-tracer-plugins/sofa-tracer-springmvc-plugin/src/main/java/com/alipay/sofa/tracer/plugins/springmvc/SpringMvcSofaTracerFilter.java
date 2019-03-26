@@ -19,11 +19,11 @@ package com.alipay.sofa.tracer.plugins.springmvc;
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import com.alipay.common.tracer.core.registry.AbstractTextB3Formatter;
 import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
-
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,7 +51,7 @@ public class SpringMvcSofaTracerFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-                         FilterChain filterChain) throws IOException, ServletException {
+                         FilterChain filterChain) {
 
         if (this.springMvcTracer == null) {
             this.springMvcTracer = SpringMvcTracer.getSpringMvcTracerSingleton();
@@ -65,11 +65,6 @@ public class SpringMvcSofaTracerFilter implements Filter {
             SofaTracerSpanContext spanContext = getSpanContextFromRequest(request);
             // sr
             springMvcSpan = springMvcTracer.serverReceive(spanContext);
-
-            if (!isRootSpan(request)) {
-                springMvcSpan.getSofaTracerSpanContext()
-                    .setSpanId(spanContext.nextChildContextId());
-            }
 
             if (StringUtils.isBlank(this.appName)) {
                 this.appName = SofaTracerConfiguration
@@ -90,6 +85,10 @@ public class SpringMvcSofaTracerFilter implements Filter {
             //filter end
             httpStatus = responseWrapper.getStatus();
             responseSize = responseWrapper.getContentLength();
+        } catch (Throwable t) {
+            httpStatus = 500;
+            // 异常抛出
+            throw new RuntimeException(t);
         } finally {
             if (springMvcSpan != null) {
                 springMvcSpan.setTag(CommonSpanTags.RESP_SIZE, responseSize);
@@ -97,18 +96,6 @@ public class SpringMvcSofaTracerFilter implements Filter {
                 springMvcTracer.serverSend(String.valueOf(httpStatus));
             }
         }
-    }
-
-    private boolean isRootSpan(HttpServletRequest request) {
-        Enumeration headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String key = (String) headerNames.nextElement();
-            String value = request.getHeader(key);
-            if (key.equals("X-B3-TraceId") && StringUtils.isNotBlank(value)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     @Override
@@ -131,18 +118,33 @@ public class SpringMvcSofaTracerFilter implements Filter {
      */
     public SofaTracerSpanContext getSpanContextFromRequest(HttpServletRequest request) {
         HashMap<String, String> headers = new HashMap<String, String>();
-
         Enumeration headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String key = (String) headerNames.nextElement();
             String value = request.getHeader(key);
             headers.put(key, value);
         }
+        // Delay the initialization of the SofaTracerSpanContext to execute the serverReceive method
+        if (headers.isEmpty() || !isContainSofaTracerMark(headers)) {
+            return null;
+        }
 
         SofaTracer tracer = springMvcTracer.getSofaTracer();
         SofaTracerSpanContext spanContext = (SofaTracerSpanContext) tracer.extract(
             ExtendFormat.Builtin.B3_HTTP_HEADERS, new SpringMvcHeadersCarrier(headers));
         return spanContext;
+    }
+
+    /**
+     * To check is contain sofaTracer mark
+     * @param headers
+     * @return
+     */
+    private boolean isContainSofaTracerMark(HashMap<String, String> headers) {
+        return (headers.containsKey(AbstractTextB3Formatter.TRACE_ID_KEY_HEAD.toLowerCase()) || headers
+            .containsKey(AbstractTextB3Formatter.TRACE_ID_KEY_HEAD))
+               && (headers.containsKey(AbstractTextB3Formatter.SPAN_ID_KEY_HEAD.toLowerCase()) || headers
+                   .containsKey(AbstractTextB3Formatter.SPAN_ID_KEY_HEAD));
     }
 
     class ResponseWrapper extends HttpServletResponseWrapper {
