@@ -29,6 +29,7 @@
         <module>tracer-test/logback-test</module>
         <module>tracer-test/log4j2-test</module>
         <module>tracer-test/log4j-test</module>
+        <module>sofa-tracer-plugins/sofa-tracer-springcloud-plugin</module>
     </modules>
 
     <properties>
@@ -77,6 +78,8 @@
             <organization>Ant Financial</organization>
             <organizationUrl>https://www.alipay.com/</organizationUrl>
         </developer>
+
+
     </developers>
 
     <dependencyManagement>
@@ -205,6 +208,15 @@
                 <version>${jmh.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>Finchley.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
