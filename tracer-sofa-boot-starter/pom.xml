@@ -39,6 +39,10 @@
         </dependency>
         <dependency>
             <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-tracer-springcloud-plugin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-tracer-zipkin-plugin</artifactId>
         </dependency>
         <dependency>

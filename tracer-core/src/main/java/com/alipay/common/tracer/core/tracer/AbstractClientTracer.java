@@ -33,22 +33,27 @@ public abstract class AbstractClientTracer extends AbstractTracer {
         super(tracerType, true, false);
     }
 
+    @Override
     protected String getServerDigestReporterLogName() {
         return null;
     }
 
+    @Override
     protected String getServerDigestReporterRollingKey() {
         return null;
     }
 
+    @Override
     protected String getServerDigestReporterLogNameKey() {
         return null;
     }
 
+    @Override
     protected SpanEncoder<SofaTracerSpan> getServerDigestEncoder() {
         return null;
     }
 
+    @Override
     protected AbstractSofaTracerStatisticReporter generateServerStatReporter() {
         return null;
     }
