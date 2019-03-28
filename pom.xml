@@ -22,6 +22,7 @@
         <module>sofa-tracer-plugins/sofa-tracer-okhttp-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-datasource-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-zipkin-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-springcloud-plugin</module>
         <module>tracer-all</module>
         <module>tracer-sofa-boot-starter</module>
         <module>tracer-samples</module>
@@ -29,7 +30,6 @@
         <module>tracer-test/logback-test</module>
         <module>tracer-test/log4j2-test</module>
         <module>tracer-test/log4j-test</module>
-        <module>sofa-tracer-plugins/sofa-tracer-springcloud-plugin</module>
     </modules>
 
     <properties>
