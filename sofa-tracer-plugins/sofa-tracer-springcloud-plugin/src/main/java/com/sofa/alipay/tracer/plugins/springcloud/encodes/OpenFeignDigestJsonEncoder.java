@@ -22,6 +22,7 @@ import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.tag.Tags;
 
 import java.io.IOException;
@@ -52,7 +53,9 @@ public class OpenFeignDigestJsonEncoder extends AbstractDigestSpanEncoder {
         buffer.append(CommonSpanTags.REQUEST_URL, tagStrMap.get(CommonSpanTags.REQUEST_URL));
         buffer.append(CommonSpanTags.METHOD, tagStrMap.get(CommonSpanTags.METHOD));
         buffer.append(CommonSpanTags.RESULT_CODE, tagStrMap.get(CommonSpanTags.RESULT_CODE));
-        buffer.append(Tags.ERROR.getKey(), tagStrMap.get(Tags.ERROR.getKey()));
+        if (StringUtils.isNotBlank(tagStrMap.get(Tags.ERROR.getKey()))){
+            buffer.append(Tags.ERROR.getKey(), tagStrMap.get(Tags.ERROR.getKey()));
+        }
         Number requestSize = tagNumMap.get(CommonSpanTags.REQ_SIZE);
         buffer
             .append(CommonSpanTags.REQ_SIZE, (requestSize == null ? 0L : requestSize.longValue()));
