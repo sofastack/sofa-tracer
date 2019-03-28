@@ -25,7 +25,6 @@ import org.apache.dubbo.remoting.exchange.Request;
 import org.apache.dubbo.remoting.exchange.Response;
 import org.apache.dubbo.rpc.RpcInvocation;
 import org.apache.dubbo.rpc.RpcResult;
-
 import java.io.IOException;
 
 /**
@@ -73,10 +72,12 @@ public class DataSizeCodecWrapper implements Codec2 {
     protected void encodeRequestWithTracer(Channel channel, ChannelBuffer buffer, Object message,
                                            RpcInvocation invocation) throws IOException {
         long startTime = System.currentTimeMillis();
+        int index = buffer.writerIndex();
         // 序列化
         codec.encode(channel, buffer, message);
+        int reqSize = buffer.writerIndex() - index;
         long elapsed = System.currentTimeMillis() - startTime;
-        invocation.setAttachment(Constants.INPUT_KEY, String.valueOf(buffer.readableBytes()));
+        invocation.setAttachment(Constants.INPUT_KEY, String.valueOf(reqSize));
         invocation.setAttachment(CommonSpanTags.CLIENT_SERIALIZE_TIME, String.valueOf(elapsed));
     }
 
@@ -91,9 +92,11 @@ public class DataSizeCodecWrapper implements Codec2 {
                                           RpcResult rpcResult) throws IOException {
 
         long startTime = System.currentTimeMillis();
+        int index = buffer.writerIndex();
         codec.encode(channel, buffer, result);
+        int respSize = buffer.writerIndex() - index;
         long elapsed = System.currentTimeMillis() - startTime;
-        rpcResult.setAttachment(Constants.OUTPUT_KEY, String.valueOf(buffer.readableBytes()));
+        rpcResult.setAttachment(Constants.OUTPUT_KEY, String.valueOf(respSize));
         rpcResult.setAttachment(CommonSpanTags.SERVER_SERIALIZE_TIME, String.valueOf(elapsed));
     }
 
@@ -107,15 +110,16 @@ public class DataSizeCodecWrapper implements Codec2 {
     @Override
     public Object decode(Channel channel, ChannelBuffer input) throws IOException {
         long startTime = System.currentTimeMillis();
+        int index = input.readerIndex();
         Object ret = codec.decode(channel, input);
+        int size = input.readerIndex() - index;
         long elapsed = System.currentTimeMillis() - startTime;
         if (ret instanceof Request) {
             // 服务端反序列化Request
             Object data = ((Request) ret).getData();
             if (data instanceof RpcInvocation) {
                 RpcInvocation invocation = (RpcInvocation) data;
-                invocation
-                    .setAttachment(Constants.INPUT_KEY, String.valueOf(input.readableBytes()));
+                invocation.setAttachment(Constants.INPUT_KEY, String.valueOf(size));
                 invocation.setAttachment(CommonSpanTags.SERVER_DESERIALIZE_TIME,
                     String.valueOf(elapsed));
             }
@@ -125,8 +129,7 @@ public class DataSizeCodecWrapper implements Codec2 {
             Object result = ((Response) ret).getResult();
             if (result instanceof RpcResult) {
                 RpcResult rpcResult = (RpcResult) result;
-                rpcResult
-                    .setAttachment(Constants.OUTPUT_KEY, String.valueOf(input.readableBytes()));
+                rpcResult.setAttachment(Constants.OUTPUT_KEY, String.valueOf(size));
                 rpcResult.setAttachment(CommonSpanTags.CLIENT_DESERIALIZE_TIME,
                     String.valueOf(elapsed));
             }

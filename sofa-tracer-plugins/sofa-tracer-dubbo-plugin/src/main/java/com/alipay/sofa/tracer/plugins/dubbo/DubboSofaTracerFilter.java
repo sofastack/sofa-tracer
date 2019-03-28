@@ -28,35 +28,39 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboConsumerSofaTracer;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboProviderSofaTracer;
-import com.alipay.sofa.tracer.plugins.dubbo.utils.FastJsonObjectUtil;
 import io.opentracing.tag.Tags;
 import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.common.extension.Activate;
+import org.apache.dubbo.remoting.TimeoutException;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.support.RpcUtils;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/2/26 2:02 PM
- * @since:
+ * @since: 2.3.4
  **/
 @Activate(group = { Constants.PROVIDER, Constants.CONSUMER }, value = "dubboSofaTracerFilter", order = 1)
 public class DubboSofaTracerFilter implements Filter {
 
-    private String                  appName         = StringUtils.EMPTY_STRING;
+    private String                             appName         = StringUtils.EMPTY_STRING;
 
-    private static final String     BLANK           = StringUtils.EMPTY_STRING;
+    private static final String                BLANK           = StringUtils.EMPTY_STRING;
 
-    private static final String     SUCCESS_CODE    = "00";
+    private static final String                SUCCESS_CODE    = "00";
 
-    private static final String     FAILED_CODE     = "99";
+    private static final String                FAILED_CODE     = "99";
 
-    private static final String     SPAN_INVOKE_KEY = "sofa.current.span.key";
+    private static final String                SPAN_INVOKE_KEY = "sofa.current.span.key";
 
-    private DubboConsumerSofaTracer dubboConsumerSofaTracer;
+    private DubboConsumerSofaTracer            dubboConsumerSofaTracer;
 
-    private DubboProviderSofaTracer dubboProviderSofaTracer;
+    private DubboProviderSofaTracer            dubboProviderSofaTracer;
+
+    private static Map<String, SofaTracerSpan> TracerSpanMap   = new ConcurrentHashMap<String, SofaTracerSpan>();
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
@@ -84,26 +88,38 @@ public class DubboSofaTracerFilter implements Filter {
 
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
-        String currentSpan = invocation.getAttachments().get(SPAN_INVOKE_KEY);
-        if (StringUtils.isNotBlank(currentSpan)) {
-            SofaTracerSpan sofaTracerSpan = FastJsonObjectUtil.deserializeSpan(currentSpan);
-            // to build tracer instance
-            if (dubboConsumerSofaTracer == null) {
-                this.dubboConsumerSofaTracer = DubboConsumerSofaTracer
-                    .getDubboConsumerSofaTracerSingleton();
+        String spanKey = getTracerSpanMapKey(invoker);
+        try {
+            // 只有异步才进行回调打印
+            boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
+            if (!isAsync) {
+                return result;
             }
-            String resultCode = SUCCESS_CODE;
-            if (result.hasException()) {
-                if (result.getException() instanceof RpcException) {
-                    resultCode = Integer.toString(((RpcException) result.getException()).getCode());
-                    sofaTracerSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
-                } else {
-                    resultCode = FAILED_CODE;
+            if (TracerSpanMap.containsKey(spanKey)) {
+                SofaTracerSpan sofaTracerSpan = TracerSpanMap.get(spanKey);
+                // to build tracer instance
+                if (dubboConsumerSofaTracer == null) {
+                    this.dubboConsumerSofaTracer = DubboConsumerSofaTracer
+                        .getDubboConsumerSofaTracerSingleton();
                 }
+                String resultCode = SUCCESS_CODE;
+                if (result.hasException()) {
+                    if (result.getException() instanceof RpcException) {
+                        resultCode = Integer.toString(((RpcException) result.getException())
+                            .getCode());
+                        sofaTracerSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
+                    } else {
+                        resultCode = FAILED_CODE;
+                    }
+                }
+                // add elapsed time
+                appendElapsedTimeTags(invocation, sofaTracerSpan, result, true);
+                dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, resultCode);
             }
-            // add elapsed time
-            appendElapsedTimeTags(invocation, sofaTracerSpan, result);
-            dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, resultCode);
+        } finally {
+            if (TracerSpanMap.containsKey(spanKey)) {
+                TracerSpanMap.remove(spanKey);
+            }
         }
         return result;
     }
@@ -162,7 +178,7 @@ public class DubboSofaTracerFilter implements Filter {
                 }
             } else {
                 // add elapsed time
-                appendElapsedTimeTags(invocation, sofaTracerSpan, result);
+                appendElapsedTimeTags(invocation, sofaTracerSpan, result,true);
             }
         } catch (RpcException e) {
             exception = e;
@@ -173,42 +189,39 @@ public class DubboSofaTracerFilter implements Filter {
         } finally {
             if (exception != null) {
                 if (exception instanceof RpcException) {
+                    sofaTracerSpan.setTag(Tags.ERROR.getKey(),exception.getMessage());
                     RpcException rpcException = (RpcException) exception;
                     resultCode = String.valueOf(rpcException.getCode());
                 } else {
                     resultCode = FAILED_CODE;
                 }
             }
-            invocation.getAttachments().put(SPAN_INVOKE_KEY,
-                FastJsonObjectUtil.serializeSpan(sofaTracerSpan));
+
             if (!isAsync) {
-                dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, resultCode);
+                dubboConsumerSofaTracer.clientReceive(resultCode);
+            } else {
+                SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+                SofaTracerSpan clientSpan = sofaTraceContext.pop();
+                if (clientSpan != null) {
+                    // Record client send event
+                    sofaTracerSpan.log(LogData.CLIENT_SEND_EVENT_VALUE);
+                }
+                // 将当前 span 缓存
+                TracerSpanMap.put(getTracerSpanMapKey(invoker), sofaTracerSpan);
+                if (clientSpan != null && clientSpan.getParentSofaTracerSpan() != null) {
+                    //restore parent
+                    sofaTraceContext.push(clientSpan.getParentSofaTracerSpan());
+                }
+                CompletableFuture<Object> future = (CompletableFuture<Object>) RpcContext.getContext().getFuture();
+                future.whenComplete((object, throwable)-> {
+                    if (throwable != null && throwable instanceof TimeoutException) {
+                        sofaTracerSpan.setTag(Tags.ERROR.getKey(),throwable.getMessage());
+                        dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, "03");
+                    }
+                });
             }
         }
         return result;
-    }
-
-    private void appendElapsedTimeTags(Invocation invocation, SofaTracerSpan sofaTracerSpan,
-                                       Result result) {
-        String elapsed = invocation.getAttachment(CommonSpanTags.CLIENT_SERIALIZE_TIME);
-        //客户端请求序列化耗时
-        if (StringUtils.isNotBlank(elapsed)) {
-            sofaTracerSpan.setTag(CommonSpanTags.CLIENT_SERIALIZE_TIME, Integer.parseInt(elapsed));
-        }
-        String deElapsed = invocation.getAttachment(CommonSpanTags.CLIENT_SERIALIZE_TIME);
-        //客户端接受响应反序列化耗时
-        if (StringUtils.isNotBlank(deElapsed)) {
-            sofaTracerSpan.setTag(CommonSpanTags.CLIENT_DESERIALIZE_TIME,
-                Integer.parseInt(deElapsed));
-        }
-        String reqSize = invocation.getAttachment(Constants.INPUT_KEY);
-        if (StringUtils.isNotBlank(reqSize)) {
-            sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE, Integer.parseInt(reqSize));
-        }
-        String respSize = result.getAttachment(Constants.OUTPUT_KEY);
-        if (StringUtils.isNotBlank(respSize)) {
-            sofaTracerSpan.setTag(CommonSpanTags.RESP_SIZE, Integer.parseInt(respSize));
-        }
     }
 
     /**
@@ -233,26 +246,7 @@ public class DubboSofaTracerFilter implements Filter {
             if (result == null) {
                 return null;
             } else {
-                String elapsed = invocation.getAttachment(CommonSpanTags.SERVER_SERIALIZE_TIME);
-                if (StringUtils.isNotBlank(elapsed)) {
-                    sofaTracerSpan.setTag(CommonSpanTags.SERVER_SERIALIZE_TIME,
-                        Integer.parseInt(elapsed));
-                }
-
-                String deElapsed = invocation.getAttachment(CommonSpanTags.SERVER_DESERIALIZE_TIME);
-                if (StringUtils.isNotBlank(deElapsed)) {
-                    sofaTracerSpan.setTag(CommonSpanTags.SERVER_DESERIALIZE_TIME,
-                        Integer.parseInt(deElapsed));
-                }
-
-                String reqSize = invocation.getAttachment(Constants.INPUT_KEY);
-                if (StringUtils.isNotBlank(reqSize)) {
-                    sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE, Integer.parseInt(reqSize));
-                }
-                String respSize = result.getAttachment(Constants.OUTPUT_KEY);
-                if (StringUtils.isNotBlank(respSize)) {
-                    sofaTracerSpan.setTag(CommonSpanTags.RESP_SIZE, Integer.parseInt(respSize));
-                }
+                appendElapsedTimeTags(invocation, sofaTracerSpan, result, false);
             }
             if (result.hasException()) {
                 exception = result.getException();
@@ -268,6 +262,7 @@ public class DubboSofaTracerFilter implements Filter {
             String resultCode = SUCCESS_CODE;
             if (exception != null) {
                 if (exception instanceof RpcException) {
+                    sofaTracerSpan.setTag(Tags.ERROR.getKey(), exception.getMessage());
                     RpcException rpcException = (RpcException) exception;
                     if (rpcException.isBiz()) {
                         resultCode = String.valueOf(rpcException.getCode());
@@ -310,9 +305,50 @@ public class DubboSofaTracerFilter implements Filter {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         // Record server receive event
         serverSpan.log(LogData.SERVER_RECV_EVENT_VALUE);
-        //放到线程上下文
+        // 放到线程上下文
         sofaTraceContext.push(serverSpan);
         return serverSpan;
+    }
+
+    private void appendElapsedTimeTags(Invocation invocation, SofaTracerSpan sofaTracerSpan,
+                                       Result result, boolean isClient) {
+        if (sofaTracerSpan == null) {
+            return;
+        }
+        String reqSize = invocation.getAttachment(Constants.INPUT_KEY);
+        String respSize = result.getAttachment(Constants.OUTPUT_KEY);
+        String elapsed;
+        String deElapsed;
+        if (isClient) {
+            elapsed = invocation.getAttachment(CommonSpanTags.CLIENT_SERIALIZE_TIME);
+            deElapsed = invocation.getAttachment(CommonSpanTags.CLIENT_DESERIALIZE_TIME);
+            //客户端请求序列化耗时
+            sofaTracerSpan
+                .setTag(CommonSpanTags.CLIENT_SERIALIZE_TIME, parseAttachment(elapsed, 0));
+            //客户端接受响应反序列化耗时
+            sofaTracerSpan.setTag(CommonSpanTags.CLIENT_DESERIALIZE_TIME,
+                parseAttachment(deElapsed, 0));
+        } else {
+            elapsed = invocation.getAttachment(CommonSpanTags.SERVER_SERIALIZE_TIME);
+            deElapsed = invocation.getAttachment(CommonSpanTags.SERVER_DESERIALIZE_TIME);
+            sofaTracerSpan
+                .setTag(CommonSpanTags.SERVER_SERIALIZE_TIME, parseAttachment(elapsed, 0));
+            sofaTracerSpan.setTag(CommonSpanTags.SERVER_DESERIALIZE_TIME,
+                parseAttachment(deElapsed, 0));
+        }
+        sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE, parseAttachment(reqSize, 0));
+        sofaTracerSpan.setTag(CommonSpanTags.RESP_SIZE, parseAttachment(respSize, 0));
+    }
+
+    private int parseAttachment(String value, int defaultVal) {
+        try {
+            if (StringUtils.isNotBlank(value)) {
+                defaultVal = Integer.parseInt(value);
+            }
+        } catch (Exception e) {
+            SelfLog.error("Failed to parse Dubbo plugin params.", e);
+        }
+        return defaultVal;
     }
 
     /**
@@ -364,5 +400,9 @@ public class DubboSofaTracerFilter implements Filter {
 
     private String spanKind(RpcContext rpcContext) {
         return rpcContext.isConsumerSide() ? Tags.SPAN_KIND_CLIENT : Tags.SPAN_KIND_SERVER;
+    }
+
+    private String getTracerSpanMapKey(Invoker<?> invoker) {
+        return SPAN_INVOKE_KEY + "." + invoker.hashCode();
     }
 }

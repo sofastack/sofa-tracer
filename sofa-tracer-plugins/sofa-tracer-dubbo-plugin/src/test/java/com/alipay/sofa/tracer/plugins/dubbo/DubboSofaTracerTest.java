@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.tracer.plugins.dubbo;
 
-import com.alibaba.dubbo.config.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
@@ -24,6 +23,8 @@ import com.alipay.sofa.tracer.plugins.dubbo.enums.DubboLogEnum;
 import com.alipay.sofa.tracer.plugins.dubbo.impl.DubboServiceImpl;
 import com.alipay.sofa.tracer.plugins.dubbo.service.DubboService;
 import org.apache.commons.io.FileUtils;
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.config.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,8 @@ public class DubboSofaTracerTest {
 
     protected static String logDirectoryPath = System.getProperty("user.home") + File.separator
                                                + "logs" + File.separator + "tracelog";
+
+    private static String   address          = "";
 
     @Before
     public void testBefore() throws Exception {
@@ -56,7 +59,7 @@ public class DubboSofaTracerTest {
         protocol.setSerialization("hessian2");
         // 服务提供者连接注册中心，设置属性
         DubboServiceImpl dubboServiceImpl = new DubboServiceImpl();
-        ServiceConfig<DubboService> service = new ServiceConfig<DubboService>(); // 此实例很重，封装了与注册中心的连接，请自行缓存，否则可能造成内存和连接泄漏
+        ServiceConfig<DubboService> service = new ServiceConfig<DubboService>();
         service.setApplication(application);
         service.setProtocol(protocol); // 多个协议可以用setProtocols()
         service.setInterface(DubboService.class.getName());
@@ -68,21 +71,20 @@ public class DubboSofaTracerTest {
         //services.setRegister(false);
         // 暴露及注册服务
         service.export();
+        List<URL> exportedUrls = service.getExportedUrls();
+        Assert.assertTrue(exportedUrls.size() == 1);
+        address = exportedUrls.get(0).toString();
     }
 
     @Test
     public void testTracer() throws Exception {
-        ApplicationConfig application = new ApplicationConfig();
-        application.setName("test-client");
         RegistryConfig registryConfig = new RegistryConfig();
         registryConfig.setAddress("N/A");
         // 服务调用者连接注册中心，设置属性
         ReferenceConfig<DubboService> reference = new ReferenceConfig<DubboService>(); // 此实例很重，封装了与注册中心的连接以及与提供者的连接，请自行缓存，否则可能造成内存和连接泄漏
-        reference.setApplication(application);
         reference.setInterface(DubboService.class);
         reference.setRegistry(registryConfig);
-        reference
-            .setUrl("dubbo://127.0.0.1:12280/com.alipay.sofa.tracer.plugins.dubbo.service.DubboService?anyhost=true&application=test-client&check=false&codec=dubbo&dubbo=2.6.0&heartbeat=60000&interface=com.alipay.sofa.tracer.plugins.dubbo.service.DubboService&methods=echoStr&serialization=hessian2&version=1.0");
+        reference.setUrl(address);
         reference.setVersion("1.0");
         reference.setGroup("tracer");
         reference.setFilter("dubboSofaTracerFilter");
@@ -116,7 +118,7 @@ public class DubboSofaTracerTest {
 
         Assert.assertEquals(clientJson.getString(CommonSpanTags.SERVICE),
             "com.alipay.sofa.tracer.plugins.dubbo.service.DubboService");
-        Assert.assertEquals(clientJson.getString(CommonSpanTags.LOCAL_APP), "test-client");
+        Assert.assertEquals(clientJson.getString(CommonSpanTags.LOCAL_APP), "test-server");
         Assert.assertEquals(clientJson.getString("spanId"), "0");
         Assert.assertEquals(clientJson.getString(CommonSpanTags.METHOD), "echoStr");
         Assert.assertEquals(clientJson.getString(CommonSpanTags.PROTOCOL), "dubbo");
