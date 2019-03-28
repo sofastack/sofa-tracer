@@ -17,52 +17,109 @@
 package com.alipay.common.tracer.core.span;
 
 /**
- * 一些通用的 SpanTags
+ * some common SpanTags
  * @author luoguimu123
- * @version $Id: CommonSpanTags.java, v 0.1 2018年01月29日 下午12:10 luoguimu123 Exp $
+ * @author guolei.sgl
+ * @version : v 0.1
  */
 public class CommonSpanTags {
 
-    //************** String 类型 **************
-    /***
-     * 当前应用名称,注意和 RPC 保持一致 com.alipay.sofa.rpc.tracer.log.tags.RpcSpanTags#LOCAL_APP
+    /**
+     * LOCAL_APP records the currnt app name
      */
-    public static final String LOCAL_APP           = "local.app";
+    public static final String LOCAL_APP               = "local.app";
 
     /**
-     * opposite end appName such as source or target appName
+     * REMOTE_APP records the target app name
      */
-    public static final String REMOTE_APP          = "remote.app";
+    public static final String REMOTE_APP              = "remote.app";
 
     /**
-     * 结果码, 具体含义根据实际每个中间件的约定不同而不同
+     * CURRENT_THREAD_NAME records handler result
      */
-    public static final String RESULT_CODE         = "result.code";
+    public static final String RESULT_CODE             = "result.code";
 
-    /***
-     * 当前线程名字
+    /**
+     * CURRENT_THREAD_NAME records current thread name
      */
-    public static final String CURRENT_THREAD_NAME = "current.thread.name";
+    public static final String CURRENT_THREAD_NAME     = "current.thread.name";
 
-    /***
-     * 请求 url
+    /**
+     * REQUEST_URL records the url of the incoming request.
      */
-    public static final String REQUEST_URL         = "request.url";
+    public static final String REQUEST_URL             = "request.url";
 
-    /***
-     * 方法名称
+    /**
+     * METHOD records the request method name,(rpc method or http method).
      */
-    public static final String METHOD              = "method";
+    public static final String METHOD                  = "method";
 
-    //************** Number 类型 **************
-
-    /***
-     * 请求大小
+    /**
+     * REQ_SIZE records the request body size.
      */
-    public static final String REQ_SIZE            = "req.size.bytes";
+    public static final String REQ_SIZE                = "req.size.bytes";
 
-    /***
-     * 响应大小
+    /**
+     * RESP_SIZE records the response body size.
      */
-    public static final String RESP_SIZE           = "resp.size.bytes";
+    public static final String RESP_SIZE               = "resp.size.bytes";
+
+    /**
+     * PROTOCOL records the request protocol type.
+     */
+    public static final String PROTOCOL                = "protocol";
+
+    /**
+     * SERVICE records the rpc service interface.
+     */
+    public static final String SERVICE                 = "service";
+
+    /**
+     * REMOTE_HOST records the rpc target host.
+     */
+    public static final String REMOTE_HOST             = "remote.host";
+    /**
+     * REMOTE_PORT records the rpc target port.
+     */
+    public static final String REMOTE_PORT             = "remote.port";
+
+    /**
+     * LOCAL_HOST records the local host.
+     */
+    public static final String LOCAL_HOST              = "local.host";
+
+    /**
+     * LOCAL_PORT records the local port.
+     */
+    public static final String LOCAL_PORT              = "local.port";
+
+    /**
+     * INVOKE_TYPE records the invoke type(oneway/sync/async).
+     */
+    public static final String INVOKE_TYPE             = "invoke.type";
+
+    /**
+     * RPC_TRACE_NAME constants key for dubbo rpc transfer.
+     */
+    public static final String RPC_TRACE_NAME          = "dubbo.rpc.sofa.tracer";
+
+    /**
+     * CLIENT_SERIALIZE_TIME records the rpc client serializes the request body time
+     */
+    public static final String CLIENT_SERIALIZE_TIME   = "client.serialize.time";
+
+    /**
+     * SERVER_SERIALIZE_TIME records the rpc server serializes the response body time
+     */
+    public static final String SERVER_SERIALIZE_TIME   = "server.serialize.time";
+
+    /**
+     * CLIENT_DESERIALIZE_TIME records the rpc client deserialize the response body time
+     */
+    public static final String CLIENT_DESERIALIZE_TIME = "client.deserialize.time";
+
+    /**
+     * SERVER_DESERIALIZE_TIME records the rpc server deserialize the request body time
+     */
+    public static final String SERVER_DESERIALIZE_TIME = "server.deserialize.time";
 }
