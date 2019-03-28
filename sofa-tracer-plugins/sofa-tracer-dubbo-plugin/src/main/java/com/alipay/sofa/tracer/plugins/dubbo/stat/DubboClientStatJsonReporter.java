@@ -61,8 +61,8 @@ public class DubboClientStatJsonReporter extends AbstractSofaTracerStatisticRepo
         statKey.setResult(resultCode.equals("00") ? "Y" : "N");
         statKey.setEnd(buildString(new String[] { getLoadTestMark(sofaTracerSpan) }));
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
-        statKey.addKey(CommonSpanTags.LOCAL_APP, tagsWithStr.get(CommonSpanTags.LOCAL_APP));
-        statKey.addKey(CommonSpanTags.REMOTE_APP, tagsWithStr.get(CommonSpanTags.REMOTE_APP));
+        statKey.addKey(CommonSpanTags.LOCAL_APP, fromApp);
+        statKey.addKey(CommonSpanTags.REMOTE_APP, toApp);
         statKey.addKey(CommonSpanTags.SERVICE, serviceName);
         statKey.addKey(CommonSpanTags.METHOD, methodName);
         //次数和耗时，最后一个耗时是单独打印的字段
