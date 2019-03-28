@@ -24,6 +24,8 @@ import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.tag.Tags;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -87,6 +89,7 @@ public class SpringMvcSofaTracerFilter implements Filter {
             responseSize = responseWrapper.getContentLength();
         } catch (Throwable t) {
             httpStatus = 500;
+            springMvcSpan.setTag(Tags.ERROR.getKey(), t.getMessage());
             // 异常抛出
             throw new RuntimeException(t);
         } finally {

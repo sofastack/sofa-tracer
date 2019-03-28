@@ -22,9 +22,9 @@ package com.sofa.alipay.tracer.plugins.springcloud.enums;
  **/
 public enum FeignClientLogEnum {
     // Feign Client Digest Log
-    FEIGN_CLEINT_DIGEST("feign_digest_log_name", "feign-digest.log", "feign_digest_rolling"),
+    FEIGN_CLIENT_DIGEST("feign_digest_log_name", "feign-digest.log", "feign_digest_rolling"),
     // Feign Client Stat Log
-    FEIGN_CLEINT_STAT("feign_stat_log_name", "feign-stat.log", "feign_stat_rolling");
+    FEIGN_CLIENT_STAT("feign_stat_log_name", "feign-stat.log", "feign_stat_rolling");
 
     private String logNameKey;
     private String defaultLogName;

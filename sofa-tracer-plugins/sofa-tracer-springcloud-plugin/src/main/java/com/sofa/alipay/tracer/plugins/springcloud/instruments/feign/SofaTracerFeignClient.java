@@ -17,6 +17,7 @@
 package com.sofa.alipay.tracer.plugins.springcloud.instruments.feign;
 
 import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
@@ -91,7 +92,7 @@ public class SofaTracerFeignClient implements Client {
         try {
             requestUrl = new URL(request.url());
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            SelfLog.error("cannot parse remote host. request:" + request.url(), e);
         }
         return requestUrl != null ? requestUrl.getHost() : "";
     }
@@ -101,7 +102,7 @@ public class SofaTracerFeignClient implements Client {
         try {
             requestUrl = new URL(request.url());
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            SelfLog.error("cannot parse remote port. request:" + request.url(), e);
         }
         return requestUrl != null ? requestUrl.getPort() : -1;
     }
@@ -150,8 +151,13 @@ public class SofaTracerFeignClient implements Client {
         sofaTracerSpan.setTag(CommonSpanTags.METHOD, methodName);
         sofaTracerSpan.setTag(CommonSpanTags.REMOTE_HOST, parseRemoteHome(request));
         sofaTracerSpan.setTag(CommonSpanTags.REMOTE_PORT, parseRemotePort(request));
-        sofaTracerSpan.setTag(CommonSpanTags.COMPONENT_CLIENT, delegate.getClass().getSimpleName());
-        sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE, request.body().length);
+        sofaTracerSpan.setTag(CommonSpanTags.COMPONENT_CLIENT, feignClientTracer.getSofaTracer()
+            .getTracerType());
+        if (request.requestBody() != null) {
+            sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE, request.requestBody().length());
+        } else {
+            sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE, 0);
+        }
     }
 
     private void injectCarrier(Object request, SofaTracerSpan currentSpan) {

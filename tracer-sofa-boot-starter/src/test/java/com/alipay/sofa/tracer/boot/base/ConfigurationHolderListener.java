@@ -33,8 +33,6 @@ public class ConfigurationHolderListener implements
     @Override
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         ConfigurableEnvironment environment = event.getEnvironment();
-        final String appName = SofaTracerConfiguration
-                .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
         if (SOFABootEnvUtils.isSpringCloudBootstrapEnvironment(environment)) {
             return;
         }

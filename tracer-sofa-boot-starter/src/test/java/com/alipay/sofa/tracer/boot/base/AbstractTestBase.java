@@ -21,6 +21,7 @@ import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.digest.manager.SofaTracerDigestReporterAsyncManager;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
+import com.alipay.sofa.infra.listener.SofaBootstrapRunListener;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
@@ -37,7 +38,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * referenced document: http://docs.spring.io/spring-boot/docs/1.4.2.RELEASE/reference/htmlsingle/#boot-features-testing
@@ -60,8 +63,10 @@ public abstract class AbstractTestBase {
     protected String           urlHttpPrefix;
 
     @BeforeClass
-    public static void beforeClass() throws IOException {
+    public static void beforeClass() throws IOException, NoSuchFieldException,
+                                    IllegalAccessException {
         cleanLogDirectory();
+        clearSpringCloudMark();
     }
 
     @Before
@@ -109,11 +114,21 @@ public abstract class AbstractTestBase {
     @AfterClass
     public static void afterClass() throws Exception {
         clearTracerProperties();
+        clearSpringCloudMark();
     }
 
     private static void clearTracerProperties() throws Exception {
         Field propertiesField = SofaTracerConfiguration.class.getDeclaredField("properties");
         propertiesField.setAccessible(true);
         propertiesField.set(null, new ConcurrentHashMap<>());
+    }
+
+    private static void clearSpringCloudMark() throws NoSuchFieldException, IllegalAccessException {
+        Field executed = SofaBootstrapRunListener.class.getDeclaredField("executed");
+        executed.setAccessible(true);
+        if (Modifier.isStatic(executed.getModifiers())) {
+            AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+            executed.set(null, atomicBoolean);
+        }
     }
 }

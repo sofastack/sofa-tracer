@@ -54,17 +54,17 @@ public class FeignClientTracer extends AbstractClientTracer {
 
     @Override
     protected String getClientDigestReporterLogName() {
-        return FeignClientLogEnum.FEIGN_CLEINT_DIGEST.getDefaultLogName();
+        return FeignClientLogEnum.FEIGN_CLIENT_DIGEST.getDefaultLogName();
     }
 
     @Override
     protected String getClientDigestReporterRollingKey() {
-        return FeignClientLogEnum.FEIGN_CLEINT_DIGEST.getRollingKey();
+        return FeignClientLogEnum.FEIGN_CLIENT_DIGEST.getRollingKey();
     }
 
     @Override
     protected String getClientDigestReporterLogNameKey() {
-        return FeignClientLogEnum.FEIGN_CLEINT_DIGEST.getLogNameKey();
+        return FeignClientLogEnum.FEIGN_CLIENT_DIGEST.getLogNameKey();
     }
 
     @Override
@@ -74,7 +74,7 @@ public class FeignClientTracer extends AbstractClientTracer {
 
     @Override
     protected AbstractSofaTracerStatisticReporter generateClientStatReporter() {
-        FeignClientLogEnum feignClientLogEnum = FeignClientLogEnum.FEIGN_CLEINT_STAT;
+        FeignClientLogEnum feignClientLogEnum = FeignClientLogEnum.FEIGN_CLIENT_STAT;
         String statLog = feignClientLogEnum.getDefaultLogName();
         String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(feignClientLogEnum
             .getRollingKey());
