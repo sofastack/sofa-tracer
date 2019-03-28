@@ -189,6 +189,7 @@ public class DubboSofaTracerFilter implements Filter {
         } finally {
             if (exception != null) {
                 if (exception instanceof RpcException) {
+                    sofaTracerSpan.setTag(Tags.ERROR.getKey(),exception.getMessage());
                     RpcException rpcException = (RpcException) exception;
                     resultCode = String.valueOf(rpcException.getCode());
                 } else {
@@ -214,6 +215,7 @@ public class DubboSofaTracerFilter implements Filter {
                 CompletableFuture<Object> future = (CompletableFuture<Object>) RpcContext.getContext().getFuture();
                 future.whenComplete((object, throwable)-> {
                     if (throwable != null && throwable instanceof TimeoutException) {
+                        sofaTracerSpan.setTag(Tags.ERROR.getKey(),throwable.getMessage());
                         dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, "03");
                     }
                 });
@@ -260,6 +262,7 @@ public class DubboSofaTracerFilter implements Filter {
             String resultCode = SUCCESS_CODE;
             if (exception != null) {
                 if (exception instanceof RpcException) {
+                    sofaTracerSpan.setTag(Tags.ERROR.getKey(), exception.getMessage());
                     RpcException rpcException = (RpcException) exception;
                     if (rpcException.isBiz()) {
                         resultCode = String.valueOf(rpcException.getCode());

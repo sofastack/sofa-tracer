@@ -22,6 +22,7 @@ import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.tag.Tags;
 
 import java.io.IOException;
@@ -65,6 +66,10 @@ public class DubboServerDigestJsonEncoder extends AbstractDigestSpanEncoder {
         data.append(CommonSpanTags.SERVER_DESERIALIZE_TIME, deserializeTime);
         //Http status code
         data.append(CommonSpanTags.RESULT_CODE, tagStr.get(CommonSpanTags.RESULT_CODE));
+        //error message
+        if (StringUtils.isNotBlank(tagStr.get(Tags.ERROR.getKey()))) {
+            data.append(Tags.ERROR.getKey(), tagStr.get(Tags.ERROR.getKey()));
+        }
         //thread name
         data.append(CommonSpanTags.CURRENT_THREAD_NAME,
             tagStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
