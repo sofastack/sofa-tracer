@@ -53,7 +53,7 @@ public class OpenFeignDigestJsonEncoder extends AbstractDigestSpanEncoder {
         buffer.append(CommonSpanTags.REQUEST_URL, tagStrMap.get(CommonSpanTags.REQUEST_URL));
         buffer.append(CommonSpanTags.METHOD, tagStrMap.get(CommonSpanTags.METHOD));
         buffer.append(CommonSpanTags.RESULT_CODE, tagStrMap.get(CommonSpanTags.RESULT_CODE));
-        if (StringUtils.isNotBlank(tagStrMap.get(Tags.ERROR.getKey()))){
+        if (StringUtils.isNotBlank(tagStrMap.get(Tags.ERROR.getKey()))) {
             buffer.append(Tags.ERROR.getKey(), tagStrMap.get(Tags.ERROR.getKey()));
         }
         Number requestSize = tagNumMap.get(CommonSpanTags.REQ_SIZE);
