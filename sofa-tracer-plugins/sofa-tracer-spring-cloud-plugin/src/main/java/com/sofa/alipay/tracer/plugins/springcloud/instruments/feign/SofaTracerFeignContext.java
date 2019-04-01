@@ -49,8 +49,8 @@ public class SofaTracerFeignContext extends FeignContext {
     public <T> Map<String, T> getInstances(String name, Class<T> type) {
         Map<String, T> instances = this.delegateContext.getInstances(name, type);
         Map<String, T> tracerInstances = new HashMap<>();
-        if (instances!= null) {
-            instances.entrySet().forEach(item->
+        if (instances != null) {
+            instances.entrySet().forEach( item ->
                     tracerInstances.put(item.getKey(), (T) wrapperFeignClient(item.getValue())));
         }
         return tracerInstances;
