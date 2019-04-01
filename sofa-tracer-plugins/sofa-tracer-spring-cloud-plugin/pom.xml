@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>sofa-tracer-springcloud-plugin</artifactId>
+    <artifactId>sofa-tracer-spring-cloud-plugin</artifactId>
 
     <dependencies>
         <dependency>

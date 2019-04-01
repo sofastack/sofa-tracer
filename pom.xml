@@ -22,7 +22,7 @@
         <module>sofa-tracer-plugins/sofa-tracer-okhttp-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-datasource-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-zipkin-plugin</module>
-        <module>sofa-tracer-plugins/sofa-tracer-springcloud-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-spring-cloud-plugin</module>
         <module>tracer-all</module>
         <module>tracer-sofa-boot-starter</module>
         <module>tracer-samples</module>
@@ -115,7 +115,7 @@
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
-                <artifactId>sofa-tracer-springcloud-plugin</artifactId>
+                <artifactId>sofa-tracer-spring-cloud-plugin</artifactId>
                 <version>${sofa.tracer.version}</version>
             </dependency>
             <dependency>
@@ -211,15 +211,6 @@
                 <version>${jmh.version}</version>
                 <scope>test</scope>
             </dependency>
-
-            <!--<dependency>-->
-                <!--<groupId>org.springframework.cloud</groupId>-->
-                <!--<artifactId>spring-cloud-dependencies</artifactId>-->
-                <!--<version>Greenwich.RELEASE</version>-->
-                <!--<type>pom</type>-->
-                <!--<scope>import</scope>-->
-            <!--</dependency>-->
-
         </dependencies>
     </dependencyManagement>
 
