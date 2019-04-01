@@ -52,12 +52,16 @@ public abstract class AbstractDiskReporter extends AbstractReporter {
     public void doReport(SofaTracerSpan span) {
         //设置日志类型,方便打印，否则无法正确打印
         span.setLogType(this.getDigestReporterType());
-        if (!isDisableDigestLog(span)) {
-            //打印摘要日志
-            this.digestReport(span);
+        SofaTracerSpanContext sofaTracerSpanContext = (SofaTracerSpanContext) span.context();
+        // sampled is false; this span will not be report
+        if (sofaTracerSpanContext.isSampled()) {
+            if (!isDisableDigestLog(span)) {
+                //打印摘要日志
+                this.digestReport(span);
+            }
+            //统计日志默认是不关闭的
+            this.statisticReport(span);
         }
-        //统计日志默认是不关闭的
-        this.statisticReport(span);
     }
 
     /***
@@ -88,11 +92,7 @@ public abstract class AbstractDiskReporter extends AbstractReporter {
         if (span == null || span.context() == null) {
             return true;
         }
-        SofaTracerSpanContext sofaTracerSpanContext = (SofaTracerSpanContext) span.context();
-        // sampled is false; this span will not be report
-        if (!sofaTracerSpanContext.isSampled()) {
-            return true;
-        }
+
         boolean allDisabled = Boolean.TRUE.toString().equalsIgnoreCase(
             SofaTracerConfiguration
                 .getProperty(SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY));
