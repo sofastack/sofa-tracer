@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sofa.alipay.tracer.plugins.springcloud.instruments.feign;
+package com.alipay.sofa.tracer.plugins.springcloud.instruments.feign;
 
 import feign.Client;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;

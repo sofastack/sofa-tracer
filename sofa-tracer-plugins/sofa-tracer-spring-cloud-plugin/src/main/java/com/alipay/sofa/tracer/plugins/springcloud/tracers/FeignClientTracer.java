@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sofa.alipay.tracer.plugins.springcloud.tracers;
+package com.alipay.sofa.tracer.plugins.springcloud.tracers;
 
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
-import com.sofa.alipay.tracer.plugins.springcloud.encodes.OpenFeignDigestJsonEncoder;
-import com.sofa.alipay.tracer.plugins.springcloud.enums.FeignClientLogEnum;
-import com.sofa.alipay.tracer.plugins.springcloud.repoters.OpenFeignStatJsonReporter;
+import com.alipay.sofa.tracer.plugins.springcloud.repoters.OpenFeignStatJsonReporter;
+import com.alipay.sofa.tracer.plugins.springcloud.encodes.OpenFeignDigestJsonEncoder;
+import com.alipay.sofa.tracer.plugins.springcloud.enums.FeignClientLogEnum;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/13 10:52 AM

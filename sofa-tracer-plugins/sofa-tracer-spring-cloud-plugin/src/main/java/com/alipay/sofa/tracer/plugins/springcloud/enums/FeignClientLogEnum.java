@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sofa.alipay.tracer.plugins.springcloud.enums;
+package com.alipay.sofa.tracer.plugins.springcloud.enums;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/13 2:46 PM

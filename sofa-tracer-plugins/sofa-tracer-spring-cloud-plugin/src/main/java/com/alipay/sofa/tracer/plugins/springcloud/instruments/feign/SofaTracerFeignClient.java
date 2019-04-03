@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sofa.alipay.tracer.plugins.springcloud.instruments.feign;
+package com.alipay.sofa.tracer.plugins.springcloud.instruments.feign;
 
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
@@ -23,14 +23,12 @@ import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
-import com.sofa.alipay.tracer.plugins.springcloud.carriers.FeignRequestCarrier;
-import com.sofa.alipay.tracer.plugins.springcloud.tracers.FeignClientTracer;
+import com.alipay.sofa.tracer.plugins.springcloud.carriers.FeignRequestCarrier;
+import com.alipay.sofa.tracer.plugins.springcloud.tracers.FeignClientTracer;
 import feign.Client;
 import feign.Request;
 import feign.Response;
 import io.opentracing.tag.Tags;
-
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -49,7 +47,7 @@ public class SofaTracerFeignClient implements Client {
     }
 
     @Override
-    public Response execute(Request request, Request.Options options) throws IOException {
+    public Response execute(Request request, Request.Options options) {
         if (feignClientTracer == null) {
             feignClientTracer = FeignClientTracer.getFeignClientTracerSingleton();
         }
@@ -87,24 +85,17 @@ public class SofaTracerFeignClient implements Client {
         sofaTracerSpan.setTag(Tags.ERROR.getKey(), ex.getMessage());
     }
 
-    private String parseRemoteHome(Request request) {
+    private String[] parseRemoteHomeAndPort(Request request) {
+        String[] hostWithPort = new String[2];
         URL requestUrl = null;
         try {
             requestUrl = new URL(request.url());
         } catch (MalformedURLException e) {
-            SelfLog.error("cannot parse remote host. request:" + request.url(), e);
+            SelfLog.error("cannot parse remote host and port. request:" + request.url(), e);
         }
-        return requestUrl != null ? requestUrl.getHost() : "";
-    }
-
-    private int parseRemotePort(Request request) {
-        URL requestUrl = null;
-        try {
-            requestUrl = new URL(request.url());
-        } catch (MalformedURLException e) {
-            SelfLog.error("cannot parse remote port. request:" + request.url(), e);
-        }
-        return requestUrl != null ? requestUrl.getPort() : -1;
+        hostWithPort[0] = requestUrl != null ? requestUrl.getHost() : "";
+        hostWithPort[1] = String.valueOf(requestUrl != null ? requestUrl.getPort() : -1);
+        return hostWithPort;
     }
 
     /**
@@ -149,10 +140,12 @@ public class SofaTracerFeignClient implements Client {
         sofaTracerSpan.setTag(CommonSpanTags.REMOTE_APP, StringUtils.EMPTY_STRING);
         sofaTracerSpan.setTag(CommonSpanTags.REQUEST_URL, request.url());
         sofaTracerSpan.setTag(CommonSpanTags.METHOD, methodName);
-        sofaTracerSpan.setTag(CommonSpanTags.REMOTE_HOST, parseRemoteHome(request));
-        sofaTracerSpan.setTag(CommonSpanTags.REMOTE_PORT, parseRemotePort(request));
+        String[] hostWithPort = parseRemoteHomeAndPort(request);
+        sofaTracerSpan.setTag(CommonSpanTags.REMOTE_HOST, hostWithPort[0]);
+        sofaTracerSpan.setTag(CommonSpanTags.REMOTE_PORT, hostWithPort[1]);
         sofaTracerSpan.setTag(CommonSpanTags.COMPONENT_CLIENT, feignClientTracer.getSofaTracer()
             .getTracerType());
+
         if (request.requestBody() != null) {
             sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE, request.requestBody().length());
         } else {
