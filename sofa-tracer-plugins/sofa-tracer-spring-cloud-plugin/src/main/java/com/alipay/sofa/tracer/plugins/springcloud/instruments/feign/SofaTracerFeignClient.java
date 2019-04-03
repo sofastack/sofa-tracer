@@ -85,7 +85,7 @@ public class SofaTracerFeignClient implements Client {
         sofaTracerSpan.setTag(Tags.ERROR.getKey(), ex.getMessage());
     }
 
-    private String[] parseRemoteHomeAndPort(Request request) {
+    private String[] parseRemoteHostAndPort(Request request) {
         String[] hostWithPort = new String[2];
         URL requestUrl = null;
         try {
@@ -140,7 +140,7 @@ public class SofaTracerFeignClient implements Client {
         sofaTracerSpan.setTag(CommonSpanTags.REMOTE_APP, StringUtils.EMPTY_STRING);
         sofaTracerSpan.setTag(CommonSpanTags.REQUEST_URL, request.url());
         sofaTracerSpan.setTag(CommonSpanTags.METHOD, methodName);
-        String[] hostWithPort = parseRemoteHomeAndPort(request);
+        String[] hostWithPort = parseRemoteHostAndPort(request);
         sofaTracerSpan.setTag(CommonSpanTags.REMOTE_HOST, hostWithPort[0]);
         sofaTracerSpan.setTag(CommonSpanTags.REMOTE_PORT, hostWithPort[1]);
         sofaTracerSpan.setTag(CommonSpanTags.COMPONENT_CLIENT, feignClientTracer.getSofaTracer()
