@@ -67,6 +67,11 @@ public class SampleRestController {
         asyncContext.complete();
     }
 
+    @RequestMapping("/feign")
+    public String feign() {
+        return "feign";
+    }
+
     public static class Greeting {
 
         private boolean success = false;
