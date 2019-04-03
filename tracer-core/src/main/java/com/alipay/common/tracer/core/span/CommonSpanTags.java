@@ -27,37 +27,37 @@ public class CommonSpanTags {
     /**
      * LOCAL_APP records the currnt app name
      */
-    public static final String LOCAL_APP               = "local.app";
+    public static final String LOCAL_APP                        = "local.app";
 
     /**
      * REMOTE_APP records the target app name
      */
-    public static final String REMOTE_APP              = "remote.app";
+    public static final String REMOTE_APP                       = "remote.app";
 
     /**
      * CURRENT_THREAD_NAME records handler result
      */
-    public static final String RESULT_CODE             = "result.code";
+    public static final String RESULT_CODE                      = "result.code";
 
     /**
      * CURRENT_THREAD_NAME records current thread name
      */
-    public static final String CURRENT_THREAD_NAME     = "current.thread.name";
+    public static final String CURRENT_THREAD_NAME              = "current.thread.name";
 
     /**
      * REQUEST_URL records the url of the incoming request.
      */
-    public static final String REQUEST_URL             = "request.url";
+    public static final String REQUEST_URL                      = "request.url";
 
     /**
      * METHOD records the request method name,(rpc method or http method).
      */
-    public static final String METHOD                  = "method";
+    public static final String METHOD                           = "method";
 
     /**
      * REQ_SIZE records the request body size.
      */
-    public static final String REQ_SIZE                = "req.size.bytes";
+    public static final String REQ_SIZE                         = "req.size.bytes";
 
     /**
      * RESP_SIZE records the response body size.

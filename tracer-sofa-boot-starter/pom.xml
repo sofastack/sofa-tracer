@@ -43,6 +43,10 @@
         </dependency>
         <dependency>
             <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-tracer-dubbo-plugin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-tracer-zipkin-plugin</artifactId>
         </dependency>
         <dependency>
