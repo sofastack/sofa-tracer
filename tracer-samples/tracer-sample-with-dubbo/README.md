@@ -47,7 +47,6 @@ public interface HelloService {
     String SayHello(String name);
 }
 ```
-
 ## 新建 glmapper-boot-dubbo-provider
 
 * 在工程模块的 pom 文件中添加 SOFATracer 依赖
