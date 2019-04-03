@@ -12,6 +12,8 @@
 * glmapper-boot-dubbo-provider     服务提供方
 * glmapper-boot-dubbo-facade       接口
 
+案例工程地址：[SOFATracer 集成 Dubbo](https://github.com/glmapper/glmapper-boot-dubbo)
+
 ## 新建 SOFABoot 工程作为父工程
 
 在创建好一个 Spring Boot 的工程之后，接下来就需要引入 SOFABoot 的依赖，首先，需要将上文中生成的 Spring Boot 工程的 `zip` 包解压后，修改 Maven 项目的配置文件 `pom.xml`，将
@@ -85,7 +87,7 @@ public interface HelloService {
     }
     ```
     
-    其他代码此处省略，详见：https://github.com/glmapper/glmapper-boot-dubbo 
+    > 其他代码此处省略，详见：https://github.com/glmapper/glmapper-boot-dubbo 
  
 ## 新建 glmapper-boot-dubbo-consumer
 
