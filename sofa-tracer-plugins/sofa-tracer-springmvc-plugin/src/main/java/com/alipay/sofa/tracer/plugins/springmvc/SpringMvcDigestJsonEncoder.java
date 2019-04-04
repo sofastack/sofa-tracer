@@ -22,6 +22,8 @@ import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.tag.Tags;
 
 import java.io.IOException;
 import java.util.Map;
@@ -65,6 +67,14 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
             tagWithStr.get(CommonSpanTags.REQUEST_URL));
         //请求方法
         jsonStringBuilder.append(CommonSpanTags.METHOD, tagWithStr.get(CommonSpanTags.METHOD));
+
+        //Http 状态码
+        jsonStringBuilder.append(CommonSpanTags.RESULT_CODE,
+            tagWithStr.get(CommonSpanTags.RESULT_CODE));
+        //异常信息
+        if (StringUtils.isNotBlank(tagWithStr.get(Tags.ERROR.getKey()))) {
+            jsonStringBuilder.append(Tags.ERROR.getKey(), tagWithStr.get(Tags.ERROR.getKey()));
+        }
         //Http 状态码
         jsonStringBuilder.append(CommonSpanTags.RESULT_CODE,
             tagWithStr.get(CommonSpanTags.RESULT_CODE));

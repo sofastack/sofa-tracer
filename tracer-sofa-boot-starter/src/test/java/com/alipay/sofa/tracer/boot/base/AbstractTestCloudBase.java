@@ -18,20 +18,12 @@ package com.alipay.sofa.tracer.boot.base;
 
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
-import com.alipay.common.tracer.core.reporter.digest.manager.SofaTracerDigestReporterAsyncManager;
-import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
-import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
 import com.alipay.sofa.infra.listener.SofaBootstrapRunListener;
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -43,36 +35,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * referenced document: http://docs.spring.io/spring-boot/docs/1.4.2.RELEASE/reference/htmlsingle/#boot-features-testing
- *
- * @author yangguanchao
- */
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/28 2:40 PM
+ * @since:
+ **/
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = SpringBootWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = SpringBootWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestPropertySource(locations = "classpath:application.properties")
-public abstract class AbstractTestBase {
-
-    protected static String    logDirectoryPath = TracerLogRootDaemon.LOG_FILE_DIR;
-
-    @LocalServerPort
-    private int                definedPort;
-
-    @Autowired
-    protected TestRestTemplate testRestTemplate;
-
-    protected String           urlHttpPrefix;
+public class AbstractTestCloudBase {
+    protected static String logDirectoryPath = TracerLogRootDaemon.LOG_FILE_DIR;
 
     @BeforeClass
     public static void beforeClass() throws IOException, NoSuchFieldException,
                                     IllegalAccessException {
         cleanLogDirectory();
         clearSpringCloudMark();
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        urlHttpPrefix = "http://localhost:" + definedPort;
-        reflectSpringMVCClear();
     }
 
     /**
@@ -89,26 +65,6 @@ public abstract class AbstractTestBase {
 
     protected static File customFileLog(String fileName) {
         return new File(logDirectoryPath + File.separator + fileName);
-    }
-
-    protected static void reflectSpringMVCClear() throws NoSuchFieldException,
-                                                 IllegalAccessException {
-        Field field = SpringMvcTracer.class.getDeclaredField("springMvcTracer");
-        field.setAccessible(true);
-        field.set(null, null);
-        //clear digest
-        Field fieldAsync = SofaTracerDigestReporterAsyncManager.class
-            .getDeclaredField("asyncCommonDigestAppenderManager");
-        fieldAsync.setAccessible(true);
-        fieldAsync.set(null, null);
-
-        // clear stat
-        SofaTracerStatisticReporterManager statReporterManager = SofaTracerStatisticReporterCycleTimesManager
-            .getSofaTracerStatisticReporterManager(1l);
-        Field fieldStat = SofaTracerStatisticReporterManager.class
-            .getDeclaredField("statReporters");
-        fieldStat.setAccessible(true);
-        fieldStat.set(statReporterManager, new ConcurrentHashMap<>());
     }
 
     @AfterClass
