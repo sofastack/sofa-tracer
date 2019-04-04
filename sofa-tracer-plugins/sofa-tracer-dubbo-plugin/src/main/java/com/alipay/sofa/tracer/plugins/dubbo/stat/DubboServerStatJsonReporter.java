@@ -105,7 +105,7 @@ public class DubboServerStatJsonReporter extends AbstractSofaTracerStatisticRepo
             // 这里强制刷一次
             appender.flush();
         } catch (Throwable t) {
-            SelfLog.error("统计日志<" + statTracerName + ">输出异常", t);
+            SelfLog.error("stat log <" + statTracerName + "> error!", t);
         }
     }
 
