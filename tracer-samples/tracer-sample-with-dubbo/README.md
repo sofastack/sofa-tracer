@@ -8,11 +8,9 @@
 
 本案例包括三个子模块：
 
-* glmapper-boot-dubbo-consumer     服务调用方
-* glmapper-boot-dubbo-provider     服务提供方
-* glmapper-boot-dubbo-facade       接口
-
-案例工程地址：[SOFATracer 集成 Dubbo](https://github.com/glmapper/glmapper-boot-dubbo)
+* tracer-sample-with-dubbo-consumer     服务调用方
+* tracer-sample-with-dubbo-provider     服务提供方
+* tracer-sample-with-dubbo-facade       接口
 
 ## 新建 SOFABoot 工程作为父工程
 
@@ -38,7 +36,7 @@
 ```
 这里的 ${sofa.boot.version} 指定具体的 SOFABoot 版本，参考[发布历史](https://github.com/alipay/sofa-build/releases)。
 
-## 新建 glmapper-boot-dubbo-facade
+## 新建 tracer-sample-with-dubbo-facade
 
 提供一个接口
 
@@ -47,7 +45,7 @@ public interface HelloService {
     String SayHello(String name);
 }
 ```
-## 新建 glmapper-boot-dubbo-provider
+## 新建 tracer-sample-with-dubbo-provider
 
 * 在工程模块的 pom 文件中添加 SOFATracer 依赖
 
@@ -65,7 +63,7 @@ public interface HelloService {
     # Spring boot application
     spring.application.name=dubbo-provider
     # Base packages to scan Dubbo Component: @org.apache.dubbo.config.annotation.Service
-    dubbo.scan.base-packages=com.glmapper.bridge.boot.impl
+    dubbo.scan.base-packages=com.alipay.sofa.tracer.examples.dubbo.impl
     ##  Filter
     dubbo.provider.filter=dubboSofaTracerFilter
     # Dubbo Protocol
@@ -85,10 +83,8 @@ public interface HelloService {
         }
     }
     ```
-    
-    > 其他代码此处省略，详见：https://github.com/glmapper/glmapper-boot-dubbo 
  
-## 新建 glmapper-boot-dubbo-consumer
+## 新建 tracer-sample-with-dubbo-consumer
 
 * 在工程模块的 pom 文件中添加 SOFATracer 依赖
 
@@ -116,31 +112,31 @@ public interface HelloService {
     @Bean
     public ApplicationRunner runner() {
         return args -> {
-            logger.info(helloService.SayHello("glmapper"));
+            logger.info(helloService.SayHello("sofa"));
         };
     }
     ```
 
 ## 测试
 
-先后启动 glmapper-boot-dubbo-provider 和 glmapper-boot-dubbo-consumer 两个工程; 然后查看日志：
+先后启动 tracer-sample-with-dubbo-provider 和 tracer-sample-with-dubbo-consumer 两个工程; 然后查看日志：
 
 * dubbo-client-digest.log
 ```json
-{"time":"2019-04-03 11:36:01.909","traceId":"0a0fe8451554262561656100126684","spanId":"0","span.kind":"client","local.app":"dubbo-consumer","protocol":"dubbo","service":"com.glmapper.bridge.boot.service.HelloService","method":"SayHello","invoke.type":"sync","remote.host":"10.15.232.69","remote.port":"20880","local.host":"10.15.232.69","client.serialize.time":35,"client.deserialize.time":0,"req.size.bytes":323,"resp.size.bytes":323,"result.code":"00","current.thread.name":"main","time.cost.milliseconds":252,"baggage":""}
+{"time":"2019-04-03 11:36:01.909","traceId":"0a0fe8451554262561656100126684","spanId":"0","span.kind":"client","local.app":"dubbo-consumer","protocol":"dubbo","service":"com.alipay.sofa.tracer.examples.dubbo.facade.HelloService","method":"SayHello","invoke.type":"sync","remote.host":"10.15.232.69","remote.port":"20880","local.host":"10.15.232.69","client.serialize.time":35,"client.deserialize.time":0,"req.size.bytes":323,"resp.size.bytes":323,"result.code":"00","current.thread.name":"main","time.cost.milliseconds":252,"baggage":""}
 ```
 
 * dubbo-server-digest.log
 ```json
-{"time":"2019-04-03 11:36:01.880","traceId":"0a0fe8451554262561656100126684","spanId":"0","span.kind":"server","local.app":"dubbo-provider","service":"com.glmapper.bridge.boot.service.HelloService","method":"SayHello","local.host":"10.15.232.69","local.port":"54178","protocol":"dubbo","server.serialize.time":0,"server.deserialize.time":27,"result.code":"00","current.thread.name":"DubboServerHandler-10.15.232.69:20880-thread-2","time.cost.milliseconds":3,"baggage":""}
+{"time":"2019-04-03 11:36:01.880","traceId":"0a0fe8451554262561656100126684","spanId":"0","span.kind":"server","local.app":"dubbo-provider","service":"com.alipay.sofa.tracer.examples.dubbo.facade.HelloService","method":"SayHello","local.host":"10.15.232.69","local.port":"54178","protocol":"dubbo","server.serialize.time":0,"server.deserialize.time":27,"result.code":"00","current.thread.name":"DubboServerHandler-10.15.232.69:20880-thread-2","time.cost.milliseconds":3,"baggage":""}
 ```
 
 * dubbo-client-stat.log
 ```json
-{"time":"2019-04-03 11:37:01.650","stat.key":{"method":"SayHello","local.app":"dubbo-consumer","service":"com.glmapper.bridge.boot.service.HelloService"},"count":1,"total.cost.milliseconds":252,"success":"Y"}
+{"time":"2019-04-03 11:37:01.650","stat.key":{"method":"SayHello","local.app":"dubbo-consumer","service":"com.alipay.sofa.tracer.examples.dubbo.facade.HelloService"},"count":1,"total.cost.milliseconds":252,"success":"Y"}
 ```
 
 * dubbo-server-stat.log
 ```json
-{"time":"2019-04-03 11:37:01.872","stat.key":{"method":"SayHello","remote.app":"dubbo-provider","service":"com.glmapper.bridge.boot.service.HelloService"},"count":1,"total.cost.milliseconds":3,"success":"Y"}
+{"time":"2019-04-03 11:37:01.872","stat.key":{"method":"SayHello","remote.app":"dubbo-provider","service":"com.alipay.sofa.tracer.examples.dubbo.facade.HelloService"},"count":1,"total.cost.milliseconds":3,"success":"Y"}
 ```
