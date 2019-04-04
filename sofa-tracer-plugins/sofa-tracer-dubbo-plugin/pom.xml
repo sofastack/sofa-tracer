@@ -16,6 +16,7 @@
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo</artifactId>
             <version>2.7.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.alipay.sofa</groupId>
@@ -34,7 +35,6 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.51</version>
         </dependency>
 
     </dependencies>
