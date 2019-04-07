@@ -3,21 +3,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>tracer-all-parent</artifactId>
+        <artifactId>tracer-sample-with-dubbo</artifactId>
         <groupId>com.alipay.sofa</groupId>
         <version>3.0.4-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>tracer-sample-with-dubbo</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>tracer-sample-with-dubbo-facade</module>
-        <module>tracer-sample-with-dubbo-consumer</module>
-        <module>tracer-sample-with-dubbo-provider</module>
-    </modules>
+    <artifactId>tracer-sample-with-dubbo-facade</artifactId>
     <properties>
-        <main.user.dir>${project.basedir}/../..</main.user.dir>
+        <main.user.dir>${project.basedir}/../../..</main.user.dir>
     </properties>
+
 </project>
