@@ -51,25 +51,24 @@ public class DubboSofaTracerTest {
         // registry
         RegistryConfig registryConfig = new RegistryConfig();
         registryConfig.setAddress("N/A");
-        // 服务提供者协议配置
+        // protocolConfig
         ProtocolConfig protocol = new ProtocolConfig();
         protocol.setName("dubbo");
         protocol.setThreadpool("fixed");
         protocol.setPort(12280);
         protocol.setSerialization("hessian2");
-        // 服务提供者连接注册中心，设置属性
         DubboServiceImpl dubboServiceImpl = new DubboServiceImpl();
-        ServiceConfig<DubboService> service = new ServiceConfig<DubboService>();
+        ServiceConfig<DubboService> service = new ServiceConfig<>();
         service.setApplication(application);
-        service.setProtocol(protocol); // 多个协议可以用setProtocols()
+        //Multiple protocols can be used with setProtocols()
+        service.setProtocol(protocol);
         service.setInterface(DubboService.class.getName());
         service.setRef(dubboServiceImpl);
         service.setGroup("tracer");
         service.setVersion("1.0");
         service.setFilter("dubboSofaTracerFilter");
         service.setRegistry(registryConfig);
-        //services.setRegister(false);
-        // 暴露及注册服务
+        // Exposure and registration services
         service.export();
         List<URL> exportedUrls = service.getExportedUrls();
         Assert.assertTrue(exportedUrls.size() == 1);
@@ -80,8 +79,8 @@ public class DubboSofaTracerTest {
     public void testTracer() throws Exception {
         RegistryConfig registryConfig = new RegistryConfig();
         registryConfig.setAddress("N/A");
-        // 服务调用者连接注册中心，设置属性
-        ReferenceConfig<DubboService> reference = new ReferenceConfig<DubboService>(); // 此实例很重，封装了与注册中心的连接以及与提供者的连接，请自行缓存，否则可能造成内存和连接泄漏
+        //The service caller connects to the registry and sets the properties.
+        ReferenceConfig<DubboService> reference = new ReferenceConfig<>();
         reference.setInterface(DubboService.class);
         reference.setRegistry(registryConfig);
         reference.setUrl(address);

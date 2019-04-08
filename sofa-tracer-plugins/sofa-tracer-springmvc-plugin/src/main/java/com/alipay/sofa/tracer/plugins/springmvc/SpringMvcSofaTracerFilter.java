@@ -79,7 +79,6 @@ public class SpringMvcSofaTracerFilter implements Filter {
             springMvcSpan.setTag(CommonSpanTags.REQ_SIZE, request.getContentLength());
             //wrapper
             ResponseWrapper responseWrapper = new ResponseWrapper(response);
-
             //filter begin
             filterChain.doFilter(servletRequest, responseWrapper);
             //filter end
@@ -87,7 +86,6 @@ public class SpringMvcSofaTracerFilter implements Filter {
             responseSize = responseWrapper.getContentLength();
         } catch (Throwable t) {
             httpStatus = 500;
-            // 异常抛出
             throw new RuntimeException(t);
         } finally {
             if (springMvcSpan != null) {

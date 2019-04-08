@@ -58,22 +58,21 @@ public class DataSizeCodecWrapper implements Codec2 {
                 return;
             }
         }
-        // 其它走原来
         codec.encode(channel, buffer, message);
     }
 
     /**
-     * @param channel    长连接
-     * @param buffer        UnsafeByteArrayOutputStream
-     * @param message    原生Request对象
-     * @param invocation Request里的Invocation
-     * @throws IOException 序列化出现异常
+     * @param channel       a long connection
+     * @param buffer        buffer
+     * @param message       the original Request object
+     * @param invocation    Invocation in Request
+     * @throws IOException  serialization exception
      */
     protected void encodeRequestWithTracer(Channel channel, ChannelBuffer buffer, Object message,
                                            RpcInvocation invocation) throws IOException {
         long startTime = System.currentTimeMillis();
         int index = buffer.writerIndex();
-        // 序列化
+        // serialization
         codec.encode(channel, buffer, message);
         int reqSize = buffer.writerIndex() - index;
         long elapsed = System.currentTimeMillis() - startTime;
@@ -82,11 +81,11 @@ public class DataSizeCodecWrapper implements Codec2 {
     }
 
     /**
-     * @param channel   长连接
-     * @param buffer       UnsafeByteArrayOutputStream
-     * @param result    原生Resopnse对象
-     * @param rpcResult Resopnse对象的结果
-     * @throws IOException 序列化出现异常
+     * @param channel       a long connection
+     * @param buffer        buffer
+     * @param result        the original Request object
+     * @param rpcResult     result of Response
+     * @throws IOException  serialization exception
      */
     protected void encodeResultWithTracer(Channel channel, ChannelBuffer buffer, Object result,
                                           RpcResult rpcResult) throws IOException {
@@ -101,7 +100,7 @@ public class DataSizeCodecWrapper implements Codec2 {
     }
 
     /**
-     * 反序列化操作
+     * deserialization operation
      * @param channel
      * @param input
      * @return
@@ -115,7 +114,7 @@ public class DataSizeCodecWrapper implements Codec2 {
         int size = input.readerIndex() - index;
         long elapsed = System.currentTimeMillis() - startTime;
         if (ret instanceof Request) {
-            // 服务端反序列化Request
+            // server-side deserialize the Request
             Object data = ((Request) ret).getData();
             if (data instanceof RpcInvocation) {
                 RpcInvocation invocation = (RpcInvocation) data;
@@ -125,7 +124,7 @@ public class DataSizeCodecWrapper implements Codec2 {
             }
 
         } else if (ret instanceof Response) {
-            // 客户端反序列化Response
+            // client-side deserialize the Response
             Object result = ((Response) ret).getResult();
             if (result instanceof RpcResult) {
                 RpcResult rpcResult = (RpcResult) result;

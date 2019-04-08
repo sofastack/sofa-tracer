@@ -46,7 +46,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>七月 15, 2017</pre>
+ * @since <pre>July 15, 2017</pre>
  */
 public class CommonSpanEncoderTest extends AbstractTestBase {
 
@@ -86,15 +86,14 @@ public class CommonSpanEncoderTest extends AbstractTestBase {
         sofaTracerSpan.setBaggageItem("baggage1", "value1");
         sofaTracerSpan.setBaggageItem("baggage2", "value2");
 
-        //记录一条错误日志
+        //Record an error log
         sofaTracerSpan.reportError(errorType, context, exception, appName, errorSources);
-        //记录一条client 日志
+        //Record a client log
         sofaTracerSpan.finish();
 
         TestUtil.waitForAsyncLog();
 
-        //检查客户端日志
-        //client digest
+        //Check client logs
         List<String> clientDigestContents = FileUtils.readLines(new File(logDirectoryPath
                                                                          + File.separator
                                                                          + clientLogType));
@@ -104,15 +103,15 @@ public class CommonSpanEncoderTest extends AbstractTestBase {
         //error log
         List<String> errorContents = FileUtils
             .readLines(customFileLog(TracerSystemLogEnum.MIDDLEWARE_ERROR.getDefaultLogName()));
-        //错误堆栈
+        //Error stack
         assertTrue(errorContents.size() > 1);
         assertTrue(errorContents.get(0).contains(sofaTracerSpanContext.getTraceId()));
-        //去掉头
+        //remove head
         String fileContent = errorContents.get(0).substring(errorContents.get(0).indexOf(",") + 1);
-        //去掉尾巴
+        //remove end
         fileContent = fileContent.substring(0, fileContent.lastIndexOf(","));
-        //构造结果
-        List<String> params = new ArrayList<String>();
+        //construct result
+        List<String> params = new ArrayList<>();
         params.add(sofaTracerSpan.getTagsWithStr().get(SpanTags.CURR_APP_TAG.getKey()));
         params.add(sofaTracerSpanContext.getTraceId());
         params.add(sofaTracerSpanContext.getSpanId());

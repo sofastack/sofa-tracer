@@ -33,9 +33,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * SelfLog专用
+ * For SelfLog
  * @author luoguimu123
- * @version $Id: AsyncCommonAppenderManager.java, v 0.1 2017年11月21日 下午6:15 luoguimu123 Exp $
+ * @version $Id: AsyncCommonAppenderManager.java, v 0.1 November 21, 2017 6:15 PM luoguimu123 Exp $
  */
 public class AsyncCommonAppenderManager {
 
@@ -47,7 +47,7 @@ public class AsyncCommonAppenderManager {
 
     private List<Consumer>              consumers;
 
-    // SelfLog 专用，不用开启三个 Consumer
+    /** Dedicated for SelfLog, no need to open three Consumers */
     private static final int            DEFAULT_CONSUMER_NUMBER       = 1;
 
     private boolean                     allowDiscard;
@@ -160,15 +160,13 @@ public class AsyncCommonAppenderManager {
 
         @Override
         public void onEvent(StringEvent event, long sequence, boolean endOfBatch) throws Exception {
-
             String string = event.getString();
-
             if (string != null) {
                 try {
                     appender.append(string);
                     appender.flush();
                 } catch (Exception e) {
-                    //todo 全局保留一个同步的log，用于在一些关键点同步打印日志
+                    //todo Globally keep a synchronized log for synchronizing print logs at some key points
                     if (string != null) {
                         SynchronizingSelfLog.error("fail to async write log", e);
                     } else {
@@ -184,7 +182,6 @@ public class AsyncCommonAppenderManager {
     }
 
     class PaddedAtomicLong extends AtomicLong {
-
         public volatile long p1, p2, p3, p4, p5, p6 = 7L;
 
         public PaddedAtomicLong(long initialValue) {
@@ -194,5 +191,4 @@ public class AsyncCommonAppenderManager {
         public PaddedAtomicLong() {
         }
     }
-
 }

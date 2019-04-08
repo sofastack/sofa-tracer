@@ -17,9 +17,9 @@
 package com.alipay.common.tracer.core.exception;
 
 /**
- * 采样部分代码出错时候采用的异常
+ * Exception when sampling part of the code error
  * @author luoguimu123
- * @version $Id: SamplingStrategyErrorException.java, v 0.1 2017年06月22日 上午10:56 luoguimu123 Exp $
+ * @version $Id: SamplingStrategyErrorException.java, v 0.1 June 22, 2017 10:56 AM luoguimu123 Exp $
  */
 public class SamplingStrategyErrorException extends RuntimeException {
 

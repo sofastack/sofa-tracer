@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * @author yangguanchao
+ */
 public class SpringMvcHeadersCarrier implements TextMap {
     private HashMap<String, String> headers;
 

@@ -77,9 +77,9 @@ public class SofaTracerPercentageBasedSampler implements Sampler {
      * Reservoir sampling algorithm borrowed from Stack Overflow.
      * <p>
      * http://stackoverflow.com/questions/12817946/generate-a-random-bitset-with-n-1s
-     * @param size 大小
-     * @param cardinality 基数
-     * @param rnd 随机种子
+     * @param size
+     * @param cardinality
+     * @param rnd
      * @return BitSet
      */
     public static BitSet randomBitSet(int size, int cardinality, Random rnd) {

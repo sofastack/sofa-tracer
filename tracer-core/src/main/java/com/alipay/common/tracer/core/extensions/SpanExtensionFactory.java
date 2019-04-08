@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  *
  * @author luoguimu123
- * @version $Id: SpanExtensionFactory.java, v 0.1 2017年06月23日 上午11:50 luoguimu123 Exp $
+ * @version $Id: SpanExtensionFactory.java, v 0.1 June 23, 2017 11:50 AM luoguimu123 Exp $
  */
 public class SpanExtensionFactory {
 

@@ -36,9 +36,6 @@ import java.util.Map;
  */
 public class SpringMvcJsonStatReporter extends SpringMvcStatReporter {
 
-    /***
-     * 输出拼接器
-     */
     private static JsonStringBuilder jsonBuffer = new JsonStringBuilder();
 
     public SpringMvcJsonStatReporter(String statTracerName, String rollingPolicy,
@@ -62,10 +59,9 @@ public class SpringMvcJsonStatReporter extends SpringMvcStatReporter {
         statKey.setResult(success ? "true" : "false");
         //end
         statKey.setEnd(TracerUtils.getLoadTestMark(sofaTracerSpan));
-        //value
-        //次数和耗时，最后一个耗时是单独打印的字段
+        //duration
         long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
-        long values[] = new long[] { 1, duration };
+        long[] values = new long[] { 1, duration };
         //reserve
         this.addStat(statKey, values);
     }
@@ -73,7 +69,7 @@ public class SpringMvcJsonStatReporter extends SpringMvcStatReporter {
     @Override
     public void print(StatKey statKey, long[] values) {
         if (this.isClosePrint.get()) {
-            //关闭统计日志输出
+            //Close the statistics log output
             return;
         }
         if (!(statKey instanceof StatMapKey)) {
@@ -88,7 +84,7 @@ public class SpringMvcJsonStatReporter extends SpringMvcStatReporter {
             jsonBuffer.append("count", values[0]);
             jsonBuffer.append("total.cost.milliseconds", values[1]);
             jsonBuffer.append("success", statMapKey.getResult());
-            //压测
+            //pressure test mark
             jsonBuffer.appendEnd("load.test", statMapKey.getEnd());
 
             if (appender instanceof LoadTestAwareAppender) {
@@ -97,10 +93,10 @@ public class SpringMvcJsonStatReporter extends SpringMvcStatReporter {
             } else {
                 appender.append(jsonBuffer.toString());
             }
-            // 这里强制刷一次
+            // Forced to flush
             appender.flush();
         } catch (Throwable t) {
-            SelfLog.error("统计日志<" + statTracerName + ">输出异常", t);
+            SelfLog.error("Stat log<" + statTracerName + "> error!", t);
         }
     }
 

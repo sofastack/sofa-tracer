@@ -20,8 +20,8 @@ import java.util.Map;
 
 public final class LogData {
 
-    /***
-     * 事件类型关键字 @Nullable cs/cr/ss/sr ,去掉单独字段,使用统一 map 操作
+    /**
+     * Event type keyword  @Nullable cs/cr/ss/sr
      */
     public static final String   EVENT_TYPE_KEY          = "event";
 

@@ -80,17 +80,14 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         for (int i = 0; i < 10; i++) {
             String traceId = TraceIdGenerator.generate();
             long idValue = ZipkinSofaTracerSpanRemoteReporter.traceIdToId(traceId);
-            //有了末位的累加数
             assertTrue(idValue > time);
         }
-        //8 位以内
         String hex1 = "0a";
         assertEquals(10, ZipkinSofaTracerSpanRemoteReporter.traceIdToId(hex1));
         String hex2 = "0e";
         assertEquals(14, ZipkinSofaTracerSpanRemoteReporter.traceIdToId(hex2));
         String hex3 = "0a0a";
         assertEquals(10 + 10 * (16 * 16), ZipkinSofaTracerSpanRemoteReporter.traceIdToId(hex3));
-        //大于 8 位且非进程号结尾
         String hex4 = "0a0c0d0e100";
         assertEquals(100, ZipkinSofaTracerSpanRemoteReporter.traceIdToId(hex4));
         String hex5 = "0a0c0d0e9999";
@@ -105,12 +102,6 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         assertTrue(isException);
     }
 
-    /***
-     * 测试 FNV64HashCode 算法性能,如果不满足性能要求,那么考虑更优秀算法
-     * 目标: 200 万数据务必在 10s 内完成且没有碰撞发生
-     * hash FNVHash64 : http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-param
-     * @throws Exception 异常
-     */
     @Test
     public void testFNV64HashCode() throws Exception {
         //one million no redundant
@@ -145,9 +136,9 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         long cost = System.currentTimeMillis() - startTime;
         long count = (iLong * jLong * kLong * lLong) + (iLong * jLong * kLong) + (iLong * jLong)
                      + iLong;
-        //目标: 200 万数据务必在 10s 内完成
+        //Goal: 2 million data must be completed within 10s
         assertTrue("Count = " + count + ",FNV64HashCode Cost = " + cost + " ms", cost < 10 * 1000);
-        //重复
+        //repeat
         Map<Long, Long> redundantMap = getRedundant(mapHash);
         assertTrue("FNV64HashCode Redundant Size = " + redundantMap.size() + " ; Redundant = "
                    + redundantMap, redundantMap.size() <= 0);
@@ -168,7 +159,7 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
     }
 
     private Map<Long, Long> getRedundant(Map<Long, Long> originMap) {
-        Map<Long, Long> resultMap = new HashMap<Long, Long>();
+        Map<Long, Long> resultMap = new HashMap<>();
         for (Map.Entry<Long, Long> entry : originMap.entrySet()) {
             Long value = entry.getValue();
             if (value > 1) {
@@ -186,7 +177,7 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         sofaTracerServerSpan.setOperationName("mockOperationName");
         //ss TL
         this.remoteTracer.serverSend("0");
-        //异步汇报,所以 sleep 1s
+        //Asynchronous reporting, so sleep 1s
         Thread.sleep(1000);
         //assert
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
@@ -229,7 +220,7 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
         assertEquals(sofaTracerServerSpan, sofaTraceContext.getCurrentSpan());
         //ss TL
         this.remoteTracer.serverSend("0");
-        //异步汇报,所以 sleep 1s
+        //Asynchronous reporting, so sleep 1s
         Thread.sleep(1000);
         //assert
         assertTrue(sofaTraceContext.isEmpty());

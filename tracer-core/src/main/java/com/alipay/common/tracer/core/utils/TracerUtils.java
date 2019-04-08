@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 /**
- * Tracer 的工具类，此工具类是一个内部工具类，非 Tracer 相关 JAR 包请不要依赖。
+ * Tracer's tool class, this tool class is an internal tool class, please do not rely on non-Tracer related JAR packages.
  *
  * @author khotyn 4/4/14 1:39 PM
  */
@@ -71,10 +71,10 @@ public class TracerUtils {
     }
 
     /**
-     * @param sofaTracerSpan 要检验的 span
-     * @param key            关键字
+     * @param sofaTracerSpan sofaTracerSpan
+     * @param key            key
      * @param value          value
-     * @return true 满足长度要求
+     * @return
      */
     public static boolean checkBaggageLength(SofaTracerSpan sofaTracerSpan, String key, String value) {
         int length = sofaTracerSpan.getSofaTracerSpanContext().getBizSerializedBaggage().length();
@@ -90,9 +90,9 @@ public class TracerUtils {
     }
 
     /**
-     * 系统穿透数据长度可以通过不同的-D来设置
+     * System penetration data length can be set by different -D parameters
      *
-     * @return 整数值
+     * @return
      */
     public static int getSysBaggageMaxLength() {
         if (TRACER_SYSTEM_PENETRATE_ATTRIBUTE_MAX_LENGTH < 0) {
@@ -131,11 +131,12 @@ public class TracerUtils {
     }
 
     /**
-     * 此方法在 JDK9 下可以有更加好的方式，但是目前的几个 JDK 版本下，只能通过这个方式来搞。
-     * 在 Mac 环境下，JDK6，JDK7，JDK8 都可以跑过。
-     * 在 Linux 环境下，JDK6，JDK7，JDK8 尝试过，可以运行通过。
+     * This method can be a better way under JDK9, but in the current JDK version, it can only be implemented in this way.
      *
-     * @return 进程 ID
+     * In Mac OS , JDK6，JDK7，JDK8 ,it's OK
+     * In Linux OS,JDK6，JDK7，JDK8 ,it's OK
+     *
+     * @return Process ID
      */
     public static String getPID() {
         //check pid is cached
@@ -202,7 +203,7 @@ public class TracerUtils {
         if (TracerUtils.isLoadTest(span)) {
             return SofaTracerConstant.LOAD_TEST_VALUE;
         } else {
-            //非压测
+            //non-pressure test
             return SofaTracerConstant.NON_LOAD_TEST_VALUE;
         }
     }
@@ -231,13 +232,10 @@ public class TracerUtils {
         if (url == null) {
             return null;
         }
-
         int index = url.indexOf(";jsessionid=");
-
         if (index < 0) {
             return url;
         }
-
         return url.substring(0, index);
     }
 
@@ -250,11 +248,11 @@ public class TracerUtils {
     }
 
     /**
-     * 从 Map 中获取一个 value，如果获取出来是 null，则返回一个空字符串
+     * Get a value from the Map, or return an empty string if it is null
      *
-     * @param map 要映射的 map
-     * @param key 关键字
-     * @return 字符串
+     * @param map map
+     * @param key key
+     * @return
      */
     public static String getEmptyStringIfNull(Map<String, String> map, String key) {
         String value = map.get(key);
@@ -262,10 +260,10 @@ public class TracerUtils {
     }
 
     /**
-     * 将一个 Host 地址转换成一个 16 进制数字
+     * Convert a Host address to a hexadecimal number
      *
-     * @param host 主机地址
-     * @return 将一个 Host 地址转换成一个 16 进制数字
+     * @param host host address
+     * @return hexadecimal number
      */
     public static String hostToHexString(String host) { //NOPMD
         return Integer.toHexString(host.hashCode());

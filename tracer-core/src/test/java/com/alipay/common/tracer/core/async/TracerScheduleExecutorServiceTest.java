@@ -105,17 +105,10 @@ public class TracerScheduleExecutorServiceTest {
     @Test
     public void scheduleCallable() throws Exception {
         final Object testObj = new Object();
-        Callable callable = new Callable() {
-            @Override
-            public Object call() throws Exception {
-                return testObj;
-            }
-        };
         ScheduledFuture schedule = tracerScheduleExecutorService
-            .schedule(callable, 1000, TIME_UNIT);
+            .schedule(()-> testObj, 1000, TIME_UNIT);
         Thread.sleep(1100);
         Object o = schedule.get();
         Assert.assertTrue(testObj == o);
     }
-
 }

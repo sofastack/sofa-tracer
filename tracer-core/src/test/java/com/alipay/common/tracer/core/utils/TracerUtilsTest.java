@@ -37,20 +37,20 @@ import static org.mockito.Mockito.mock;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>七月 2, 2017</pre>
+ * @since <pre>July 2, 2017</pre>
  */
 public class TracerUtilsTest {
 
-    /***
-     *测试去除URL中的JSessionId_URL为null
+    /**
+     * Test removes the JSessionId_URL in the URL to null
      */
     @Test
     public void JSessionId_URL_is_null() {
         Assert.assertNull(TracerUtils.removeJSessionIdFromUrl(null));
     }
 
-    /***
-     * 测试去除URL中的JSessionId_URL为空字符串
+    /**
+     * Test removes the JSessionId_URL in the URL to ""
      */
     @Test
     public void JSessionId_URL_EMPTY() {
@@ -58,8 +58,8 @@ public class TracerUtilsTest {
             TracerUtils.removeJSessionIdFromUrl(StringUtils.EMPTY_STRING));
     }
 
-    /***
-     * 测试去除URL中的JSessionId_URL不包含JSessionId
+    /**
+     * The JSessionId_URL in the test removal URL does not contain the JSessionId
      */
     @Test
     public void JSessionId_URL_NO_JSessionId() {
@@ -67,8 +67,8 @@ public class TracerUtilsTest {
         Assert.assertEquals(url, TracerUtils.removeJSessionIdFromUrl(url));
     }
 
-    /***
-     * 测试去除URL中的JSessionId_URL包含JSessionId
+    /**
+     * The JSessionId_URL in the test removal URL contain the JSessionId
      */
     @Test
     public void JSessionId_URL包含JSessionId() {
@@ -87,7 +87,7 @@ public class TracerUtilsTest {
     }
 
     @Test
-    public void 测试_mapToString() {
+    public void test_mapToString() {
         Map<String, String> strMap = new TreeMap<String, String>();
         strMap.put("test1", "test=");
         strMap.put("test2", "test&");
@@ -97,7 +97,7 @@ public class TracerUtilsTest {
     }
 
     @Test
-    public void 测试_stringToMap() {
+    public void test_stringToMap() {
         Map<String, String> strMap = new HashMap<String, String>();
         StringUtils
             .stringToMap("test1=test" + XStringBuilder.EQUAL_SEPARATOR_ESCAPE + "&test2=test"
@@ -106,30 +106,33 @@ public class TracerUtilsTest {
         Assert.assertEquals("test&", strMap.get("test2"));
     }
 
-    /***
-     * 测试_mapToString_stringToMap_包含百分号
+    /**
+     * test_mapToString_stringToMap_contains_percent_sign
      */
     @Test
-    public void mapToString_stringToMap_() {
-        Map<String, String> strMap = new HashMap<String, String>();
+    public void mapToString_stringToMap_contains_percent_sign() {
+        Map<String, String> strMap = new HashMap<>();
         String key = "test1";
         String value = "test" + XStringBuilder.AND_SEPARATOR_ESCAPE;
         strMap.put(key, value);
         String result = StringUtils.mapToString(strMap);
-        Map<String, String> decodeMap = new HashMap<String, String>();
+        Map<String, String> decodeMap = new HashMap<>();
         StringUtils.stringToMap(result, decodeMap);
         Assert.assertEquals(value, decodeMap.get(key));
     }
 
+    /**
+     * Test parsing log retention time configuration
+     */
     @Test
-    public void 测试解析日志保留时间配置() {
+    public void testParseLogRetentionTimeConfig() {
         LogReserveConfig logReserveConfig = TracerUtils.parseLogReserveConfig("0D1H");
         Assert.assertEquals(0, logReserveConfig.getDay());
         Assert.assertEquals(1, logReserveConfig.getHour());
     }
 
-    /***
-     * 测试纯数字的日志保留时间配置
+    /**
+     * Test purely digital log retention time configuration
      */
     @Test
     public void testParseLogReserveConfigByNumber() {
@@ -143,7 +146,7 @@ public class TracerUtilsTest {
         SofaTracer sofaTracer = mock(SofaTracer.class);
         SofaTracerSpanContext sofaTracerSpanContext = new SofaTracerSpanContext();
         SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(sofaTracer, System.currentTimeMillis(),
-            "mock", sofaTracerSpanContext, new HashMap<String, Object>());
+            "mock", sofaTracerSpanContext, new HashMap<>());
         assertTrue(TracerUtils.checkBaggageLength(sofaTracerSpan, "key", "value"));
     }
 

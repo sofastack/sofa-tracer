@@ -52,8 +52,8 @@ public class SofaTracerDemoTest extends AbstractTestBase {
         }
     }
 
-    /****
-     * 测试摘要日志
+    /**
+     * Test digest log
      * @throws InterruptedException
      * @throws IOException
      */
@@ -62,7 +62,7 @@ public class SofaTracerDemoTest extends AbstractTestBase {
         String serverSpanId = "0.1";
         SofaTracerSpan serverSpan = recoverServerSpan(serverSpanId);
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        //放到线程上下文
+        //Put into the thread context
         sofaTraceContext.push(serverSpan);
 
         //create client1

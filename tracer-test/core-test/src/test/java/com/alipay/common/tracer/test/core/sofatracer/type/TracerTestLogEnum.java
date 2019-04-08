@@ -24,7 +24,7 @@ package com.alipay.common.tracer.test.core.sofatracer.type;
  */
 public enum TracerTestLogEnum {
 
-    // 摘要日志
+    // digest
     RPC_CLIENT_DIGEST("rpc_client_log_name_reserve", "rpc_client_digest.log", "rpc_client_rolling"), RPC_SERVER_DIGEST(
                                                                                                                        "rpc_server_log_name_reserve",
                                                                                                                        "rpc_server_digest.log",
@@ -35,20 +35,10 @@ public enum TracerTestLogEnum {
                                                                                                                  "rpc_server_log_name_reserve",
                                                                                                                  "rpc_server_stat.log",
                                                                                                                  "rpc_server_rolling"), ;
-
-    /***
-     * 获取保留天数 getLogReverseDay 关键字
-     */
     private String logReverseKey;
 
-    /***
-     * 默认生成的日志名字 .log 结尾同时作为一个类型
-     */
     private String defaultLogName;
 
-    /***
-     * 日志的滚动策略
-     */
     private String rollingKey;
 
     TracerTestLogEnum(String logReverseKey, String defaultLogName, String rollingKey) {

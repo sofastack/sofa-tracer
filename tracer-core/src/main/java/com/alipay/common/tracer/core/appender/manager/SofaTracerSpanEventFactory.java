@@ -21,7 +21,7 @@ import com.alipay.disruptor.EventFactory;
 /**
  *
  * @author liangen
- * @version $Id: SofaTracerSpanEventFactory.java, v 0.1 2017年10月23日 上午10:07 liangen Exp $
+ * @version $Id: SofaTracerSpanEventFactory.java, v 0.1 October 23, 2017 10:07 AM liangen Exp $
  */
 public class SofaTracerSpanEventFactory implements EventFactory<SofaTracerSpanEvent> {
 

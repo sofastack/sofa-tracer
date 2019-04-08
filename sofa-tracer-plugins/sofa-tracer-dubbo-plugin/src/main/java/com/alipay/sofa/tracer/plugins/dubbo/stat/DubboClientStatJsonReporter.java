@@ -58,14 +58,13 @@ public class DubboClientStatJsonReporter extends AbstractSofaTracerStatisticRepo
         String methodName = tagsWithStr.get(CommonSpanTags.METHOD);
         statKey.setKey(buildString(new String[] { fromApp, toApp, serviceName, methodName }));
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
-        statKey.setResult(resultCode.equals("00") ? "Y" : "N");
+        statKey.setResult("00".equals(resultCode) ? "Y" : "N");
         statKey.setEnd(buildString(new String[] { getLoadTestMark(sofaTracerSpan) }));
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
         statKey.addKey(CommonSpanTags.LOCAL_APP, fromApp);
         statKey.addKey(CommonSpanTags.REMOTE_APP, toApp);
         statKey.addKey(CommonSpanTags.SERVICE, serviceName);
         statKey.addKey(CommonSpanTags.METHOD, methodName);
-        //次数和耗时，最后一个耗时是单独打印的字段
         long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
         long[] values = new long[] { 1, duration };
         this.addStat(statKey, values);
@@ -82,7 +81,7 @@ public class DubboClientStatJsonReporter extends AbstractSofaTracerStatisticRepo
     @Override
     public void print(StatKey statKey, long[] values) {
         if (this.isClosePrint.get()) {
-            //关闭统计日志输出
+            //Close the statistics log output
             return;
         }
 
@@ -102,7 +101,7 @@ public class DubboClientStatJsonReporter extends AbstractSofaTracerStatisticRepo
             } else {
                 appender.append(jsonBuffer.toString());
             }
-            // 这里强制刷一次
+            // Forced to flush
             appender.flush();
         } catch (Throwable t) {
             SelfLog.error("stat log<" + statTracerName + "> error!", t);

@@ -62,7 +62,7 @@ public class ZipkinRestTemplateSenderTest {
     public void messageSizeInBytes() {
         byte[] tests = new byte[1];
         tests[0] = 0;
-        List<byte[]> spans = new ArrayList<byte[]>();
+        List<byte[]> spans = new ArrayList<>();
         spans.add(tests);
         int i = zipkinRestTemplateSender.messageSizeInBytes(spans);
         Assert.assertTrue(i == 3);
@@ -72,7 +72,7 @@ public class ZipkinRestTemplateSenderTest {
     public void sendSpans() throws InterruptedException {
         byte[] tests = new byte[1];
         tests[0] = 0;
-        List<byte[]> encodedSpans = new ArrayList<byte[]>();
+        List<byte[]> encodedSpans = new ArrayList<>();
         encodedSpans.add(tests);
         Call<Void> voidCall = zipkinRestTemplateSender.sendSpans(encodedSpans);
         Thread.sleep(500);
