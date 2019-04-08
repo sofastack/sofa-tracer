@@ -23,6 +23,7 @@
         <module>sofa-tracer-plugins/sofa-tracer-datasource-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-resttmplate-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-zipkin-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-dubbo-plugin</module>
         <module>tracer-all</module>
         <module>tracer-sofa-boot-starter</module>
         <module>tracer-samples</module>
@@ -35,8 +36,8 @@
     <properties>
         <opentracing.version>0.22.0</opentracing.version>
         <sofa.tracer.version>2.4.0</sofa.tracer.version>
-        <java.compiler.source.version>1.6</java.compiler.source.version>
-        <java.compiler.target.version>1.6</java.compiler.target.version>
+        <java.compiler.source.version>1.8</java.compiler.source.version>
+        <java.compiler.target.version>1.8</java.compiler.target.version>
         <jmh.version>1.9.3</jmh.version>
         <project.encoding>UTF-8</project.encoding>
         <main.user.dir>${user.dir}</main.user.dir>
@@ -121,6 +122,11 @@
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-zipkin-plugin</artifactId>
+                <version>${sofa.tracer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-dubbo-plugin</artifactId>
                 <version>${sofa.tracer.version}</version>
             </dependency>
             <dependency>
@@ -216,9 +222,13 @@
                 <version>${jmh.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>1.2.51</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
     <build>
         <resources>
             <resource>
