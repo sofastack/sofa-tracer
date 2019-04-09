@@ -27,7 +27,7 @@ import static org.junit.Assert.assertFalse;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>五月 15, 2018</pre>
+ * @since <pre>May 15, 2018</pre>
  */
 public class StatMapKeyTest {
 
@@ -42,7 +42,7 @@ public class StatMapKeyTest {
         statMapKey.addKey("key3", "value3");
         statMapKey.addKey("key4", "value4");
         statMapKey.addKey("key5", "value5");
-        //
+
         StatMapKey statMapKey1 = new StatMapKey();
         statMapKey1.addKey("key3", "value3");
         statMapKey1.addKey("key4", "value4");
@@ -52,24 +52,24 @@ public class StatMapKeyTest {
         assertEquals(statMapKey.hashCode(), statMapKey1.hashCode());
         assertEquals(statMapKey, statMapKey1);
         assertEquals(statMapKey.getKeyMap(), statMapKey1.getKeyMap());
-        //
+
         StatMapKey statMapKey2 = new StatMapKey();
         statMapKey2.addKey("key3", "value3");
         statMapKey2.addKey("key4", "value4");
         statMapKey2.addKey("key5", "value5");
         statMapKey2.addKey("key1", "value1");
         assertFalse(statMapKey2.equals(statMapKey1));
-        //
+
         statMapKey.setEnd("f");
         statMapKey.setResult("Y");
         statMapKey.setLoadTest(false);
         assertFalse(statMapKey.equals(statMapKey1));
-        //
+
         statMapKey1.setEnd("t");
         statMapKey1.setResult("Y");
         statMapKey1.setLoadTest(false);
         assertFalse(statMapKey.equals(statMapKey1));
-        //
+
         statMapKey1.setEnd("f");
         statMapKey1.setResult("Y");
         statMapKey1.setLoadTest(false);

@@ -21,8 +21,8 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 /**
  * JsonStringBuilder
  * <p>
- * 方便日志输出的字符串拼接工具
- *
+ * String splicing tool for convenient log output
+ * </p>
  * @author yangguanchao
  * @since 2018/05/14
  */

@@ -25,9 +25,10 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 扩展的定时可有trace信息的定时线程池
+ * Extended timing thread pool for SOFATracer
+ *
  * @author luoguimu123
- * @version $Id: TracerScheduleExecutorService.java, v 0.1 2017年06月22日 上午11:43 luoguimu123 Exp $
+ * @version $Id: TracerScheduleExecutorService.java, v 0.1 June 22, 2017 11:43 AM luoguimu123 Exp $
  */
 public class TracerScheduleExecutorService extends TracedExecutorService implements
                                                                         ScheduledExecutorService {

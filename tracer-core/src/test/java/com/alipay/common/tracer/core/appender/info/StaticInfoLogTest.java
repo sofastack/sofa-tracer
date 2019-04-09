@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>七月 2, 2017</pre>
+ * @since <pre>July 2, 2017</pre>
  */
 public class StaticInfoLogTest extends AbstractTestBase {
 
@@ -45,7 +45,7 @@ public class StaticInfoLogTest extends AbstractTestBase {
     public void testLogStaticInfo() throws IOException, InterruptedException, NoSuchFieldException,
                                    IllegalAccessException {
 
-        //记录
+        //record
         reflect();
         StaticInfoLog.logStaticInfo();
 
@@ -57,7 +57,7 @@ public class StaticInfoLogTest extends AbstractTestBase {
         params.add(TracerUtils.getCurrentZone());
         params.add(TracerUtils.getDefaultTimeZone());
         List<String> contents = FileUtils.readLines(customFileLog("static-info.log"));
-        Assert.assertFalse("静态信息日志没有内容", contents.isEmpty());
+        Assert.assertFalse("Static information log has no content", contents.isEmpty());
         assertTrue(checkResult(params, contents.get(0)));
     }
 

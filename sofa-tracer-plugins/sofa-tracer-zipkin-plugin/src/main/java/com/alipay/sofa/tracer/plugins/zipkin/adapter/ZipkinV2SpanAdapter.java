@@ -122,7 +122,7 @@ public class ZipkinV2SpanAdapter {
                 ipAddress = InetAddress.getLocalHost();
                 this.ipAddressInt = ByteBuffer.wrap(ipAddress.getAddress()).getInt();
             } catch (UnknownHostException e) {
-                //127.0.0.1 256 进制
+                //127.0.0.1 256
                 this.ipAddressInt = 256 * 256 * 256 * 127 + 1;
             }
         }
@@ -131,7 +131,7 @@ public class ZipkinV2SpanAdapter {
     }
 
     /**
-     * 将Baggage中的数据也放在tags中
+     * Put the baggage data into the tags
      * @param zipkinSpan
      * @param span
      */

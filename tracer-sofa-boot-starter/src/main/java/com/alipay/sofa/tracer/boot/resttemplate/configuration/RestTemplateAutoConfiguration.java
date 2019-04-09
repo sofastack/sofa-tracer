@@ -28,7 +28,7 @@ import org.springframework.web.client.RestTemplate;
  * RestTemplateAutoConfiguration
  *
  * @version 1.0
- * @author: guolei.sgl 18/11/20 上午11:02
+ * @author: guolei.sgl 18/11/20 AM 11:02
  * @since: v2.3.0
  **/
 @Configuration

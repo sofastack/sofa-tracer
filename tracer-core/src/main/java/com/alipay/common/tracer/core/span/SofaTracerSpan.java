@@ -46,15 +46,12 @@ public class SofaTracerSpan implements Span {
 
     private final SofaTracer                                sofaTracer;
 
-    /***
-     * tags String,Integer,boolean
-     */
     private final List<SofaTracerSpanReferenceRelationship> spanReferences;
-
+    /** tags for String  */
     private final Map<String, String>                       tagsWithStr          = new LinkedHashMap<String, String>();
-
+    /** tags for Boolean */
     private final Map<String, Boolean>                      tagsWithBool         = new LinkedHashMap<String, Boolean>();
-
+    /** tags for Number  */
     private final Map<String, Number>                       tagsWithNumber       = new LinkedHashMap<String, Number>();
 
     private final List<LogData>                             logs                 = new LinkedList<LogData>();
@@ -63,24 +60,18 @@ public class SofaTracerSpan implements Span {
 
     private final SofaTracerSpanContext                     sofaTracerSpanContext;
 
-    /***
-     * 启动时间
-     */
     private long                                            startTime;
-
-    /***
-     * span endTime
-     */
     private long                                            endTime              = -1;
 
-    /***
-     *
-     * report时才有意义:摘要日志类型,日志能够正确打印的关键信息:当前 span 的日志类型,如:客户端为 rpc-client-digest.log,服务端为 rpc-server-digest.log
+    /**
+     * Only meaningful when reporting
+     * Digest log type,The logs correctly printed key information.
+     * For example, the client is rpc-client-digest.log and the server is rpc-server-digest.log
      */
     private String                                          logType              = StringUtils.EMPTY_STRING;
 
-    /***
-     * 父亲 span,当作为客户端结束并弹出线程上下文时,需要将父亲 span 再放入
+    /**
+     * parent span. Describe the child-of relationship
      */
     private SofaTracerSpan                                  parentSofaTracerSpan = null;
 
@@ -104,37 +95,36 @@ public class SofaTracerSpan implements Span {
         return cloneSpan;
     }
 
-    /***
-     * 作为服务端:还原回 {@link SofaTracerSpanContext} 之后,就可以直接构造 Server Span(traceId,spanId 不变)
+    /**
+     * As a server-Side(Kind.type is server): After reverting back to {@link SofaTracerSpanContext},
+     * you can directly construct Server Span (traceId, spanId unchanged)
      *
-     * @param sofaTracer sofaTracer 当前具体中间件 tracer
-     * @param startTime 开始时间
-     * @param operationName 操作名称
-     * @param sofaTracerSpanContext 当前上下文信息
-     * @param tags 标签
+     * @param sofaTracer            sofaTracer
+     * @param startTime             startTime
+     * @param operationName         operationName
+     * @param sofaTracerSpanContext sofaTracerSpanContext
+     * @param tags                  tags
      */
     public SofaTracerSpan(SofaTracer sofaTracer, long startTime, String operationName,
                           SofaTracerSpanContext sofaTracerSpanContext, Map<String, ?> tags) {
-        //作为服务端还原回 sofaTracerSpanContext,traceId:spanId 不变,所以 spanReferences 为空
         this(sofaTracer, startTime, null, operationName,
             sofaTracerSpanContext != null ? sofaTracerSpanContext : SofaTracerSpanContext
                 .rootStart(), tags);
     }
 
-    /***
-     * 注意:
+    /**
+     * Note:
      *
-     * 1.作为服务端:还原回 {@link SofaTracerSpanContext} 之后,就可以直接构造 Server Span(traceId,spanId 不变)
+     * 1.As a server-side: After reverting back to {@link SofaTracerSpanContext}, you can directly construct Server Span (traceId, spanId unchanged)
      *
+     * 2.As a client: need to be built by {@link SofaTracer.SofaTracerSpanBuilder#start()}
      *
-     * 2.作为客户端:需要通过 {@link SofaTracer.SofaTracerSpanBuilder#start() 构建}
-     *
-     * @param sofaTracer 当前 tracer
-     * @param startTime 开始时间
-     * @param spanReferences 引用关系
-     * @param operationName 操作名称
-     * @param sofaTracerSpanContext 当前上下文
-     * @param tags 标签
+     * @param sofaTracer            sofaTracer
+     * @param startTime             startTime
+     * @param spanReferences        spanReferences
+     * @param operationName         operationName
+     * @param sofaTracerSpanContext sofaTracerSpanContext
+     * @param tags                  tags
      */
     public SofaTracerSpan(SofaTracer sofaTracer, long startTime,
                           List<SofaTracerSpanReferenceRelationship> spanReferences,
@@ -148,7 +138,6 @@ public class SofaTracerSpan implements Span {
             spanReferences) : null;
         this.operationName = operationName;
         this.sofaTracerSpanContext = sofaTracerSpanContext;
-        //tags
         this.setTags(tags);
 
         SpanExtensionFactory.logStartedSpan(this);
@@ -167,7 +156,7 @@ public class SofaTracerSpan implements Span {
     @Override
     public void finish(long endTime) {
         this.setEndTime(endTime);
-        //关键记录:report span
+        //Key record:report span
         this.sofaTracer.reportSpan(this);
         SpanExtensionFactory.logStoppedSpan(this);
     }
@@ -183,7 +172,7 @@ public class SofaTracerSpan implements Span {
             return this;
         }
         this.tagsWithStr.put(key, value);
-        //注意:server 还是 client 在 OpenTracing 标准中是用 tags 标识的,所以在这里进行判断
+        //to set log type by span kind type
         if (isServer()) {
             Reporter serverReporter = this.sofaTracer.getServerReporter();
             if (serverReporter != null) {
@@ -215,18 +204,15 @@ public class SofaTracerSpan implements Span {
 
     @Override
     public Span log(String eventValue) {
-        //使用默认的 event key,关键记录 span 事件:cs/cr/ss/sr
+        //log with current time
         return log(System.currentTimeMillis(), eventValue);
     }
 
     @Override
     public Span log(long currentTime, String eventValue) {
-        //关键记录 span 事件
         AssertUtils.isTrue(currentTime >= startTime, "Current time must greater than start time");
-        //记录下相关事件
         Map<String, String> fields = new HashMap<String, String>();
         fields.put(LogData.EVENT_TYPE_KEY, eventValue);
-        //save
         return this.log(currentTime, fields);
     }
 
@@ -265,11 +251,12 @@ public class SofaTracerSpan implements Span {
         return this.log(currentTime, fields);
     }
 
-    /***
-     * 默认设置和读取的都是业务 baggage
-     * @param key 关键字
-     * @param value 值
-     * @return 当前 span
+    /**
+     *
+     * The default settings are business baggage
+     * @param key
+     * @param value
+     * @return
      */
     @Override
     public Span setBaggageItem(String key, String value) {
@@ -277,10 +264,10 @@ public class SofaTracerSpan implements Span {
         return this;
     }
 
-    /***
-     * 默认设置和读取的都是业务 baggage
-     * @param key 关键字
-     * @return 当前 span
+    /**
+     * The default read are business baggage
+     * @param key
+     * @return
      */
     @Override
     public String getBaggageItem(String key) {
@@ -293,32 +280,32 @@ public class SofaTracerSpan implements Span {
         return this;
     }
 
-    //=======================扩展的 API 接口开始
+    //======================= Extended API interface starts
 
-    /***
+    /**
      *
-     * @param errorType errorType error 描述:timeout_error/biz_error...
-     * @param context context 记录的上下文信息
-     * @param e e 异常信息
-     * @param errorSourceApp errorSources 故障源 trade|rpc
-     * @param errorSources errorSources 故障源数组
+     * @param errorType         errorType error description:timeout_error/biz_error...
+     * @param context           context
+     * @param e                 e
+     * @param errorSourceApp    errorSourceApp trade|rpc
+     * @param errorSources      errorSources
      */
     public void reportError(String errorType, Map<String, String> context, Throwable e,
                             String errorSourceApp, String... errorSources) {
         Tags.ERROR.set(this, true);
-        //关键:用于记录所有的持久化数据
+        //all tags set
         Map<String, Object> tags = new HashMap<String, Object>();
         tags.putAll(this.getTagsWithStr());
         tags.putAll(this.getTagsWithBool());
         tags.putAll(this.getTagsWithNumber());
         tags.put(SpanTags.CURR_APP_TAG.getKey(), errorSourceApp);
-        //构造新的
+        //Construct new CommonLogSpan
         CommonLogSpan commonLogSpan = new CommonLogSpan(this.sofaTracer,
             System.currentTimeMillis(), this.getOperationName(), this.getSofaTracerSpanContext(),
             tags);
         commonLogSpan.addSlot(Thread.currentThread().getName());
         commonLogSpan.addSlot(errorType);
-        // 业务定制的输出中可能会有分隔符，现在将分割符替换成相应的转义字符
+        // There may be a separator in the output of the business customization, now replace the separator with the corresponding escape character
         commonLogSpan.addSlot(StringUtils.arrayToString(errorSources, ARRAY_SEPARATOR, "", ""));
         commonLogSpan.addSlot(StringUtils.mapToString(context));
         commonLogSpan.addSlot(this.getSofaTracerSpanContext() == null ? StringUtils.EMPTY_STRING
@@ -329,29 +316,25 @@ public class SofaTracerSpan implements Span {
         } else {
             StringWriter sw = new StringWriter(256);
             e.printStackTrace(new PrintWriter(sw));
-            // 同上
             String exception = sw.getBuffer().toString();
             commonLogSpan.addSlot(exception);
         }
-        //report error 使用客户端服务端tags进行区分
         CommonTracerManager.reportError(commonLogSpan);
     }
 
     /**
-     * 打印 Common Profile 日志
+     * Print Common Profile Log
      *
-     * @param profileApp     profile 应用
-     * @param protocolType   协议类型
-     * @param profileMessage 日志内容
+     * @param profileApp     profileApp
+     * @param protocolType   protocolType
+     * @param profileMessage profileMessage
      */
     public void profile(String profileApp, String protocolType, String profileMessage) {
-        //关键:用于记录所有的持久化数据
         Map<String, Object> tags = new HashMap<String, Object>();
         tags.putAll(this.getTagsWithStr());
         tags.putAll(this.getTagsWithBool());
         tags.putAll(this.getTagsWithNumber());
         tags.put(SpanTags.CURR_APP_TAG.getKey(), profileApp);
-        //构造新的,关键:用于记录所有的持久化数据
         CommonLogSpan commonLogSpan = new CommonLogSpan(this.sofaTracer,
             System.currentTimeMillis(), this.getOperationName(), this.getSofaTracerSpanContext(),
             tags);
@@ -363,26 +346,27 @@ public class SofaTracerSpan implements Span {
     }
 
     /**
-     * 返回自身作为下一个上下文的 parent
+     * Return itself as the parent of the next context
      * <p>
-     * 采用 countMatches 来对 . 进行计数, 以获取更高的性能, 见com.alipay.common.tracer.benchmark.CountBenchmark 的性能测试数据
-     * 防止 SofaTracerSpan 嵌套过深导致内存泄漏。这个时候重新创建一个上下文，使上面的上下文都能够释放。
-     *
-     * @return 重新构造的 span
+     * Use countMatches to count . for higher performance, see performance test data for com.alipay.common.tracer.benchmark.CountBenchmark
+
+     * Preventing SofaTracerSpan from nesting too deeply causes a memory leak.
+     * This time recreates a context so that the above context can be released.
+     * </p>
+     * @return
      */
     public SofaTracerSpan getThisAsParentWhenExceedLayer() {
         final SofaTracerSpan parent;
         String rpcId = this.sofaTracerSpanContext.getSpanId();
         if (StringUtils.countMatches(rpcId, '.') + 1 > SofaTracerConstant.MAX_LAYER) {
             SofaTracerSpanContext parentSpanContext = SofaTracerSpanContext.rootStart();
-            // 虽然重新创建一个 Span, 但是穿透数据没有必要丢掉;但是丢弃 tags
+            // discard tags
             Map<String, String> baggage = new HashMap<String, String>();
             baggage.putAll(this.sofaTracerSpanContext.getBizBaggage());
             parentSpanContext.addBizBaggage(baggage);
-            //重新构造
             parent = new SofaTracerSpan(this.sofaTracer, System.currentTimeMillis(),
                 this.operationName, parentSpanContext, null);
-            // 在日志中进行记录, 防止发生了这个情况却无法快速知晓
+            // Record in the log to prevent this from happening but not to know quickly
             SelfLog.errorWithTraceId("OpenTracing Span layer exceed max layer limit "
                                      + SofaTracerConstant.MAX_LAYER,
                 this.sofaTracerSpanContext.getTraceId());
@@ -393,7 +377,7 @@ public class SofaTracerSpan implements Span {
         return parent;
     }
 
-    //=======================扩展的 API 接口结束
+    //======================= Extended API interface end
 
     public List<SofaTracerSpanReferenceRelationship> getSpanReferences() {
         if (spanReferences == null) {
@@ -491,7 +475,6 @@ public class SofaTracerSpan implements Span {
                 continue;
             }
             if (value instanceof String) {
-                //初始化时候,tags也可以作为 client 和 server 的判断依据
                 this.setTag(key, (String) value);
             } else if (value instanceof Boolean) {
                 this.setTag(key, (Boolean) value);

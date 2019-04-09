@@ -27,25 +27,29 @@ import java.nio.charset.Charset;
 /**
  * TracerLogRootDaemon
  *
- * 不从配置项目获取,直接从系统属性获取
+ * Not obtained from the configuration project, obtained directly from the system properties
  *
  * @author yangguanchao
  * @since 2017/06/25
  */
 public class TracerLogRootDaemon {
 
-    /***
-     * 是否添加 pid 到 log path
+    /**
+     * Whether to add pid to log path
      */
     public static final String  TRACER_APPEND_PID_TO_LOG_PATH_KEY = "tracer_append_pid_to_log_path";
 
-    /***
-     * 日志目录
+    /**
+     * Log directory
      */
     public static String        LOG_FILE_DIR;
     /**
-     * 该编码由LANG或者-Dfile.encoding决定，因此如系统根据系统编码来决定日志编码， 请确保应用的启动脚本或者启动参数中不覆盖LANG或者-Dfile.encoding的参数。 一般来说国内的系统创建模板里，deploy/bin/templates/jbossctl.sh里有
-     * LANG=zh_CN.GB18030，这样无论环境变量里LANG设置成何值，启动时都会被覆盖
+     * The encoding is determined by LANG or -Dfile.encoding,
+     * so if the system determines the log encoding based on the system encoding,
+     * make sure that the application's startup script or startup parameters do not override the LANG or -Dfile.encoding parameters.
+     * Generally speaking, in the domestic system creation template,
+     * there is LANG=zh_CN.GB18030 in deploy/bin/templates/jbossctl.sh,
+     * so no matter what value LANG is set in the environment variable, it will be overwritten at startup.
      */
     static public final Charset DEFAULT_CHARSET                   = Charset.defaultCharset();
 

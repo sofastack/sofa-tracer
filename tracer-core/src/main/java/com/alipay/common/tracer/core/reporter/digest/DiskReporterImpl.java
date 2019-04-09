@@ -31,16 +31,16 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * DiskReporterImpl
- * 内部定制化实现
+ * Internal customization : DiskReporterImpl
  *
  * @author yangguanchao
  * @since 2017/07/14
  */
 public class DiskReporterImpl extends AbstractDiskReporter {
 
-    /***
-     * 标识初始状态: lazy 初始化磁盘文件,用到在初始化,注意并发初始化逻辑
+    /**
+     * Identify the initial state: lazy initializes the disk file,
+     * used in initialization, pay attention to concurrent initialization logic
      */
     private final AtomicBoolean         isDigestFileInited = new AtomicBoolean(false);
 
@@ -54,8 +54,9 @@ public class DiskReporterImpl extends AbstractDiskReporter {
 
     private String                      logNameKey;
 
-    /***
-     * 统计实现,需要用户实现一个如何统计的方法,默认提供了累加的操作
+    /**
+     * Statistical implementation, the user needs to implement a method of how to count,
+     * the cumulative operation is provided by default.
      */
     private SofaTracerStatisticReporter statReporter;
 
@@ -78,25 +79,22 @@ public class DiskReporterImpl extends AbstractDiskReporter {
             statReporter, null);
     }
 
-    /***
-     *
-     * @param digestLogType 日志类型
-     * @param digestRollingPolicy 滚动策略
-     * @param digestLogReserveConfig 保留天数配置
-     * @param contextEncoder 日志输出编码
-     * @param statReporter 用户需要提供统计实现
-     * @param logNameKey 日志文件配置关键字
+    /**
+     * @param digestLogType             digestLogType:log type
+     * @param digestRollingPolicy       digestRollingPolicy:digest rolling policy
+     * @param digestLogReserveConfig    digestLogReserveConfig:Reserved days configuration
+     * @param contextEncoder            contextEncoder:Log Encoder
+     * @param statReporter              statReporter:User-supplied statistical log reporter implementation
+     * @param logNameKey                logNameKey:Log file configuration keyword
      */
     public DiskReporterImpl(String digestLogType, String digestRollingPolicy,
                             String digestLogReserveConfig, SpanEncoder contextEncoder,
                             SofaTracerStatisticReporter statReporter, String logNameKey) {
         AssertUtils.hasText(digestLogType, "digestLogType can't be empty");
-
         this.digestLogType = digestLogType;
         this.digestRollingPolicy = digestRollingPolicy;
         this.digestLogReserveConfig = digestLogReserveConfig;
         this.contextEncoder = contextEncoder;
-        //注册统计实现
         this.statReporter = statReporter;
         this.logNameKey = logNameKey;
     }
@@ -117,7 +115,7 @@ public class DiskReporterImpl extends AbstractDiskReporter {
     @Override
     public String getStatReporterType() {
         if (statReporter != null) {
-            //日志文件名字
+            //get log file name
             return statReporter.getStatTracerName();
         }
         return StringUtils.EMPTY_STRING;
@@ -125,14 +123,14 @@ public class DiskReporterImpl extends AbstractDiskReporter {
 
     @Override
     public void digestReport(SofaTracerSpan span) {
-        //lazy 初始化
+        //lazy initialization
         if (!this.isDigestFileInited.get()) {
             this.initDigestFile();
         }
         AsyncCommonDigestAppenderManager asyncDigestManager = SofaTracerDigestReporterAsyncManager
             .getSofaTracerDigestReporterAsyncManager();
         if (asyncDigestManager.isAppenderAndEncoderExist(this.digestLogType)) {
-            //同时存在 appender 和 encoder 才打印
+            //Print only when appender and encoder are present
             asyncDigestManager.append(span);
         } else {
             SelfLog.warn(span.toString() + " have no logType set, so ignore data persistence.");
@@ -170,8 +168,8 @@ public class DiskReporterImpl extends AbstractDiskReporter {
         return logNameKey;
     }
 
-    /***
-     * 磁盘文件初始化创建完成
+    /**
+     * Disk file initialization is completed
      */
     private synchronized void initDigestFile() {
         if (this.isDigestFileInited.get()) {
@@ -192,14 +190,14 @@ public class DiskReporterImpl extends AbstractDiskReporter {
         TraceAppender digestTraceAppender = LoadTestAwareAppender
             .createLoadTestAwareTimedRollingFileAppender(this.digestLogType,
                 this.digestRollingPolicy, this.digestLogReserveConfig);
-        //注册 digest
+        //registry digest
         AsyncCommonDigestAppenderManager asyncDigestManager = SofaTracerDigestReporterAsyncManager
             .getSofaTracerDigestReporterAsyncManager();
         if (!asyncDigestManager.isAppenderAndEncoderExist(this.digestLogType)) {
             asyncDigestManager.addAppender(this.digestLogType, digestTraceAppender,
                 this.contextEncoder);
         }
-        //已经存在或者首次创建
+        //Already exists or created for the first time
         this.isDigestFileInited.set(true);
     }
 }

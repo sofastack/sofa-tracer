@@ -39,9 +39,9 @@ public abstract class AbstractHttpRequestInterceptor {
 
     protected AbstractTracer      httpClientTracer;
 
-    protected String              appName                     = null;
+    protected String              appName;
 
-    protected String              targetAppName               = null;
+    protected String              targetAppName;
 
     public AbstractHttpRequestInterceptor(AbstractTracer httpClientTracer, String appName,
                                           String targetAppName) {
@@ -68,7 +68,6 @@ public abstract class AbstractHttpRequestInterceptor {
         //targetAppName
         httpClientSpan.setTag(CommonSpanTags.REMOTE_APP,
             this.targetAppName == null ? StringUtils.EMPTY_STRING : this.targetAppName);
-        //url ((HttpRequestWrapper) request).getOriginal().getRequestLine().getUri()
         if (httpRequest instanceof HttpRequestWrapper) {
             HttpRequestWrapper httpRequestWrapper = (HttpRequestWrapper) httpRequest;
             httpClientSpan.setTag(CommonSpanTags.REQUEST_URL, httpRequestWrapper.getOriginal()

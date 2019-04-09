@@ -32,9 +32,9 @@ import java.io.PrintStream;
 import java.util.Scanner;
 
 /**
- * 将控制台的输出重定向到项目目录下的output.txt中方便之后对文件中的内容读取并测试
+ * Redirect the console output to output.txt in the project directory, then read and test the contents of the file.
  * @author luoguimu123
- * @version $Id: LogTest.java, v 0.1 2017年08月05日 上午7:59 luoguimu123 Exp $
+ * @version $Id: LogTest.java, v 0.1 August 5, 2017 7:59 AM luoguimu123 Exp $
  */
 public class LogTest {
 
