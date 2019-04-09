@@ -19,7 +19,6 @@ package com.alipay.common.tracer.core.appender;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 
 import java.io.File;
 
@@ -46,7 +45,7 @@ public class TracerLogRootDaemonTest {
         System.clearProperty(TracerLogRootDaemon.TRACER_APPEND_PID_TO_LOG_PATH_KEY);
     }
 
-    @Test
+    //@Test
     public void testLogRoot() {
         String traceLogRoot = System.getProperty("user.home") + File.separator + "logs";
         traceLogRoot += File.separator + "tracelog";
