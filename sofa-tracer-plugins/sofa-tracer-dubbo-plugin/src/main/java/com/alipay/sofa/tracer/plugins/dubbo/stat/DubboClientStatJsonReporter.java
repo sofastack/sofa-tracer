@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.appender.self.Timestamp;
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.reporter.stat.model.StatMapKey;
@@ -58,7 +59,9 @@ public class DubboClientStatJsonReporter extends AbstractSofaTracerStatisticRepo
         String methodName = tagsWithStr.get(CommonSpanTags.METHOD);
         statKey.setKey(buildString(new String[] { fromApp, toApp, serviceName, methodName }));
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
-        statKey.setResult(resultCode.equals("00") ? "Y" : "N");
+        statKey
+            .setResult(SofaTracerConstant.RESULT_CODE_SUCCESS.equals(resultCode) ? SofaTracerConstant.STAT_FLAG_SUCCESS
+                : SofaTracerConstant.STAT_FLAG_FAILS);
         statKey.setEnd(buildString(new String[] { getLoadTestMark(sofaTracerSpan) }));
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
         statKey.addKey(CommonSpanTags.LOCAL_APP, fromApp);
@@ -89,11 +92,11 @@ public class DubboClientStatJsonReporter extends AbstractSofaTracerStatisticRepo
         StatMapKey statMapKey = (StatMapKey) statKey;
 
         jsonBuffer.reset();
-        jsonBuffer.appendBegin("time", Timestamp.currentTime());
-        jsonBuffer.append("stat.key", this.statKeySplit(statMapKey));
-        jsonBuffer.append("count", values[0]);
-        jsonBuffer.append("total.cost.milliseconds", values[1]);
-        jsonBuffer.append("success", statMapKey.getResult());
+        jsonBuffer.appendBegin(CommonSpanTags.TIME, Timestamp.currentTime());
+        jsonBuffer.append(CommonSpanTags.STAT_KEY, this.statKeySplit(statMapKey));
+        jsonBuffer.append(CommonSpanTags.COUNT, values[0]);
+        jsonBuffer.append(CommonSpanTags.TIME_COST_MILLISECONDS, values[1]);
+        jsonBuffer.append(CommonSpanTags.SUCCESS, statMapKey.getResult());
         jsonBuffer.appendEnd();
         try {
             if (appender instanceof LoadTestAwareAppender) {

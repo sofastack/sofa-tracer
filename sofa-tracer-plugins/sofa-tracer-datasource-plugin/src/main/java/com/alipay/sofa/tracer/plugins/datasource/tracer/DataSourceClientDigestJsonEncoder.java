@@ -18,13 +18,12 @@ package com.alipay.sofa.tracer.plugins.datasource.tracer;
 
 import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.self.Timestamp;
-import com.alipay.common.tracer.core.constants.CommonEncodeConstants;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import java.io.IOException;
+
 import java.util.Map;
 
 /**
@@ -37,8 +36,7 @@ public class DataSourceClientDigestJsonEncoder extends AbstractDigestSpanEncoder
     @Override
     public String encode(SofaTracerSpan span) {
         JsonStringBuilder jsonStringBuilder = new JsonStringBuilder();
-        jsonStringBuilder.appendBegin(CommonEncodeConstants.TIME,
-            Timestamp.format(span.getEndTime()));
+        jsonStringBuilder.appendBegin(CommonSpanTags.TIME, Timestamp.format(span.getEndTime()));
         appendSlot(jsonStringBuilder, span);
         return jsonStringBuilder.toString();
     }
@@ -51,9 +49,9 @@ public class DataSourceClientDigestJsonEncoder extends AbstractDigestSpanEncoder
         jsonStringBuilder
             .append(CommonSpanTags.LOCAL_APP, tagWithStr.get(CommonSpanTags.LOCAL_APP));
         //TraceId
-        jsonStringBuilder.append(CommonEncodeConstants.TRACE_ID, context.getTraceId());
+        jsonStringBuilder.append(CommonSpanTags.TRACE_ID, context.getTraceId());
         //SpanId
-        jsonStringBuilder.append(CommonEncodeConstants.SPAN_ID, context.getSpanId());
+        jsonStringBuilder.append(CommonSpanTags.SPAN_ID, context.getSpanId());
         //schema
         jsonStringBuilder.append(DataSourceTracerKeys.DATABASE_NAME,
             tagWithStr.get(DataSourceTracerKeys.DATABASE_NAME));
@@ -89,7 +87,7 @@ public class DataSourceClientDigestJsonEncoder extends AbstractDigestSpanEncoder
     private void appendBaggage(JsonStringBuilder jsonStringBuilder,
                                SofaTracerSpanContext sofaTracerSpanContext) {
         //baggage
-        jsonStringBuilder.appendEnd(CommonEncodeConstants.BAGGAGE,
+        jsonStringBuilder.appendEnd(CommonSpanTags.BAGGAGE,
             baggageSerialized(sofaTracerSpanContext));
     }
 }

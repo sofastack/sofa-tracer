@@ -18,6 +18,7 @@ package com.alipay.sofa.tracer.plugins.dubbo.tracer;
 
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractServerTracer;
@@ -37,7 +38,8 @@ public class DubboProviderSofaTracer extends AbstractServerTracer {
         if (dubboProviderSofaTracer == null) {
             synchronized (DubboProviderSofaTracer.class) {
                 if (dubboProviderSofaTracer == null) {
-                    dubboProviderSofaTracer = new DubboProviderSofaTracer("dubbo-server");
+                    dubboProviderSofaTracer = new DubboProviderSofaTracer(
+                        ComponentNameConstants.DUBBO_SERVER);
                 }
             }
         }

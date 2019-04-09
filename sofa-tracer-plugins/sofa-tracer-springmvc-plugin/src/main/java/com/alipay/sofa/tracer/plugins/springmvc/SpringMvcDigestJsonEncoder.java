@@ -18,7 +18,6 @@ package com.alipay.sofa.tracer.plugins.springmvc;
 
 import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.self.Timestamp;
-import com.alipay.common.tracer.core.constants.CommonEncodeConstants;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
@@ -39,8 +38,7 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
     public String encode(SofaTracerSpan span) throws IOException {
         JsonStringBuilder jsonStringBuilder = new JsonStringBuilder();
         //日志打印时间
-        jsonStringBuilder.appendBegin(CommonEncodeConstants.TIME,
-            Timestamp.format(span.getEndTime()));
+        jsonStringBuilder.appendBegin(CommonSpanTags.TIME, Timestamp.format(span.getEndTime()));
         appendSlot(jsonStringBuilder, span);
         return jsonStringBuilder.toString();
     }
@@ -54,9 +52,9 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
         jsonStringBuilder
             .append(CommonSpanTags.LOCAL_APP, tagWithStr.get(CommonSpanTags.LOCAL_APP));
         //TraceId
-        jsonStringBuilder.append(CommonEncodeConstants.TRACE_ID, context.getTraceId());
+        jsonStringBuilder.append(CommonSpanTags.TRACE_ID, context.getTraceId());
         //RpcId
-        jsonStringBuilder.append(CommonEncodeConstants.SPAN_ID, context.getSpanId());
+        jsonStringBuilder.append(CommonSpanTags.SPAN_ID, context.getSpanId());
         //请求 URL
         jsonStringBuilder.append(CommonSpanTags.REQUEST_URL,
             tagWithStr.get(CommonSpanTags.REQUEST_URL));
@@ -74,11 +72,11 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
         jsonStringBuilder.append(CommonSpanTags.RESP_SIZE, (responseSize == null ? 0L
             : responseSize.longValue()));
         //请求耗时（MS）
-        jsonStringBuilder.append(CommonEncodeConstants.TIME_COST_MILLISECONDS,
+        jsonStringBuilder.append(CommonSpanTags.TIME_COST_MILLISECONDS,
             (sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()));
         jsonStringBuilder.append(CommonSpanTags.CURRENT_THREAD_NAME,
             tagWithStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
         //穿透数据放在最后
-        jsonStringBuilder.appendEnd(CommonEncodeConstants.BAGGAGE, baggageSerialized(context));
+        jsonStringBuilder.appendEnd(CommonSpanTags.BAGGAGE, baggageSerialized(context));
     }
 }

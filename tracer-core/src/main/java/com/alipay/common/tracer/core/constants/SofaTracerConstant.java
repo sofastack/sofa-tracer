@@ -44,8 +44,6 @@ public class SofaTracerConstant {
 
     public static final String  RPC_2_JVM_DIGEST_LOG_NAME = "rpc-2-jvm-digest.log";
 
-    //******************* span encoder constant start *****************
-
     /**
      * 耗时单位
      */
@@ -61,20 +59,11 @@ public class SofaTracerConstant {
      */
     public static final int     MAX_LAYER                 = 100;
 
-    //******************* span encoder constant end *****************
-
-    //******************* exception constant start *****************
-
     /***
      * 业务异常
      */
     public static final String  BIZ_ERROR                 = "biz_error";
 
-    //******************* exception constant end *****************
-
-    /***
-     * ============= baggage key start ==============
-     */
     /**
      * 必须保持一致,baggage key 压测标识
      */
@@ -89,4 +78,41 @@ public class SofaTracerConstant {
      * 非压测情况下的返回值 {@link AbstractSofaTracerStatisticReporter}
      */
     public static final String  NON_LOAD_TEST_VALUE       = "F";
+
+    /**
+     * Result code for time out
+     */
+    public static final String  RESULT_CODE_TIME_OUT      = "03";
+    /**
+     * Result code for success
+     */
+    public static final String  RESULT_CODE_SUCCESS       = "00";
+    /**
+     * Result code for failure
+     */
+    public static final String  RESULT_CODE_ERROR         = "99";
+    /**
+     * Result state for success
+     */
+    public static final String  RESULT_SUCCESS            = "success";
+    /**
+     * Result state for failed
+     */
+    public static final String  RESULT_FAILED             = "failed";
+    /**
+     * digest result state for success
+     */
+    public static final String  DIGEST_FLAG_SUCCESS       = "Y";
+    /**
+     * digest result state for failure
+     */
+    public static final String  DIGEST_FLAG_FAILS         = "N";
+    /**
+     * stat result state for success
+     */
+    public static final String  STAT_FLAG_SUCCESS         = "true";
+    /**
+     * stat result state for failure
+     */
+    public static final String  STAT_FLAG_FAILS           = "false";
 }

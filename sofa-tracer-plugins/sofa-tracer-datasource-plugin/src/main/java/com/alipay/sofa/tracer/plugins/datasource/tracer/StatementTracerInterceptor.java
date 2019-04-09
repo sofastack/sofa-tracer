@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.tracer.plugins.datasource.tracer;
 
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.sofa.tracer.plugins.datasource.Interceptor;
 
 /**
@@ -34,12 +35,12 @@ public class StatementTracerInterceptor implements Interceptor {
     @Override
     public Object intercept(Chain chain) throws Exception {
         long start = System.currentTimeMillis();
-        String resultCode = DataSourceClientTracer.RESULT_CODE_SUCCESS;
+        String resultCode = SofaTracerConstant.RESULT_SUCCESS;
         try {
             clientTracer.startTrace(chain.getOriginalSql());
             return chain.proceed();
         } catch (Exception e) {
-            resultCode = DataSourceClientTracer.RESULT_CODE_FAILED;
+            resultCode = SofaTracerConstant.RESULT_FAILED;
             throw e;
         } finally {
             clientTracer.endTrace(System.currentTimeMillis() - start, resultCode);
