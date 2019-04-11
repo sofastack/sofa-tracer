@@ -32,17 +32,14 @@ public class TestUtil {
         StringUtils.stringToMap(a, aMap);
         Map<String, String> bMap = new HashMap<String, String>();
         StringUtils.stringToMap(b, bMap);
-
         if (aMap.size() != bMap.size()) {
             return false;
         }
-
         for (String aKey : aMap.keySet()) {
             if (!aMap.get(aKey).equals(bMap.get(aKey))) {
                 return false;
             }
         }
-
         return true;
     }
 

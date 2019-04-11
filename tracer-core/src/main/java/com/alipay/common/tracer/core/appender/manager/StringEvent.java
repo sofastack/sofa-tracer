@@ -19,7 +19,7 @@ package com.alipay.common.tracer.core.appender.manager;
 /**
  *
  * @author luoguimu123
- * @version $Id: StringEvent.java, v 0.1 2017年11月21日 下午7:01 luoguimu123 Exp $
+ * @version $Id: StringEvent.java, v 0.1 November 21, 2017 7:01 PM luoguimu123 Exp $
  */
 public class StringEvent {
 

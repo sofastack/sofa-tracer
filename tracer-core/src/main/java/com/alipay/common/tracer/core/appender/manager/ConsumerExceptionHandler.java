@@ -23,7 +23,7 @@ import com.alipay.disruptor.ExceptionHandler;
 /**
  *
  * @author liangen
- * @version $Id: ConsumerExceptionHandler.java, v 0.1 2017年10月23日 上午10:13 liangen Exp $
+ * @version $Id: ConsumerExceptionHandler.java, v 0.1 October 23, 2017 10:13 AM liangen Exp $
  */
 public class ConsumerExceptionHandler implements ExceptionHandler<SofaTracerSpanEvent> {
     @Override

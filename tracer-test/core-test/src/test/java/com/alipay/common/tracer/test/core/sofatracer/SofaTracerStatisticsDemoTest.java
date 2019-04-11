@@ -64,15 +64,15 @@ public class SofaTracerStatisticsDemoTest extends AbstractTestBase {
 
     @Test
     public void testBuildTracerStatisticsTest() throws Exception {
-        //清除上下文避免影响
+        //Clear context to avoid impact
         SofaTraceContextHolder.getSofaTraceContext().clear();
 
         String serverSpanId = "0.2.3";
         SofaTracerSpan serverSpan = recoverServerSpan(serverSpanId);
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        //放到线程上下文
+        //Put into the thread context
         sofaTraceContext.push(serverSpan);
-        //在调用5次
+        //Call 5 times
         int times = 5;
         callClientTimes(times);
 

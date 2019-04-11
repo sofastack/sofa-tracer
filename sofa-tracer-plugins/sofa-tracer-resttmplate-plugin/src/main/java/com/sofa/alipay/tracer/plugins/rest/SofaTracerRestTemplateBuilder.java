@@ -56,7 +56,7 @@ public class SofaTracerRestTemplateBuilder {
         return asyncRestTemplate;
     }
 
-    public synchronized static AbstractTracer getRestTemplateTracer() {
+    public static AbstractTracer getRestTemplateTracer() {
         if (restTemplateTracer == null) {
             synchronized (RestTemplateTracer.class) {
                 if (restTemplateTracer == null) {

@@ -24,8 +24,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 /**
- * tracer自己的日志，仅供内部试用
- *
+ * Tracer's own log, for internal use only
  * @author yangyanzhao
  */
 public class SelfLog {
@@ -34,8 +33,8 @@ public class SelfLog {
     static private final String               WARN_PREFIX   = "[WARN]  ";
     static private final String               INFO_PREFIX   = "[INFO]  ";
 
-    /***
-     * 日志文件名称
+    /**
+     * Log file name
      */
     static protected final String             SELF_LOG_FILE = "tracer-self.log";
 
@@ -47,8 +46,8 @@ public class SelfLog {
     }
 
     /**
-     * @param log 日志内容
-     * @param e 异常
+     * @param log
+     * @param e
      */
     public static void error(String log, Throwable e) {
         try {
@@ -66,10 +65,10 @@ public class SelfLog {
     }
 
     /**
-     * 打印错误日志，附加当前线程的 TraceId
+     * Print error log with current thread's TraceId
      *
-     * @param log 错误信息
-     * @param e   异常
+     * @param log
+     * @param e
      */
     public static void errorWithTraceId(String log, Throwable e) {
         try {
@@ -92,9 +91,9 @@ public class SelfLog {
     }
 
     /**
-     * 打印错误日志，附加当前线程的 TraceId
+     * Print error log with current thread's TraceId
      *
-     * @param log 错误消息
+     * @param log
      * @param traceId traceId
      */
     public static void errorWithTraceId(String log, String traceId) {
@@ -102,9 +101,9 @@ public class SelfLog {
     }
 
     /**
-     * 打印错误日志，附加当前线程的 TraceId
+     * Print error log with current thread's TraceId
      *
-     * @param log 错误消息
+     * @param log
      */
     public static void errorWithTraceId(String log) {
         doLog(log, ERROR_PREFIX + "[" + TracerUtils.getTraceId() + "]");

@@ -25,7 +25,7 @@ import org.slf4j.MDC;
 
 /**
  * @author luoguimu123
- * @version $Id: MDCSpanExtension.java, v 0.1 2017年06月23日 上午11:55 luoguimu123 Exp $
+ * @version $Id: MDCSpanExtension.java, v 0.1 June 23, 2017 11:55 AM luoguimu123 Exp $
  */
 public class MDCSpanExtension implements SpanExtension {
 

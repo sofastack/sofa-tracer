@@ -37,7 +37,6 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
     @Override
     public String encode(SofaTracerSpan span) throws IOException {
         JsonStringBuilder jsonStringBuilder = new JsonStringBuilder();
-        //日志打印时间
         jsonStringBuilder.appendBegin(CommonSpanTags.TIME, Timestamp.format(span.getEndTime()));
         appendSlot(jsonStringBuilder, span);
         return jsonStringBuilder.toString();
@@ -48,7 +47,6 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
         SofaTracerSpanContext context = sofaTracerSpan.getSofaTracerSpanContext();
         Map<String, String> tagWithStr = sofaTracerSpan.getTagsWithStr();
         Map<String, Number> tagWithNumber = sofaTracerSpan.getTagsWithNumber();
-        //当前应用名
         jsonStringBuilder
             .append(CommonSpanTags.LOCAL_APP, tagWithStr.get(CommonSpanTags.LOCAL_APP));
         //TraceId
@@ -58,25 +56,24 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
         //请求 URL
         jsonStringBuilder.append(CommonSpanTags.REQUEST_URL,
             tagWithStr.get(CommonSpanTags.REQUEST_URL));
-        //请求方法
+        //Request method
         jsonStringBuilder.append(CommonSpanTags.METHOD, tagWithStr.get(CommonSpanTags.METHOD));
-        //Http 状态码
+        //Http code
         jsonStringBuilder.append(CommonSpanTags.RESULT_CODE,
             tagWithStr.get(CommonSpanTags.RESULT_CODE));
         Number requestSize = tagWithNumber.get(CommonSpanTags.REQ_SIZE);
-        //Request Body 大小 单位为byte
+        //Request Body Size (byte)
         jsonStringBuilder.append(CommonSpanTags.REQ_SIZE,
             (requestSize == null ? 0L : requestSize.longValue()));
         Number responseSize = tagWithNumber.get(CommonSpanTags.RESP_SIZE);
-        //Response Body 大小，单位为byte
+        //Response Body Size，(byte)
         jsonStringBuilder.append(CommonSpanTags.RESP_SIZE, (responseSize == null ? 0L
             : responseSize.longValue()));
-        //请求耗时（MS）
+        //Request time (MS)
         jsonStringBuilder.append(CommonSpanTags.TIME_COST_MILLISECONDS,
             (sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()));
         jsonStringBuilder.append(CommonSpanTags.CURRENT_THREAD_NAME,
             tagWithStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
-        //穿透数据放在最后
         jsonStringBuilder.appendEnd(CommonSpanTags.BAGGAGE, baggageSerialized(context));
     }
 }

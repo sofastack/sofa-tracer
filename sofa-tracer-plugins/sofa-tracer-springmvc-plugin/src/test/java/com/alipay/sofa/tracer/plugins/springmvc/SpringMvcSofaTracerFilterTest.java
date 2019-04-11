@@ -28,13 +28,13 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 19/1/30 下午2:19
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 19/1/30 PM2:19
  * @since:
  **/
 public class SpringMvcSofaTracerFilterTest extends AbstractTestBase {
 
     /**
-     * 测试当业务 Filter 链执行过程发生异常时，异常信息不会被打印到 tracer-self.log 中
+     * Test that exception information is not printed to tracer-self.log when an exception occurs during the execution of the business Filter chain
      * @throws Exception
      */
     @Test

@@ -29,7 +29,7 @@ import java.util.List;
  * CustomRestTemplateCustomizer
  *
  * @version 1.0
- * @author: guolei.sgl 18/11/19 下午11:07
+ * @author: guolei.sgl 18/11/19 PM 11:07
  * @since: v2.3.0
  **/
 public class CustomRestTemplateCustomizer implements RestTemplateCustomizer {

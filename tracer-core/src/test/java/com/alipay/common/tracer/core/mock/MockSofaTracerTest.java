@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>八月 10, 2017</pre>
+ * @since <pre>August 10, 2017</pre>
  */
 public class MockSofaTracerTest extends AbstractTestBase {
 

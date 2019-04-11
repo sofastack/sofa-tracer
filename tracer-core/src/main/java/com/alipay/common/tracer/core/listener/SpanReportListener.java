@@ -19,12 +19,17 @@ package com.alipay.common.tracer.core.listener;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
 /**
- * SpanReportListener
+ * SpanReportListener:Reporter extension interface
  *
  * @author yangguanchao
  * @since 2018/05/07
  */
 public interface SpanReportListener {
 
+    /**
+     * Reporter extension callback method
+     * It can be printed to the log, or it can be reported to some remote server
+     * @param sofaTracerSpan
+     */
     void onSpanReport(SofaTracerSpan sofaTracerSpan);
 }

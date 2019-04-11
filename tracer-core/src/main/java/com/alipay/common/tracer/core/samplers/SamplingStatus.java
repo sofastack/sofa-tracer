@@ -23,8 +23,8 @@ public class SamplingStatus {
 
     private boolean             isSampled = false;
 
-    /***
-     * 允许在 RootSpan 处放置 tags
+    /**
+     * Allow tags to be placed at RootSpan
      */
     private Map<String, Object> tags      = new HashMap<String, Object>();
 

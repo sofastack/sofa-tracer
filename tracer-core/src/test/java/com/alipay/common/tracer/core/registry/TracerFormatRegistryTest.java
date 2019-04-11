@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>七月 8, 2017</pre>
+ * @since <pre>July 8, 2017</pre>
  */
 public class TracerFormatRegistryTest {
 
@@ -41,7 +41,7 @@ public class TracerFormatRegistryTest {
             .getRegistry(io.opentracing.propagation.Format.Builtin.BINARY);
         assertTrue(registry == registry1);
 
-        //恢复测试影响的registry
+        //Restore the registry affected by the test
         BinaryFormater binaryFormater = new BinaryFormater();
         TracerFormatRegistry.register(io.opentracing.propagation.Format.Builtin.BINARY,
             binaryFormater);

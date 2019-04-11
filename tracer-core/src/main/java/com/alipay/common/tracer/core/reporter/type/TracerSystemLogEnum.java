@@ -24,34 +24,21 @@ package com.alipay.common.tracer.core.reporter.type;
  */
 public enum TracerSystemLogEnum {
 
-    /***
-     * 性能日志
-     */
+    /** Profile log */
     RPC_PROFILE("rpc_profile_log_name", "rpc-profile.log", "rpc_profile_rolling"),
+    /** Business success log */
+    BIZ_SUCCESS("biz_success_log_name", "biz_success.log", "biz_success_rolling"),
+    /** Business fail log */
+    BIZ_FAIL("biz_fail_log_name", "biz_fail.log", "biz_fail_rolling"),
 
-    // 其他日志
-    BIZ_SUCCESS("biz_success_log_name", "biz_success.log", "biz_success_rolling"), // 业务成功日志
-    BIZ_FAIL("biz_fail_log_name", "biz_fail.log", "biz_fail_rolling"), // 业务异常日志
-
-    /***
-     * 中间件错误日志
-     */
+    /** Middleware error log */
     MIDDLEWARE_ERROR("middleware_error_log_name", "middleware_error.log",
                      "middleware_error_rolling");
 
-    /***
-     * 获取保留天数 getLogReverseDay 关键字
-     */
     private String logReverseKey;
 
-    /***
-     * 默认生成的日志名字 .log 结尾同时作为一个类型
-     */
     private String defaultLogName;
 
-    /***
-     * 日志的滚动策略
-     */
     private String rollingKey;
 
     TracerSystemLogEnum(String logReverseKey, String defaultLogName, String rollingKey) {
