@@ -25,7 +25,7 @@ import org.junit.Test;
 * SofaTracerStatisticReporterCycleTimesManager Tester. 
 * 
 * @author <guanchao.ygc> 
-* @since <pre>六月 22, 2017</pre> 
+* @since <pre>June 22, 2017</pre>
 * @version 1.0 
 */
 public class SofaTracerStatisticReporterCycleTimesManagerTest {

@@ -63,7 +63,7 @@ public class OkHttpStatJsonReporter extends AbstractSofaTracerStatisticReporter 
         statKey.setEnd(TracerUtils.getLoadTestMark(sofaTracerSpan));
         //value the count and duration
         long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
-        long values[] = new long[] { 1, duration };
+        long[] values = new long[] { 1, duration };
         //reserve
         this.addStat(statKey, values);
     }

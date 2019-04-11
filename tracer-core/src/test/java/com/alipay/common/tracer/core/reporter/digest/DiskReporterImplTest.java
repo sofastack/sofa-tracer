@@ -47,7 +47,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>五月 25, 2018</pre>
+ * @since <pre>May 25, 2018</pre>
  */
 public class DiskReporterImplTest extends AbstractTestBase {
 
@@ -162,7 +162,8 @@ public class DiskReporterImplTest extends AbstractTestBase {
             executor.execute(worker);
         }
         Thread.sleep(3 * 1000);
-        //未控制并发初始化时,report span 会报错;修复方法即初始化未完成时,其他线程需要等待初始化完成
+        // When there is no control for concurrent initialization, report span will get an error;
+        // when the repair method is initialized,other threads need to wait for initialization to complete.
         List<String> contents = FileUtils.readLines(tracerSelfLog());
         assertTrue("Actual concurrent init file size = " + contents.size(), contents.size() == 1);
     }

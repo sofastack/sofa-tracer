@@ -49,32 +49,32 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SofaTracer implements Tracer {
 
     /**
-     * 正常 TRACE 开始的 spanId
+     * normal root spanId's default value
      */
     public static final String        ROOT_SPAN_ID = "0";
 
-    /***
-     * 标示 tracer 的类型
+    /**
+     * Mark the type of tracer
      */
     private final String              tracerType;
 
-    /***
-     * 作为客户端运行时的 Reporter
+    /**
+     * Reporter as a client runtime
      */
     private final Reporter            clientReporter;
 
-    /***
-     * 作为服务端运行时的 Reporter
+    /**
+     * Reporter as a server runtime
      */
     private final Reporter            serverReporter;
 
-    /***
-     * 这个 tracerTags 主要用于缓存和 tracer 全局相关的一些信息
+    /**
+     * Cache some information related to the tracer globally
      */
-    private final Map<String, Object> tracerTags   = new ConcurrentHashMap<String, Object>();
+    private final Map<String, Object> tracerTags   = new ConcurrentHashMap<>();
 
     /**
-     * 支持 sampler 即根据 rate 采样（主要在入口起作用）
+     * Sampler instance
      */
     private final Sampler             sampler;
 
@@ -123,19 +123,16 @@ public class SofaTracer implements Tracer {
         }
         //invoke listener
         this.invokeReportListeners(span);
-        //客户端、服务端
         if (span.isClient()) {
-            //摘要
             if (this.clientReporter != null) {
                 this.clientReporter.report(span);
             }
         } else if (span.isServer()) {
-            //摘要
             if (this.serverReporter != null) {
                 this.serverReporter.report(span);
             }
         } else {
-            //ignore 不统计
+            //ignore ,do not statical
             SelfLog.warn("Span reported neither client nor server.Ignore!");
         }
     }
@@ -191,25 +188,25 @@ public class SofaTracer implements Tracer {
         }
     }
 
-    /***
-     * SofaTracerSpanBuilder 用于在 Tracer 内部构建 Span
+    /**
+     * SofaTracerSpanBuilder is used to build Span inside Tracer
      */
     public class SofaTracerSpanBuilder implements io.opentracing.Tracer.SpanBuilder {
 
-        private String                                    operationName = StringUtils.EMPTY_STRING;
+        private String                                    operationName;
 
-        /***
-         * 默认初始化时间
+        /**
+         * Default initialization time
          */
-        private long                                      startTime     = -1;
+        private long                                      startTime  = -1;
 
         /**
          * In 99% situations there is only one parent (childOf), so we do not want to allocate
          * a collection of references.
          */
-        private List<SofaTracerSpanReferenceRelationship> references    = Collections.emptyList();
+        private List<SofaTracerSpanReferenceRelationship> references = Collections.emptyList();
 
-        private final Map<String, Object>                 tags          = new HashMap<String, Object>();
+        private final Map<String, Object>                 tags       = new HashMap<String, Object>();
 
         public SofaTracerSpanBuilder(String operationName) {
             this.operationName = operationName;
@@ -246,8 +243,8 @@ public class SofaTracer implements Tracer {
                     (SofaTracerSpanContext) referencedContext, referenceType));
             } else {
                 if (references.size() == 1) {
-                    //要保证有顺序
-                    references = new ArrayList<SofaTracerSpanReferenceRelationship>(references);
+                    //To ensure order
+                    references = new ArrayList<>(references);
                 }
                 references.add(new SofaTracerSpanReferenceRelationship(
                     (SofaTracerSpanContext) referencedContext, referenceType));
@@ -283,10 +280,10 @@ public class SofaTracer implements Tracer {
         public Span start() {
             SofaTracerSpanContext sofaTracerSpanContext = null;
             if (this.references != null && this.references.size() > 0) {
-                //存在父上下文
+                //Parent context exist
                 sofaTracerSpanContext = this.createChildContext();
             } else {
-                //从新开始新的节点
+                //Start with new root span context
                 sofaTracerSpanContext = this.createRootSpanContext();
             }
 
@@ -311,7 +308,7 @@ public class SofaTracer implements Tracer {
                     SamplingStatus samplingStatus = sampler.sample(sofaTracerSpan);
                     if (samplingStatus.isSampled()) {
                         isSampled = true;
-                        //发生采样后,将相关属性记录
+                        //After the sampling occurs, the related attribute records
                         this.tags.putAll(samplingStatus.getTags());
                     }
                 }
@@ -321,7 +318,7 @@ public class SofaTracer implements Tracer {
         }
 
         private SofaTracerSpanContext createRootSpanContext() {
-            //生成 traceId
+            //generate traceId
             String traceId = TraceIdGenerator.generate();
             return new SofaTracerSpanContext(traceId, ROOT_SPAN_ID, StringUtils.EMPTY_STRING);
         }
@@ -383,14 +380,8 @@ public class SofaTracer implements Tracer {
 
         private final String        tracerType;
 
-        /***
-         * 作为客户端运行时的 Reporter
-         */
         private Reporter            clientReporter;
 
-        /***
-         * 作为服务端运行时的 Reporter
-         */
         private Reporter            serverReporter;
 
         private Map<String, Object> tracerTags = new HashMap<String, Object>();
@@ -402,31 +393,16 @@ public class SofaTracer implements Tracer {
             this.tracerType = tracerType;
         }
 
-        /***
-         * 客户端日志功能
-         * @param clientReporter 日志功能,落地到磁盘或者上报 zipkin
-         * @return Builder
-         */
         public Builder withClientReporter(Reporter clientReporter) {
             this.clientReporter = clientReporter;
             return this;
         }
 
-        /***
-         * 服务端日志功能
-         * @param serverReporter 日志功能,落地到磁盘或者上报 zipkin
-         * @return Builder
-         */
         public Builder withServerReporter(Reporter serverReporter) {
             this.serverReporter = serverReporter;
             return this;
         }
 
-        /***
-         * 采样器入口 span 生效
-         * @param sampler 采样器
-         * @return Builder
-         */
         public Builder withSampler(Sampler sampler) {
             this.sampler = sampler;
             return this;

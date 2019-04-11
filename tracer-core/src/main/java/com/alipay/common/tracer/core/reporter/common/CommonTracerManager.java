@@ -35,8 +35,7 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 public class CommonTracerManager {
 
     /**
-     *
-     * 异步日志打印，所有的中间件公用一个来打印通用日志
+     * Asynchronous log print, all middleware common to print general logs
      */
     private static volatile AsyncCommonDigestAppenderManager commonReporterAsyncManager = new AsyncCommonDigestAppenderManager(
                                                                                             1024);
@@ -64,11 +63,11 @@ public class CommonTracerManager {
         commonReporterAsyncManager.start("CommonProfileErrorAppender");
     }
 
-    /***
-     * 注册一个通用日志
-     * @param logFileName 日志文件名字,同时也是作为日志文件的类型标识
-     * @param rollingPolicy 滚动策略
-     * @param logReserveDay 保留天数
+    /**
+     * Register a general log
+     * @param logFileName   logFileName
+     * @param rollingPolicy rollingPolicy
+     * @param logReserveDay logReserveDay
      */
     public static void register(String logFileName, String rollingPolicy, String logReserveDay) {
         if (StringUtils.isBlank(logFileName)) {
@@ -83,12 +82,12 @@ public class CommonTracerManager {
         commonReporterAsyncManager.addAppender(logFileName, traceAppender, commonSpanEncoder);
     }
 
-    /***
-     * 废弃
-     * @param logType 类型
-     * @param logFileName 文件名称
-     * @param rollingPolicy 滚动策略
-     * @param logReserveDay 保留天数
+    /**
+     * Deprecated registration method
+     * @param logType       logType
+     * @param logFileName   logFileName
+     * @param rollingPolicy rollingPolicy
+     * @param logReserveDay logReserveDay
      */
     @Deprecated
     public static void register(char logType, String logFileName, String rollingPolicy,
@@ -103,10 +102,10 @@ public class CommonTracerManager {
         commonReporterAsyncManager.addAppender(logTypeStr, traceAppender, commonSpanEncoder);
     }
 
-    /***
-     * 判断指定日志类型的输出是否符合要求
-     * @param logType 日志类型
-     * @return true 已经存在
+    /**
+     * Determine if the output of the specified log type meets the requirements
+     * @param logType logType
+     * @return true:exist
      */
     public static boolean isAppenderExist(String logType) {
         if (StringUtils.isBlank(logType)) {
@@ -115,9 +114,9 @@ public class CommonTracerManager {
         return commonReporterAsyncManager.isAppenderAndEncoderExist(logType);
     }
 
-    /***
-     * 注意:这个 {@link CommonLogSpan} 的 logType 一定要设置,否则无法打印
-     * @param commonLogSpan 要被打印的 Span
+    /**
+     * Note: The logType of this {@link CommonLogSpan} must be set, otherwise it will not print.
+     * @param commonLogSpan The span will be printed
      */
     public static void reportCommonSpan(CommonLogSpan commonLogSpan) {
         if (commonLogSpan == null) {

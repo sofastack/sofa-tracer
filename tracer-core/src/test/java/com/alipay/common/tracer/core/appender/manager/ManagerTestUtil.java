@@ -19,30 +19,14 @@ package com.alipay.common.tracer.core.appender.manager;
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-
 import java.io.File;
 
 /**
  *
  * @author liangen
- * @version $Id: ManagerTestUtil.java, v 0.1 2017年10月23日 下午8:34 liangen Exp $
+ * @version $Id: ManagerTestUtil.java, v 0.1 October 23, 2017 8:34 PM liangen Exp $
  */
 public class ManagerTestUtil {
-    public static void deleteFile(String filePath) {
-
-        File fileRoot = new File(filePath);
-
-        if (fileRoot.isDirectory()) {
-            String[] childrens = fileRoot.list();
-            for (String children : childrens) {
-                File file = new File(fileRoot, children);
-                deleteFile(file.getPath());
-            }
-
-        }
-
-        fileRoot.delete();
-    }
 
     public static SofaTracerSpan createSofaTracerSpan(int sequence) {
 

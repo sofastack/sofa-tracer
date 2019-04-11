@@ -27,16 +27,18 @@ import java.nio.ByteBuffer;
 /**
  * BinaryFormater
  * <p>
- * 注意:只支持堆内存不支持堆外内存
- *
+ *     Note: only supports the heap memory does not support outside the heap memory
+ * </p>
  * @author yangguanchao
  * @since 2017/06/23
  */
 public class BinaryFormater implements RegistryExtractorInjector<ByteBuffer> {
 
-    /***
-     * 作为跨进程传输字段的关键字key或者头部标识信息,其 value 就是 {@link SofaTracerSpanContext} 的序列化表现:sofa tracer head
-     * 转换为字节码,这组字节码会作为 byteArray 中的 spanContext 起始标示
+    /**
+     * As the keyword key or header identification information of the cross-process transmission field,
+     * its value is the serialization representation of {@link SofaTracerSpanContext}: sofa tracer head
+     *
+     * Converted to bytecode, this set of bytecodes will be used as the start of the spanContext in the byteArray
      */
     private static final byte[] FORMATER_KEY_HEAD_BYTES = FORMATER_KEY_HEAD
                                                             .getBytes(SofaTracerConstant.DEFAULT_UTF8_CHARSET);
@@ -49,7 +51,6 @@ public class BinaryFormater implements RegistryExtractorInjector<ByteBuffer> {
     @Override
     public SofaTracerSpanContext extract(ByteBuffer carrier) {
         if (carrier == null || carrier.array().length < FORMATER_KEY_HEAD_BYTES.length) {
-            //从新开始
             return SofaTracerSpanContext.rootStart();
         }
         byte[] carrierDatas = carrier.array();
@@ -57,13 +58,12 @@ public class BinaryFormater implements RegistryExtractorInjector<ByteBuffer> {
         byte[] formaterKeyHeadBytes = FORMATER_KEY_HEAD_BYTES;
         int index = ByteArrayUtils.indexOf(carrierDatas, formaterKeyHeadBytes);
         if (index < 0) {
-            //从新开始
             return SofaTracerSpanContext.rootStart();
         }
         try {
-            //(UTF-8)放在头部从 0 开始
+            //(UTF-8)Put the head from 0
             carrier.position(index + formaterKeyHeadBytes.length);
-            //value 字节数组
+            //value byte arrays
             byte[] contextDataBytes = new byte[carrier.getInt()];
             carrier.get(contextDataBytes);
             String spanContextInfos = new String(contextDataBytes,
@@ -74,7 +74,6 @@ public class BinaryFormater implements RegistryExtractorInjector<ByteBuffer> {
                 .error(
                     "com.alipay.common.tracer.core.registry.BinaryFormater.extract Error.Recover by root start",
                     e);
-            //从新开始
             return SofaTracerSpanContext.rootStart();
         }
     }

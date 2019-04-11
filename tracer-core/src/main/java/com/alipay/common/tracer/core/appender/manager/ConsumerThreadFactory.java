@@ -21,7 +21,7 @@ import java.util.concurrent.ThreadFactory;
 /**
  *
  * @author liangen
- * @version $Id: ConsumerThreadFactory.java, v 0.1 2017年10月23日 上午10:09 liangen Exp $
+ * @version $Id: ConsumerThreadFactory.java, v 0.1 October 23, 2017 10:09 AM liangen Exp $
  */
 public class ConsumerThreadFactory implements ThreadFactory {
     private String workName;

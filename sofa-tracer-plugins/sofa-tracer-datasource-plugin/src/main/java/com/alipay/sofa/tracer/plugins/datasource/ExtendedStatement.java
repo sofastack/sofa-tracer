@@ -129,6 +129,7 @@ public class ExtendedStatement implements Statement {
             super(sql, sql, invocation);
         }
 
+        @Override
         protected void beforeInvoke(Invocation invocation) {
             invocation.getArgs()[0] = getProcessingSql();
         }

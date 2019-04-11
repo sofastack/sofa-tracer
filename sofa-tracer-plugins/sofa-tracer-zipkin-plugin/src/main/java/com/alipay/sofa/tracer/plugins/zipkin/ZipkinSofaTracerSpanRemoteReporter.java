@@ -70,10 +70,10 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
         this.delegate.close();
     }
 
-    /***
-     * 功能:将 16 进制字符串转换为:十进制整数
-     * @param hexString 16 进制字符串
-     * @return 十进制整数
+    /**
+     * To convert hexadecimal string to decimal integer
+     * @param hexString hexadecimal
+     * @return decimal
      */
     public static long traceIdToId(String hexString) {
         Assert.hasText(hexString, "Can't convert empty hex string to long");

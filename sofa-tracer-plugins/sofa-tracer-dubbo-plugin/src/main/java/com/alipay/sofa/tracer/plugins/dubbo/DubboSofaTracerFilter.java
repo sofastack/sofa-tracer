@@ -46,21 +46,23 @@ import java.util.concurrent.ConcurrentHashMap;
 @Activate(group = { Constants.PROVIDER, Constants.CONSUMER }, value = "dubboSofaTracerFilter", order = 1)
 public class DubboSofaTracerFilter implements Filter {
 
-    private String                             appName         = StringUtils.EMPTY_STRING;
+    private String                             appName             = StringUtils.EMPTY_STRING;
 
-    private static final String                BLANK           = StringUtils.EMPTY_STRING;
+    private static final String                BLANK               = StringUtils.EMPTY_STRING;
 
-    private static final String                SUCCESS_CODE    = "00";
+    private static final String                SUCCESS_CODE        = "00";
 
-    private static final String                FAILED_CODE     = "99";
+    private static final String                FAILED_CODE         = "99";
 
-    private static final String                SPAN_INVOKE_KEY = "sofa.current.span.key";
+    private static final String                TIME_OUT_ERROR_CODE = "03";
+
+    private static final String                SPAN_INVOKE_KEY     = "sofa.current.span.key";
 
     private DubboConsumerSofaTracer            dubboConsumerSofaTracer;
 
     private DubboProviderSofaTracer            dubboProviderSofaTracer;
 
-    private static Map<String, SofaTracerSpan> TracerSpanMap   = new ConcurrentHashMap<String, SofaTracerSpan>();
+    private static Map<String, SofaTracerSpan> TracerSpanMap       = new ConcurrentHashMap<String, SofaTracerSpan>();
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
@@ -90,7 +92,7 @@ public class DubboSofaTracerFilter implements Filter {
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         String spanKey = getTracerSpanMapKey(invoker);
         try {
-            // 只有异步才进行回调打印
+            // only the asynchronous callback to print
             boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
             if (!isAsync) {
                 return result;
@@ -206,7 +208,7 @@ public class DubboSofaTracerFilter implements Filter {
                     // Record client send event
                     sofaTracerSpan.log(LogData.CLIENT_SEND_EVENT_VALUE);
                 }
-                // 将当前 span 缓存
+                // cache the current span
                 TracerSpanMap.put(getTracerSpanMapKey(invoker), sofaTracerSpan);
                 if (clientSpan != null && clientSpan.getParentSofaTracerSpan() != null) {
                     //restore parent
@@ -214,9 +216,9 @@ public class DubboSofaTracerFilter implements Filter {
                 }
                 CompletableFuture<Object> future = (CompletableFuture<Object>) RpcContext.getContext().getFuture();
                 future.whenComplete((object, throwable)-> {
-                    if (throwable != null && throwable instanceof TimeoutException) {
+                    if (throwable instanceof TimeoutException) {
                         sofaTracerSpan.setTag(Tags.ERROR.getKey(),throwable.getMessage());
-                        dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, "03");
+                        dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, TIME_OUT_ERROR_CODE);
                     }
                 });
             }
@@ -242,7 +244,6 @@ public class DubboSofaTracerFilter implements Filter {
         Throwable exception = null;
         try {
             result = invoker.invoke(invocation);
-            // 处理返回结果
             if (result == null) {
                 return null;
             } else {
@@ -277,7 +278,6 @@ public class DubboSofaTracerFilter implements Filter {
 
     private SofaTracerSpan serverReceived(Invocation invocation) {
         Map<String, String> tags = new HashMap<String, String>();
-        //server tags 必须设置
         tags.put(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
         String serializeSpanContext = invocation.getAttachments()
             .get(CommonSpanTags.RPC_TRACE_NAME);
@@ -305,7 +305,6 @@ public class DubboSofaTracerFilter implements Filter {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         // Record server receive event
         serverSpan.log(LogData.SERVER_RECV_EVENT_VALUE);
-        // 放到线程上下文
         sofaTraceContext.push(serverSpan);
         return serverSpan;
     }
@@ -322,10 +321,10 @@ public class DubboSofaTracerFilter implements Filter {
         if (isClient) {
             elapsed = invocation.getAttachment(CommonSpanTags.CLIENT_SERIALIZE_TIME);
             deElapsed = invocation.getAttachment(CommonSpanTags.CLIENT_DESERIALIZE_TIME);
-            //客户端请求序列化耗时
+            //The client request serialization time-consuming
             sofaTracerSpan
                 .setTag(CommonSpanTags.CLIENT_SERIALIZE_TIME, parseAttachment(elapsed, 0));
-            //客户端接受响应反序列化耗时
+            //The client accepted response deserialization time-consuming
             sofaTracerSpan.setTag(CommonSpanTags.CLIENT_DESERIALIZE_TIME,
                 parseAttachment(deElapsed, 0));
         } else {

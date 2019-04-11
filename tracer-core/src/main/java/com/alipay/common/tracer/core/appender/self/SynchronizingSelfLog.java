@@ -26,9 +26,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 /**
- * 同步打印的SelfLog，仅在中间件内部使用，解决SelfLog异步化后，在一些Mananger初始化时打印日志时使用
+ *
+ * Self-synchronized SelfLog, used only in the middleware,
+ * after Solving SelfLog asynchronous, it is used when printing logs in some Manager initialization
+ *
  * @author luoguimu123
- * @version $Id: SynchronizingSelfLog.java, v 0.1 2017年11月21日 下午7:45 luoguimu123 Exp $
+ * @version $Id: SynchronizingSelfLog.java, v 0.1 November 21, 2017 7:45 PM luoguimu123 Exp $
  */
 public class SynchronizingSelfLog {
 
@@ -36,8 +39,8 @@ public class SynchronizingSelfLog {
     static private final String                WARN_PREFIX   = "[WARN]  ";
     static private final String                INFO_PREFIX   = "[INFO]  ";
 
-    /***
-     * 日志文件名称
+    /**
+     * Log file name
      */
     static protected final String              SELF_LOG_FILE = "sync.log";
 
@@ -60,8 +63,8 @@ public class SynchronizingSelfLog {
     }
 
     /**
-     * @param log 日志
-     * @param e 异常
+     * @param log
+     * @param e
      */
     public static void error(String log, Throwable e) {
         try {
@@ -80,10 +83,10 @@ public class SynchronizingSelfLog {
     }
 
     /**
-     * 打印错误日志，附加当前线程的 TraceId
+     * Print error log with current thread's TraceId
      *
-     * @param log 错误信息
-     * @param e   异常
+     * @param log
+     * @param e
      */
     public static void errorWithTraceId(String log, Throwable e) {
         try {
@@ -107,9 +110,9 @@ public class SynchronizingSelfLog {
     }
 
     /**
-     * 打印错误日志，附加当前线程的 TraceId
+     * Print error log with current thread's TraceId
      *
-     * @param log 错误消息
+     * @param log
      * @param traceId traceId
      */
     public static void errorWithTraceId(String log, String traceId) {
@@ -117,9 +120,9 @@ public class SynchronizingSelfLog {
     }
 
     /**
-     * 打印错误日志，附加当前线程的 TraceId
+     * Print error log with current thread's TraceId
      *
-     * @param log 错误消息
+     * @param log
      */
     public static void errorWithTraceId(String log) {
         doLog(log, ERROR_PREFIX + "[" + TracerUtils.getTraceId() + "]");

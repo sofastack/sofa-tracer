@@ -26,11 +26,11 @@ import com.alipay.common.tracer.core.SofaTracer;
  */
 public class MockSofaTracer {
 
-    private static final String MOCK_TRACER      = "MOCK_TRACER";
+    private static final String        MOCK_TRACER      = "MOCK_TRACER";
 
-    private static SofaTracer   MOCK_SOFA_TRACER = null;
+    private volatile static SofaTracer MOCK_SOFA_TRACER = null;
 
-    /***
+    /**
      * Get the mocked OpenTracing Implementation
      * @return mock tracer
      */

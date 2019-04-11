@@ -19,10 +19,10 @@ package com.alipay.common.tracer.core.exception;
 import io.opentracing.propagation.Format;
 
 /**
- * format不支持时抛出的异常
+ * format does not support exception thrown
  *
  * @author luoguimu123
- * @version $Id: UnsupportedFormatException.java, v 0.1 2017年06月22日 上午10:57 luoguimu123 Exp $
+ * @version $Id: UnsupportedFormatException.java, v 0.1 June 22, 2017 10:57 AM luoguimu123 Exp $
  */
 public class UnsupportedFormatException extends RuntimeException {
     public UnsupportedFormatException(Format<?> format) {

@@ -30,17 +30,14 @@ import java.util.Date;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>七月 2, 2017</pre>
+ * @since <pre>July 2, 2017</pre>
  */
 public class SofaTracerStatisticReporterImplTest {
 
-    /***
-     * 1s 钟统计一次
-     */
     private final long CYCLE_IN_SECONDS = 1;
 
     static {
-        //调整阈值可测性
+        //Adjust threshold measurability
         SofaTracerStatisticReporterManager.CLEAR_STAT_KEY_THRESHOLD = 5;
         System.setProperty("com.alipay.ldc.zone", "GZ00A");
 
@@ -57,7 +54,8 @@ public class SofaTracerStatisticReporterImplTest {
     }
 
     /**
-     * 测试keys太多，定时清空的场景 如单独测试，可以把TracerConfiguration.CLEAR_STAT_KEY_THRESHOLD调小以方便测试
+     * Test too many keys, timed empty scenes. If you test separately,
+     * you can reduce TracerConfiguration.CLEAR_STAT_KEY_THRESHOLD to facilitate testing.
      */
     @Test
     public void testClearKeys() throws InterruptedException {
@@ -74,7 +72,7 @@ public class SofaTracerStatisticReporterImplTest {
 
         };
 
-        // case 1: 切换时没有达到阈值
+        // case 1: Threshold not reached when switching
         for (int i = 0; i < SofaTracerStatisticReporterManager.CLEAR_STAT_KEY_THRESHOLD; i++) {
             StatKey statKey = new StatKey();
             statKey.setKey(String.valueOf(i));
@@ -89,19 +87,19 @@ public class SofaTracerStatisticReporterImplTest {
             Thread.sleep(100);
         }
 
-        // 此时发生过下标切换
+        // Subscript switching occurred at this time
         Assert.assertEquals(0, statReporter.getStatData().size());
         Assert.assertEquals(SofaTracerStatisticReporterManager.CLEAR_STAT_KEY_THRESHOLD,
             statReporter.getOtherStatData().size());
 
-        // case 2: 切换时达到阈值
+        // case 2: Threshold reached when switching
         for (int i = 0; i <= SofaTracerStatisticReporterManager.CLEAR_STAT_KEY_THRESHOLD; i++) {
             StatKey statKey = new StatKey();
             statKey.setKey(String.valueOf(i));
             statReporter.addStat(statKey, i);
         }
 
-        // 此时应该发生过下标切换
+        // At this point, there should be a subscript switch
         currentSize = statReporter.getStatData().size();
         while (true) {
             if (statReporter.getStatData().size() != currentSize) {

@@ -23,22 +23,23 @@ import java.io.IOException;
  */
 public interface TraceAppender {
 
-    /***
-     * 刷新数据
+    /**
+     * flush data
      *
-     * @throws IOException 操作异常
+     * @throws IOException
      */
     void flush() throws IOException;
 
-    /***
-     * 添加要被输出的 log 文件
-     * @param log 字符串
-     * @throws IOException 操作异常
+    /**
+     * Add the log file to be output
+     *
+     * @param log
+     * @throws IOException
      */
     void append(String log) throws IOException;
 
     /**
-     * 清理日志
+     * clean log
      */
     void cleanup();
 }

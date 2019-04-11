@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>五月 7, 2018</pre>
+ * @since <pre>May 7, 2018</pre>
  */
 public class SpanReportListenerHolderTest {
 

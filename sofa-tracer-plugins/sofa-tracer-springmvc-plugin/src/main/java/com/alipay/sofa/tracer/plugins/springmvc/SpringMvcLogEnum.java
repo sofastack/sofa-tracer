@@ -24,10 +24,10 @@ package com.alipay.sofa.tracer.plugins.springmvc;
  */
 public enum SpringMvcLogEnum {
 
-    // SOFA MVC 日志
     SPRING_MVC_DIGEST("spring_mvc_digest_log_name", "spring-mvc-digest.log",
-                      "spring_mvc_digest_rolling"), //
-    SPRING_MVC_STAT("spring_mvc_stat_log_name", "spring-mvc-stat.log", "spring_mvc_stat_rolling");
+                      "spring_mvc_digest_rolling"), SPRING_MVC_STAT("spring_mvc_stat_log_name",
+                                                                    "spring-mvc-stat.log",
+                                                                    "spring_mvc_stat_rolling");
 
     private String logNameKey;
     private String defaultLogName;

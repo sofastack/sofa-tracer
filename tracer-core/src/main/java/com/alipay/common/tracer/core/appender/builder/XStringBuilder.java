@@ -23,16 +23,16 @@ import java.util.Map;
 /**
  * XStringBuilder
  * <p>
- * 方便日志输出的字符串拼接工具
- *
+ * String splicing tool for convenient log output
+ * </p>
  * @author yangguanchao
  * @since 2017/06/25
  */
 public class XStringBuilder {
 
-    static public final int    DEFAULT_BUFFER_SIZE      = 256;
-    static public final char   DEFAULT_SEPARATOR        = ',';
-    static public final String DEFAULT_SEPARATOR_ESCAPE = "%2C";
+    public static final int    DEFAULT_BUFFER_SIZE      = 256;
+    public static final char   DEFAULT_SEPARATOR        = ',';
+    public static final String DEFAULT_SEPARATOR_ESCAPE = "%2C";
     public static final String AND_SEPARATOR            = "&";
     public static final String AND_SEPARATOR_ESCAPE     = "%26";
     public static final String EQUAL_SEPARATOR          = "=";
@@ -40,9 +40,9 @@ public class XStringBuilder {
     public static final String PERCENT                  = "%";
     public static final String PERCENT_ESCAPE           = "%25";
 
-    static private char        separator                = DEFAULT_SEPARATOR;
-    static private String      separatorStr             = separator + "";
-    static private String      spearatorEscape          = DEFAULT_SEPARATOR_ESCAPE;
+    private static char        separator                = DEFAULT_SEPARATOR;
+    private static String      separatorStr             = separator + "";
+    private static String      spearatorEscape          = DEFAULT_SEPARATOR_ESCAPE;
     private StringBuilder      sb;
 
     public XStringBuilder() {
@@ -59,8 +59,8 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入字符串
-     * @return 当前实例
+     * @param str Input string
+     * @return this
      */
     public XStringBuilder append(String str) {
         sb.append(str == null ? StringUtils.EMPTY_STRING : str).append(separator);
@@ -68,8 +68,8 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入字符串
-     * @return 当前实例
+     * @param str Input string
+     * @return this
      */
     public XStringBuilder append(long str) {
         sb.append(str).append(separator);
@@ -77,9 +77,9 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入字符串
-     * @param separator 分隔符
-     * @return 当前实例
+     * @param str Input string
+     * @param separator
+     * @return this
      */
     public XStringBuilder append(long str, String separator) {
         sb.append(str).append(separator);
@@ -87,9 +87,9 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入字符串
-     * @param separator 分隔符
-     * @return 当前实例
+     * @param str Input string
+     * @param separator
+     * @return this
      */
     public XStringBuilder append(long str, char separator) {
         sb.append(str).append(separator);
@@ -97,9 +97,9 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入字符串
-     * @param separator 分隔符
-     * @return 当前实例
+     * @param str Input string
+     * @param separator
+     * @return this
      */
     public XStringBuilder append(String str, String separator) {
         sb.append(str == null ? StringUtils.EMPTY_STRING : str).append(separator);
@@ -107,8 +107,8 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入字符串
-     * @return 当前实例
+     * @param str Input string
+     * @return this
      */
     public XStringBuilder append(int str) {
         sb.append(str).append(separator);
@@ -116,8 +116,8 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入字符串
-     * @return 当前实例
+     * @param str Input string
+     * @return this
      */
     public XStringBuilder append(char str) {
         sb.append(str).append(separator);
@@ -125,8 +125,8 @@ public class XStringBuilder {
     }
 
     /**
-     * @param map 要添加的 map
-     * @return 当前实例
+     * @param map map param
+     * @return this
      */
     public XStringBuilder append(Map<String, String> map) {
         this.appendEscape(StringUtils.mapToString(map));
@@ -134,8 +134,8 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入的字符串
-     * @return 当前实例
+     * @param str Input string
+     * @return this
      */
     public XStringBuilder appendEnd(int str) {
         sb.append(str).append(StringUtils.NEWLINE);
@@ -143,8 +143,8 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入的字符串
-     * @return 当前实例
+     * @param str Input string
+     * @return this
      */
     public XStringBuilder appendEnd(String str) {
         sb.append(str == null ? StringUtils.EMPTY_STRING : str).append(StringUtils.NEWLINE);
@@ -152,8 +152,8 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入信息
-     * @return 当前实例
+     * @param str Input string
+     * @return this
      */
     public XStringBuilder appendEnd(long str) {
         sb.append(str).append(StringUtils.NEWLINE);
@@ -161,8 +161,8 @@ public class XStringBuilder {
     }
 
     /**
-     * @param c 输入字符
-     * @return 当前实例
+     * @param c Input char
+     * @return this
      */
     public XStringBuilder appendEnd(char c) {
         sb.append(String.valueOf(c)).append(StringUtils.NEWLINE);
@@ -170,8 +170,8 @@ public class XStringBuilder {
     }
 
     /**
-     * @param map 输入 map
-     * @return 当前实例
+     * @param map map param
+     * @return this
      */
     public XStringBuilder appendEnd(Map<String, String> map) {
         this.appendEscapeEnd(StringUtils.mapToString(map));
@@ -179,8 +179,8 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入字符串
-     * @return 当前实例
+     * @param str Input string
+     * @return this
      */
     public XStringBuilder appendRaw(String str) {
         sb.append(str == null ? StringUtils.EMPTY_STRING : str);
@@ -188,9 +188,9 @@ public class XStringBuilder {
     }
 
     /**
-     * 将字符串中分隔符变成对应转义字符
-     * @param str 输入字符串
-     * @return 当前实例
+     * Change the separator in the string to the corresponding escape character
+     * @param str Input string
+     * @return this
      */
     public XStringBuilder appendEscape(String str) {
         str = (str == null) ? StringUtils.EMPTY_STRING : str;
@@ -199,9 +199,9 @@ public class XStringBuilder {
     }
 
     /**
-     * 将字符串中分隔符变成对应转义字符
-     * @param str 输入字符串
-     * @return 当前实例
+     * Change the separator in the string to the corresponding escape character on raw
+     * @param str Input string
+     * @return this
      */
     public XStringBuilder appendEscapeRaw(String str) {
         str = (str == null) ? StringUtils.EMPTY_STRING : str;
@@ -210,9 +210,9 @@ public class XStringBuilder {
     }
 
     /**
-     * 将字符串中分隔符变成对应转义字符
-     * @param str 输入字符串
-     * @return 当前实例
+     * Change the separator in the string to the corresponding escape character at the end
+     * @param str Input string
+     * @return this
      */
     public XStringBuilder appendEscapeEnd(String str) {
         str = (str == null) ? StringUtils.EMPTY_STRING : str;
@@ -221,7 +221,7 @@ public class XStringBuilder {
     }
 
     /**
-     * @return 当前实例
+     * @return this
      */
     public XStringBuilder reset() {
         sb.delete(0, sb.length());
@@ -229,7 +229,7 @@ public class XStringBuilder {
     }
 
     /**
-     * @return 当前实例
+     * @return this
      */
     @Override
     public String toString() {

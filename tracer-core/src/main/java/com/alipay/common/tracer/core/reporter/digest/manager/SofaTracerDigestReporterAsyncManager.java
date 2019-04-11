@@ -27,14 +27,13 @@ import com.alipay.common.tracer.core.appender.manager.AsyncCommonDigestAppenderM
 public final class SofaTracerDigestReporterAsyncManager {
 
     /**
-     * 异步日志打印，所有的中间件 摘要日志公用一个 SofaTracerDigestReporterAsyncManager AsyncAppender 来打印日志
+     * Asynchronous log print, all middleware digest logs share a SofaTracerDigestReporterAsyncManager AsyncAppender to print logs
      */
     private static volatile AsyncCommonDigestAppenderManager asyncCommonDigestAppenderManager;
 
-    /***
-     *
-     * 异步摘要日志打印，所有的中间件公用一个 AsyncAppender 来打印日志
-     * @return 全局唯一的日志打印器
+    /**
+     * get singleton instance
+     * @return asyncCommonDigestAppenderManager
      */
     public static AsyncCommonDigestAppenderManager getSofaTracerDigestReporterAsyncManager() {
         if (asyncCommonDigestAppenderManager == null) {

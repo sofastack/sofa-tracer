@@ -25,8 +25,9 @@ import java.lang.Runnable;
 /**
  * Runnable that passes Span between threads. The Span name is
  * taken either from the passed value or from the interface.
+ *
  * @author luoguimu123
- * @version $Id: Runnable.java, v 0.1 2017年06月19日 下午5:54 luoguimu123 Exp $
+ * @version $Id: Runnable.java, v 0.1 June 19, 2017 5:54 PM luoguimu123 Exp $
  */
 public class SofaTracerRunnable implements Runnable {
 

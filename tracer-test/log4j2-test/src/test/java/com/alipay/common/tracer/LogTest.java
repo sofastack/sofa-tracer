@@ -34,7 +34,7 @@ import java.util.Scanner;
 /**
  *
  * @author luoguimu123
- * @version $Id: LogTest.java, v 0.1 2017年08月05日 上午8:06 luoguimu123 Exp $
+ * @version $Id: LogTest.java, v 0.1 August 5, 2017 8:06 AM luoguimu123 Exp $
  */
 public class LogTest {
 

@@ -80,19 +80,18 @@ public abstract class AbstractTestBase {
                 statKey
                     .setKey(buildString(new String[] { fromApp, toApp, serviceName, methodName }));
                 statKey.setResult(true ? "Y" : "N");
-                //压测
+                //Pressure measurement
                 String mark = StringUtils.isBlank(sofaTracerSpan.getTagsWithStr().get(
                     SofaTracerConstant.LOAD_TEST_TAG)) ? "F" : "T";
                 statKey.setEnd(buildString(new String[] { mark, zone }));
-                //必须设置，和mark不同，这个只打印mark
+                //Must be set, unlike mark, this only prints mark
                 statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
-
-                //次数和耗时，最后一个耗时是单独打印的字段
+                //Times and time, the last time is a separately printed field
                 long values[] = new long[] { 1, duration };
                 addStat(statKey, values);
             }
         };
-        //摘要日志
+
         String clientLogType = TracerTestLogEnum.RPC_CLIENT_DIGEST.getDefaultLogName();
         //client
         DiskReporterImpl clientDigestReporter = new DiskReporterImpl(clientLogType,
@@ -112,18 +111,14 @@ public abstract class AbstractTestBase {
                 String zone = "targetZone";
                 String serviceName = "service";
                 String methodName = "method";
-                //key 关键字 {@link com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter.print}
+                //key {@link com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter.print}
                 statKey
                     .setKey(buildString(new String[] { fromApp, toApp, serviceName, methodName }));
                 statKey.setResult(true ? "Y" : "N");
-                //压测
                 String mark = StringUtils.isBlank(sofaTracerSpan.getTagsWithStr().get(
                     SofaTracerConstant.LOAD_TEST_TAG)) ? "F" : "T";
                 statKey.setEnd(buildString(new String[] { mark, zone }));
-                //必须设置，和mark不同，这个只打印mark
                 statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
-
-                //次数和耗时，最后一个耗时是单独打印的字段
                 long values[] = new long[] { 1, duration };
                 addStat(statKey, values);
             }
@@ -162,11 +157,11 @@ public abstract class AbstractTestBase {
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY, "false");
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.DISABLE_DIGEST_LOG_KEY,
-            new HashMap<String, String>());
+            new HashMap<>());
     }
 
     /**
-     * 清理日志文件夹
+     * Clean up the log folder
      *
      * @throws IOException
      */
@@ -179,7 +174,7 @@ public abstract class AbstractTestBase {
     }
 
     /**
-     * 检查 Tracer 本身是否含有错误
+     * Check Whether Tracer itself contains errors
      */
     protected void checkSelfLogContainsError() throws IOException {
         File tracerSelfLog = new File(logDirectory + File.separator + "tracer-self.log");
@@ -190,7 +185,7 @@ public abstract class AbstractTestBase {
 
         String selfLogContent = FileUtils.readFileToString(tracerSelfLog);
         boolean result = (selfLogContent == null || !selfLogContent.contains("ERROR"));
-        Assert.assertTrue("Tracer 中包含错误" + selfLogContent, result);
+        Assert.assertTrue("Tracer contains an error " + selfLogContent, result);
     }
 
     protected static File customFileLog(String fileName) {
@@ -198,13 +193,12 @@ public abstract class AbstractTestBase {
     }
 
     public SofaTracerSpan recoverServerSpan(String serverSpanId) {
-        //假设反序列化回的信息
-        //生成 traceId
+        //Hypothetically back information
+        //create traceId
         String traceId = TraceIdGenerator.generate();
-        //默认不采样
+        //default sampled false
         SofaTracerSpanContext spanContext = new SofaTracerSpanContext(traceId, serverSpanId,
             StringUtils.EMPTY_STRING, true);
-
         String callServiceName = "callServiceName";
         //create server
         SofaTracerSpan serverSpan = new SofaTracerSpan(tracer, System.currentTimeMillis(),

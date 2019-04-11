@@ -23,19 +23,19 @@ import java.io.IOException;
 /**
  * SpanEncoder
  * <p>
- * Tracer 日志格式编码，为针对异步队列调用做优化，不允许多线程并发调用
- *
+ * Tracer Span log encoder, optimized for asynchronous queue calls, does not allow multi-threaded concurrent calls
+ * </p>
  * @author yangguanchao
  * @since 2017/06/25
  */
 public interface SpanEncoder<T extends Span> {
 
-    /***
-     * 对 span 按照自定义的规则分隔字段,并准备输出到文件中
+    /**
+     * Separate fields according to custom rules and prepare to output to file
      *
-     * @param span 要被格式化输出的上下文
-     * @throws IOException 文件输出异常
-     * @return 返回格式化输出的字符串
+     * @param span current span
+     * @throws IOException
+     * @return formatted output string
      */
     String encode(T span) throws IOException;
 }
