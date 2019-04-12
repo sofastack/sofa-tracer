@@ -37,7 +37,7 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
     @Override
     public String encode(SofaTracerSpan span) throws IOException {
         JsonStringBuilder jsonStringBuilder = new JsonStringBuilder();
-        jsonStringBuilder.appendBegin("time", Timestamp.format(span.getEndTime()));
+        jsonStringBuilder.appendBegin(CommonSpanTags.TIME, Timestamp.format(span.getEndTime()));
         appendSlot(jsonStringBuilder, span);
         return jsonStringBuilder.toString();
     }
@@ -50,10 +50,10 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
         jsonStringBuilder
             .append(CommonSpanTags.LOCAL_APP, tagWithStr.get(CommonSpanTags.LOCAL_APP));
         //TraceId
-        jsonStringBuilder.append("traceId", context.getTraceId());
+        jsonStringBuilder.append(CommonSpanTags.TRACE_ID, context.getTraceId());
         //RpcId
-        jsonStringBuilder.append("spanId", context.getSpanId());
-        //URL
+        jsonStringBuilder.append(CommonSpanTags.SPAN_ID, context.getSpanId());
+        //请求 URL
         jsonStringBuilder.append(CommonSpanTags.REQUEST_URL,
             tagWithStr.get(CommonSpanTags.REQUEST_URL));
         //Request method
@@ -70,10 +70,10 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
         jsonStringBuilder.append(CommonSpanTags.RESP_SIZE, (responseSize == null ? 0L
             : responseSize.longValue()));
         //Request time (MS)
-        jsonStringBuilder.append("time.cost.milliseconds",
+        jsonStringBuilder.append(CommonSpanTags.TIME_COST_MILLISECONDS,
             (sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()));
         jsonStringBuilder.append(CommonSpanTags.CURRENT_THREAD_NAME,
             tagWithStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
-        jsonStringBuilder.appendEnd("baggage", baggageSerialized(context));
+        jsonStringBuilder.appendEnd(CommonSpanTags.BAGGAGE, baggageSerialized(context));
     }
 }

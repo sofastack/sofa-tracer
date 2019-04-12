@@ -37,7 +37,7 @@ public class OkHttpDigestJsonEncoder extends AbstractDigestSpanEncoder {
     public String encode(SofaTracerSpan span) throws IOException {
         JsonStringBuilder jsonStringBuilder = new JsonStringBuilder();
         //span end time
-        jsonStringBuilder.appendBegin("time", Timestamp.format(span.getEndTime()));
+        jsonStringBuilder.appendBegin(CommonSpanTags.TIME, Timestamp.format(span.getEndTime()));
         appendSlot(jsonStringBuilder, span);
         return jsonStringBuilder.toString();
     }
@@ -50,9 +50,9 @@ public class OkHttpDigestJsonEncoder extends AbstractDigestSpanEncoder {
         jsonStringBuilder
             .append(CommonSpanTags.LOCAL_APP, tagWithStr.get(CommonSpanTags.LOCAL_APP));
         //TraceId
-        jsonStringBuilder.append("traceId", context.getTraceId());
+        jsonStringBuilder.append(CommonSpanTags.TRACE_ID, context.getTraceId());
         //SpanId
-        jsonStringBuilder.append("spanId", context.getSpanId());
+        jsonStringBuilder.append(CommonSpanTags.SPAN_ID, context.getSpanId());
         //URL
         jsonStringBuilder.append(CommonSpanTags.REQUEST_URL,
             tagWithStr.get(CommonSpanTags.REQUEST_URL));
@@ -70,7 +70,7 @@ public class OkHttpDigestJsonEncoder extends AbstractDigestSpanEncoder {
         jsonStringBuilder.append(CommonSpanTags.RESP_SIZE, (responseSize == null ? 0L
             : responseSize.longValue()));
         //time-consuming ms
-        jsonStringBuilder.append("time.cost.milliseconds",
+        jsonStringBuilder.append(CommonSpanTags.TIME_COST_MILLISECONDS,
             (sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()));
         jsonStringBuilder.append(CommonSpanTags.CURRENT_THREAD_NAME,
             tagWithStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
@@ -83,6 +83,7 @@ public class OkHttpDigestJsonEncoder extends AbstractDigestSpanEncoder {
     private void appendBaggage(JsonStringBuilder jsonStringBuilder,
                                SofaTracerSpanContext sofaTracerSpanContext) {
         //baggage
-        jsonStringBuilder.appendEnd("baggage", baggageSerialized(sofaTracerSpanContext));
+        jsonStringBuilder.appendEnd(CommonSpanTags.BAGGAGE,
+            baggageSerialized(sofaTracerSpanContext));
     }
 }

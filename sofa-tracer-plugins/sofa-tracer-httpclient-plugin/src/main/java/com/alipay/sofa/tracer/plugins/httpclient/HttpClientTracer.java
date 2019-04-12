@@ -18,6 +18,7 @@ package com.alipay.sofa.tracer.plugins.httpclient;
 
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
@@ -48,7 +49,7 @@ public class HttpClientTracer extends AbstractClientTracer {
     }
 
     protected HttpClientTracer() {
-        super("httpclient");
+        super(ComponentNameConstants.HTTP_CLIENT);
     }
 
     @Override
