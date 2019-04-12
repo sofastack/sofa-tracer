@@ -9,8 +9,8 @@
 
 本案例包括两个子工程：
 
-* sofa-tracer-spring-cloud-provider     服务提供方
-* sofa-tarcer-spring-cloud-feignclient  服务调用方
+* tracer-sample-with-openfeign-provider  服务提供方
+* tracer-sample-with-openfeign-consumer  服务调用方
 
 ## 新建 SOFABoot 工程作为父工程
 
@@ -36,7 +36,7 @@
 ```
 这里的 ${sofa.boot.version} 指定具体的 SOFABoot 版本，参考[发布历史](https://github.com/alipay/sofa-build/releases)。
 
-## 新建 sofa-tracer-spring-cloud-provider
+## 新建 tracer-sample-with-openfeign-provider
 
 * 在工程模块的 pom 文件中添加 SOFATracer 依赖
 
@@ -44,6 +44,14 @@
     <dependency>
         <groupId>com.alipay.sofa</groupId>
         <artifactId>tracer-sofa-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-openfeign</artifactId>
     </dependency>
     ```
     > SOFATracer 版本受 SOFABoot 版本管控，如果使用的 SOFABoot 版本不匹配，则需要手动指定 tracer 版本，且版本需高于 3.0.4.
@@ -56,8 +64,6 @@
     spring.cloud.zookeeper.connect-string=localhost:2181
     spring.cloud.zookeeper.discovery.enabled=true
     spring.cloud.zookeeper.discovery.instance-id=tracer-provider
-    # 指定上报到zipkin的服务端地址
-    com.alipay.sofa.tracer.zipkin.baseUrl=http://localhost:9411
     ```
 * 简单的资源类
 
@@ -70,7 +76,7 @@
         }
     }
     ```
-## 新建 sofa-tracer-spring-cloud-feignclient
+## 新建 tracer-sample-with-openfeign-consumer
 
 * 在工程模块的 pom 文件中添加 SOFATracer 依赖
 
@@ -78,6 +84,14 @@
     <dependency>
         <groupId>com.alipay.sofa</groupId>
         <artifactId>tracer-sofa-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-openfeign</artifactId>
     </dependency>
     ```
 
@@ -89,13 +103,12 @@
     spring.cloud.zookeeper.connect-string=localhost:2181
     spring.cloud.zookeeper.discovery.enabled=true
     spring.cloud.zookeeper.discovery.instance-id=tracer-consumer
-    com.alipay.sofa.tracer.zipkin.baseUrl=http://localhost:9411
     ```
 * 定义 feign 资源
 
     ```java
-    @FeignClient(value = "tracer-provider",fallback = UserServiceFallbackFactory.class)
-    public interface UserService {
+    @FeignClient(value = "tracer-provider",fallback = FeignServiceFallbackFactory.class)
+    public interface FeignService {
         @RequestMapping(value = "/feign", method = RequestMethod.GET)
         String testFeign();
     }
@@ -114,18 +127,18 @@
         }
     
         @Autowired
-        private UserService userService;
+        private FeignService feignService;
     
         @RequestMapping
         public String test(){
-            return userService.testFeign();
+            return feignService.testFeign();
         }
     }
     ```
 
 ## 测试
 
-先后启动 sofa-tracer-spring-cloud-provider 和 sofa-tracer-spring-cloud-feignclient 两个工程; 然后浏览器访问：
+先后启动 tracer-sample-with-openfeign-provider 和 tracer-sample-with-openfeign-consumer 两个工程; 然后浏览器访问：
 http://localhost:8082/ 。然后查看日志：
 
 在上面的 `application.properties` 里面，我们配置的日志打印目录是 `./logs` 即当前应用的根目录（我们可以根据自己的实践需要进行配置），在当前工程的根目录下可以看到类似如下结构的日志文件：
