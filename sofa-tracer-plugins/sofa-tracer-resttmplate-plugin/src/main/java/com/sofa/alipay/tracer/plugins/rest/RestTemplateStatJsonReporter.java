@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.appender.self.Timestamp;
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.reporter.stat.model.StatMapKey;
@@ -54,7 +55,8 @@ public class RestTemplateStatJsonReporter extends AbstractSofaTracerStatisticRep
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
         boolean success = (resultCode != null && resultCode.length() > 0 && this
             .isHttpOrMvcSuccess(resultCode));
-        statKey.setResult(success ? "true" : "false");
+        statKey.setResult(success ? SofaTracerConstant.STAT_FLAG_SUCCESS
+            : SofaTracerConstant.STAT_FLAG_FAILS);
         //pressure mark
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
         //end
@@ -79,13 +81,13 @@ public class RestTemplateStatJsonReporter extends AbstractSofaTracerStatisticRep
         try {
             jsonBuffer.reset();
             jsonBuffer.appendBegin();
-            jsonBuffer.append("time", Timestamp.currentTime());
-            jsonBuffer.append("stat.key", this.statKeySplit(statMapKey));
-            jsonBuffer.append("count", values[0]);
-            jsonBuffer.append("total.cost.milliseconds", values[1]);
-            jsonBuffer.append("success", statMapKey.getResult());
+            jsonBuffer.append(CommonSpanTags.TIME, Timestamp.currentTime());
+            jsonBuffer.append(CommonSpanTags.STAT_KEY, this.statKeySplit(statMapKey));
+            jsonBuffer.append(CommonSpanTags.COUNT, values[0]);
+            jsonBuffer.append(CommonSpanTags.TOTAL_COST_MILLISECONDS, values[1]);
+            jsonBuffer.append(CommonSpanTags.SUCCESS, statMapKey.getResult());
             //pressure
-            jsonBuffer.appendEnd("load.test", statMapKey.getEnd());
+            jsonBuffer.appendEnd(CommonSpanTags.LOAD_TEST, statMapKey.getEnd());
 
             if (appender instanceof LoadTestAwareAppender) {
                 ((LoadTestAwareAppender) appender).append(jsonBuffer.toString(),

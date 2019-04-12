@@ -18,6 +18,7 @@ package com.alipay.sofa.tracer.plugins.okhttp;
 
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
@@ -31,7 +32,7 @@ public class OkHttpTracer extends AbstractClientTracer {
     private volatile static OkHttpTracer okHttpTracer = null;
 
     protected OkHttpTracer() {
-        super("okhttp");
+        super(ComponentNameConstants.OK_HTTP);
     }
 
     public static OkHttpTracer getOkHttpTracerSingleton() {

@@ -18,6 +18,7 @@ package com.sofa.alipay.tracer.plugins.rest;
 
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
@@ -30,7 +31,7 @@ import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
 public class RestTemplateTracer extends AbstractClientTracer {
 
     protected RestTemplateTracer() {
-        super("resttemplate");
+        super(ComponentNameConstants.REST_TEMPLATE);
     }
 
     @Override
