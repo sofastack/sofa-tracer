@@ -19,6 +19,7 @@ package com.alipay.sofa.tracer.plugins.datasource.tracer;
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
@@ -41,12 +42,7 @@ public class DataSourceClientTracer extends AbstractClientTracer {
                                                                                            return null;
                                                                                        }
                                                                                    };
-
     private volatile static DataSourceClientTracer          dataSourceClientTracer = null;
-
-    public static final String                              RESULT_CODE_SUCCESS    = "success";
-
-    public static final String                              RESULT_CODE_FAILED     = "failed";
 
     /***
      * DataSource Client Tracer Singleton
@@ -64,7 +60,7 @@ public class DataSourceClientTracer extends AbstractClientTracer {
     }
 
     private DataSourceClientTracer() {
-        super("dataSource");
+        super(ComponentNameConstants.DATA_SOURCE);
     }
 
     @Override
