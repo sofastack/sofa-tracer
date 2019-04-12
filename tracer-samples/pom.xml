@@ -22,6 +22,7 @@
         <module>tracer-sample-with-resttemplate</module>
         <module>tracer-sample-with-sampler</module>
         <module>tracer-sample-with-dubbo</module>
+        <module>tracer-sample-with-okhttp</module>
     </modules>
 
     <properties>
