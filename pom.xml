@@ -156,6 +156,13 @@
                 <version>${opentracing.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-openfeign</artifactId>
+                <version>2.1.0.RELEASE</version>
+                <scope>provided</scope>
+            </dependency>
+
             <!-- 对外部框架的一些插件使用 -->
             <dependency>
                 <groupId>javax.servlet</groupId>
