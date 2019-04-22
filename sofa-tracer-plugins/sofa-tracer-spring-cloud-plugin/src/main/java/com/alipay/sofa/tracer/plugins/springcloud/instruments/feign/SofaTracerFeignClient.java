@@ -146,8 +146,8 @@ public class SofaTracerFeignClient implements Client {
         sofaTracerSpan.setTag(CommonSpanTags.COMPONENT_CLIENT, feignClientTracer.getSofaTracer()
             .getTracerType());
 
-        if (request.requestBody() != null) {
-            sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE, request.requestBody().length());
+        if (request.body() != null) {
+            sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE, request.body().length);
         } else {
             sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE, 0);
         }
