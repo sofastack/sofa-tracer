@@ -5,12 +5,30 @@
     <parent>
         <artifactId>sofa-tracer-samples</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>3.0.4</version>
+        <version>3.0.5-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>tracer-sample-with-openfeign</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>tracer-sample-with-openfeign-provider</module>
+        <module>tracer-sample-with-openfeign-consumer</module>
+    </modules>
     <properties>
         <main.user.dir>${project.basedir}/../..</main.user.dir>
+        <spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
