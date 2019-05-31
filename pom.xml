@@ -17,7 +17,6 @@
     <modules>
         <module>tracer-core</module>
         <module>tracer-extensions</module>
-        <module>sofa-tracer-plugins/sofa-tracer-reactor-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-springmvc-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-httpclient-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-okhttp-plugin</module>
