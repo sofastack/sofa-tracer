@@ -14,20 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.plugins.reactor.base;
+package com.alipay.common.tracer.core.reactor.base;
 
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.io.IOException;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(locations = "classpath:application.properties")
 public class AbstractTestBase {
     protected static String logDirectoryPath = TracerLogRootDaemon.LOG_FILE_DIR;
 

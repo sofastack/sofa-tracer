@@ -36,6 +36,7 @@
 
     <properties>
         <opentracing.version>0.22.0</opentracing.version>
+        <reactor.version>3.2.6.RELEASE</reactor.version>
         <sofa.tracer.version>3.0.6-SNAPSHOT</sofa.tracer.version>
         <java.compiler.source.version>1.8</java.compiler.source.version>
         <java.compiler.target.version>1.8</java.compiler.target.version>
@@ -176,6 +177,14 @@
                 <version>3.1.0</version>
                 <scope>provided</scope>
             </dependency>
+
+            <dependency>
+                <groupId>io.projectreactor</groupId>
+                <artifactId>reactor-core</artifactId>
+                <version>${reactor.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
             <!-- HttpClient Dependency -->
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>

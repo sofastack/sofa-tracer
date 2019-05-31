@@ -15,10 +15,7 @@
             <groupId>com.alipay.sofa</groupId>
             <artifactId>tracer-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.alipay.sofa</groupId>
-            <artifactId>sofa-tracer-reactor-plugin</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>tracer-extensions</artifactId>

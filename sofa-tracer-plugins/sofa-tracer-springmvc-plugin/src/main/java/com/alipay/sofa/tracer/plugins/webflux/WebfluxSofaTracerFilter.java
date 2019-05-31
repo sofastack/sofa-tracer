@@ -19,11 +19,12 @@ package com.alipay.sofa.tracer.plugins.webflux;
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import com.alipay.common.tracer.core.reactor.SofaTracerReactorTransformer;
 import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
-import com.alipay.sofa.tracer.plugins.reactor.SofaTracerReactorTransformer;
+
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcHeadersCarrier;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import org.springframework.beans.factory.annotation.Value;

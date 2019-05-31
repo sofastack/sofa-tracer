@@ -14,16 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.plugins.reactor;
+package com.alipay.common.tracer.core.reactor;
 
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import com.alipay.common.tracer.core.reactor.base.AbstractTestBase;
+import com.alipay.common.tracer.core.reactor.base.ReactorTracer;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import com.alipay.sofa.tracer.plugins.reactor.base.AbstractTestBase;
-import com.alipay.sofa.tracer.plugins.reactor.base.ReactorTracer;
+
 import org.junit.Assert;
 import org.junit.Test;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -41,6 +43,24 @@ public class MonoSofaOperatorTest extends AbstractTestBase {
                             return sofaTraceContext.getCurrentSpan().getOperationName();
                         })
         ).expectNext("testMonoSofaOperator").verifyComplete();
+    }
+
+    @Test
+    public void testFluxSofaOperator() throws Exception {
+        StepVerifier.create(
+                Flux.just(1, 2, 3)
+                        .log()
+                        .transform(new SofaTracerReactorTransformer<>(
+                                () -> this.startSpan("testMonoSofaOperator"),
+                                this::finishSpan))
+                        .map(i -> {
+                            SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+                            return sofaTraceContext.getCurrentSpan().getOperationName();
+                        })
+        ).expectNext("testMonoSofaOperator")
+                .expectNext("testMonoSofaOperator")
+                .expectNext("testMonoSofaOperator")
+                .verifyComplete();
     }
 
     @Test

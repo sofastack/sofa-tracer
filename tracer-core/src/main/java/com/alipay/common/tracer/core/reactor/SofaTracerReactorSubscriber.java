@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.plugins.reactor;
+package com.alipay.common.tracer.core.reactor;
 
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
@@ -85,6 +85,17 @@ public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T>
             SofaTracerSpan newSpan = sofaTraceContext.getCurrentSpan();
             if (newSpan != null && !newSpan.equals(this.sofaTracerSpan)) {
                 this.sofaTracerSpan = newSpan;
+            }
+
+            /*
+             * after runnable run, current span is null but
+             * the span controlled by reactor context is not null,
+             *
+             * that mean, the runnable `f` have finished span
+             * so clear context
+             */
+            if (newSpan == null && this.sofaTracerSpan != null) {
+                this.sofaTracerSpan = null;
             }
 
             if (backupSofaTracerSpan == null) {

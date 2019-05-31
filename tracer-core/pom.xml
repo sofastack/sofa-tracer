@@ -27,6 +27,11 @@
             <groupId>io.opentracing</groupId>
             <artifactId>opentracing-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- test 依赖 -->
         <dependency>
@@ -77,6 +82,13 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <version>${reactor.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -14,34 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.plugins.reactor;
+package com.alipay.common.tracer.core.reactor;
 
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import org.reactivestreams.Publisher;
 import reactor.core.CoreSubscriber;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxOperator;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.MonoOperator;
 
 import java.util.function.BiFunction;
 
 /**
- * operator for flux operation
+ * operator for mono
  *
  * @author sx
  */
-public class FluxSofaOperator<T> extends FluxOperator<T, T> {
+public class MonoSofaOperator<T> extends MonoOperator<T, T> {
     private final Runnable                                    startSpan;
     private final BiFunction<SofaTracerSpan, Throwable, Void> finishSpan;
 
-    /**
-     * Build a {@link FluxOperator} wrapper around the passed parent {@link Publisher}
-     *
-     * @param source the {@link Publisher} to decorate
-     */
-    protected FluxSofaOperator(Flux<? extends T> source, Runnable startSpan,
-                               BiFunction<SofaTracerSpan, Throwable, Void> finishSpan) {
+    public MonoSofaOperator(Mono<? extends T> source, Runnable startSpan,
+                            BiFunction<SofaTracerSpan, Throwable, Void> finishSpan) {
         super(source);
-
         this.startSpan = startSpan;
         this.finishSpan = finishSpan;
     }
