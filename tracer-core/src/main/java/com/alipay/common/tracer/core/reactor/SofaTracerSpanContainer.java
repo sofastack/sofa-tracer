@@ -17,31 +17,43 @@
 package com.alipay.common.tracer.core.reactor;
 
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import reactor.core.CoreSubscriber;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.MonoOperator;
+import reactor.util.annotation.NonNull;
 
-import java.util.function.BiFunction;
+import java.util.NoSuchElementException;
 
 /**
- * operator for mono
+ * hold sofa tracer span in reactor mode
  *
  * @author sx
  */
-public class MonoSofaOperator<T> extends MonoOperator<T, T> {
-    private final Runnable                                    startSpan;
-    private final BiFunction<SofaTracerSpan, Throwable, Void> finishSpan;
+public class SofaTracerSpanContainer {
+    private SofaTracerSpan value;
 
-    public MonoSofaOperator(Mono<? extends T> source, Runnable startSpan,
-                            BiFunction<SofaTracerSpan, Throwable, Void> finishSpan) {
-        super(source);
-        this.startSpan = startSpan;
-        this.finishSpan = finishSpan;
+    public SofaTracerSpanContainer(SofaTracerSpan value) {
+        this.value = value;
     }
 
-    @Override
-    public void subscribe(CoreSubscriber<? super T> actual) {
-        source.log().subscribe(
-            new SofaTracerReactorSubscriber<>(actual, this.startSpan, this.finishSpan, true));
+    public SofaTracerSpanContainer() {
+        this.value = null;
+    }
+
+    public boolean isPresent() {
+        return value != null;
+    }
+
+    @NonNull
+    public SofaTracerSpan get() {
+        if (value == null) {
+            throw new NoSuchElementException("No value present");
+        }
+        return value;
+    }
+
+    public void clear() {
+        this.value = null;
+    }
+
+    public void set(SofaTracerSpan sofaTracerSpan) {
+        this.value = sofaTracerSpan;
     }
 }

@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.tracer.examples.springwebflux.controller;
 
+import com.alipay.common.tracer.core.reactor.SofaTracerBarrier;
+import com.alipay.sofa.tracer.examples.springwebflux.util.HttpClientInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,4 +55,24 @@ public class SampleRestController {
         logger.info("result: {}", resultMap);
         return Mono.delay(Duration.ofSeconds(3)).map(i -> resultMap);
     }
+
+    @RequestMapping("/httpclient")
+    public Mono<String> httpClient() throws Exception {
+        return SofaTracerBarrier.withSofaTracerContainer().flatMap(c ->
+                {
+                    try {
+                        return Mono.just(new HttpClientInstance(10 * 1000).executeGet("http://www.baidu.com"));
+                    } catch (Exception e) {
+                        return Mono.error(e);
+                    }
+
+                }
+        );
+    }
+
+    @RequestMapping("/httpclient2")
+    public String httpClient2() throws Exception {
+        return new HttpClientInstance(10 * 1000).executeGet("http://www.baidu.com");
+    }
+
 }

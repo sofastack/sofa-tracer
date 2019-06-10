@@ -16,8 +16,6 @@
  */
 package com.alipay.common.tracer.core.reactor;
 
-import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
-import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import org.reactivestreams.Subscription;
 import reactor.core.CoreSubscriber;
@@ -37,9 +35,10 @@ public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T>
     private final Runnable                                    startSpan;
     private final BiFunction<SofaTracerSpan, Throwable, Void> finishSpan;
 
-    private SofaTracerSpan                                    sofaTracerSpan;
+    private SofaTracerSpanContainer                           sofaTracerSpanContainer = new SofaTracerSpanContainer();
 
-    private final AtomicBoolean                               entryExited = new AtomicBoolean(false);
+    private final AtomicBoolean                               entryExited             = new AtomicBoolean(
+                                                                                          false);
     private final boolean                                     unary;
 
     public SofaTracerReactorSubscriber(CoreSubscriber<? super T> actual, Runnable startSpan,
@@ -51,67 +50,38 @@ public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T>
         this.unary = unary;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public Context currentContext() {
-        if (sofaTracerSpan == null || entryExited.get()) {
+        if (sofaTracerSpanContainer == null || entryExited.get()) {
             return actual.currentContext();
         }
 
-        if (sofaTracerSpan == null) {
+        if (sofaTracerSpanContainer == null) {
             return actual.currentContext();
         }
 
         return actual.currentContext().put(SofaTracerReactorConstants.SOFA_TRACER_CONTEXT_KEY,
-            sofaTracerSpan);
+            sofaTracerSpanContainer);
     }
 
     private void runOnSofaTracerSpan(Runnable f) {
-        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        SofaTracerSpan backupSofaTracerSpan = sofaTraceContext.pop();
-
-        if (this.sofaTracerSpan == null) {
-            sofaTraceContext.clear();
-        } else {
-            sofaTraceContext.push(this.sofaTracerSpan);
-        }
-
-        try {
-            f.run();
-        } finally {
-            /*
-             * may create new sofa tracer span in runnable,
-             * detect it and keep it
-             */
-            SofaTracerSpan newSpan = sofaTraceContext.getCurrentSpan();
-            if (newSpan != null && !newSpan.equals(this.sofaTracerSpan)) {
-                this.sofaTracerSpan = newSpan;
-            }
-
-            /*
-             * after runnable run, current span is null but
-             * the span controlled by reactor context is not null,
-             *
-             * that mean, the runnable `f` have finished span
-             * so clear context
-             */
-            if (newSpan == null && this.sofaTracerSpan != null) {
-                this.sofaTracerSpan = null;
-            }
-
-            if (backupSofaTracerSpan == null) {
-                sofaTraceContext.clear();
-            } else {
-                sofaTraceContext.push(backupSofaTracerSpan);
-            }
-
-        }
-
+        SofaTracerBarrier.runOnSofaTracerSpan(f, this.sofaTracerSpanContainer);
     }
 
     @Override
     protected void hookOnSubscribe(Subscription subscription) {
+        recoverFromContext();
         runOnSofaTracerSpan(this.startSpan);
         actual.onSubscribe(this);
+    }
+
+    private void recoverFromContext() {
+        if (actual.currentContext().hasKey(SofaTracerReactorConstants.SOFA_TRACER_CONTEXT_KEY)) {
+            // recover from existed container
+            this.sofaTracerSpanContainer = actual.currentContext().get(
+                SofaTracerReactorConstants.SOFA_TRACER_CONTEXT_KEY);
+        }
     }
 
     @Override
@@ -155,8 +125,9 @@ public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T>
     }
 
     private boolean tryCompleteEntry(Throwable throwable) {
-        if (this.sofaTracerSpan != null && entryExited.compareAndSet(false, true)) {
-            runOnSofaTracerSpan(() -> finishSpan.apply(sofaTracerSpan, throwable));
+        if (this.sofaTracerSpanContainer != null && this.sofaTracerSpanContainer.isPresent()
+                && entryExited.compareAndSet(false, true)) {
+            runOnSofaTracerSpan(() -> finishSpan.apply(sofaTracerSpanContainer.get(), throwable));
             return true;
         }
         return false;

@@ -22,7 +22,6 @@ import com.alipay.common.tracer.core.reactor.base.AbstractTestBase;
 import com.alipay.common.tracer.core.reactor.base.ReactorTracer;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-
 import org.junit.Assert;
 import org.junit.Test;
 import reactor.core.publisher.Flux;
@@ -78,6 +77,52 @@ public class MonoSofaOperatorTest extends AbstractTestBase {
                             SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
                             return sofaTraceContext.getCurrentSpan().getOperationName();
                         })
+        ).expectNext("testMonoSofaOperator").verifyComplete();
+
+        // after reactor run, global span should restore
+        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+        Assert.assertEquals(
+                sofaTraceContext
+                        .getCurrentSpan().getOperationName(),
+                "testMonoSofaOperator-global"
+        );
+    }
+
+    class EmtpyRunnable implements Runnable {
+
+        @Override
+        public void run() {
+            System.out.println("1");
+        }
+    }
+
+    @Test
+    public void testMonoSofaOperatorWithDefer() throws Exception {
+        // make sure it have span before reactor run
+        startSpan("testMonoSofaOperator-global");
+
+        StepVerifier.create(
+                Mono.just(2)
+                        .log()
+//                        .then(Mono.defer(() -> Mono.subscriberContext()
+//                                .map(c -> ((SofaTracerSpanContainer)c.get(
+//                                        SofaTracerReactorConstants.SOFA_TRACER_CONTEXT_KEY
+//                                )).get().getOperationName())
+//                        ))
+                        .then(
+                                Mono
+                                        .defer(() ->
+                                                SofaTracerBarrier.withSofaTracerContainer().map(c -> {
+                                                    SofaTraceContext sofaTraceContext = SofaTraceContextHolder
+                                                            .getSofaTraceContext();
+                                                    return sofaTraceContext.getCurrentSpan().getOperationName();
+                                                }))
+
+                        )
+                        .transform(new SofaTracerReactorTransformer<>(
+                                () -> this.startSpan("testMonoSofaOperator"),
+                                this::finishSpan))
+
         ).expectNext("testMonoSofaOperator").verifyComplete();
 
         // after reactor run, global span should restore

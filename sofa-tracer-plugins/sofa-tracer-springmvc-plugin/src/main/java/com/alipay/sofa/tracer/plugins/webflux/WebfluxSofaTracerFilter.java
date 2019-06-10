@@ -24,6 +24,7 @@ import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.common.tracer.core.tracer.AbstractTracer;
 
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcHeadersCarrier;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
@@ -70,7 +71,21 @@ public class WebfluxSofaTracerFilter implements WebFilter {
         SofaTracerSpanContext spanContext = (SofaTracerSpanContext) tracer.extract(
             ExtendFormat.Builtin.B3_HTTP_HEADERS, new SpringMvcHeadersCarrier(new HashMap<>(request
                 .getHeaders().toSingleValueMap())));
-        spanContext.setSpanId(spanContext.nextChildContextId());
+
+        /**
+         * try to unpack span context from http request headers,
+         *
+         * if the span id is not zero, it means we are down stream of an existed span,
+         * keep it and treat it as parent
+         *
+         * if the span id is 0, it means we create an new tracer span,
+         * we should ignore it, to make {@link AbstractTracer#serverReceive(SofaTracerSpanContext)} work normally
+         *
+         * @see AbstractTracer#serverReceive(SofaTracerSpanContext)
+         */
+        if (spanContext == null || spanContext.getSpanId().equalsIgnoreCase("0")) {
+            spanContext = null;
+        }
 
         SofaTracerSpan springMvcSpan = springMvcTracer.serverReceive(spanContext);
         springMvcSpan.setOperationName(request.getUri().getPath());

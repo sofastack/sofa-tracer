@@ -21,6 +21,7 @@ import com.alipay.sofa.tracer.boot.configuration.SofaTracerAutoConfiguration;
 import com.alipay.sofa.tracer.boot.springmvc.properties.OpenTracingSpringMvcProperties;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcSofaTracerFilter;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
+import com.alipay.sofa.tracer.plugins.webflux.SofaTracerControllerAspect;
 import com.alipay.sofa.tracer.plugins.webflux.WebfluxSofaTracerFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -90,5 +91,11 @@ public class OpenTracingSpringMvcAutoConfiguration {
             }
             return new WebfluxSofaTracerFilter();
         }
+
+        @Bean
+        public SofaTracerControllerAspect sofaTracerControllerAspect() {
+            return new SofaTracerControllerAspect();
+        }
+
     }
 }
