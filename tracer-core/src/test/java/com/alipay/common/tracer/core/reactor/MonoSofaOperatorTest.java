@@ -104,11 +104,6 @@ public class MonoSofaOperatorTest extends AbstractTestBase {
         StepVerifier.create(
                 Mono.just(2)
                         .log()
-//                        .then(Mono.defer(() -> Mono.subscriberContext()
-//                                .map(c -> ((SofaTracerSpanContainer)c.get(
-//                                        SofaTracerReactorConstants.SOFA_TRACER_CONTEXT_KEY
-//                                )).get().getOperationName())
-//                        ))
                         .then(
                                 Mono
                                         .defer(() ->

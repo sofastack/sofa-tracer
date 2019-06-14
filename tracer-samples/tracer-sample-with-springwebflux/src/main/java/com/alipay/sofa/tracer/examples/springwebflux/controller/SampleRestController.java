@@ -75,4 +75,14 @@ public class SampleRestController {
         return new HttpClientInstance(10 * 1000).executeGet("http://www.baidu.com");
     }
 
+    @RequestMapping("/httpclient3")
+    public Mono<String> deferMono() {
+        return Mono.defer(() -> {
+            try {
+                return Mono.just(new HttpClientInstance(10 * 1000).executeGet("http://www.baidu.com"));
+            } catch (Exception e) {
+                return Mono.error(e);
+            }
+        });
+    }
 }

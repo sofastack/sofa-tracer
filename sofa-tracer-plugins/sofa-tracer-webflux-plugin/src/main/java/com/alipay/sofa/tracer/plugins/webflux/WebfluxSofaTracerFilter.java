@@ -27,7 +27,6 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
 
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcHeadersCarrier;
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -64,8 +63,9 @@ public class WebfluxSofaTracerFilter implements WebFilter {
     }
 
     private void startSpan(ServerWebExchange exchange) {
-        SpringMvcTracer springMvcTracer = SpringMvcTracer.getSpringMvcTracerSingleton();
-        SofaTracer tracer = springMvcTracer.getSofaTracer();
+        SpringWebfluxTracer springWebfluxTracer = SpringWebfluxTracer
+            .getSpringWebfluxTracerSingleton();
+        SofaTracer tracer = springWebfluxTracer.getSofaTracer();
 
         SofaTraceableRequest request = new ServerWebExchangeSofaTraceableRequest(exchange);
         SofaTracerSpanContext spanContext = (SofaTracerSpanContext) tracer.extract(
@@ -87,7 +87,7 @@ public class WebfluxSofaTracerFilter implements WebFilter {
             spanContext = null;
         }
 
-        SofaTracerSpan springMvcSpan = springMvcTracer.serverReceive(spanContext);
+        SofaTracerSpan springMvcSpan = springWebfluxTracer.serverReceive(spanContext);
         springMvcSpan.setOperationName(request.getUri().getPath());
         springMvcSpan.setTag(CommonSpanTags.LOCAL_APP, this.appName);
         springMvcSpan.setTag(CommonSpanTags.REMOTE_APP, request.getRemoteAddress());
@@ -98,7 +98,7 @@ public class WebfluxSofaTracerFilter implements WebFilter {
 
     private Void finishSpan(ServerWebExchange exchange, SofaTracerSpan springMvcSpan,
                             Throwable throwable) {
-        SpringMvcTracer springMvcTracer = SpringMvcTracer.getSpringMvcTracerSingleton();
+        SpringWebfluxTracer springMvcTracer = SpringWebfluxTracer.getSpringWebfluxTracerSingleton();
         SofaTraceableResponse response = new ServerWebExchangeSofaTraceableResponse(
             throwable != null ? new SofaStatusResponseDecorator(throwable, exchange.getResponse())
                 : exchange.getResponse());

@@ -22,6 +22,7 @@ import com.alipay.sofa.tracer.boot.springmvc.properties.OpenTracingSpringMvcProp
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcSofaTracerFilter;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import com.alipay.sofa.tracer.plugins.webflux.SofaTracerControllerAspect;
+import com.alipay.sofa.tracer.plugins.webflux.SpringWebfluxTracer;
 import com.alipay.sofa.tracer.plugins.webflux.WebfluxSofaTracerFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -86,8 +87,8 @@ public class OpenTracingSpringMvcAutoConfiguration {
         public WebFilter webfluxSofaTracerFilter() {
             //decide output format  json or digest
             if (openTracingSpringProperties.isJsonOutput()) {
-                SofaTracerConfiguration.setProperty(SpringMvcTracer.SPRING_MVC_JSON_FORMAT_OUTPUT,
-                    "true");
+                SofaTracerConfiguration.setProperty(
+                    SpringWebfluxTracer.SPRING_WEBFLUX_JSON_FORMAT_OUTPUT, "true");
             }
             return new WebfluxSofaTracerFilter();
         }

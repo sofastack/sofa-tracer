@@ -25,9 +25,10 @@ import org.springframework.web.reactive.HandlerResult;
 import reactor.core.publisher.Mono;
 
 /**
- * in webflux, every request
+ * in webflux, every request will run in defer
  *
  * @author xiang.sheng
+ * @since 3.0.0
  */
 @Aspect
 public class SofaTracerControllerAspect {

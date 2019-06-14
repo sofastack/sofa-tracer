@@ -53,6 +53,10 @@ public class SpringMvcTracer extends AbstractServerTracer {
         super("springmvc");
     }
 
+    protected SpringMvcTracer(String name) {
+        super(name);
+    }
+
     @Override
     protected String getServerDigestReporterLogName() {
         return SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName();
@@ -71,11 +75,15 @@ public class SpringMvcTracer extends AbstractServerTracer {
     @Override
     protected SpanEncoder<SofaTracerSpan> getServerDigestEncoder() {
         if (Boolean.TRUE.toString().equalsIgnoreCase(
-            SofaTracerConfiguration.getProperty(SPRING_MVC_JSON_FORMAT_OUTPUT))) {
+            SofaTracerConfiguration.getProperty(jsonPropertyName()))) {
             return new SpringMvcDigestJsonEncoder();
         } else {
             return new SpringMvcDigestEncoder();
         }
+    }
+
+    protected String jsonPropertyName() {
+        return SPRING_MVC_JSON_FORMAT_OUTPUT;
     }
 
     @Override
@@ -83,7 +91,7 @@ public class SpringMvcTracer extends AbstractServerTracer {
         return generateSofaMvcStatReporter();
     }
 
-    private SpringMvcStatReporter generateSofaMvcStatReporter() {
+    protected SpringMvcStatReporter generateSofaMvcStatReporter() {
         SpringMvcLogEnum springMvcLogEnum = SpringMvcLogEnum.SPRING_MVC_STAT;
         String statLog = springMvcLogEnum.getDefaultLogName();
         String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(springMvcLogEnum
@@ -91,7 +99,7 @@ public class SpringMvcTracer extends AbstractServerTracer {
         String statLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(springMvcLogEnum
             .getLogNameKey());
         if (Boolean.TRUE.toString().equalsIgnoreCase(
-            SofaTracerConfiguration.getProperty(SPRING_MVC_JSON_FORMAT_OUTPUT))) {
+            SofaTracerConfiguration.getProperty(jsonPropertyName()))) {
             return new SpringMvcJsonStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
         } else {
             return new SpringMvcStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
