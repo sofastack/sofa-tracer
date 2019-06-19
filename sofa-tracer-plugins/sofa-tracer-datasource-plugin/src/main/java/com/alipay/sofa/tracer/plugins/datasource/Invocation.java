@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.tracer.plugins.datasource;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -49,9 +50,11 @@ public class Invocation {
         return args;
     }
 
-    public Object invoke() {
+    public Object invoke() throws Throwable{
         try {
             return method.invoke(target, args);
+        } catch (InvocationTargetException ite) {
+            throw ite.getTargetException();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
