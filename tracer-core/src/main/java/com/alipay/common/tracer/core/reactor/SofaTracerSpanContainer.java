@@ -27,33 +27,33 @@ import java.util.NoSuchElementException;
  * @author sx
  */
 public class SofaTracerSpanContainer {
-    private SofaTracerSpan value;
+    private SofaTracerSpan span;
 
-    public SofaTracerSpanContainer(SofaTracerSpan value) {
-        this.value = value;
+    public SofaTracerSpanContainer(SofaTracerSpan span) {
+        this.span = span;
     }
 
     public SofaTracerSpanContainer() {
-        this.value = null;
+        this.span = null;
     }
 
     public boolean isPresent() {
-        return value != null;
+        return span != null;
     }
 
     @NonNull
     public SofaTracerSpan get() {
-        if (value == null) {
+        if (span == null) {
             throw new NoSuchElementException("No value present");
         }
-        return value;
+        return span;
     }
 
     public void clear() {
-        this.value = null;
+        this.span = null;
     }
 
     public void set(SofaTracerSpan sofaTracerSpan) {
-        this.value = sofaTracerSpan;
+        this.span = sofaTracerSpan;
     }
 }

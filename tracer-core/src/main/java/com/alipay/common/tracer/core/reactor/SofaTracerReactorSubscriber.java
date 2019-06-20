@@ -30,23 +30,30 @@ import java.util.function.BiFunction;
  * @author xiang.sheng
  */
 public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T> {
+    public static String                                      SOFA_TRACER_CONTEXT_KEY = "sofa-tracer-context-key";
 
     private final CoreSubscriber<? super T>                   actual;
-    private final Runnable                                    startSpan;
-    private final BiFunction<SofaTracerSpan, Throwable, Void> finishSpan;
+    private final Runnable                                    spanStartRunnable;
+    private final BiFunction<SofaTracerSpan, Throwable, Void> spanFinishRunnable;
 
     private SofaTracerSpanContainer                           sofaTracerSpanContainer = new SofaTracerSpanContainer();
 
     private final AtomicBoolean                               entryExited             = new AtomicBoolean(
                                                                                           false);
+    /**
+     * Mono or Flux
+     *
+     * @see #hookOnNext(Object)
+     */
     private final boolean                                     unary;
 
-    public SofaTracerReactorSubscriber(CoreSubscriber<? super T> actual, Runnable startSpan,
-                                       BiFunction<SofaTracerSpan, Throwable, Void> finishSpan,
+    public SofaTracerReactorSubscriber(CoreSubscriber<? super T> actual,
+                                       Runnable spanStartRunnable,
+                                       BiFunction<SofaTracerSpan, Throwable, Void> spanFinishRunnable,
                                        boolean unary) {
         this.actual = actual;
-        this.startSpan = startSpan;
-        this.finishSpan = finishSpan;
+        this.spanStartRunnable = spanStartRunnable;
+        this.spanFinishRunnable = spanFinishRunnable;
         this.unary = unary;
     }
 
@@ -61,26 +68,24 @@ public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T>
             return actual.currentContext();
         }
 
-        return actual.currentContext().put(SofaTracerReactorConstants.SOFA_TRACER_CONTEXT_KEY,
-            sofaTracerSpanContainer);
+        return actual.currentContext().put(SOFA_TRACER_CONTEXT_KEY, sofaTracerSpanContainer);
     }
 
-    private void runOnSofaTracerSpan(Runnable f) {
-        SofaTracerBarrier.runOnSofaTracerSpan(f, this.sofaTracerSpanContainer);
+    private void runOnSofaTracerSpan(Runnable runnable) {
+        SofaTracerBarrier.runOnSofaTracerSpan(runnable, this.sofaTracerSpanContainer);
     }
 
     @Override
     protected void hookOnSubscribe(Subscription subscription) {
         recoverFromContext();
-        runOnSofaTracerSpan(this.startSpan);
+        runOnSofaTracerSpan(this.spanStartRunnable);
         actual.onSubscribe(this);
     }
 
     private void recoverFromContext() {
-        if (actual.currentContext().hasKey(SofaTracerReactorConstants.SOFA_TRACER_CONTEXT_KEY)) {
+        if (actual.currentContext().hasKey(SOFA_TRACER_CONTEXT_KEY)) {
             // recover from existed container
-            this.sofaTracerSpanContainer = actual.currentContext().get(
-                SofaTracerReactorConstants.SOFA_TRACER_CONTEXT_KEY);
+            this.sofaTracerSpanContainer = actual.currentContext().get(SOFA_TRACER_CONTEXT_KEY);
         }
     }
 
@@ -127,7 +132,7 @@ public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T>
     private boolean tryCompleteEntry(Throwable throwable) {
         if (this.sofaTracerSpanContainer != null && this.sofaTracerSpanContainer.isPresent()
                 && entryExited.compareAndSet(false, true)) {
-            runOnSofaTracerSpan(() -> finishSpan.apply(sofaTracerSpanContainer.get(), throwable));
+            runOnSofaTracerSpan(() -> spanFinishRunnable.apply(sofaTracerSpanContainer.get(), throwable));
             return true;
         }
         return false;

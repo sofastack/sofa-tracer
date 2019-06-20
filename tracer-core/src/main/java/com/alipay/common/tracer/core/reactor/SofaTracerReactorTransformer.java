@@ -28,23 +28,25 @@ import java.util.function.Function;
  * @author sx
  */
 public class SofaTracerReactorTransformer<T> implements Function<Publisher<T>, Publisher<T>> {
-    private final Runnable                                    startSpan;
-    private final BiFunction<SofaTracerSpan, Throwable, Void> finishSpan;
+    private final Runnable                                    spanStartRunnable;
+    private final BiFunction<SofaTracerSpan, Throwable, Void> spanFinishRunnable;
 
-    public SofaTracerReactorTransformer(Runnable startSpan,
-                                        BiFunction<SofaTracerSpan, Throwable, Void> finishSpan) {
-        this.startSpan = startSpan;
-        this.finishSpan = finishSpan;
+    public SofaTracerReactorTransformer(Runnable spanStartRunnable,
+                                        BiFunction<SofaTracerSpan, Throwable, Void> spanFinishRunnable) {
+        this.spanStartRunnable = spanStartRunnable;
+        this.spanFinishRunnable = spanFinishRunnable;
     }
 
     @Override
     public Publisher<T> apply(Publisher<T> publisher) {
         if (publisher instanceof Mono) {
-            return new MonoSofaOperator<>((Mono<T>) publisher, this.startSpan, this.finishSpan);
+            return new MonoSofaOperator<>((Mono<T>) publisher, this.spanStartRunnable,
+                this.spanFinishRunnable);
         }
 
         if (publisher instanceof Flux) {
-            return new FluxSofaOperator<>((Flux<T>) publisher, this.startSpan, this.finishSpan);
+            return new FluxSofaOperator<>((Flux<T>) publisher, this.spanStartRunnable,
+                this.spanFinishRunnable);
         }
 
         throw new IllegalStateException("Publisher type is not supported: "

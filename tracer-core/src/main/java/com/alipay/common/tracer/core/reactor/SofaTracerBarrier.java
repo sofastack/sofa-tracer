@@ -21,7 +21,7 @@ import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import reactor.core.publisher.Mono;
 
-import static com.alipay.common.tracer.core.reactor.SofaTracerReactorConstants.SOFA_TRACER_CONTEXT_KEY;
+import static com.alipay.common.tracer.core.reactor.SofaTracerReactorSubscriber.SOFA_TRACER_CONTEXT_KEY;
 
 /**
  * within reactor mode, context is passed by ReactorContext
@@ -29,10 +29,10 @@ import static com.alipay.common.tracer.core.reactor.SofaTracerReactorConstants.S
  * reactor codes, this class try to unpack context from ReactorContext to
  * thread local and recover status when left reactor context
  *
- * @author sx
+ * @author xiang.sheng
  */
 public class SofaTracerBarrier {
-    public static void runOnSofaTracerSpan(Runnable f,
+    public static void runOnSofaTracerSpan(Runnable runnable,
                                            SofaTracerSpanContainer sofaTracerSpanContainer) {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         SofaTracerSpan backupSofaTracerSpan = sofaTraceContext.pop();
@@ -46,7 +46,7 @@ public class SofaTracerBarrier {
         }
 
         try {
-            f.run();
+            runnable.run();
         } finally {
             /*
              * may create new sofa tracer span in runnable,
