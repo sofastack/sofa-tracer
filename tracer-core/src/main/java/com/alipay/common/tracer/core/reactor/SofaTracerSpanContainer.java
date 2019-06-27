@@ -56,4 +56,11 @@ public class SofaTracerSpanContainer {
     public void set(SofaTracerSpan sofaTracerSpan) {
         this.span = sofaTracerSpan;
     }
+
+    @Override
+    public String toString() {
+        return "SofaTracerSpanContainer{" +
+                "span=" + span +
+                '}';
+    }
 }

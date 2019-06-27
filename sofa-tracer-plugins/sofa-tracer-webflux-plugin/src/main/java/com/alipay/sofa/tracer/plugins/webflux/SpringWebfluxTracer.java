@@ -16,10 +16,11 @@
  */
 package com.alipay.sofa.tracer.plugins.webflux;
 
+import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcJsonStatReporter;
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcStatReporter;
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
+import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
+import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.tracer.AbstractServerTracer;
 
 /**
  * webflux tracer, extend spring mvc tracer
@@ -27,7 +28,7 @@ import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
  * @author @author xiang.sheng
  * @since 3.0.0
  */
-public class SpringWebfluxTracer extends SpringMvcTracer {
+public class SpringWebfluxTracer extends AbstractServerTracer {
     public static final String                  SPRING_WEBFLUX_JSON_FORMAT_OUTPUT = "spring_webflux_json_format_output";
     private volatile static SpringWebfluxTracer springWebfluxTracer               = null;
 
@@ -66,13 +67,26 @@ public class SpringWebfluxTracer extends SpringMvcTracer {
     }
 
     @Override
+    protected SpanEncoder<SofaTracerSpan> getServerDigestEncoder() {
+        if (Boolean.TRUE.toString().equalsIgnoreCase(
+            SofaTracerConfiguration.getProperty(jsonPropertyName()))) {
+            return new SpringWebfluxJsonEncoder();
+        } else {
+            return new SpringWebfluxDigestEncoder();
+        }
+    }
+
+    @Override
+    protected AbstractSofaTracerStatisticReporter generateServerStatReporter() {
+        return generateSofaMvcStatReporter();
+    }
+
     protected String jsonPropertyName() {
         return SPRING_WEBFLUX_JSON_FORMAT_OUTPUT;
     }
 
     @SuppressWarnings("Duplicates")
-    @Override
-    protected SpringMvcStatReporter generateSofaMvcStatReporter() {
+    protected SpringWebfluxStatReporter generateSofaMvcStatReporter() {
         SpringWebFluxLogEnum springWebFluxLogEnum = SpringWebFluxLogEnum.SPRING_WEBFLUX_STAT;
         String statLog = springWebFluxLogEnum.getDefaultLogName();
         String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(springWebFluxLogEnum
@@ -81,9 +95,10 @@ public class SpringWebfluxTracer extends SpringMvcTracer {
             .getLogReserveConfig(springWebFluxLogEnum.getLogNameKey());
         if (Boolean.TRUE.toString().equalsIgnoreCase(
             SofaTracerConfiguration.getProperty(jsonPropertyName()))) {
-            return new SpringMvcJsonStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
+            return new SpringWebfluxJsonStatReporter(statLog, statRollingPolicy,
+                statLogReserveConfig);
         } else {
-            return new SpringMvcStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
+            return new SpringWebfluxStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
         }
     }
 }

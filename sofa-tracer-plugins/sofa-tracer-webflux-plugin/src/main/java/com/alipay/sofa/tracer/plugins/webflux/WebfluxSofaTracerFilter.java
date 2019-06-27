@@ -23,10 +23,8 @@ import com.alipay.common.tracer.core.reactor.SofaTracerReactorTransformer;
 import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
-
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcHeadersCarrier;
+import com.alipay.common.tracer.core.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -69,8 +67,8 @@ public class WebfluxSofaTracerFilter implements WebFilter {
 
         SofaTraceableRequest request = new ServerWebExchangeSofaTraceableRequest(exchange);
         SofaTracerSpanContext spanContext = (SofaTracerSpanContext) tracer.extract(
-            ExtendFormat.Builtin.B3_HTTP_HEADERS, new SpringMvcHeadersCarrier(new HashMap<>(request
-                .getHeaders().toSingleValueMap())));
+            ExtendFormat.Builtin.B3_HTTP_HEADERS, new SpringWebfluxHeadersCarrier(new HashMap<>(
+                request.getHeaders().toSingleValueMap())));
 
         /**
          * try to unpack span context from http request headers,

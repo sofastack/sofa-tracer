@@ -18,17 +18,19 @@ package com.alipay.sofa.tracer.boot.springmvc.configuration;
 
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.sofa.tracer.boot.configuration.SofaTracerAutoConfiguration;
+import com.alipay.sofa.tracer.boot.springmvc.processor.HookRegisteringBeanDefinitionRegistryPostProcessor;
 import com.alipay.sofa.tracer.boot.springmvc.properties.OpenTracingSpringMvcProperties;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcSofaTracerFilter;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
-import com.alipay.sofa.tracer.plugins.webflux.SofaTracerControllerAspect;
 import com.alipay.sofa.tracer.plugins.webflux.SpringWebfluxTracer;
 import com.alipay.sofa.tracer.plugins.webflux.WebfluxSofaTracerFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -81,10 +83,12 @@ public class OpenTracingSpringMvcAutoConfiguration {
 
     @Configuration
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
-    public class WebfluxSofaTracerFilterConfiguration {
+    public static class WebfluxSofaTracerFilterConfiguration {
+        public WebfluxSofaTracerFilterConfiguration() {}
+
         @Bean
         @Order(Ordered.HIGHEST_PRECEDENCE + 10)
-        public WebFilter webfluxSofaTracerFilter() {
+        public static WebFilter webfluxSofaTracerFilter(OpenTracingSpringMvcProperties openTracingSpringProperties) {
             //decide output format  json or digest
             if (openTracingSpringProperties.isJsonOutput()) {
                 SofaTracerConfiguration.setProperty(
@@ -93,10 +97,16 @@ public class OpenTracingSpringMvcAutoConfiguration {
             return new WebfluxSofaTracerFilter();
         }
 
-        @Bean
-        public SofaTracerControllerAspect sofaTracerControllerAspect() {
-            return new SofaTracerControllerAspect();
-        }
+//        @Bean
+//        public SofaTracerControllerAspect sofaTracerControllerAspect() {
+//            return new SofaTracerControllerAspect();
+//        }
 
+        @Bean
+        @ConditionalOnMissingBean
+        static public HookRegisteringBeanDefinitionRegistryPostProcessor hookRegisteringBeanDefinitionRegistryPostProcessor(
+                ConfigurableApplicationContext context) {
+            return new HookRegisteringBeanDefinitionRegistryPostProcessor(context);
+        }
     }
 }

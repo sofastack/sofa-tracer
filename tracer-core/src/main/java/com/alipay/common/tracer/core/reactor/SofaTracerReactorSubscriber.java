@@ -19,6 +19,7 @@ package com.alipay.common.tracer.core.reactor;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import org.reactivestreams.Subscription;
 import reactor.core.CoreSubscriber;
+import reactor.core.Fuseable;
 import reactor.util.context.Context;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,7 +30,7 @@ import java.util.function.BiFunction;
  *
  * @author xiang.sheng
  */
-public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T> {
+public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T> implements Fuseable.QueueSubscription<T> {
     public static String                                      SOFA_TRACER_CONTEXT_KEY = "sofa-tracer-context-key";
 
     private final CoreSubscriber<? super T>                   actual;
@@ -79,7 +80,7 @@ public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T>
     protected void hookOnSubscribe(Subscription subscription) {
         recoverFromContext();
         runOnSofaTracerSpan(this.spanStartRunnable);
-        actual.onSubscribe(this);
+        actual.onSubscribe(subscription);
     }
 
     private void recoverFromContext() {
@@ -136,5 +137,32 @@ public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T>
             return true;
         }
         return false;
+    }
+
+
+    @Override
+    public T poll() {
+        return null;
+    }
+
+    @Override
+    public int requestFusion(int i) {
+        // always negotiate to no fusion
+        return Fuseable.NONE;
+    }
+
+    @Override
+    public int size() {
+        return 0;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return true;
+    }
+
+    @Override
+    public void clear() {
+        // NO-OP
     }
 }

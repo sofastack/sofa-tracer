@@ -24,9 +24,17 @@ import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import org.junit.Assert;
 import org.junit.Test;
+import org.reactivestreams.Publisher;
+import reactor.core.Fuseable;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Operators;
 import reactor.test.StepVerifier;
+import reactor.util.context.Context;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class MonoSofaOperatorTest extends AbstractTestBase {
     @Test
@@ -96,23 +104,46 @@ public class MonoSofaOperatorTest extends AbstractTestBase {
         }
     }
 
+    public static <T> Function<? super Publisher<T>, ? extends Publisher<T>> scopePassingSpanOperator() {
+        return Operators.liftPublisher((p, sub) -> {
+            // if Flux/Mono #just, #empty, #error
+            if (p instanceof Fuseable.ScalarCallable) {
+                return sub;
+            }
+
+            if (sub instanceof SofaTracerReactorSubscriber) {
+                return sub;
+            }
+
+            Context c = sub.currentContext();
+            System.out.println(c.toString());
+            return new SofaTracerReactorSubscriber<>(
+                    sub, () -> {
+            }, (s, e) -> null, (p instanceof Mono));
+        });
+    }
+
+    class TestSupplier implements Supplier<Mono<String>> {
+
+        @Override
+        public Mono<String> get() {
+            SofaTraceContext sofaTraceContext = SofaTraceContextHolder
+                    .getSofaTraceContext();
+            return Mono.just(sofaTraceContext.getCurrentSpan().getOperationName());
+        }
+    }
+
     @Test
     public void testMonoSofaOperatorWithDefer() throws Exception {
         // make sure it have span before reactor run
         startSpan("testMonoSofaOperator-global");
+        Hooks.onEachOperator("test", scopePassingSpanOperator());
 
         StepVerifier.create(
                 Mono.just(2)
                         .log()
                         .then(
-                                Mono
-                                        .defer(() ->
-                                                SofaTracerBarrier.withSofaTracerContainer().map(c -> {
-                                                    SofaTraceContext sofaTraceContext = SofaTraceContextHolder
-                                                            .getSofaTraceContext();
-                                                    return sofaTraceContext.getCurrentSpan().getOperationName();
-                                                }))
-
+                                Mono.defer(new TestSupplier()).log()
                         )
                         .transform(new SofaTracerReactorTransformer<>(
                                 () -> this.startSpan("testMonoSofaOperator"),
