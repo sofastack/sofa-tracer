@@ -24,7 +24,7 @@ import java.util.NoSuchElementException;
 /**
  * hold sofa tracer span in reactor mode
  *
- * @author sx
+ * @author xiang.sheng
  */
 public class SofaTracerSpanContainer {
     private SofaTracerSpan span;
@@ -59,8 +59,6 @@ public class SofaTracerSpanContainer {
 
     @Override
     public String toString() {
-        return "SofaTracerSpanContainer{" +
-                "span=" + span +
-                '}';
+        return "SofaTracerSpanContainer{" + "span=" + span + ", id=" + this.hashCode() + '}';
     }
 }

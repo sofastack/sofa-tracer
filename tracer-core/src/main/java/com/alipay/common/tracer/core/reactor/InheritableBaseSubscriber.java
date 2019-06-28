@@ -204,7 +204,7 @@ abstract class InheritableBaseSubscriber<T> implements CoreSubscriber<T>, Subscr
     }
 
     @Override
-    public final void request(long n) {
+    public void request(long n) {
         if (Operators.validate(n)) {
             Subscription s = this.subscription;
             if (s != null) {

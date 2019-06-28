@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.alipay.sofa.tracer.boot.springmvc.processor;
 
 import com.alipay.common.tracer.core.reactor.SofaTracerReactorSubscriber;
@@ -24,37 +40,36 @@ import java.util.function.Function;
 /**
  * @author xiang.sheng
  */
-public class HookRegisteringBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor {
-    private static final String SOFA_TRACE_REACTOR_KEY = "sofa-tracer-webflux";
+public class HookRegisteringBeanDefinitionRegistryPostProcessor implements
+                                                               BeanDefinitionRegistryPostProcessor {
+    public static final String SOFA_TRACE_REACTOR_KEY = "sofa-tracer-webflux";
 
+    public static void resetHooks() {
+        Hooks.resetOnEachOperator(SOFA_TRACE_REACTOR_KEY);
+    }
 
     private final ConfigurableApplicationContext context;
 
-    public HookRegisteringBeanDefinitionRegistryPostProcessor(
-            ConfigurableApplicationContext context) {
+    public HookRegisteringBeanDefinitionRegistryPostProcessor(ConfigurableApplicationContext context) {
         this.context = context;
     }
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
-            throws BeansException {
+                                                                                  throws BeansException {
     }
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
-            throws BeansException {
+                                                                                   throws BeansException {
         setupHooks();
     }
 
     private void setupHooks() {
-        Hooks.onEachOperator(
-                SOFA_TRACE_REACTOR_KEY,
-                SofaReactor.scopePassingSpanOperator(this.context));
+        Hooks.onEachOperator(SOFA_TRACE_REACTOR_KEY, SofaReactor.scopePassingSpanOperator());
     }
 
-
     public static class SofaReactor {
-        private static final Log log = LogFactory.getLog(SofaReactor.class);
 
         /**
          * Return a span operator pointcut, This can be used in
@@ -63,59 +78,22 @@ public class HookRegisteringBeanDefinitionRegistryPostProcessor implements BeanD
          * {@link reactor.core.publisher.Hooks#onLastOperator(Function)} or
          * {@link reactor.core.publisher.Hooks#onLastOperator(Function)}. The Span operator
          * pointcut will pass the Scope of the Span without ever creating any new spans.
-         * @param beanFactory - {@link BeanFactory}
          * @param <T> an arbitrary type that is left unchanged by the span operator
          * @return a new lazy span operator pointcut
          */
         @SuppressWarnings("unchecked")
-        public static <T> Function<? super Publisher<T>, ? extends Publisher<T>> scopePassingSpanOperator(
-                BeanFactory beanFactory) {
-            if (log.isTraceEnabled()) {
-                log.trace("Scope passing operator [" + beanFactory + "]");
-            }
-
-            // Adapt if lazy bean factory
-            BooleanSupplier isActive = beanFactory instanceof ConfigurableApplicationContext
-                    ? ((ConfigurableApplicationContext) beanFactory)::isActive : () -> true;
-
+        public static <T> Function<? super Publisher<T>, ? extends Publisher<T>> scopePassingSpanOperator() {
             return Operators.liftPublisher((p, sub) -> {
                 // if Flux/Mono #just, #empty, #error
                 if (p instanceof Fuseable.ScalarCallable) {
                     return sub;
                 }
-                Scannable scannable = Scannable.from(p);
                 // rest of the logic unchanged...
-                if (isActive.getAsBoolean()) {
-                    if (log.isTraceEnabled()) {
-                        log.trace("Spring Context [" + beanFactory
-                                + "] already refreshed. Creating a scope "
-                                + "passing span subscriber with Reactor Context " + "["
-                                + sub.currentContext() + "] and name [" + scannable.name()
-                                + "]");
-                    }
-                    return scopePassingSpanSubscription(sub, (p instanceof Mono));
-                }
-                if (log.isTraceEnabled()) {
-                    log.trace("Spring Context [" + beanFactory
-                            + "] is not yet refreshed, falling back to lazy span subscriber. Reactor Context is ["
-                            + sub.currentContext() + "] and name is [" + scannable.name()
-                            + "]");
-                }
-//                return new LazySpanSubscriber<>(
-//                        lazyScopePassingSpanSubscription(beanFactory, scannable, sub));
-                return null;
+                return scopePassingSpanSubscription(sub, (p instanceof Mono));
             });
         }
 
-//        static <T> SpanSubscriptionProvider<T> lazyScopePassingSpanSubscription(
-//                BeanFactory beanFactory, Scannable scannable, CoreSubscriber<? super T> sub) {
-//            return new SpanSubscriptionProvider<>(beanFactory, sub, sub.currentContext(),
-//                    scannable.name());
-//        }
-
         static <T> CoreSubscriber<? super T> scopePassingSpanSubscription(CoreSubscriber<? super T> sub, boolean unary) {
-            Context c = sub.currentContext();
-            log.info(c.toString());
             return new SofaTracerReactorSubscriber<>(
                     sub, () -> {}, (s, e) -> null, unary);
         }

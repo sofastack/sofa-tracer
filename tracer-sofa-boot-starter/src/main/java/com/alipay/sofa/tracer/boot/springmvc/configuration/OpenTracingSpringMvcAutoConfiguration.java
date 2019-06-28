@@ -36,7 +36,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.server.WebFilter;
+import reactor.core.publisher.Hooks;
 
+import javax.annotation.PreDestroy;
 import java.util.List;
 
 /**
@@ -84,7 +86,8 @@ public class OpenTracingSpringMvcAutoConfiguration {
     @Configuration
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
     public static class WebfluxSofaTracerFilterConfiguration {
-        public WebfluxSofaTracerFilterConfiguration() {}
+        public WebfluxSofaTracerFilterConfiguration() {
+        }
 
         @Bean
         @Order(Ordered.HIGHEST_PRECEDENCE + 10)
@@ -97,15 +100,14 @@ public class OpenTracingSpringMvcAutoConfiguration {
             return new WebfluxSofaTracerFilter();
         }
 
-//        @Bean
-//        public SofaTracerControllerAspect sofaTracerControllerAspect() {
-//            return new SofaTracerControllerAspect();
-//        }
+        @PreDestroy
+        public void cleanupHooks() {
+            HookRegisteringBeanDefinitionRegistryPostProcessor.resetHooks();
+        }
 
         @Bean
         @ConditionalOnMissingBean
-        static public HookRegisteringBeanDefinitionRegistryPostProcessor hookRegisteringBeanDefinitionRegistryPostProcessor(
-                ConfigurableApplicationContext context) {
+        static public HookRegisteringBeanDefinitionRegistryPostProcessor hookRegisteringBeanDefinitionRegistryPostProcessor(ConfigurableApplicationContext context) {
             return new HookRegisteringBeanDefinitionRegistryPostProcessor(context);
         }
     }
