@@ -23,7 +23,7 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractServerTracer;
 
 /**
- * webflux tracer, extend spring mvc tracer
+ * webflux tracer
  *
  * @author @author xiang.sheng
  * @since 3.0.0
