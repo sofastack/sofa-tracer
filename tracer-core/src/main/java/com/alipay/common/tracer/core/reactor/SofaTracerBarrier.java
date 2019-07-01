@@ -32,14 +32,20 @@ import static com.alipay.common.tracer.core.reactor.SofaTracerReactorSubscriber.
  * @author xiang.sheng
  */
 public class SofaTracerBarrier {
-    public static void runOnSofaTracerSpan(Runnable runnable,
-                                           SofaTracerSpanContainer sofaTracerSpanContainer) {
+
+    /**
+     * execute with span ,Bind the span in the context to the current threadlocal in time when the thread switches
+     * @param runnable
+     * @param spanContainer
+     */
+    public static void runWithSofaTracerSpan(Runnable runnable,
+                                             SofaTracerSpanContainer spanContainer) {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         SofaTracerSpan backupSofaTracerSpan = sofaTraceContext.pop();
         SofaTracerSpan current = null;
 
-        if (sofaTracerSpanContainer.isPresent()) {
-            current = sofaTracerSpanContainer.get();
+        if (spanContainer.isPresent()) {
+            current = spanContainer.get();
             sofaTraceContext.push(current);
         } else {
             sofaTraceContext.clear();
@@ -54,7 +60,7 @@ public class SofaTracerBarrier {
              */
             SofaTracerSpan newSpan = sofaTraceContext.getCurrentSpan();
             if (newSpan != null && !newSpan.equals(current)) {
-                sofaTracerSpanContainer.set(newSpan);
+                spanContainer.set(newSpan);
             }
 
             /*
@@ -65,7 +71,7 @@ public class SofaTracerBarrier {
              * so clear context
              */
             if (newSpan == null && current != null) {
-                sofaTracerSpanContainer.clear();
+                spanContainer.clear();
             }
 
             if (backupSofaTracerSpan == null) {
@@ -73,7 +79,6 @@ public class SofaTracerBarrier {
             } else {
                 sofaTraceContext.push(backupSofaTracerSpan);
             }
-
         }
 
     }

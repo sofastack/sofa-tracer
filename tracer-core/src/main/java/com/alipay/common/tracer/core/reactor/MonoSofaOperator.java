@@ -29,19 +29,19 @@ import java.util.function.BiFunction;
  * @author sx
  */
 public class MonoSofaOperator<T> extends MonoOperator<T, T> {
-    private final Runnable                                    spanStartRunnable;
-    private final BiFunction<SofaTracerSpan, Throwable, Void> spanFinishRunnable;
+    private final Runnable                                    wrapSpanRunnable;
+    private final BiFunction<SofaTracerSpan, Throwable, Void> wrapSpanBiFunction;
 
-    public MonoSofaOperator(Mono<? extends T> source, Runnable spanStartRunnable,
-                            BiFunction<SofaTracerSpan, Throwable, Void> spanFinishRunnable) {
+    public MonoSofaOperator(Mono<? extends T> source, Runnable wrapSpanRunnable,
+                            BiFunction<SofaTracerSpan, Throwable, Void> wrapSpanBiFunction) {
         super(source);
-        this.spanStartRunnable = spanStartRunnable;
-        this.spanFinishRunnable = spanFinishRunnable;
+        this.wrapSpanRunnable = wrapSpanRunnable;
+        this.wrapSpanBiFunction = wrapSpanBiFunction;
     }
 
     @Override
     public void subscribe(CoreSubscriber<? super T> actual) {
-        source.subscribe(new SofaTracerReactorSubscriber<>(actual, this.spanStartRunnable,
-            this.spanFinishRunnable, true));
+        source.subscribe(new SofaTracerReactorSubscriber<>(actual, this.wrapSpanRunnable,
+            this.wrapSpanBiFunction, true));
     }
 }

@@ -28,25 +28,25 @@ import java.util.function.Function;
  * @author sx
  */
 public class SofaTracerReactorTransformer<T> implements Function<Publisher<T>, Publisher<T>> {
-    private final Runnable                                    spanStartRunnable;
-    private final BiFunction<SofaTracerSpan, Throwable, Void> spanFinishRunnable;
+    private final Runnable                                    wrapSpanRunnable;
+    private final BiFunction<SofaTracerSpan, Throwable, Void> wrapSpanBiFunction;
 
-    public SofaTracerReactorTransformer(Runnable spanStartRunnable,
-                                        BiFunction<SofaTracerSpan, Throwable, Void> spanFinishRunnable) {
-        this.spanStartRunnable = spanStartRunnable;
-        this.spanFinishRunnable = spanFinishRunnable;
+    public SofaTracerReactorTransformer(Runnable wrapSpanRunnable,
+                                        BiFunction<SofaTracerSpan, Throwable, Void> wrapSpanBiFunction) {
+        this.wrapSpanRunnable = wrapSpanRunnable;
+        this.wrapSpanBiFunction = wrapSpanBiFunction;
     }
 
     @Override
     public Publisher<T> apply(Publisher<T> publisher) {
         if (publisher instanceof Mono) {
-            return new MonoSofaOperator<>((Mono<T>) publisher, this.spanStartRunnable,
-                this.spanFinishRunnable);
+            return new MonoSofaOperator<>((Mono<T>) publisher, this.wrapSpanRunnable,
+                this.wrapSpanBiFunction);
         }
 
         if (publisher instanceof Flux) {
-            return new FluxSofaOperator<>((Flux<T>) publisher, this.spanStartRunnable,
-                this.spanFinishRunnable);
+            return new FluxSofaOperator<>((Flux<T>) publisher, this.wrapSpanRunnable,
+                this.wrapSpanBiFunction);
         }
 
         throw new IllegalStateException("Publisher type is not supported: "

@@ -17,24 +17,17 @@
 package com.alipay.sofa.tracer.boot.springmvc.processor;
 
 import com.alipay.common.tracer.core.reactor.SofaTracerReactorSubscriber;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.context.ConfigurableApplicationContext;
 import reactor.core.CoreSubscriber;
 import reactor.core.Fuseable;
-import reactor.core.Scannable;
 import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Operators;
-import reactor.util.context.Context;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
 /**
@@ -42,21 +35,16 @@ import java.util.function.Function;
  */
 public class HookRegisteringBeanDefinitionRegistryPostProcessor implements
                                                                BeanDefinitionRegistryPostProcessor {
-    public static final String SOFA_TRACE_REACTOR_KEY = "sofa-tracer-webflux";
+    public static final String SOFA_TRACE_REACTOR_KEY = "sofa-tracer-reactor";
 
     public static void resetHooks() {
         Hooks.resetOnEachOperator(SOFA_TRACE_REACTOR_KEY);
     }
 
-    private final ConfigurableApplicationContext context;
-
-    public HookRegisteringBeanDefinitionRegistryPostProcessor(ConfigurableApplicationContext context) {
-        this.context = context;
-    }
-
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
                                                                                   throws BeansException {
+        // ignore
     }
 
     @Override
