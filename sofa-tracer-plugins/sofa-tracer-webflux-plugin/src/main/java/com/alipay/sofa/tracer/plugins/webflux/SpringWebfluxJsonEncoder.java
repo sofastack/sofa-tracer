@@ -47,10 +47,6 @@ public class SpringWebfluxJsonEncoder extends AbstractDigestSpanEncoder {
         Map<String, String> tagWithStr = sofaTracerSpan.getTagsWithStr();
         Map<String, Number> tagWithNumber = sofaTracerSpan.getTagsWithNumber();
         json.append(CommonSpanTags.LOCAL_APP, tagWithStr.get(CommonSpanTags.LOCAL_APP));
-        //remote address, webflux
-        if (tagWithStr.containsKey(CommonSpanTags.REMOTE_APP)) {
-            json.append(CommonSpanTags.REMOTE_APP, tagWithStr.get(CommonSpanTags.REMOTE_APP));
-        }
         //TraceId
         json.append("traceId", context.getTraceId());
         //RpcId
@@ -67,12 +63,11 @@ public class SpringWebfluxJsonEncoder extends AbstractDigestSpanEncoder {
         }
         Number requestSize = tagWithNumber.get(CommonSpanTags.REQ_SIZE);
         //Request Body Size
-        json.append(CommonSpanTags.REQ_SIZE,
-            (requestSize == null ? 0L : requestSize.longValue()));
+        json.append(CommonSpanTags.REQ_SIZE, (requestSize == null ? 0L : requestSize.longValue()));
         Number responseSize = tagWithNumber.get(CommonSpanTags.RESP_SIZE);
         //Response Body Size
-        json.append(CommonSpanTags.RESP_SIZE, (responseSize == null ? 0L
-            : responseSize.longValue()));
+        json.append(CommonSpanTags.RESP_SIZE,
+            (responseSize == null ? 0L : responseSize.longValue()));
         json.append("time.cost.milliseconds",
             (sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()));
         json.append(CommonSpanTags.CURRENT_THREAD_NAME,
