@@ -1,8 +1,9 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.alipay.sofa.tracer.boot.configuration.SofaTracerAutoConfiguration,\
 com.alipay.sofa.tracer.boot.springmvc.configuration.OpenTracingSpringMvcAutoConfiguration,\
+com.alipay.sofa.tracer.boot.springmvc.configuration.OpenTracingReactorAutoConfiguration,\
 com.alipay.sofa.tracer.boot.zipkin.configuration.ZipkinSofaTracerAutoConfiguration,\
 com.alipay.sofa.tracer.boot.datasource.configuration.SofaTracerDataSourceAutoConfiguration,\
 com.alipay.sofa.tracer.boot.springcloud.configuration.SofaTracerFeignClientAutoConfiguration
 
-org.springframework.context.ApplicationListener=com.alipay.sofa.tracer.boot.listener.SofaTracerConfigurationListener
+org.springframework.context.ApplicationListener=com.alipa`y.sofa.tracer.boot.listener.SofaTracerConfigurationListener

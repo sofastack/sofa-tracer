@@ -42,7 +42,7 @@ public class OpenTracingReactorAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    static public HookRegisteringBeanDefinitionRegistryPostProcessor hookRegisteringBeanDefinitionRegistryPostProcessor() {
+    public HookRegisteringBeanDefinitionRegistryPostProcessor hookRegisteringBeanDefinitionRegistryPostProcessor() {
         return new HookRegisteringBeanDefinitionRegistryPostProcessor();
     }
 }
