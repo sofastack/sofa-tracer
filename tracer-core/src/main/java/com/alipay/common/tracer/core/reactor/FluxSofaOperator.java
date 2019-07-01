@@ -30,25 +30,26 @@ import java.util.function.BiFunction;
  * @author sx
  */
 public class FluxSofaOperator<T> extends FluxOperator<T, T> {
-    private final Runnable                                    spanStartRunnable;
-    private final BiFunction<SofaTracerSpan, Throwable, Void> spanFinishRunnable;
+
+    private final Runnable                                    wrapSofaRunnable;
+    private final BiFunction<SofaTracerSpan, Throwable, Void> wrapSofaBiFunction;
 
     /**
      * Build a {@link FluxOperator} wrapper around the passed parent {@link Publisher}
      *
      * @param source the {@link Publisher} to decorate
      */
-    protected FluxSofaOperator(Flux<? extends T> source, Runnable spanStartRunnable,
-                               BiFunction<SofaTracerSpan, Throwable, Void> spanFinishRunnable) {
+    protected FluxSofaOperator(Flux<? extends T> source, Runnable wrapSofaRunnable,
+                               BiFunction<SofaTracerSpan, Throwable, Void> wrapSofaBiFunction) {
         super(source);
 
-        this.spanStartRunnable = spanStartRunnable;
-        this.spanFinishRunnable = spanFinishRunnable;
+        this.wrapSofaRunnable = wrapSofaRunnable;
+        this.wrapSofaBiFunction = wrapSofaBiFunction;
     }
 
     @Override
     public void subscribe(CoreSubscriber<? super T> actual) {
-        source.subscribe(new SofaTracerReactorSubscriber<>(actual, this.spanStartRunnable,
-            this.spanFinishRunnable, false));
+        source.subscribe(new SofaTracerReactorSubscriber<>(actual, this.wrapSofaRunnable,
+            this.wrapSofaBiFunction, false));
     }
 }

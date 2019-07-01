@@ -16,10 +16,9 @@
  */
 package com.alipay.common.tracer.core.reactor;
 
+import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import reactor.util.annotation.NonNull;
-
-import java.util.NoSuchElementException;
 
 /**
  * hold sofa tracer span in reactor mode
@@ -27,6 +26,7 @@ import java.util.NoSuchElementException;
  * @author xiang.sheng
  */
 public class SofaTracerSpanContainer {
+
     private SofaTracerSpan span;
 
     public SofaTracerSpanContainer(SofaTracerSpan span) {
@@ -44,7 +44,8 @@ public class SofaTracerSpanContainer {
     @NonNull
     public SofaTracerSpan get() {
         if (span == null) {
-            throw new NoSuchElementException("No value present");
+            // Does not affect the business process
+            SelfLog.warn("There is no span in current ThreadLocal");
         }
         return span;
     }
@@ -59,6 +60,6 @@ public class SofaTracerSpanContainer {
 
     @Override
     public String toString() {
-        return "SofaTracerSpanContainer{" + "span=" + span + ", id=" + this.hashCode() + '}';
+        return "SofaTracerSpanContainer {" + "span = " + span + ", id = " + this.hashCode() + '}';
     }
 }

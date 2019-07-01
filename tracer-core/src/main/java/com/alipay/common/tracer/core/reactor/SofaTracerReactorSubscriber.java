@@ -37,8 +37,8 @@ public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T>
     public static String                                      SOFA_TRACER_CONTEXT_KEY = "sofa-tracer-context-key";
 
     private final CoreSubscriber<? super T>                   actual;
-    private final Runnable                                    spanStartRunnable;
-    private final BiFunction<SofaTracerSpan, Throwable, Void> spanFinishRunnable;
+    private final Runnable                                    wrapSofaRunnable;
+    private final BiFunction<SofaTracerSpan, Throwable, Void> wrapSofaBiFunction;
 
     private SofaTracerSpanContainer                           sofaTracerSpanContainer = new SofaTracerSpanContainer();
     private Context                                           context;
@@ -53,13 +53,13 @@ public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T>
     private final boolean                                     unary;
 
     public SofaTracerReactorSubscriber(CoreSubscriber<? super T> actual,
-                                       Runnable spanStartRunnable,
-                                       BiFunction<SofaTracerSpan, Throwable, Void> spanFinishRunnable,
+                                       Runnable wrapSofaRunnable,
+                                       BiFunction<SofaTracerSpan, Throwable, Void> wrapSofaBiFunction,
                                        boolean unary) {
         this.actual = actual;
         this.context = this.actual.currentContext();
-        this.spanStartRunnable = spanStartRunnable;
-        this.spanFinishRunnable = spanFinishRunnable;
+        this.wrapSofaRunnable = wrapSofaRunnable;
+        this.wrapSofaBiFunction = wrapSofaBiFunction;
         this.unary = unary;
 
         recoverFromContext();
@@ -72,12 +72,12 @@ public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T>
     }
 
     private void runOnSofaTracerSpan(Runnable runnable) {
-        SofaTracerBarrier.runOnSofaTracerSpan(runnable, this.sofaTracerSpanContainer);
+        SofaTracerBarrier.runWithSofaTracerSpan(runnable, this.sofaTracerSpanContainer);
     }
 
     @Override
     protected void hookOnSubscribe(Subscription subscription) {
-        runOnSofaTracerSpan(this.spanStartRunnable);
+        runOnSofaTracerSpan(this.wrapSofaRunnable);
         runOnSofaTracerSpan(() -> actual.onSubscribe(subscription));
     }
 
@@ -137,7 +137,7 @@ public class SofaTracerReactorSubscriber<T> extends InheritableBaseSubscriber<T>
     private boolean tryCompleteEntry(Throwable throwable) {
         if (this.sofaTracerSpanContainer != null && this.sofaTracerSpanContainer.isPresent()
                 && entryExited.compareAndSet(false, true)) {
-            runOnSofaTracerSpan(() -> spanFinishRunnable.apply(sofaTracerSpanContainer.get(), throwable));
+            runOnSofaTracerSpan(() -> wrapSofaBiFunction.apply(sofaTracerSpanContainer.get(), throwable));
             return true;
         }
         return false;
