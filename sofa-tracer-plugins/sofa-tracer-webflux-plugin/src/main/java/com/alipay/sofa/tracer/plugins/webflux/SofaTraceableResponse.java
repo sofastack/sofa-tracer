@@ -25,12 +25,14 @@ import org.springframework.http.HttpHeaders;
 public interface SofaTraceableResponse {
     /**
      * The status of the response.
+     *
      * @return the status
      */
     int getStatus();
 
     /**
      * Returns the headers of the response.
+     *
      * @return
      */
     HttpHeaders getHeaders();

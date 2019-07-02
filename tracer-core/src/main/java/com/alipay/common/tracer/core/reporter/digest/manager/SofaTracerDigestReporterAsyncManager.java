@@ -22,7 +22,7 @@ import com.alipay.common.tracer.core.appender.manager.AsyncCommonDigestAppenderM
  * SofaTracerDigestReporterAsyncManager
  *
  * @author yangguanchao
- * @since  2017/06/20
+ * @since 2017/06/20
  */
 public final class SofaTracerDigestReporterAsyncManager {
 

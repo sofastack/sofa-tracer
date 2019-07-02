@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * SofaTracerPercentageBasedSampler
  *
  * @author yangguanchao
- * @since  2017/06/19
+ * @since 2017/06/19
  */
 public class SofaTracerPercentageBasedSampler implements Sampler {
 
@@ -77,9 +77,10 @@ public class SofaTracerPercentageBasedSampler implements Sampler {
      * Reservoir sampling algorithm borrowed from Stack Overflow.
      * <p>
      * http://stackoverflow.com/questions/12817946/generate-a-random-bitset-with-n-1s
-     * @param size 大小
+     *
+     * @param size        大小
      * @param cardinality 基数
-     * @param rnd 随机种子
+     * @param rnd         随机种子
      * @return BitSet
      */
     public static BitSet randomBitSet(int size, int cardinality, Random rnd) {

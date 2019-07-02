@@ -20,7 +20,6 @@ import com.alipay.common.tracer.core.appender.self.SynchronizingSelfLog;
 import com.alipay.disruptor.ExceptionHandler;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: StringConsumerExceptionHandler.java, v 0.1 2017年11月21日 下午7:06 luoguimu123 Exp $
  */

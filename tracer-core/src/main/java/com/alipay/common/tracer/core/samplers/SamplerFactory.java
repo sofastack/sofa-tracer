@@ -51,8 +51,9 @@ public class SamplerFactory {
 
     /**
      * getSampler by samplerName
-     *
+     * <p>
      * the samplerName is the user configuration
+     *
      * @return Sampler
      * @throws Exception
      */

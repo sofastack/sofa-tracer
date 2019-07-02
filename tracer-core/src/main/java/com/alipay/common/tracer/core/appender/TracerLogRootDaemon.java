@@ -26,7 +26,7 @@ import java.nio.charset.Charset;
 
 /**
  * TracerLogRootDaemon
- *
+ * <p>
  * 不从配置项目获取,直接从系统属性获取
  *
  * @author yangguanchao

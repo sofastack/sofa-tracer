@@ -20,11 +20,13 @@ import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.extensions.SpanExtensionFactory;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+
 import java.lang.Runnable;
 
 /**
  * Runnable that passes Span between threads. The Span name is
  * taken either from the passed value or from the interface.
+ *
  * @author luoguimu123
  * @version $Id: Runnable.java, v 0.1 2017年06月19日 下午5:54 luoguimu123 Exp $
  */

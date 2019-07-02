@@ -17,7 +17,6 @@
 package com.alipay.common.tracer.core.exception;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: EmptyTracerStateStringException.java, v 0.1 2017年06月22日 上午10:55 luoguimu123 Exp $
  */

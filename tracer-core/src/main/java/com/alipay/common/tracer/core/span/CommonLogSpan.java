@@ -28,11 +28,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * CommonLogSpan
- *
+ * <p>
  * 主要为了记录具体的顺序数据
- *
+ * <p>
  * 之所以要新创建一个对象，主要是为了区分 CommonLogSpan 和日常摘要等的打印
- *
+ * <p>
  * com.alipay.common.tracer.core.span.LogData#EVENT_COMMON_TYPE_VALUE
  *
  * @author yangguanchao
@@ -42,7 +42,9 @@ public class CommonLogSpan extends SofaTracerSpan {
 
     private static final int MAX_SLOT_SIZE = 32;
 
-    /** 通用的槽位，需要打印的日志数据全部都放到这里面 */
+    /**
+     * 通用的槽位，需要打印的日志数据全部都放到这里面
+     */
     private List<String>     slots         = new ArrayList<String>();
 
     private AtomicInteger    slotCounter   = new AtomicInteger(0);
@@ -63,6 +65,7 @@ public class CommonLogSpan extends SofaTracerSpan {
 
     /**
      * 往 Slots 中增加一项需要打印的内容
+     *
      * @param slot 槽位
      */
     public void addSlot(String slot) {
@@ -79,6 +82,7 @@ public class CommonLogSpan extends SofaTracerSpan {
 
     /**
      * 获取所有需要打印的内容
+     *
      * @return 栏位列表
      */
     public List<String> getSlots() {

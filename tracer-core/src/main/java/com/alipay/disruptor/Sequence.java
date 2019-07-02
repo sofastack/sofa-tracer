@@ -104,7 +104,7 @@ public class Sequence extends RhsPadding {
      * Perform a compare and set operation on the sequence.
      *
      * @param expectedValue The expected current value.
-     * @param newValue The value to update to.
+     * @param newValue      The value to update to.
      * @return true if the operation succeeds, false otherwise.
      */
     public boolean compareAndSet(final long expectedValue, final long newValue) {

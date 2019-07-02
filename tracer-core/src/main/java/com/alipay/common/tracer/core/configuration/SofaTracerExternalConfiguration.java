@@ -18,6 +18,7 @@ package com.alipay.common.tracer.core.configuration;
 
 /**
  * 外部配置类的接口，该接口由外部代码实现
+ *
  * @author luoguimu123
  * @version $Id: SofaTracerExternalConfiguration.java, v 0.1 2017年10月11日 下午12:03 luoguimu123 Exp $
  */

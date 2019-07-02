@@ -21,7 +21,6 @@ import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: AbstractDigestSpanEncoder.java, v 0.1 2017年08月28日 上午10:23 luoguimu123 Exp $
  */

@@ -18,6 +18,7 @@ package com.alipay.common.tracer.extensions.log.constants;
 
 /**
  * 负责管理MDC中需要存入的key值常量
+ *
  * @author luoguimu123
  * @version $Id: MDCKeyConstants.java, v 0.1 2017年08月07日 上午8:44 luoguimu123 Exp $
  */

@@ -17,9 +17,8 @@
 package com.alipay.sofa.tracer.plugins.okhttp.base.controller;
 
 /**
- *
  * @author xianglong.chen
- * @since  2019/1/17 13:29
+ * @since 2019/1/17 13:29
  */
 public class PostBody {
 

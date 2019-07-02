@@ -23,9 +23,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- *
  * @author xianglong.chen
- * @since  2019/1/17 13:29
+ * @since 2019/1/17 13:29
  */
 @RestController
 public class SampleRestController {
@@ -34,6 +33,7 @@ public class SampleRestController {
 
     /**
      * Request http://localhost:8080/httpclient?name=
+     *
      * @param name name
      * @return Map of Result
      */
@@ -47,6 +47,7 @@ public class SampleRestController {
 
     /**
      * Request http://localhost:8080/httpclient
+     *
      * @param postBody body
      * @return Result
      */
@@ -58,7 +59,6 @@ public class SampleRestController {
 
     /**
      * Request http://localhost:8080/httpclient
-     *
      */
     @RequestMapping(value = "/httpclient", method = RequestMethod.HEAD)
     @ResponseBody

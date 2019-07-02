@@ -38,7 +38,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
  * @author liangen
  * @version $Id: ConcurrentDiscardTest.java, v 0.1 2017年10月23日 下午8:22 liangen Exp $
  */

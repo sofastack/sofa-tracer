@@ -34,7 +34,7 @@ public interface WaitStrategy {
      * @return the sequence that is available which may be greater than the requested sequence.
      * @throws AlertException       if the status of the Disruptor has changed.
      * @throws InterruptedException if the thread is interrupted.
-     * @throws TimeoutException TimeoutException
+     * @throws TimeoutException     TimeoutException
      */
     long waitFor(long sequence, Sequence cursor, Sequence dependentSequence, SequenceBarrier barrier)
                                                                                                      throws AlertException,

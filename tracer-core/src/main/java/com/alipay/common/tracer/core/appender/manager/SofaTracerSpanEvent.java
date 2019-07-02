@@ -36,7 +36,7 @@ public class SofaTracerSpanEvent {
     /**
      * Setter method for property <tt>sofaTracerSpan</tt>.
      *
-     * @param sofaTracerSpan  value to be assigned to property sofaTracerSpan
+     * @param sofaTracerSpan value to be assigned to property sofaTracerSpan
      */
     public void setSofaTracerSpan(SofaTracerSpan sofaTracerSpan) {
         this.sofaTracerSpan = sofaTracerSpan;

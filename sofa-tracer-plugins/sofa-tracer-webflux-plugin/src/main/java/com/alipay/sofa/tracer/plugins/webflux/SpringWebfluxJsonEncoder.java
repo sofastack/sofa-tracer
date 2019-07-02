@@ -23,6 +23,7 @@ import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import io.opentracing.tag.Tags;
+
 import java.io.IOException;
 import java.util.Map;
 

@@ -29,7 +29,6 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: SofaTracerConfiguration.java, v 0.1 2017年06月22日 下午3:12 luoguimu123 Exp $
  */
@@ -113,11 +112,17 @@ public class SofaTracerConfiguration {
 
     /***************** 采样配置项  end ***************/
 
-    /** 采样策略名称key */
+    /**
+     * 采样策略名称key
+     */
     public static final String                     SAMPLER_STRATEGY_NAME_KEY                    = "tracer_sampler_strategy_name_key";
-    /** 自定义采样规则类名 */
+    /**
+     * 自定义采样规则类名
+     */
     public static final String                     SAMPLER_STRATEGY_CUSTOM_RULE_CLASS_NAME      = "tracer_sampler_strategy_custom_rule_class_name";
-    /** 采样率key */
+    /**
+     * 采样率key
+     */
     public static final String                     SAMPLER_STRATEGY_PERCENTAGE_KEY              = "tracer_sampler_strategy_percentage_key";
 
     static {
@@ -147,7 +152,7 @@ public class SofaTracerConfiguration {
     }
 
     /**
-     * @param key 关键字
+     * @param key   关键字
      * @param value 值
      */
     public static void setProperty(String key, Integer value) {
@@ -155,7 +160,7 @@ public class SofaTracerConfiguration {
     }
 
     /**
-     * @param key 关键字
+     * @param key   关键字
      * @param value 值
      */
     public static void setProperty(String key, Map<String, String> value) {
@@ -186,7 +191,7 @@ public class SofaTracerConfiguration {
     }
 
     /**
-     * @param key 关键字
+     * @param key          关键字
      * @param defaultValue 默认值
      * @return 整数
      */

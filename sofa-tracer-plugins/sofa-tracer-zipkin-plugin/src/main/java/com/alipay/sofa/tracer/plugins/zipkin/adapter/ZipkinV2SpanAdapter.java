@@ -24,6 +24,7 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.tag.Tags;
 import zipkin2.Endpoint;
 import zipkin2.Span;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -43,6 +44,7 @@ public class ZipkinV2SpanAdapter {
 
     /**
      * convent sofaTracerSpan model to zipKinSpan model
+     *
      * @param sofaTracerSpan original span
      * @return zipkinSpan model
      */
@@ -101,6 +103,7 @@ public class ZipkinV2SpanAdapter {
 
     /**
      * from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
+     *
      * @param data String data
      * @return fnv hash code
      */
@@ -132,6 +135,7 @@ public class ZipkinV2SpanAdapter {
 
     /**
      * 将Baggage中的数据也放在tags中
+     *
      * @param zipkinSpan
      * @param span
      */
@@ -151,6 +155,7 @@ public class ZipkinV2SpanAdapter {
 
     /**
      * convent Annotations
+     *
      * @param zipkinSpan
      * @param span
      */
@@ -174,6 +179,7 @@ public class ZipkinV2SpanAdapter {
 
     /**
      * convent tags
+     *
      * @param zipkinSpan
      * @param span
      */

@@ -78,7 +78,9 @@ public class HttpHeadersB3FormatterTest {
         public void remove(String key) {
             carr.remove(key);
         }
-    };
+    }
+
+    ;
 
     /**
      * Method: encodedValue(String value)

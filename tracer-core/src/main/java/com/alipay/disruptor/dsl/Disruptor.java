@@ -68,12 +68,11 @@ public class Disruptor<T> {
      * Create a new Disruptor. Will default to {@link com.alipay.disruptor.BlockingWaitStrategy} and
      * {@link ProducerType}.MULTI
      *
-     * @deprecated Use a {@link ThreadFactory} instead of an {@link Executor} as a the ThreadFactory
-     * is able to report errors when it is unable to construct a thread to run a producer.
-     *
      * @param eventFactory   the factory to create events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer.
      * @param executor       an {@link Executor} to execute event processors.
+     * @deprecated Use a {@link ThreadFactory} instead of an {@link Executor} as a the ThreadFactory
+     * is able to report errors when it is unable to construct a thread to run a producer.
      */
     @Deprecated
     public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize,
@@ -84,14 +83,13 @@ public class Disruptor<T> {
     /**
      * Create a new Disruptor.
      *
-     * @deprecated Use a {@link ThreadFactory} instead of an {@link Executor} as a the ThreadFactory
-     * is able to report errors when it is unable to construct a thread to run a producer.
-     *
      * @param eventFactory   the factory to create events in the ring buffer.
      * @param ringBufferSize the size of the ring buffer, must be power of 2.
      * @param executor       an {@link Executor} to execute event processors.
      * @param producerType   the claim strategy to use for the ring buffer.
      * @param waitStrategy   the wait strategy to use for the ring buffer.
+     * @deprecated Use a {@link ThreadFactory} instead of an {@link Executor} as a the ThreadFactory
+     * is able to report errors when it is unable to construct a thread to run a producer.
      */
     @Deprecated
     public Disruptor(final EventFactory<T> eventFactory, final int ringBufferSize,
@@ -292,6 +290,7 @@ public class Disruptor<T> {
 
     /**
      * Publish an event to the ring buffer.
+     *
      * @param eventTranslator eventTranslator the translator that will load data into the event.
      */
     public void publishEvent(final EventTranslator<T> eventTranslator) {
@@ -300,6 +299,7 @@ public class Disruptor<T> {
 
     /**
      * Publish an event to the ring buffer.
+     *
      * @param eventTranslator the translator that will load data into the event.
      * @param arg             A single argument to load into the event
      * @param <A>             A single argument to load into the event
@@ -372,7 +372,7 @@ public class Disruptor<T> {
      *
      * @param timeout  the amount of time to wait for all events to be processed. <code>-1</code> will give an infinite timeout
      * @param timeUnit the unit the timeOut is specified in
-     * @throws TimeoutException  TimeoutException
+     * @throws TimeoutException TimeoutException
      */
     public void shutdown(final long timeout, final TimeUnit timeUnit) throws TimeoutException {
         final long timeOutAt = System.currentTimeMillis() + timeUnit.toMillis(timeout);

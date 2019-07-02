@@ -23,7 +23,6 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import java.io.File;
 
 /**
- *
  * @author liangen
  * @version $Id: ManagerTestUtil.java, v 0.1 2017年10月23日 下午8:34 liangen Exp $
  */

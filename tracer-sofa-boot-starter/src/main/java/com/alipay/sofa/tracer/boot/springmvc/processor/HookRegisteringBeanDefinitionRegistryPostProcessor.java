@@ -66,6 +66,7 @@ public class HookRegisteringBeanDefinitionRegistryPostProcessor implements
          * {@link reactor.core.publisher.Hooks#onLastOperator(Function)} or
          * {@link reactor.core.publisher.Hooks#onLastOperator(Function)}. The Span operator
          * pointcut will pass the Scope of the Span without ever creating any new spans.
+         *
          * @param <T> an arbitrary type that is left unchanged by the span operator
          * @return a new lazy span operator pointcut
          */
@@ -83,7 +84,8 @@ public class HookRegisteringBeanDefinitionRegistryPostProcessor implements
 
         static <T> CoreSubscriber<? super T> scopePassingSpanSubscription(CoreSubscriber<? super T> sub, boolean unary) {
             return new SofaTracerReactorSubscriber<>(
-                    sub, () -> {}, (s, e) -> null, unary);
+                    sub, () -> {
+            }, (s, e) -> null, unary);
         }
     }
 

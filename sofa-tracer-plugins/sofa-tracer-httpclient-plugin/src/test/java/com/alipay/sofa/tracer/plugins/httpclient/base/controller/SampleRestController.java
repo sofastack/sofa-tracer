@@ -35,6 +35,7 @@ public class SampleRestController {
 
     /**
      * Request http://localhost:8080/httpclient?name=
+     *
      * @param name name
      * @return Map of Result
      */
@@ -48,6 +49,7 @@ public class SampleRestController {
 
     /**
      * Request http://localhost:8080/httpclient
+     *
      * @param postBody body
      * @return Result
      */
@@ -59,7 +61,6 @@ public class SampleRestController {
 
     /**
      * Request http://localhost:8080/httpclient
-     *
      */
     @RequestMapping(value = "/httpclient", method = RequestMethod.HEAD)
     @ResponseBody

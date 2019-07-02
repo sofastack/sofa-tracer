@@ -22,6 +22,7 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.openfeign.FeignContext;
 import org.springframework.cloud.openfeign.ribbon.CachingSpringLoadBalancerFactory;
 import org.springframework.cloud.openfeign.ribbon.LoadBalancerFeignClient;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class SofaTracerFeignContext extends FeignContext {
         Map<String, T> instances = this.delegateContext.getInstances(name, type);
         Map<String, T> tracerInstances = new HashMap<>();
         if (instances != null) {
-            instances.entrySet().forEach( item ->
+            instances.entrySet().forEach(item ->
                     tracerInstances.put(item.getKey(), (T) wrapperFeignClient(item.getValue())));
         }
         return tracerInstances;

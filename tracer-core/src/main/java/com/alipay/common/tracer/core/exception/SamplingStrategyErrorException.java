@@ -18,6 +18,7 @@ package com.alipay.common.tracer.core.exception;
 
 /**
  * 采样部分代码出错时候采用的异常
+ *
  * @author luoguimu123
  * @version $Id: SamplingStrategyErrorException.java, v 0.1 2017年06月22日 上午10:56 luoguimu123 Exp $
  */

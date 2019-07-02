@@ -24,8 +24,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 /**
- * @author  xianglong.chen
- * @since  2019/1/17 10:08
+ * @author xianglong.chen
+ * @since 2019/1/17 10:08
  */
 public class OkHttpClientInstance {
 

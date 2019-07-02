@@ -40,7 +40,7 @@ import static org.junit.Assert.assertFalse;
 
 /**
  * @author xianglong.chen
- * @since  2019/1/17 10:31
+ * @since 2019/1/17 10:31
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SpringBootWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

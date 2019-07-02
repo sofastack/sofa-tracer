@@ -27,24 +27,28 @@ import java.net.URI;
 public interface SofaTraceableRequest {
     /**
      * Returns the method (GET, POST, etc) of the request.
+     *
      * @return
      */
     String getMethod();
 
     /**
      * Returns the URI of the request.
+     *
      * @return the URI
      */
     URI getUri();
 
     /**
      * Returns the headers of the request.
+     *
      * @return the headers
      */
     HttpHeaders getHeaders();
 
     /**
      * Returns the remote address from which the request was sent, if available.
+     *
      * @return the remote address or {@code null}
      */
     String getRemoteAddress();

@@ -20,7 +20,7 @@ package com.alipay.common.tracer.core.samplers;
  * SamplerProperties
  *
  * @author yangguanchao
- * @since  2017/06/20
+ * @since 2017/06/20
  */
 public class SamplerProperties {
     /**

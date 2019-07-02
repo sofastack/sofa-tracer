@@ -35,7 +35,6 @@ import java.io.InputStreamReader;
 import java.util.concurrent.CountDownLatch;
 
 /**
- *
  * @author liangen
  * @version $Id: ConcurrentConsumerCorrectTest.java, v 0.1 2017年10月23日 下午3:01 liangen Exp $
  */

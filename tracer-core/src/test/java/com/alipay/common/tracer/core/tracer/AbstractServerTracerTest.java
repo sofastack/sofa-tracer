@@ -70,7 +70,7 @@ public class AbstractServerTracerTest {
     }
 
     /**
-     *  case 1 : sofaTracerSpanContext ==null & by default sampler
+     * case 1 : sofaTracerSpanContext ==null & by default sampler
      */
     @Test
     public void testServerReceive_null() {
@@ -79,7 +79,7 @@ public class AbstractServerTracerTest {
     }
 
     /**
-     *  case 2 : sofaTracerSpanContext !=null & by default sampler
+     * case 2 : sofaTracerSpanContext !=null & by default sampler
      */
     @Test
     public void testServerReceive_sofaTracerSpanContext() {

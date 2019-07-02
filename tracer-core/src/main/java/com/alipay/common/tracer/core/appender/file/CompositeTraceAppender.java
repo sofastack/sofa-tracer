@@ -41,7 +41,7 @@ public class CompositeTraceAppender implements TraceAppender {
     }
 
     /**
-     * @param logName 日志名
+     * @param logName       日志名
      * @param traceAppender 输出实例
      */
     public void putAppender(String logName, TraceAppender traceAppender) {

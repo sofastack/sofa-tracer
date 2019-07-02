@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * 基于 Spring Cloud Feign 进行服务调用
+ *
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/5 5:44 PM
  * @since:
  **/
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface FeignService {
     /**
      * 查询用户详情
+     *
      * @return
      */
     @RequestMapping(value = "/feign", method = RequestMethod.GET)

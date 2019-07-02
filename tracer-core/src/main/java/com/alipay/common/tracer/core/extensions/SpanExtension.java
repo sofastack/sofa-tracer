@@ -19,7 +19,6 @@ package com.alipay.common.tracer.core.extensions;
 import io.opentracing.Span;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: TracerExtension.java, v 0.1 2017年06月23日 上午11:48 luoguimu123 Exp $
  */

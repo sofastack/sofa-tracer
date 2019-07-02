@@ -89,7 +89,8 @@ public class StringUtils {
      * <p>
      * 将map转成string并在每一个 key 添加指定的前缀, 如 {"k1":"v1"}
      * </p>
-     * @param map map 要映射的集合
+     *
+     * @param map    map 要映射的集合
      * @param prefix prefix 前缀
      * @return 字符串携带指定前缀 prefix_k1=v1
      */
@@ -116,6 +117,7 @@ public class StringUtils {
      * <p>
      * 将map转成string, 如{"k1":"v1"}
      * </p>
+     *
      * @param map 要映射的集合
      * @return 字符串 k1=v1
      */
@@ -137,6 +139,7 @@ public class StringUtils {
 
     /**
      * 由string转成map, 函数 mapToString 的逆过程
+     *
      * @param str 字符串
      * @param map 映射的集合
      */
@@ -188,10 +191,10 @@ public class StringUtils {
     }
 
     /**
-     * @param items 列表
+     * @param items     列表
      * @param separator 分隔符
-     * @param prefix 前缀
-     * @param postfix 后缀
+     * @param prefix    前缀
+     * @param postfix   后缀
      * @return 字符串
      */
     public static String arrayToString(Object[] items, char separator, String prefix, String postfix) {
@@ -329,7 +332,8 @@ public class StringUtils {
     /**
      * Convert a {@code Collection} into a delimited {@code String} (e.g. CSV).
      * <p>Useful for {@code toString()} implementations.
-     * @param coll the {@code Collection} to convert
+     *
+     * @param coll  the {@code Collection} to convert
      * @param delim the delimiter to use (typically a ",")
      * @return the delimited {@code String}
      */
@@ -364,11 +368,12 @@ public class StringUtils {
      * <p>A single {@code delimiter} may consist of more than one character,
      * but it will still be considered as a single delimiter string, rather
      * than as bunch of potential delimiter characters, in contrast to
-     * @param str the input {@code String}
-     * @param delimiter the delimiter between elements (this is a single delimiter,
-     * rather than a bunch individual delimiter characters)
+     *
+     * @param str           the input {@code String}
+     * @param delimiter     the delimiter between elements (this is a single delimiter,
+     *                      rather than a bunch individual delimiter characters)
      * @param charsToDelete a set of characters to delete; useful for deleting unwanted
-     * line breaks: e.g. "\r\n\f" will delete all new lines and line feeds in a {@code String}
+     *                      line breaks: e.g. "\r\n\f" will delete all new lines and line feeds in a {@code String}
      * @return an array of the tokens in the list
      */
     public static String[] delimitedListToStringArray(String str, String delimiter,
@@ -410,9 +415,10 @@ public class StringUtils {
 
     /**
      * Delete any character in a given {@code String}.
-     * @param inString the original {@code String}
+     *
+     * @param inString      the original {@code String}
      * @param charsToDelete a set of characters to delete.
-     * E.g. "az\n" will delete 'a's, 'z's and new lines.
+     *                      E.g. "az\n" will delete 'a's, 'z's and new lines.
      * @return the resulting {@code String}
      */
     public static String deleteAny(String inString, String charsToDelete) {
@@ -433,7 +439,8 @@ public class StringUtils {
     /**
      * Replace all occurrences of a substring within a string with
      * another string.
-     * @param inString {@code String} to examine
+     *
+     * @param inString   {@code String} to examine
      * @param oldPattern {@code String} to replace
      * @param newPattern {@code String} to insert
      * @return a {@code String} with the replacements

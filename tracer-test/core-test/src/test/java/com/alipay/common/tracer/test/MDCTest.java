@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: MDCTest.java, v 0.1 2017年06月19日 下午6:14 luoguimu123 Exp $
  */

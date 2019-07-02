@@ -35,6 +35,7 @@ public class SampleRestController {
 
     /**
      * Request http://localhost:8080/httpclient?name=
+     *
      * @param name name
      * @return Map of Result
      */

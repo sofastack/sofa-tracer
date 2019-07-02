@@ -84,7 +84,7 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
                                                             0);
 
     /**
-     * @param file 文件名
+     * @param file   文件名
      * @param append 是否累加
      */
     public TimedRollingFileAppender(String file, boolean append) {
@@ -92,7 +92,7 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
     }
 
     /**
-     * @param file 文件
+     * @param file        文件
      * @param datePattern 日期格式
      */
     public TimedRollingFileAppender(String file, String datePattern) {
@@ -105,18 +105,18 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
     }
 
     /**
-     * @param file 文件
+     * @param file       文件
      * @param bufferSize 缓冲区大小
-     * @param append 是否追加,默认是
+     * @param append     是否追加,默认是
      */
     public TimedRollingFileAppender(String file, int bufferSize, boolean append) {
         this(file, bufferSize, append, DEFAULT_ROLLING_PATTERN);
     }
 
     /**
-     * @param file 文件
-     * @param bufferSize 缓冲区大小
-     * @param append 是否追加,默认是
+     * @param file             文件
+     * @param bufferSize       缓冲区大小
+     * @param append           是否追加,默认是
      * @param datePatternParam 日期格式
      */
     public TimedRollingFileAppender(String file, int bufferSize, boolean append,

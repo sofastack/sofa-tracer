@@ -21,7 +21,6 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.disruptor.ExceptionHandler;
 
 /**
- *
  * @author liangen
  * @version $Id: ConsumerExceptionHandler.java, v 0.1 2017年10月23日 上午10:13 liangen Exp $
  */

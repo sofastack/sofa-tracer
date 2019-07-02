@@ -26,11 +26,13 @@ import zipkin2.Call;
 import zipkin2.codec.Encoding;
 import zipkin2.reporter.BytesMessageEncoder;
 import zipkin2.reporter.Sender;
+
 import java.net.URI;
 import java.util.List;
 
 /**
  * ZipkinRestTemplateSender
+ *
  * @author guolei.sgl
  */
 public class ZipkinRestTemplateSender extends Sender {

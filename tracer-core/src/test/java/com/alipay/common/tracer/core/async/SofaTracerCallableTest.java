@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: SofaTracerCallableTest.java, v 0.1 2017年06月22日 下午3:38 luoguimu123 Exp $
  */

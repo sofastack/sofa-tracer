@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * SelfLog专用
+ *
  * @author luoguimu123
  * @version $Id: AsyncCommonAppenderManager.java, v 0.1 2017年11月21日 下午6:15 luoguimu123 Exp $
  */

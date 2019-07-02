@@ -328,10 +328,11 @@ public class SofaTracer implements Tracer {
 
         private SofaTracerSpanContext createChildContext() {
             SofaTracerSpanContext preferredReference = preferredReference();
-
+            String parentSpanId = preferredReference.getSpanId();
+            String currentSpanId = preferredReference.nextChildContextId();
             SofaTracerSpanContext sofaTracerSpanContext = new SofaTracerSpanContext(
-                preferredReference.getTraceId(), preferredReference.nextChildContextId(),
-                preferredReference.getSpanId(), preferredReference.isSampled());
+                preferredReference.getTraceId(), currentSpanId, parentSpanId,
+                preferredReference.isSampled());
             sofaTracerSpanContext.addBizBaggage(this.createChildBaggage(true));
             sofaTracerSpanContext.addSysBaggage(this.createChildBaggage(false));
             return sofaTracerSpanContext;

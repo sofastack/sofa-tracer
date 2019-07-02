@@ -17,7 +17,6 @@
 package com.alipay.sofa.tracer.examples.sofarpc.direct;
 
 /**
- *
  * @author <a href="mailto:lw111072@antfin.com">LiWei</a>
  */
 public class DirectServiceImpl implements DirectService {

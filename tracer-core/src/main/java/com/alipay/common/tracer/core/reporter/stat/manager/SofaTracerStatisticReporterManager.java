@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 固定时间周期的 Reporter，一个时钟周期对应一个实例,初始化之后就会启动周期
  *
  * @author yangguanchao
- * @since  2017/06/26
+ * @since 2017/06/26
  */
 public class SofaTracerStatisticReporterManager {
 

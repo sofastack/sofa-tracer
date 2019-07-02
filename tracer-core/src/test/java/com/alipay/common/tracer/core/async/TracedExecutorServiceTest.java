@@ -32,7 +32,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: TracedExecutorServiceTest.java, v 0.1 2017年06月22日 下午3:59 luoguimu123 Exp $
  */

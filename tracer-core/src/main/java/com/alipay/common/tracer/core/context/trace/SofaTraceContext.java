@@ -22,13 +22,13 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
  * SofaTraceContext allows an application access and manipulation of the current span state.
  *
  * @author yangguanchao
- * @since  2017/06/17
+ * @since 2017/06/17
  */
 public interface SofaTraceContext {
 
     /**
      * Adds the given span to the TraceContext
-     *
+     * <p>
      * if the span is null ,then ignore pushed
      *
      * @param span The span to be pushed onto the thread local stacked.

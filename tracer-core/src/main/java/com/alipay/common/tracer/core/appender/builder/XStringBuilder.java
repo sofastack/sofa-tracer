@@ -77,7 +77,7 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入字符串
+     * @param str       输入字符串
      * @param separator 分隔符
      * @return 当前实例
      */
@@ -87,7 +87,7 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入字符串
+     * @param str       输入字符串
      * @param separator 分隔符
      * @return 当前实例
      */
@@ -97,7 +97,7 @@ public class XStringBuilder {
     }
 
     /**
-     * @param str 输入字符串
+     * @param str       输入字符串
      * @param separator 分隔符
      * @return 当前实例
      */
@@ -189,6 +189,7 @@ public class XStringBuilder {
 
     /**
      * 将字符串中分隔符变成对应转义字符
+     *
      * @param str 输入字符串
      * @return 当前实例
      */
@@ -200,6 +201,7 @@ public class XStringBuilder {
 
     /**
      * 将字符串中分隔符变成对应转义字符
+     *
      * @param str 输入字符串
      * @return 当前实例
      */
@@ -211,6 +213,7 @@ public class XStringBuilder {
 
     /**
      * 将字符串中分隔符变成对应转义字符
+     *
      * @param str 输入字符串
      * @return 当前实例
      */

@@ -19,7 +19,6 @@ package com.alipay.common.tracer.core.appender.manager;
 import com.alipay.disruptor.EventFactory;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: StringEventFactory.java, v 0.1 2017年11月21日 下午7:00 luoguimu123 Exp $
  */

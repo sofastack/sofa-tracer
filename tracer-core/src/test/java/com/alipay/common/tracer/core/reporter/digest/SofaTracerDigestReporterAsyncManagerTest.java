@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.mockito.Mockito.mock;
 
 /**
- *
  * @author abby.zh
  * @version $Id: SofaTracerDigestReporterAsyncManagerTest.java, v 0.1 2018/11/12 4:55 PM abby.zh Exp $
  * @since 3.0.1
@@ -45,24 +44,24 @@ public class SofaTracerDigestReporterAsyncManagerTest {
     }
 
     @Test
-    public void testGetSofaTracerDigestReporterAsyncManager() throws Exception{
+    public void testGetSofaTracerDigestReporterAsyncManager() throws Exception {
         AtomicInteger npeCount = new AtomicInteger();
         AtomicInteger successCount = new AtomicInteger();
         int testTimes = 1000;
         int threadCount = 100;
         CountDownLatch latch = new CountDownLatch(testTimes);
-        for (int times = 0 ; times < testTimes; times ++) {
-            Executors.newFixedThreadPool(threadCount).execute(() ->  {
-                    try {
-                        AsyncCommonDigestAppenderManager sofaTracerDigestReporterAsyncManager =
-                                SofaTracerDigestReporterAsyncManager.getSofaTracerDigestReporterAsyncManager();
-                        sofaTracerDigestReporterAsyncManager.append(sofaTracerSpan);
-                        successCount.getAndIncrement();
-                    }catch (NullPointerException e){
-                        npeCount.getAndIncrement();
-                    }finally {
-                        latch.countDown();
-                    }
+        for (int times = 0; times < testTimes; times++) {
+            Executors.newFixedThreadPool(threadCount).execute(() -> {
+                try {
+                    AsyncCommonDigestAppenderManager sofaTracerDigestReporterAsyncManager =
+                            SofaTracerDigestReporterAsyncManager.getSofaTracerDigestReporterAsyncManager();
+                    sofaTracerDigestReporterAsyncManager.append(sofaTracerSpan);
+                    successCount.getAndIncrement();
+                } catch (NullPointerException e) {
+                    npeCount.getAndIncrement();
+                } finally {
+                    latch.countDown();
+                }
             });
         }
         latch.await();

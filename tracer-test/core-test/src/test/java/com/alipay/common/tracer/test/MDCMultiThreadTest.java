@@ -26,7 +26,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: MDCMultiThreadTest.java, v 0.1 2017年06月19日 下午7:42 luoguimu123 Exp $
  */

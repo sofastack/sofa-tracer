@@ -27,6 +27,7 @@ import java.io.StringWriter;
 
 /**
  * 同步打印的SelfLog，仅在中间件内部使用，解决SelfLog异步化后，在一些Mananger初始化时打印日志时使用
+ *
  * @author luoguimu123
  * @version $Id: SynchronizingSelfLog.java, v 0.1 2017年11月21日 下午7:45 luoguimu123 Exp $
  */
@@ -61,7 +62,7 @@ public class SynchronizingSelfLog {
 
     /**
      * @param log 日志
-     * @param e 异常
+     * @param e   异常
      */
     public static void error(String log, Throwable e) {
         try {
@@ -109,7 +110,7 @@ public class SynchronizingSelfLog {
     /**
      * 打印错误日志，附加当前线程的 TraceId
      *
-     * @param log 错误消息
+     * @param log     错误消息
      * @param traceId traceId
      */
     public static void errorWithTraceId(String log, String traceId) {

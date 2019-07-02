@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat;
 
 /***
  * @author yangguanchao
- * @since  2017/06/17
+ * @since 2017/06/17
  */
 public class Timestamp {
 

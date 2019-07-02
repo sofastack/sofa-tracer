@@ -19,7 +19,6 @@ package com.alipay.common.tracer.core.appender.manager;
 import java.util.concurrent.ThreadFactory;
 
 /**
- *
  * @author liangen
  * @version $Id: ConsumerThreadFactory.java, v 0.1 2017年10月23日 上午10:09 liangen Exp $
  */
@@ -38,7 +37,7 @@ public class ConsumerThreadFactory implements ThreadFactory {
     /**
      * Setter method for property <tt>workName</tt>.
      *
-     * @param workName  value to be assigned to property workName
+     * @param workName value to be assigned to property workName
      */
     public void setWorkName(String workName) {
         this.workName = workName;

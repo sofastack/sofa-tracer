@@ -21,20 +21,18 @@ import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticRe
 import org.junit.Assert;
 import org.junit.Test;
 
-/** 
-* SofaTracerStatisticReporterCycleTimesManager Tester. 
-* 
-* @author <guanchao.ygc> 
-* @since <pre>六月 22, 2017</pre> 
-* @version 1.0 
-*/
+/**
+ * SofaTracerStatisticReporterCycleTimesManager Tester.
+ *
+ * @author <guanchao.ygc>
+ * @version 1.0
+ * @since <pre>六月 22, 2017</pre>
+ */
 public class SofaTracerStatisticReporterCycleTimesManagerTest {
 
-    /** 
-    * 
-    * Method: getSofaTracerStatisticReporterManager(Long cycleTime) 
-    * 
-    */
+    /**
+     * Method: getSofaTracerStatisticReporterManager(Long cycleTime)
+     */
     @Test
     public void testGetSofaTracerStatisticReporterManager() throws Exception {
         //单位 秒

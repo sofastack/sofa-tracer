@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 对比 JDK6 下 {@link StringTokenizer#countTokens()} 和 {@link String#split(String)} 的性能.
- * 
+ * <p>
  * JDK 6, Mac OS 10.11.1, 性能数据如下:
  *
  * <pre>
@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  * CountBenchmark.countUseStringTokenizer   avgt    20      7.446   ±   0.443   us/op
  * CountBenchmark.countUseCountMatches      avgt    20      0.759   ±   0.069   us/op
  * </pre>
- * 
+ *
  * @author khotyn 12/29/15 3:44 PM
  */
 @BenchmarkMode(Mode.AverageTime)

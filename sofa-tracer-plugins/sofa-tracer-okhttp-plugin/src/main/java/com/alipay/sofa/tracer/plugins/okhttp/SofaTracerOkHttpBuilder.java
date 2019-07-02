@@ -21,7 +21,6 @@ import com.alipay.sofa.tracer.plugins.okhttp.interceptor.SofaTracerOkHttpInterce
 import okhttp3.OkHttpClient;
 
 /**
- *
  * @author xianglong.chen
  * @since 2019/1/17 13:29
  */

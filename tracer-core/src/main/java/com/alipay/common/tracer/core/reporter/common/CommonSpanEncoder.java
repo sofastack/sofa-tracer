@@ -30,7 +30,7 @@ import java.io.IOException;
  * CommonSpanEncoder
  * <p>
  * 客户端错误和服务端错误均打印在同一个文件中
- *
+ * <p>
  * 注意是无状态实例:多个日志打印共用的一个实例
  *
  * @author yangguanchao

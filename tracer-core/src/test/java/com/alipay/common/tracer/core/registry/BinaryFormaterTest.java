@@ -156,7 +156,7 @@ public class BinaryFormaterTest {
      * 注意：此测试用例不通过,只支持堆内存不支持堆外内存
      * Method: inject(SofaTracerSpanContext spanContext, ByteBuffer carrier)
      * <p>
-     *
+     * <p>
      * Method: extract(ByteBuffer carrier)
      */
     @Test

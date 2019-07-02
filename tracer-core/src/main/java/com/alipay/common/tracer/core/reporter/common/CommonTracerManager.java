@@ -35,7 +35,6 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 public class CommonTracerManager {
 
     /**
-     *
      * 异步日志打印，所有的中间件公用一个来打印通用日志
      */
     private static volatile AsyncCommonDigestAppenderManager commonReporterAsyncManager = new AsyncCommonDigestAppenderManager(

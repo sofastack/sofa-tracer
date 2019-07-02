@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.propagation.TextMap;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -164,7 +165,7 @@ public abstract class AbstractTextB3Formatter implements RegistryExtractorInject
     /***
      * encode string
      * @param value string will be encoded
-     * @return  encoded value
+     * @return encoded value
      */
     protected abstract String encodedValue(String value);
 

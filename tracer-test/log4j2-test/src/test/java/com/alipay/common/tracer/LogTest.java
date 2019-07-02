@@ -32,7 +32,6 @@ import java.io.PrintStream;
 import java.util.Scanner;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: LogTest.java, v 0.1 2017年08月05日 上午8:06 luoguimu123 Exp $
  */

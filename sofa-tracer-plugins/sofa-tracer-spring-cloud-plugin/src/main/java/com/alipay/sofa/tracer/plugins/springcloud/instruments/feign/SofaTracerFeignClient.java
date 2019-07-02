@@ -29,6 +29,7 @@ import feign.Client;
 import feign.Request;
 import feign.Response;
 import io.opentracing.tag.Tags;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -75,6 +76,7 @@ public class SofaTracerFeignClient implements Client {
 
     /**
      * append exception tags for current span
+     *
      * @param request
      * @param sofaTracerSpan
      */
@@ -100,6 +102,7 @@ public class SofaTracerFeignClient implements Client {
 
     /**
      * append response tags for current span
+     *
      * @param response
      * @param sofaTracerSpan
      */
@@ -114,6 +117,7 @@ public class SofaTracerFeignClient implements Client {
 
     /**
      * append request tags for current span
+     *
      * @param request
      * @param sofaTracerSpan
      */

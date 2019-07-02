@@ -37,10 +37,11 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy {
     }
 
     /**
-     *  Block with wait/notifyAll semantics
-     * @param spinTimeout spinTimeout
+     * Block with wait/notifyAll semantics
+     *
+     * @param spinTimeout  spinTimeout
      * @param yieldTimeout yieldTimeout
-     * @param units units
+     * @param units        units
      * @return PhasedBackoffWaitStrategy
      */
     public static PhasedBackoffWaitStrategy withLock(long spinTimeout, long yieldTimeout,
@@ -51,9 +52,10 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy {
 
     /**
      * Block with wait/notifyAll semantics
-     * @param spinTimeout spinTimeout
+     *
+     * @param spinTimeout  spinTimeout
      * @param yieldTimeout yieldTimeout
-     * @param units units
+     * @param units        units
      * @return PhasedBackoffWaitStrategy
      */
     public static PhasedBackoffWaitStrategy withLiteLock(long spinTimeout, long yieldTimeout,
@@ -64,9 +66,10 @@ public final class PhasedBackoffWaitStrategy implements WaitStrategy {
 
     /**
      * Block by sleeping in a loop
-     * @param spinTimeout spinTimeout
+     *
+     * @param spinTimeout  spinTimeout
      * @param yieldTimeout yieldTimeout
-     * @param units units
+     * @param units        units
      * @return PhasedBackoffWaitStrategy
      */
     public static PhasedBackoffWaitStrategy withSleep(long spinTimeout, long yieldTimeout,

@@ -109,7 +109,7 @@ public abstract class AbstractTracer {
      * If there is a span in the current sofaTraceContext, it is the parent of the current Span
      *
      * @param operationName as span name
-     * @return              a new spam
+     * @return a new spam
      */
     public SofaTracerSpan clientSend(String operationName) {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
@@ -146,7 +146,6 @@ public abstract class AbstractTracer {
     }
 
     /**
-     *
      * Stage CR, This stage will end a span
      *
      * @param resultCode resultCode to mark success or fail
@@ -167,6 +166,7 @@ public abstract class AbstractTracer {
 
     /**
      * Span finished and append tags
+     *
      * @param clientSpan current finished span
      * @param resultCode result status code
      */
@@ -183,10 +183,10 @@ public abstract class AbstractTracer {
 
     /**
      * Stage SR , This stage will produce a new span.
-     *
+     * <p>
      * For example, the SpringMVC component accepts a network request,
      * we need to create an mvc span to record related information.
-     *
+     * <p>
      * we do not care SofaTracerSpanContext, just as root span
      *
      * @return SofaTracerSpan
@@ -197,6 +197,7 @@ public abstract class AbstractTracer {
 
     /**
      * server receive request
+     *
      * @param sofaTracerSpanContext 要恢复的上下文
      * @return SofaTracerSpan
      */
@@ -212,7 +213,7 @@ public abstract class AbstractTracer {
                     sofaTracerSpanContext = SofaTracerSpanContext.rootStart();
                     isCalculateSampled = true;
                 } else {
-                    sofaTracerSpanContext.setSpanId(sofaTracerSpanContext.nextChildContextId());
+                    sofaTracerSpanContext = getNextSofaTracerSpanContext(sofaTracerSpanContext);
                 }
                 newSpan = this.genSeverSpanInstance(System.currentTimeMillis(),
                     StringUtils.EMPTY_STRING, sofaTracerSpanContext, null);
@@ -248,6 +249,26 @@ public abstract class AbstractTracer {
             }
         }
         return newSpan;
+    }
+
+    /**
+     * get next sofaTracerSpanContext according to parent sofaTracerSpanContext
+     *
+     * @param sofaTracerSpanContext
+     * @return
+     */
+    private SofaTracerSpanContext getNextSofaTracerSpanContext(SofaTracerSpanContext sofaTracerSpanContext) {
+        String tracerId = sofaTracerSpanContext.getTraceId();
+        String parentId = sofaTracerSpanContext.getParentId();
+        String currentId = sofaTracerSpanContext.nextChildContextId();
+        boolean sampled = sofaTracerSpanContext.isSampled();
+        Map<String, String> sysBaggage = sofaTracerSpanContext.getSysBaggage();
+        Map<String, String> bizBaggage = sofaTracerSpanContext.getBizBaggage();
+        SofaTracerSpanContext childSpanContext = new SofaTracerSpanContext(tracerId, currentId,
+            parentId, sampled);
+        childSpanContext.addBizBaggage(bizBaggage);
+        childSpanContext.addSysBaggage(sysBaggage);
+        return childSpanContext;
     }
 
     /**
@@ -290,7 +311,6 @@ public abstract class AbstractTracer {
     }
 
     /**
-     *
      * When an error occurs to remedy, start counting from the root node
      *
      * @param bizBaggage Business transparent transmission

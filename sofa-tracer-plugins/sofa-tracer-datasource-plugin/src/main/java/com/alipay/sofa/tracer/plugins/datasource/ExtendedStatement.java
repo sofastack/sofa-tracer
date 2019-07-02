@@ -78,6 +78,7 @@ public class ExtendedStatement implements Statement {
 
         /**
          * init process before real invocation
+         *
          * @param invocation
          * @throws Exception
          */

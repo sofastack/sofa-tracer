@@ -19,7 +19,6 @@ package com.alipay.sofa.tracer.plugins.okhttp.base;
 import org.springframework.boot.SpringApplication;
 
 /**
- *
  * @author xianglong.chen
  * @since 2019/1/17 13:29
  */

@@ -27,8 +27,9 @@ import java.util.Map;
 
 /**
  * AbstractDiskReporter
- *
+ * <p>
  * 持久化抽象类,摘要持久化和统计持久化
+ *
  * @author yangguanchao
  * @since 2017/07/14
  */

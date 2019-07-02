@@ -20,7 +20,7 @@ package com.alipay.common.tracer.core.exception;
  * SofaTracerRuntimeException
  *
  * @author yangguanchao
- * @since  2017/06/17
+ * @since 2017/06/17
  */
 public class SofaTracerRuntimeException extends RuntimeException {
 

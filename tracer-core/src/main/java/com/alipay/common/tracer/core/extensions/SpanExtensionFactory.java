@@ -23,7 +23,6 @@ import java.util.ServiceLoader;
 import java.util.Set;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: SpanExtensionFactory.java, v 0.1 2017年06月23日 上午11:50 luoguimu123 Exp $
  */

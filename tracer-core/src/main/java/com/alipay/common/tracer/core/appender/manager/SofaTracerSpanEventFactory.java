@@ -19,7 +19,6 @@ package com.alipay.common.tracer.core.appender.manager;
 import com.alipay.disruptor.EventFactory;
 
 /**
- *
  * @author liangen
  * @version $Id: SofaTracerSpanEventFactory.java, v 0.1 2017年10月23日 上午10:07 liangen Exp $
  */

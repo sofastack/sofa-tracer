@@ -18,6 +18,7 @@ package com.alipay.sofa.tracer.plugins.zipkin.properties;
 
 /**
  * ZipkinProperties
+ *
  * @author guolei.sgl
  * @since v2.3.0
  */

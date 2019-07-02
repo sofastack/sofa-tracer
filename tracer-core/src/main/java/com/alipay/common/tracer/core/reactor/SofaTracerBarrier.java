@@ -35,6 +35,7 @@ public class SofaTracerBarrier {
 
     /**
      * execute with span ,Bind the span in the context to the current threadlocal in time when the thread switches
+     *
      * @param runnable
      * @param spanContainer
      */
@@ -83,15 +84,16 @@ public class SofaTracerBarrier {
 
     }
 
-    public static Mono<SofaTracerSpanContainer> withSofaTracerContainer()  {
-        return  Mono.subscriberContext().map(c -> {
+    public static Mono<SofaTracerSpanContainer> withSofaTracerContainer() {
+        return Mono.subscriberContext().map(c -> {
             if (c.hasKey(SOFA_TRACER_CONTEXT_KEY)) {
                 return c.get(SOFA_TRACER_CONTEXT_KEY);
             } else {
                 return new SofaTracerSpanContainer();
             }
         }).transform(new SofaTracerReactorTransformer<>(
-                () -> {}, (s, e) -> null
+                () -> {
+                }, (s, e) -> null
         ));
     }
 }

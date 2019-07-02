@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- *
  * @author khotyn 4/8/14 3:56 PM
  */
 public class TimedRollingFileAppenderTest extends AbstractTestBase {

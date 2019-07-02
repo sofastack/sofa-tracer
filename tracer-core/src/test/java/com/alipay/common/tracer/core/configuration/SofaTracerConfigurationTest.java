@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author luoguimu123
  * @version $Id: SofaTracerConfigurationTest.java, v 0.1 2017年06月29日 上午10:06 luoguimu123 Exp $
  */

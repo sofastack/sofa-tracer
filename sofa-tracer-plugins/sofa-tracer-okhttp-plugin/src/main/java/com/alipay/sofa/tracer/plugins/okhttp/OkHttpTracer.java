@@ -24,7 +24,7 @@ import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
 
 /**
  * @author xianglong.chen
- * @since  2019/1/3 16:03
+ * @since 2019/1/3 16:03
  */
 public class OkHttpTracer extends AbstractClientTracer {
 

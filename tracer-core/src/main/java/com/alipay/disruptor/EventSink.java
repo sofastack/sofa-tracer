@@ -41,9 +41,10 @@ public interface EventSink<E> {
 
     /**
      * Allows one user supplied argument.
+     *
      * @param translator The user specified translation for the event
-     * @param arg0 A user supplied argument.
-     * @param <A> A user supplied argument.
+     * @param arg0       A user supplied argument.
+     * @param <A>        A user supplied argument.
      * @see #publishEvent(EventTranslator)
      */
     <A> void publishEvent(EventTranslatorOneArg<E, A> translator, A arg0);
@@ -215,7 +216,7 @@ public interface EventSink<E> {
      * @param batchStartsAt The first element of the array which is within the batch.
      * @param batchSize     The actual size of the batch
      * @param arg0          An array of user supplied arguments, one element per event.
-     * @param <A>        A user supplied argument.
+     * @param <A>           A user supplied argument.
      * @see #publishEvents(EventTranslator[])
      */
     <A> void publishEvents(EventTranslatorOneArg<E, A> translator, int batchStartsAt,
@@ -240,7 +241,7 @@ public interface EventSink<E> {
      * @param batchStartsAt The first element of the array which is within the batch.
      * @param batchSize     The actual size of the batch
      * @param arg0          An array of user supplied arguments, one element per event.
-     * @param <A>        A user supplied argument.
+     * @param <A>           A user supplied argument.
      * @return true if the value was published, false if there was insufficient
      * capacity.
      * @see #tryPublishEvents(EventTranslator[])
@@ -281,8 +282,8 @@ public interface EventSink<E> {
      * @param translator The user specified translation for the event
      * @param arg0       An array of user supplied arguments, one element per event.
      * @param arg1       An array of user supplied arguments, one element per event.
-     * @param <A>       An array of user supplied arguments, one element per event.
-     * @param <B>       An array of user supplied arguments, one element per event.
+     * @param <A>        An array of user supplied arguments, one element per event.
+     * @param <B>        An array of user supplied arguments, one element per event.
      * @return true if the value was published, false if there was insufficient
      * capacity.
      * @see #tryPublishEvents(com.alipay.disruptor.EventTranslator[])
@@ -313,9 +314,9 @@ public interface EventSink<E> {
      * @param arg0       An array of user supplied arguments, one element per event.
      * @param arg1       An array of user supplied arguments, one element per event.
      * @param arg2       An array of user supplied arguments, one element per event.
-     * @param <A>       An array of user supplied arguments, one element per event.
-     * @param <B>       An array of user supplied arguments, one element per event.
-     * @param <C>       An array of user supplied arguments, one element per event.
+     * @param <A>        An array of user supplied arguments, one element per event.
+     * @param <B>        An array of user supplied arguments, one element per event.
+     * @param <C>        An array of user supplied arguments, one element per event.
      * @see #publishEvents(com.alipay.disruptor.EventTranslator[])
      */
     <A, B, C> void publishEvents(EventTranslatorThreeArg<E, A, B, C> translator, A[] arg0,
@@ -330,9 +331,9 @@ public interface EventSink<E> {
      * @param arg0          An array of user supplied arguments, one element per event.
      * @param arg1          An array of user supplied arguments, one element per event.
      * @param arg2          An array of user supplied arguments, one element per event.
-     * @param <A>          An array of user supplied arguments, one element per event.
-     * @param <B>          An array of user supplied arguments, one element per event.
-     * @param <C>          An array of user supplied arguments, one element per event.
+     * @param <A>           An array of user supplied arguments, one element per event.
+     * @param <B>           An array of user supplied arguments, one element per event.
+     * @param <C>           An array of user supplied arguments, one element per event.
      * @see #publishEvents(EventTranslator[])
      */
     <A, B, C> void publishEvents(EventTranslatorThreeArg<E, A, B, C> translator, int batchStartsAt,
@@ -345,9 +346,9 @@ public interface EventSink<E> {
      * @param arg0       An array of user supplied arguments, one element per event.
      * @param arg1       An array of user supplied arguments, one element per event.
      * @param arg2       An array of user supplied arguments, one element per event.
-     * @param <A>       An array of user supplied arguments, one element per event.
-     * @param <B>       An array of user supplied arguments, one element per event.
-     * @param <C>       An array of user supplied arguments, one element per event.
+     * @param <A>        An array of user supplied arguments, one element per event.
+     * @param <B>        An array of user supplied arguments, one element per event.
+     * @param <C>        An array of user supplied arguments, one element per event.
      * @return true if the value was published, false if there was insufficient
      * capacity.
      * @see #publishEvents(com.alipay.disruptor.EventTranslator[])
@@ -364,9 +365,9 @@ public interface EventSink<E> {
      * @param arg0          An array of user supplied arguments, one element per event.
      * @param arg1          An array of user supplied arguments, one element per event.
      * @param arg2          An array of user supplied arguments, one element per event.
-     * @param <A>          An array of user supplied arguments, one element per event.
-     * @param <B>          An array of user supplied arguments, one element per event.
-     * @param <C>          An array of user supplied arguments, one element per event.
+     * @param <A>           An array of user supplied arguments, one element per event.
+     * @param <B>           An array of user supplied arguments, one element per event.
+     * @param <C>           An array of user supplied arguments, one element per event.
      * @return true if the value was published, false if there was insufficient
      * capacity.
      * @see #publishEvents(EventTranslator[])

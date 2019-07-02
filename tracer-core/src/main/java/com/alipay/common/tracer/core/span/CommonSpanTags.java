@@ -18,6 +18,7 @@ package com.alipay.common.tracer.core.span;
 
 /**
  * some common SpanTags
+ *
  * @author luoguimu123
  * @author guolei.sgl
  * @version : v 0.1

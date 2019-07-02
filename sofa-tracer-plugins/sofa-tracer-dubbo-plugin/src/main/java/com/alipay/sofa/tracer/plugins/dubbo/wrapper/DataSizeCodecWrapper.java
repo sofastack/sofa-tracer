@@ -25,6 +25,7 @@ import org.apache.dubbo.remoting.exchange.Request;
 import org.apache.dubbo.remoting.exchange.Response;
 import org.apache.dubbo.rpc.RpcInvocation;
 import org.apache.dubbo.rpc.RpcResult;
+
 import java.io.IOException;
 
 /**
@@ -64,7 +65,7 @@ public class DataSizeCodecWrapper implements Codec2 {
 
     /**
      * @param channel    长连接
-     * @param buffer        UnsafeByteArrayOutputStream
+     * @param buffer     UnsafeByteArrayOutputStream
      * @param message    原生Request对象
      * @param invocation Request里的Invocation
      * @throws IOException 序列化出现异常
@@ -83,7 +84,7 @@ public class DataSizeCodecWrapper implements Codec2 {
 
     /**
      * @param channel   长连接
-     * @param buffer       UnsafeByteArrayOutputStream
+     * @param buffer    UnsafeByteArrayOutputStream
      * @param result    原生Resopnse对象
      * @param rpcResult Resopnse对象的结果
      * @throws IOException 序列化出现异常
@@ -102,6 +103,7 @@ public class DataSizeCodecWrapper implements Codec2 {
 
     /**
      * 反序列化操作
+     *
      * @param channel
      * @param input
      * @return
