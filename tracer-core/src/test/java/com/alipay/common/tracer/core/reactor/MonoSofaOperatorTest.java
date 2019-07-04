@@ -25,20 +25,15 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import org.junit.Assert;
 import org.junit.Test;
 import org.reactivestreams.Publisher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.Fuseable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Operators;
 import reactor.test.StepVerifier;
-import reactor.util.context.Context;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import static com.alipay.common.tracer.core.reactor.SofaTracerReactorSubscriber.SOFA_TRACER_CONTEXT_KEY;
 
 public class MonoSofaOperatorTest extends AbstractTestBase {
     @Test

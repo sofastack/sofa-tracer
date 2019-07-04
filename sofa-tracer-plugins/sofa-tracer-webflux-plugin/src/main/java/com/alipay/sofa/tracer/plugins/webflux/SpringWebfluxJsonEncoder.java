@@ -47,6 +47,10 @@ public class SpringWebfluxJsonEncoder extends AbstractDigestSpanEncoder {
         Map<String, String> tagWithStr = sofaTracerSpan.getTagsWithStr();
         Map<String, Number> tagWithNumber = sofaTracerSpan.getTagsWithNumber();
         json.append(CommonSpanTags.LOCAL_APP, tagWithStr.get(CommonSpanTags.LOCAL_APP));
+        //remote address, webflux
+        if (tagWithStr.get(CommonSpanTags.REMOTE_APP) != null) {
+            json.append(CommonSpanTags.REMOTE_APP, tagWithStr.get(CommonSpanTags.REMOTE_APP));
+        }
         //TraceId
         json.append("traceId", context.getTraceId());
         //RpcId

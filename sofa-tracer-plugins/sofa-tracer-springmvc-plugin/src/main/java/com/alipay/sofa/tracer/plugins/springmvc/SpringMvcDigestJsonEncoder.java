@@ -68,9 +68,6 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
         //请求方法
         jsonStringBuilder.append(CommonSpanTags.METHOD, tagWithStr.get(CommonSpanTags.METHOD));
 
-        //Http 状态码
-        jsonStringBuilder.append(CommonSpanTags.RESULT_CODE,
-            tagWithStr.get(CommonSpanTags.RESULT_CODE));
         //异常信息
         if (StringUtils.isNotBlank(tagWithStr.get(Tags.ERROR.getKey()))) {
             jsonStringBuilder.append(Tags.ERROR.getKey(), tagWithStr.get(Tags.ERROR.getKey()));
