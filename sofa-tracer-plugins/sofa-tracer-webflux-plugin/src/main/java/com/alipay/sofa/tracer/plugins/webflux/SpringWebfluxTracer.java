@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.plugins.springmvc;
+package com.alipay.sofa.tracer.plugins.webflux;
 
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
@@ -23,67 +23,57 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractServerTracer;
 
 /**
- * SpringMvcTracer
+ * webflux tracer
  *
- * @author yangguanchao
- * @since 2018/04/30
+ * @author @author xiang.sheng
+ * @since 3.0.0
  */
-public class SpringMvcTracer extends AbstractServerTracer {
-
-    public static final String              SPRING_MVC_JSON_FORMAT_OUTPUT = "spring_mvc_json_format_output";
-
-    private volatile static SpringMvcTracer springMvcTracer               = null;
+public class SpringWebfluxTracer extends AbstractServerTracer {
+    public static final String                  SPRING_WEBFLUX_JSON_FORMAT_OUTPUT = "spring_webflux_json_format_output";
+    private volatile static SpringWebfluxTracer springWebfluxTracer               = null;
 
     /***
      * Spring MVC Tracer Singleton
      * @return singleton
      */
-    public static SpringMvcTracer getSpringMvcTracerSingleton() {
-        if (springMvcTracer == null) {
-            synchronized (SpringMvcTracer.class) {
-                if (springMvcTracer == null) {
-                    springMvcTracer = new SpringMvcTracer();
+    public static SpringWebfluxTracer getSpringWebfluxTracerSingleton() {
+        if (springWebfluxTracer == null) {
+            synchronized (SpringWebfluxTracer.class) {
+                if (springWebfluxTracer == null) {
+                    springWebfluxTracer = new SpringWebfluxTracer();
                 }
             }
         }
-        return springMvcTracer;
+        return springWebfluxTracer;
     }
 
-    private SpringMvcTracer() {
-        super("springmvc");
-    }
-
-    protected SpringMvcTracer(String name) {
-        super(name);
+    private SpringWebfluxTracer() {
+        super("springwebflux");
     }
 
     @Override
     protected String getServerDigestReporterLogName() {
-        return SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName();
+        return SpringWebFluxLogEnum.SPRING_WEBFLUX_DIGEST.getDefaultLogName();
     }
 
     @Override
     protected String getServerDigestReporterRollingKey() {
-        return SpringMvcLogEnum.SPRING_MVC_DIGEST.getRollingKey();
+        return SpringWebFluxLogEnum.SPRING_WEBFLUX_DIGEST.getRollingKey();
     }
 
     @Override
     protected String getServerDigestReporterLogNameKey() {
-        return SpringMvcLogEnum.SPRING_MVC_DIGEST.getLogNameKey();
+        return SpringWebFluxLogEnum.SPRING_WEBFLUX_DIGEST.getLogNameKey();
     }
 
     @Override
     protected SpanEncoder<SofaTracerSpan> getServerDigestEncoder() {
         if (Boolean.TRUE.toString().equalsIgnoreCase(
             SofaTracerConfiguration.getProperty(jsonPropertyName()))) {
-            return new SpringMvcDigestJsonEncoder();
+            return new SpringWebfluxJsonEncoder();
         } else {
-            return new SpringMvcDigestEncoder();
+            return new SpringWebfluxDigestEncoder();
         }
-    }
-
-    protected String jsonPropertyName() {
-        return SPRING_MVC_JSON_FORMAT_OUTPUT;
     }
 
     @Override
@@ -91,18 +81,24 @@ public class SpringMvcTracer extends AbstractServerTracer {
         return generateSofaMvcStatReporter();
     }
 
-    protected SpringMvcStatReporter generateSofaMvcStatReporter() {
-        SpringMvcLogEnum springMvcLogEnum = SpringMvcLogEnum.SPRING_MVC_STAT;
-        String statLog = springMvcLogEnum.getDefaultLogName();
-        String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(springMvcLogEnum
+    protected String jsonPropertyName() {
+        return SPRING_WEBFLUX_JSON_FORMAT_OUTPUT;
+    }
+
+    @SuppressWarnings("Duplicates")
+    protected SpringWebfluxStatReporter generateSofaMvcStatReporter() {
+        SpringWebFluxLogEnum springWebFluxLogEnum = SpringWebFluxLogEnum.SPRING_WEBFLUX_STAT;
+        String statLog = springWebFluxLogEnum.getDefaultLogName();
+        String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(springWebFluxLogEnum
             .getRollingKey());
-        String statLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(springMvcLogEnum
-            .getLogNameKey());
+        String statLogReserveConfig = SofaTracerConfiguration
+            .getLogReserveConfig(springWebFluxLogEnum.getLogNameKey());
         if (Boolean.TRUE.toString().equalsIgnoreCase(
             SofaTracerConfiguration.getProperty(jsonPropertyName()))) {
-            return new SpringMvcJsonStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
+            return new SpringWebfluxJsonStatReporter(statLog, statRollingPolicy,
+                statLogReserveConfig);
         } else {
-            return new SpringMvcStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
+            return new SpringWebfluxStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
         }
     }
 }

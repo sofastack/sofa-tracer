@@ -19,12 +19,12 @@ package com.alipay.sofa.tracer.plugins.webflux;
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import com.alipay.common.tracer.core.reactor.SofaTracerReactorTransformer;
 import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.tracer.AbstractTracer;
 import com.alipay.common.tracer.core.utils.StringUtils;
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcHeadersCarrier;
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,7 +38,7 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
 
 /**
  * @author qilong.zql
@@ -51,28 +51,59 @@ public class WebfluxSofaTracerFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        SpringMvcTracer springMvcTracer = SpringMvcTracer.getSpringMvcTracerSingleton();
-        SofaTracer tracer = springMvcTracer.getSofaTracer();
+        return chain.filter(exchange)
+                .transform(
+                        new SofaTracerReactorTransformer<>(
+                                () -> startSpan(exchange),
+                                (springMvcSpan, throwable) -> finishSpan(exchange, springMvcSpan, throwable)
+                        )
+                );
+    }
+
+    private void startSpan(ServerWebExchange exchange) {
+        SpringWebfluxTracer springWebfluxTracer = SpringWebfluxTracer
+            .getSpringWebfluxTracerSingleton();
+        SofaTracer tracer = springWebfluxTracer.getSofaTracer();
 
         SofaTraceableRequest request = new ServerWebExchangeSofaTraceableRequest(exchange);
         SofaTracerSpanContext spanContext = (SofaTracerSpanContext) tracer.extract(
-                ExtendFormat.Builtin.B3_HTTP_HEADERS, new SpringMvcHeadersCarrier(new HashMap<>(request.getHeaders().toSingleValueMap())));
-        spanContext.setSpanId(spanContext.nextChildContextId());
+            ExtendFormat.Builtin.B3_HTTP_HEADERS, new SpringWebfluxHeadersCarrier(new HashMap<>(
+                request.getHeaders().toSingleValueMap())));
 
-        SofaTracerSpan springMvcSpan = springMvcTracer.serverReceive(spanContext);
+        /**
+         * try to unpack span context from http request headers,
+         *
+         * if the span id is not zero, it means we are down stream of an existed span,
+         * keep it and treat it as parent
+         *
+         * if the span id is 0, it means we create an new tracer span,
+         * we should ignore it, to make {@link AbstractTracer#serverReceive(SofaTracerSpanContext)} work normally
+         *
+         * @see AbstractTracer#serverReceive(SofaTracerSpanContext)
+         */
+        if (spanContext == null || spanContext.getSpanId().equalsIgnoreCase("0")) {
+            spanContext = null;
+        }
+
+        SofaTracerSpan springMvcSpan = springWebfluxTracer.serverReceive(spanContext);
         springMvcSpan.setOperationName(request.getUri().getPath());
         springMvcSpan.setTag(CommonSpanTags.LOCAL_APP, this.appName);
         springMvcSpan.setTag(CommonSpanTags.REMOTE_APP, request.getRemoteAddress());
         springMvcSpan.setTag(CommonSpanTags.REQUEST_URL, request.getUri().toString());
         springMvcSpan.setTag(CommonSpanTags.METHOD, request.getMethod());
         springMvcSpan.setTag(CommonSpanTags.REQ_SIZE, request.getHeaders().getContentLength());
+    }
 
-        return chain.filter(exchange).doAfterSuccessOrError(((aVoid, throwable) -> {
-            SofaTraceableResponse response = new ServerWebExchangeSofaTraceableResponse(
-                    throwable != null ? new SofaStatusResponseDecorator(throwable, exchange.getResponse()) : exchange.getResponse());
-            springMvcSpan.setTag(CommonSpanTags.RESP_SIZE, response.getHeaders().getContentLength());
-            springMvcTracer.serverSend(String.valueOf(response.getStatus()));
-        }));
+    private Void finishSpan(ServerWebExchange exchange, SofaTracerSpan springMvcSpan,
+                            Throwable throwable) {
+        SpringWebfluxTracer springMvcTracer = SpringWebfluxTracer.getSpringWebfluxTracerSingleton();
+        SofaTraceableResponse response = new ServerWebExchangeSofaTraceableResponse(
+            throwable != null ? new SofaStatusResponseDecorator(throwable, exchange.getResponse())
+                : exchange.getResponse());
+        springMvcSpan.setTag(CommonSpanTags.RESP_SIZE, response.getHeaders().getContentLength());
+        springMvcTracer.serverSend(String.valueOf(response.getStatus()));
+
+        return null;
     }
 
     static class SofaStatusResponseDecorator extends ServerHttpResponseDecorator {

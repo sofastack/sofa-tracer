@@ -24,7 +24,7 @@ package com.alipay.sofa.tracer.boot.springmvc;
 import com.alipay.sofa.tracer.boot.TestUtil;
 import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
 import com.alipay.sofa.tracer.boot.base.SpringBootWebApplication;
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcLogEnum;
+import com.alipay.sofa.tracer.plugins.webflux.SpringWebFluxLogEnum;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +41,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SpringBootWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
+                                                                                                                                    "spring.application.name=test",
                                                                                                                                     "spring.main.web-application-type=reactive",
                                                                                                                                     "com.alipay.sofa.tracer.springmvc.jsonOutput=true" })
 public class WebFluxTracerTest extends AbstractTestBase {
@@ -61,7 +62,7 @@ public class WebFluxTracerTest extends AbstractTestBase {
 
         //wait for async output
         List<String> contents = FileUtils
-            .readLines(customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName()));
+            .readLines(customFileLog(SpringWebFluxLogEnum.SPRING_WEBFLUX_DIGEST.getDefaultLogName()));
         assertTrue(contents.size() == 1);
     }
 
