@@ -35,9 +35,6 @@ import java.util.Map;
  */
 public class SpringWebfluxJsonStatReporter extends SpringWebfluxStatReporter {
 
-    /***
-     * 输出拼接器
-     */
     private static JsonStringBuilder jsonBuffer = new JsonStringBuilder();
 
     public SpringWebfluxJsonStatReporter(String statTracerName, String rollingPolicy,
@@ -52,17 +49,12 @@ public class SpringWebfluxJsonStatReporter extends SpringWebfluxStatReporter {
         statKey.addKey(CommonSpanTags.LOCAL_APP, tagsWithStr.get(CommonSpanTags.LOCAL_APP));
         statKey.addKey(CommonSpanTags.REQUEST_URL, tagsWithStr.get(CommonSpanTags.REQUEST_URL));
         statKey.addKey(CommonSpanTags.METHOD, tagsWithStr.get(CommonSpanTags.METHOD));
-        //pressure mark
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
-        //success
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
         boolean success = (resultCode != null && resultCode.length() > 0 && this
             .isHttpOrMvcSuccess(resultCode));
         statKey.setResult(success ? "true" : "false");
-        //end
         statKey.setEnd(TracerUtils.getLoadTestMark(sofaTracerSpan));
-        //value
-        //次数和耗时，最后一个耗时是单独打印的字段
         long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
         long values[] = new long[] { 1, duration };
         //reserve
@@ -72,7 +64,6 @@ public class SpringWebfluxJsonStatReporter extends SpringWebfluxStatReporter {
     @Override
     public void print(StatKey statKey, long[] values) {
         if (this.isClosePrint.get()) {
-            //关闭统计日志输出
             return;
         }
         if (!(statKey instanceof StatMapKey)) {
@@ -87,7 +78,6 @@ public class SpringWebfluxJsonStatReporter extends SpringWebfluxStatReporter {
             jsonBuffer.append("count", values[0]);
             jsonBuffer.append("total.cost.milliseconds", values[1]);
             jsonBuffer.append("success", statMapKey.getResult());
-            //压测
             jsonBuffer.appendEnd("load.test", statMapKey.getEnd());
 
             if (appender instanceof LoadTestAwareAppender) {
@@ -96,10 +86,9 @@ public class SpringWebfluxJsonStatReporter extends SpringWebfluxStatReporter {
             } else {
                 appender.append(jsonBuffer.toString());
             }
-            // 这里强制刷一次
             appender.flush();
         } catch (Throwable t) {
-            SelfLog.error("统计日志<" + statTracerName + ">输出异常", t);
+            SelfLog.error("Stat log <" + statTracerName + "> error!", t);
         }
     }
 
