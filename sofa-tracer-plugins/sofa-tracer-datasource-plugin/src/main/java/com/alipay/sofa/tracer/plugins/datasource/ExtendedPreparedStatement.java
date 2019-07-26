@@ -77,11 +77,7 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
         try {
             return (ResultSet) chain.proceed();
         } catch (Exception e) {
-            if (e instanceof SQLException) {
-                throw (SQLException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+            throw handleException(e);
         }
     }
 
@@ -92,11 +88,7 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
         try {
             return (Integer) chain.proceed();
         } catch (Exception e) {
-            if (e instanceof SQLException) {
-                throw (SQLException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+            throw handleException(e);
         }
     }
 
@@ -107,11 +99,7 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
         try {
             return (int[]) chain.proceed();
         } catch (Exception e) {
-            if (e instanceof SQLException) {
-                throw (SQLException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+            throw handleException(e);
         }
     }
 
@@ -122,11 +110,7 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
         try {
             return (Boolean) chain.proceed();
         } catch (Exception e) {
-            if (e instanceof SQLException) {
-                throw (SQLException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+            throw handleException(e);
         }
     }
 
