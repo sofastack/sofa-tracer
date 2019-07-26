@@ -30,10 +30,16 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboConsumerSofaTracer;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboProviderSofaTracer;
 import io.opentracing.tag.Tags;
-import org.apache.dubbo.common.Constants;
+import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.remoting.TimeoutException;
-import org.apache.dubbo.rpc.*;
+import org.apache.dubbo.rpc.Constants;
+import org.apache.dubbo.rpc.Filter;
+import org.apache.dubbo.rpc.Invocation;
+import org.apache.dubbo.rpc.Invoker;
+import org.apache.dubbo.rpc.Result;
+import org.apache.dubbo.rpc.RpcContext;
+import org.apache.dubbo.rpc.RpcException;
 import org.apache.dubbo.rpc.support.RpcUtils;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/2/26 2:02 PM
  * @since: 2.3.4
  **/
-@Activate(group = { Constants.PROVIDER, Constants.CONSUMER }, value = "dubboSofaTracerFilter", order = 1)
+@Activate(group = { CommonConstants.PROVIDER, CommonConstants.CONSUMER }, value = "dubboSofaTracerFilter", order = 1)
 public class DubboSofaTracerFilter implements Filter {
 
     private String                             appName         = StringUtils.EMPTY_STRING;
@@ -361,7 +367,7 @@ public class DubboSofaTracerFilter implements Filter {
         tagsStr.put(CommonSpanTags.SERVICE, service == null ? BLANK : service);
         String methodName = rpcContext.getMethodName();
         tagsStr.put(CommonSpanTags.METHOD, methodName == null ? BLANK : methodName);
-        String app = rpcContext.getUrl().getParameter(Constants.APPLICATION_KEY);
+        String app = rpcContext.getUrl().getParameter(CommonConstants.APPLICATION_KEY);
         tagsStr.put(CommonSpanTags.REMOTE_HOST, rpcContext.getRemoteHost());
         tagsStr.put(CommonSpanTags.LOCAL_APP, app == null ? BLANK : app);
         tagsStr.put(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread().getName());
@@ -385,7 +391,7 @@ public class DubboSofaTracerFilter implements Filter {
         String methodName = rpcContext.getMethodName();
         tagsStr.put(CommonSpanTags.METHOD, methodName == null ? BLANK : methodName);
         tagsStr.put(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread().getName());
-        String app = rpcContext.getUrl().getParameter(Constants.APPLICATION_KEY);
+        String app = rpcContext.getUrl().getParameter(CommonConstants.APPLICATION_KEY);
         tagsStr.put(CommonSpanTags.LOCAL_APP, app == null ? BLANK : app);
         tagsStr.put(CommonSpanTags.REMOTE_HOST, rpcContext.getRemoteHost());
         tagsStr.put(CommonSpanTags.REMOTE_PORT, String.valueOf(rpcContext.getRemotePort()));

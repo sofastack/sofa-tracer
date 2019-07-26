@@ -17,14 +17,14 @@
 package com.alipay.sofa.tracer.plugins.dubbo.wrapper;
 
 import com.alipay.common.tracer.core.span.CommonSpanTags;
-import org.apache.dubbo.common.Constants;
 import org.apache.dubbo.remoting.Channel;
 import org.apache.dubbo.remoting.Codec2;
 import org.apache.dubbo.remoting.buffer.ChannelBuffer;
 import org.apache.dubbo.remoting.exchange.Request;
 import org.apache.dubbo.remoting.exchange.Response;
+import org.apache.dubbo.rpc.AppResponse;
+import org.apache.dubbo.rpc.Constants;
 import org.apache.dubbo.rpc.RpcInvocation;
-import org.apache.dubbo.rpc.RpcResult;
 import java.io.IOException;
 
 /**
@@ -52,8 +52,8 @@ public class DataSizeCodecWrapper implements Codec2 {
             }
         } else if (message instanceof Response) {
             Object result = ((Response) message).getResult();
-            if (result instanceof RpcResult) {
-                RpcResult rpcResult = (RpcResult) result;
+            if (result instanceof AppResponse) {
+                AppResponse rpcResult = (AppResponse) result;
                 encodeResultWithTracer(channel, buffer, message, rpcResult);
                 return;
             }
@@ -88,7 +88,7 @@ public class DataSizeCodecWrapper implements Codec2 {
      * @throws IOException  serialization exception
      */
     protected void encodeResultWithTracer(Channel channel, ChannelBuffer buffer, Object result,
-                                          RpcResult rpcResult) throws IOException {
+                                          AppResponse rpcResult) throws IOException {
 
         long startTime = System.currentTimeMillis();
         int index = buffer.writerIndex();
@@ -126,8 +126,8 @@ public class DataSizeCodecWrapper implements Codec2 {
         } else if (ret instanceof Response) {
             // client-side deserialize the Response
             Object result = ((Response) ret).getResult();
-            if (result instanceof RpcResult) {
-                RpcResult rpcResult = (RpcResult) result;
+            if (result instanceof AppResponse) {
+                AppResponse rpcResult = (AppResponse) result;
                 rpcResult.setAttachment(Constants.OUTPUT_KEY, String.valueOf(size));
                 rpcResult.setAttachment(CommonSpanTags.CLIENT_DESERIALIZE_TIME,
                     String.valueOf(elapsed));
