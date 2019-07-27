@@ -319,38 +319,27 @@ public class DubboSofaTracerFilter implements Filter {
         String elapsed;
         String deElapsed;
         if (isClient) {
-            // 请求的序列化时间和大小
             reqSize = invocation.getAttachment(AttachmentKeyConstants.CLIENT_SERIALIZE_SIZE);
             elapsed = invocation.getAttachment(AttachmentKeyConstants.CLIENT_SERIALIZE_TIME);
-            //响应的反序列化时间和大小
             respSize = result.getAttachment(AttachmentKeyConstants.CLIENT_DESERIALIZE_SIZE);
             deElapsed = result.getAttachment(AttachmentKeyConstants.CLIENT_DESERIALIZE_TIME);
-
             sofaTracerSpan.setTag(AttachmentKeyConstants.CLIENT_SERIALIZE_TIME,
                 parseAttachment(elapsed, 0));
             sofaTracerSpan.setTag(AttachmentKeyConstants.CLIENT_DESERIALIZE_TIME,
                 parseAttachment(deElapsed, 0));
-
             sofaTracerSpan.setTag(AttachmentKeyConstants.CLIENT_SERIALIZE_SIZE,
                 parseAttachment(reqSize, 0));
             sofaTracerSpan.setTag(AttachmentKeyConstants.CLIENT_DESERIALIZE_SIZE,
                 parseAttachment(respSize, 0));
-
         } else {
-
-            // 请求的反序列化时间和大小
             reqSize = invocation.getAttachment(AttachmentKeyConstants.SERVER_DESERIALIZE_SIZE);
             deElapsed = invocation.getAttachment(AttachmentKeyConstants.SERVER_DESERIALIZE_TIME);
-
-            // 响应的序列化时间和大小
             respSize = result.getAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_SIZE);
             elapsed = result.getAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_TIME);
-
             sofaTracerSpan.setTag(AttachmentKeyConstants.SERVER_DESERIALIZE_SIZE,
                 parseAttachment(reqSize, 0));
             sofaTracerSpan.setTag(AttachmentKeyConstants.SERVER_DESERIALIZE_TIME,
                 parseAttachment(deElapsed, 0));
-
             sofaTracerSpan.setTag(AttachmentKeyConstants.SERVER_SERIALIZE_SIZE,
                 parseAttachment(respSize, 0));
             sofaTracerSpan.setTag(AttachmentKeyConstants.SERVER_SERIALIZE_TIME,
