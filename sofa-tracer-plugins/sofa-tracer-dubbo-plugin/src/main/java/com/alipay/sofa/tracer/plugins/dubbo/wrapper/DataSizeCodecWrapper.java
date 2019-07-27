@@ -16,14 +16,13 @@
  */
 package com.alipay.sofa.tracer.plugins.dubbo.wrapper;
 
-import com.alipay.common.tracer.core.span.CommonSpanTags;
+import com.alipay.sofa.tracer.plugins.dubbo.constants.AttachmentKeyConstants;
 import org.apache.dubbo.remoting.Channel;
 import org.apache.dubbo.remoting.Codec2;
 import org.apache.dubbo.remoting.buffer.ChannelBuffer;
 import org.apache.dubbo.remoting.exchange.Request;
 import org.apache.dubbo.remoting.exchange.Response;
 import org.apache.dubbo.rpc.AppResponse;
-import org.apache.dubbo.rpc.Constants;
 import org.apache.dubbo.rpc.RpcInvocation;
 import java.io.IOException;
 
@@ -51,10 +50,9 @@ public class DataSizeCodecWrapper implements Codec2 {
                 return;
             }
         } else if (message instanceof Response) {
-            Object result = ((Response) message).getResult();
-            if (result instanceof AppResponse) {
-                AppResponse rpcResult = (AppResponse) result;
-                encodeResultWithTracer(channel, buffer, message, rpcResult);
+            Object response = ((Response) message).getResult();
+            if (response instanceof AppResponse) {
+                encodeResultWithTracer(channel, buffer, response);
                 return;
             }
         }
@@ -76,27 +74,32 @@ public class DataSizeCodecWrapper implements Codec2 {
         codec.encode(channel, buffer, message);
         int reqSize = buffer.writerIndex() - index;
         long elapsed = System.currentTimeMillis() - startTime;
-        invocation.setAttachment(Constants.INPUT_KEY, String.valueOf(reqSize));
-        invocation.setAttachment(CommonSpanTags.CLIENT_SERIALIZE_TIME, String.valueOf(elapsed));
+        invocation.setAttachment(AttachmentKeyConstants.CLIENT_SERIALIZE_SIZE,
+            String.valueOf(reqSize));
+        invocation.setAttachment(AttachmentKeyConstants.CLIENT_SERIALIZE_TIME,
+            String.valueOf(elapsed));
     }
 
     /**
      * @param channel       a long connection
      * @param buffer        buffer
      * @param result        the original Request object
-     * @param rpcResult     result of Response
      * @throws IOException  serialization exception
      */
-    protected void encodeResultWithTracer(Channel channel, ChannelBuffer buffer, Object result,
-                                          AppResponse rpcResult) throws IOException {
-
-        long startTime = System.currentTimeMillis();
-        int index = buffer.writerIndex();
-        codec.encode(channel, buffer, result);
-        int respSize = buffer.writerIndex() - index;
-        long elapsed = System.currentTimeMillis() - startTime;
-        rpcResult.setAttachment(Constants.OUTPUT_KEY, String.valueOf(respSize));
-        rpcResult.setAttachment(CommonSpanTags.SERVER_SERIALIZE_TIME, String.valueOf(elapsed));
+    protected void encodeResultWithTracer(Channel channel, ChannelBuffer buffer, Object result)
+                                                                                               throws IOException {
+        Object response = ((Response) result).getResult();
+        if (response instanceof AppResponse) {
+            long startTime = System.currentTimeMillis();
+            int index = buffer.writerIndex();
+            codec.encode(channel, buffer, result);
+            int respSize = buffer.writerIndex() - index;
+            long elapsed = System.currentTimeMillis() - startTime;
+            ((AppResponse) response).setAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_SIZE,
+                String.valueOf(respSize));
+            ((AppResponse) response).setAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_TIME,
+                String.valueOf(elapsed));
+        }
     }
 
     /**
@@ -118,18 +121,19 @@ public class DataSizeCodecWrapper implements Codec2 {
             Object data = ((Request) ret).getData();
             if (data instanceof RpcInvocation) {
                 RpcInvocation invocation = (RpcInvocation) data;
-                invocation.setAttachment(Constants.INPUT_KEY, String.valueOf(size));
-                invocation.setAttachment(CommonSpanTags.SERVER_DESERIALIZE_TIME,
+                invocation.setAttachment(AttachmentKeyConstants.SERVER_DESERIALIZE_SIZE,
+                    String.valueOf(size));
+                invocation.setAttachment(AttachmentKeyConstants.SERVER_DESERIALIZE_TIME,
                     String.valueOf(elapsed));
             }
-
         } else if (ret instanceof Response) {
             // client-side deserialize the Response
             Object result = ((Response) ret).getResult();
             if (result instanceof AppResponse) {
                 AppResponse rpcResult = (AppResponse) result;
-                rpcResult.setAttachment(Constants.OUTPUT_KEY, String.valueOf(size));
-                rpcResult.setAttachment(CommonSpanTags.CLIENT_DESERIALIZE_TIME,
+                rpcResult.setAttachment(AttachmentKeyConstants.CLIENT_DESERIALIZE_SIZE,
+                    String.valueOf(size));
+                rpcResult.setAttachment(AttachmentKeyConstants.CLIENT_DESERIALIZE_TIME,
                     String.valueOf(elapsed));
             }
         }
