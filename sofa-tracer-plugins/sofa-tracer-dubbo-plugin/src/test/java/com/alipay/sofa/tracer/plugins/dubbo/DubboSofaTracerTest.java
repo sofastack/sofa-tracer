@@ -18,6 +18,7 @@ package com.alipay.sofa.tracer.plugins.dubbo;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.sofa.tracer.plugins.dubbo.enums.DubboLogEnum;
 import com.alipay.sofa.tracer.plugins.dubbo.impl.DubboServiceImpl;
@@ -25,6 +26,7 @@ import com.alipay.sofa.tracer.plugins.dubbo.service.DubboService;
 import org.apache.commons.io.FileUtils;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.config.*;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +47,7 @@ public class DubboSofaTracerTest {
     @Before
     public void testBefore() throws Exception {
         cleanFile();
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL, "1");
         // application
         ApplicationConfig application = new ApplicationConfig();
         application.setName("test-server");
@@ -73,6 +76,11 @@ public class DubboSofaTracerTest {
         List<URL> exportedUrls = service.getExportedUrls();
         Assert.assertTrue(exportedUrls.size() == 1);
         address = exportedUrls.get(0).toString();
+    }
+
+    @After
+    public void after() {
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL, "");
     }
 
     @Test
@@ -123,7 +131,7 @@ public class DubboSofaTracerTest {
         Assert.assertEquals(clientJson.getString(CommonSpanTags.PROTOCOL), "dubbo");
         Assert.assertEquals(clientJson.getString("span.kind"), "client");
 
-        Thread.sleep(60 * 1000);
+        Thread.sleep(500);
 
         //wait for async output
         List<String> clientStatContents = FileUtils

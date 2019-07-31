@@ -52,7 +52,7 @@ public class DataSizeCodecWrapper implements Codec2 {
         } else if (message instanceof Response) {
             Object response = ((Response) message).getResult();
             if (response instanceof AppResponse) {
-                encodeResultWithTracer(channel, buffer, response);
+                encodeResultWithTracer(channel, buffer, message);
                 return;
             }
         }
@@ -83,23 +83,21 @@ public class DataSizeCodecWrapper implements Codec2 {
     /**
      * @param channel       a long connection
      * @param buffer        buffer
-     * @param result        the original Request object
+     * @param message        the original Request object
      * @throws IOException  serialization exception
      */
-    protected void encodeResultWithTracer(Channel channel, ChannelBuffer buffer, Object result)
-                                                                                               throws IOException {
-        Object response = ((Response) result).getResult();
-        if (response instanceof AppResponse) {
-            long startTime = System.currentTimeMillis();
-            int index = buffer.writerIndex();
-            codec.encode(channel, buffer, result);
-            int respSize = buffer.writerIndex() - index;
-            long elapsed = System.currentTimeMillis() - startTime;
-            ((AppResponse) response).setAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_SIZE,
-                String.valueOf(respSize));
-            ((AppResponse) response).setAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_TIME,
-                String.valueOf(elapsed));
-        }
+    protected void encodeResultWithTracer(Channel channel, ChannelBuffer buffer, Object message)
+                                                                                                throws IOException {
+        Object result = ((Response) message).getResult();
+        long startTime = System.currentTimeMillis();
+        int index = buffer.writerIndex();
+        codec.encode(channel, buffer, message);
+        int respSize = buffer.writerIndex() - index;
+        long elapsed = System.currentTimeMillis() - startTime;
+        ((AppResponse) result).setAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_SIZE,
+            String.valueOf(respSize));
+        ((AppResponse) result).setAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_TIME,
+            String.valueOf(elapsed));
     }
 
     /**
