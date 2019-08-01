@@ -272,8 +272,7 @@ public class DubboSofaTracerFilter implements Filter {
     }
 
     private SofaTracerSpan serverReceived(Invocation invocation) {
-        Map<String, String> tags = new HashMap<String, String>();
-        //server tags 必须设置
+        Map<String, String> tags = new HashMap<>();
         tags.put(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
         String serializeSpanContext = invocation.getAttachments()
             .get(CommonSpanTags.RPC_TRACE_NAME);
@@ -301,7 +300,6 @@ public class DubboSofaTracerFilter implements Filter {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         // Record server receive event
         serverSpan.log(LogData.SERVER_RECV_EVENT_VALUE);
-        // 放到线程上下文
         sofaTraceContext.push(serverSpan);
         return serverSpan;
     }
