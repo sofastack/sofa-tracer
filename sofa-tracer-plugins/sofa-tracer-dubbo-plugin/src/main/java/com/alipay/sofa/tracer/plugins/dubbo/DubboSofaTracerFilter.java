@@ -203,7 +203,7 @@ public class DubboSofaTracerFilter implements Filter {
                     // Record client send event
                     sofaTracerSpan.log(LogData.CLIENT_SEND_EVENT_VALUE);
                 }
-                // 将当前 span 缓存
+                // cache the current span
                 TracerSpanMap.put(getTracerSpanMapKey(invoker), sofaTracerSpan);
                 if (clientSpan != null && clientSpan.getParentSofaTracerSpan() != null) {
                     //restore parent
