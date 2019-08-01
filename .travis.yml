@@ -12,4 +12,4 @@ script:
 - sh ./check_format.sh
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -t f47e7712-7c14-4489-9b1f-e9586f5248c7
+  - bash <(curl -s https://codecov.io/bash)
