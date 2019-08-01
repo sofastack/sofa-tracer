@@ -34,7 +34,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
- * @author qilong.zql 18/8/27-上午9:23
+ * @author qilong.zql 18/8/27-AM 9:23
  */
 public class DruidTest extends BaseTest {
 

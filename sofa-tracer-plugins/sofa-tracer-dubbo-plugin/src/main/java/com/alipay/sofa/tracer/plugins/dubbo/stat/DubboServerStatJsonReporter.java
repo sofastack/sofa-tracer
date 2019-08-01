@@ -82,7 +82,7 @@ public class DubboServerStatJsonReporter extends AbstractSofaTracerStatisticRepo
     @Override
     public void print(StatKey statKey, long[] values) {
         if (this.isClosePrint.get()) {
-            //关闭统计日志输出
+            //Close the statistics log output
             return;
         }
 
@@ -102,7 +102,7 @@ public class DubboServerStatJsonReporter extends AbstractSofaTracerStatisticRepo
             } else {
                 appender.append(jsonBuffer.toString());
             }
-            // 这里强制刷一次
+            // Forced to flush
             appender.flush();
         } catch (Throwable t) {
             SelfLog.error("stat log <" + statTracerName + "> error!", t);
