@@ -40,6 +40,8 @@ public class SofaTracerStatisticsDemoTest extends AbstractTestBase {
 
     @Before
     public void beforeTest() throws Exception {
+        // wait stat cycle clean > 1000s(default)
+        Thread.sleep(1100);
         File f = customFileLog(TracerTestLogEnum.RPC_SERVER_DIGEST.getDefaultLogName());
         if (f.exists()) {
             FileUtils.writeStringToFile(f, "");
