@@ -38,14 +38,14 @@ public class DubboServerDigestJsonEncoder extends AbstractDigestSpanEncoder {
     public String encode(SofaTracerSpan sofaTracerSpan) throws IOException {
         JsonStringBuilder data = new JsonStringBuilder();
         //span end time
-        data.appendBegin("time", Timestamp.format(sofaTracerSpan.getEndTime()));
+        data.appendBegin(CommonSpanTags.TIME, Timestamp.format(sofaTracerSpan.getEndTime()));
         Map<String, String> tagStr = sofaTracerSpan.getTagsWithStr();
         Map<String, Number> tagNum = sofaTracerSpan.getTagsWithNumber();
         SofaTracerSpanContext context = sofaTracerSpan.getSofaTracerSpanContext();
         //TraceId
-        data.append("traceId", context.getTraceId());
+        data.append(CommonSpanTags.TRACE_ID, context.getTraceId());
         //SpanId
-        data.append("spanId", context.getSpanId());
+        data.append(CommonSpanTags.SPAN_ID, context.getSpanId());
         //Span Type
         data.append(Tags.SPAN_KIND.getKey(), tagStr.get(Tags.SPAN_KIND.getKey()));
         //local appName
@@ -74,7 +74,7 @@ public class DubboServerDigestJsonEncoder extends AbstractDigestSpanEncoder {
         data.append(CommonSpanTags.CURRENT_THREAD_NAME,
             tagStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
         //time-consuming ms
-        data.append("time.cost.milliseconds",
+        data.append(CommonSpanTags.TIME_COST_MILLISECONDS,
             (sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()));
         this.appendBaggage(data, context);
         return data.toString();
@@ -90,6 +90,7 @@ public class DubboServerDigestJsonEncoder extends AbstractDigestSpanEncoder {
     private void appendBaggage(JsonStringBuilder jsonStringBuilder,
                                SofaTracerSpanContext sofaTracerSpanContext) {
         //baggage
-        jsonStringBuilder.appendEnd("baggage", baggageSerialized(sofaTracerSpanContext));
+        jsonStringBuilder.appendEnd(CommonSpanTags.BAGGAGE,
+            baggageSerialized(sofaTracerSpanContext));
     }
 }

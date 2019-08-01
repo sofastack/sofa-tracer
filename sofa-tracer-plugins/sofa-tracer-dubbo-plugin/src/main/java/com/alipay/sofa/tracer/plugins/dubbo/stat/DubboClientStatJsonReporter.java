@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.appender.self.Timestamp;
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.reporter.stat.model.StatMapKey;
@@ -58,14 +59,15 @@ public class DubboClientStatJsonReporter extends AbstractSofaTracerStatisticRepo
         String methodName = tagsWithStr.get(CommonSpanTags.METHOD);
         statKey.setKey(buildString(new String[] { fromApp, toApp, serviceName, methodName }));
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
-        statKey.setResult(resultCode.equals("00") ? "Y" : "N");
+        statKey
+            .setResult(SofaTracerConstant.RESULT_CODE_SUCCESS.equals(resultCode) ? SofaTracerConstant.STAT_FLAG_SUCCESS
+                : SofaTracerConstant.STAT_FLAG_FAILS);
         statKey.setEnd(buildString(new String[] { getLoadTestMark(sofaTracerSpan) }));
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
         statKey.addKey(CommonSpanTags.LOCAL_APP, fromApp);
         statKey.addKey(CommonSpanTags.REMOTE_APP, toApp);
         statKey.addKey(CommonSpanTags.SERVICE, serviceName);
         statKey.addKey(CommonSpanTags.METHOD, methodName);
-        //次数和耗时，最后一个耗时是单独打印的字段
         long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
         long[] values = new long[] { 1, duration };
         this.addStat(statKey, values);
@@ -82,18 +84,18 @@ public class DubboClientStatJsonReporter extends AbstractSofaTracerStatisticRepo
     @Override
     public void print(StatKey statKey, long[] values) {
         if (this.isClosePrint.get()) {
-            //关闭统计日志输出
+            //Close the statistics log output
             return;
         }
 
         StatMapKey statMapKey = (StatMapKey) statKey;
 
         jsonBuffer.reset();
-        jsonBuffer.appendBegin("time", Timestamp.currentTime());
-        jsonBuffer.append("stat.key", this.statKeySplit(statMapKey));
-        jsonBuffer.append("count", values[0]);
-        jsonBuffer.append("total.cost.milliseconds", values[1]);
-        jsonBuffer.append("success", statMapKey.getResult());
+        jsonBuffer.appendBegin(CommonSpanTags.TIME, Timestamp.currentTime());
+        jsonBuffer.append(CommonSpanTags.STAT_KEY, this.statKeySplit(statMapKey));
+        jsonBuffer.append(CommonSpanTags.COUNT, values[0]);
+        jsonBuffer.append(CommonSpanTags.TIME_COST_MILLISECONDS, values[1]);
+        jsonBuffer.append(CommonSpanTags.SUCCESS, statMapKey.getResult());
         jsonBuffer.appendEnd();
         try {
             if (appender instanceof LoadTestAwareAppender) {
@@ -102,7 +104,7 @@ public class DubboClientStatJsonReporter extends AbstractSofaTracerStatisticRepo
             } else {
                 appender.append(jsonBuffer.toString());
             }
-            // 这里强制刷一次
+            // Forced to flush
             appender.flush();
         } catch (Throwable t) {
             SelfLog.error("stat log<" + statTracerName + "> error!", t);

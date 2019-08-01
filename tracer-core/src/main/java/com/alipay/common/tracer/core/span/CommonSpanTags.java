@@ -123,21 +123,53 @@ public class CommonSpanTags {
      */
     public static final String SERVER_DESERIALIZE_TIME          = "server.deserialize.time";
 
-    public static final String COMPONENT_CLIENT                 = "component.client.impl";
     /**
-     * HYSTRIX_COMMAND_KEY records the hystrix commandKey.
+     * SPAN_ID records the current span's id
      */
-    public static final String HYSTRIX_COMMAND_KEY              = "hystrix.command.key";
+    public static final String SPAN_ID                 = "spanId";
+
     /**
-     * HYSTRIX_COMMAND_GROUP_KEY records the hystrix commandGroup.
+     * TRACE_ID records the current span's traceId
      */
-    public static final String HYSTRIX_COMMAND_GROUP_KEY        = "hystrix.command.group";
+    public static final String TRACE_ID                = "traceId";
+
     /**
-     * HYSTRIX_THREAD_POOL_KEY records the hystrix threadPoolKey.
+     * BAGGAGE records the span's baggage
      */
-    public static final String HYSTRIX_THREAD_POOL_KEY          = "hystrix.threadpool.key";
+    public static final String BAGGAGE                 = "baggage";
+
     /**
-     * HYSTRIX_FALLBACK_METHOD_NAME_KEY records the hystrix fallbackMethodName.
+     * TIME records the current span's begin time
      */
-    public static final String HYSTRIX_FALLBACK_METHOD_NAME_KEY = "hystrix.fallback.methodname";
+    public static final String TIME                    = "time";
+
+    /**
+     * TIME_COST_MILLISECONDS records the current span's cost time
+     */
+    public static final String TIME_COST_MILLISECONDS  = "time.cost.milliseconds";
+
+    /**
+     * TOTAL_COST_MILLISECONDS records the span's cost time period
+     */
+    public static final String TOTAL_COST_MILLISECONDS = "total.cost.milliseconds";
+
+    /**
+     * STAT_KEY is the span's stat log key for stat.key
+     */
+    public static final String STAT_KEY                = "stat.key";
+
+    /**
+     * COUNT is the span's stat log key for count
+     */
+    public static final String COUNT                   = "count";
+
+    /**
+     * SUCCESS is the span's stat log key for success
+     */
+    public static final String SUCCESS                 = "success";
+
+    /**
+     * LOAD_TEST is the span's stat log key for load.test
+     */
+    public static final String LOAD_TEST               = "load.test";
 }
