@@ -17,14 +17,24 @@
 package com.alipay.common.tracer.core.configuration;
 
 /**
- * 外部配置类的接口，该接口由外部代码实现
+ * The interface of the external configuration class, which is implemented by external code
  * @author luoguimu123
- * @version $Id: SofaTracerExternalConfiguration.java, v 0.1 2017年10月11日 下午12:03 luoguimu123 Exp $
+ * @version $Id: SofaTracerExternalConfiguration.java, v 0.1 October 11, 2017 12:03 PM luoguimu123 Exp $
  */
 public interface SofaTracerExternalConfiguration {
 
+    /**
+     * get value by input key
+     * @param key
+     * @return
+     */
     String getValue(String key);
 
+    /**
+     * Whether the specified key exists
+     * @param key
+     * @return
+     */
     boolean contains(String key);
 
 }

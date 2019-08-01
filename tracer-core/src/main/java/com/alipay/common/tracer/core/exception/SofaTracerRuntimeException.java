@@ -32,6 +32,7 @@ public class SofaTracerRuntimeException extends RuntimeException {
         super(desc, t);
     }
 
+    @Override
     public String toString() {
         return super.getMessage();
     }

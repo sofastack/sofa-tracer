@@ -29,9 +29,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * CommonLogSpan
  *
- * 主要为了记录具体的顺序数据
+ * Mainly for recording specific sequential data
  *
- * 之所以要新创建一个对象，主要是为了区分 CommonLogSpan 和日常摘要等的打印
+ *
+ * The reason to create a new object is to distinguish between the printing of CommonLogSpan and daily digest.
  *
  * com.alipay.common.tracer.core.span.LogData#EVENT_COMMON_TYPE_VALUE
  *
@@ -42,14 +43,15 @@ public class CommonLogSpan extends SofaTracerSpan {
 
     private static final int MAX_SLOT_SIZE = 32;
 
-    /** 通用的槽位，需要打印的日志数据全部都放到这里面 */
+    /**
+     * The common slot, all the log data that needs to be printed are placed in it.
+     */
     private List<String>     slots         = new ArrayList<String>();
 
     private AtomicInteger    slotCounter   = new AtomicInteger(0);
 
     public CommonLogSpan(SofaTracer sofaTracer, long startTime, String operationName,
                          SofaTracerSpanContext sofaTracerSpanContext, Map<String, ?> tags) {
-        //SofaTracer 可以 mock 在 此中,因为打印是通过显示 report
         this(sofaTracer, startTime, null, operationName, sofaTracerSpanContext, tags);
     }
 
@@ -57,13 +59,12 @@ public class CommonLogSpan extends SofaTracerSpan {
                          List<SofaTracerSpanReferenceRelationship> spanReferences,
                          String operationName, SofaTracerSpanContext sofaTracerSpanContext,
                          Map<String, ?> tags) {
-        //SofaTracer 可以 mock 在 此中,因为打印是通过显示 report
         super(sofaTracer, startTime, spanReferences, operationName, sofaTracerSpanContext, tags);
     }
 
     /**
-     * 往 Slots 中增加一项需要打印的内容
-     * @param slot 槽位
+     * Add an item to Slots that needs to be printed
+     * @param slot
      */
     public void addSlot(String slot) {
         if (slot == null) {
@@ -73,21 +74,21 @@ public class CommonLogSpan extends SofaTracerSpan {
         if (slotCounter.incrementAndGet() <= MAX_SLOT_SIZE) {
             slots.add(slot);
         } else {
-            SelfLog.warn("槽位数量（" + MAX_SLOT_SIZE + "）已满");
+            SelfLog.warn("Slots count（" + MAX_SLOT_SIZE + "）Fully");
         }
     }
 
     /**
-     * 获取所有需要打印的内容
-     * @return 栏位列表
+     * Get all the content you need to print
+     * @return
      */
     public List<String> getSlots() {
         return slots;
     }
 
-    /***
-     * 添加 slot 列表
-     * @param stringArrayList slot 列表
+    /**
+     * Add slot list
+     * @param stringArrayList
      */
     public void addSlots(List<String> stringArrayList) {
         if (stringArrayList == null || stringArrayList.isEmpty()) {

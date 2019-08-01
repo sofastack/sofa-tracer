@@ -32,9 +32,9 @@ import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 对比 JDK6 下 {@link StringTokenizer#countTokens()} 和 {@link String#split(String)} 的性能.
+ * Compare the performance of {@link StringTokenizer#countTokens()} and {@link String#split(String)} under JDK6.
  * 
- * JDK 6, Mac OS 10.11.1, 性能数据如下:
+ * JDK 6, Mac OS 10.11.1, The performance data is as follows:
  *
  * <pre>
  * Benchmark                                Mode    Cnt     Score       Error   Units

@@ -29,31 +29,35 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * SofaTracerStatisticReporterManager
  * <p>
- * 固定时间周期的 Reporter，一个时钟周期对应一个实例,初始化之后就会启动周期
- *
+ * Reporter with a fixed time period, one clock cycle corresponds to one instance, and the cycle is started after initialization
+ * </p>
  * @author yangguanchao
  * @since  2017/06/26
  */
 public class SofaTracerStatisticReporterManager {
 
     /**
-     * 阈值，如果统计日志的数据(map格式)key个数超过该值，则清空map,非 final 为了可测性
+     * Threshold, if the number of keys in the stat log (map format) exceeds this value, the map is cleared, non-final for testability
      */
     public static int                                CLEAR_STAT_KEY_THRESHOLD = 5000;
 
     /**
-     * 默认输出周期 60 秒
+     * The default output period is 60 seconds.
      */
-    static public final long                         DEFAULT_CYCLE_SECONDS    = 60;
+    public static final long                         DEFAULT_CYCLE_SECONDS    = 60;
 
+    /**
+     * Thread count
+     */
     static final AtomicInteger                       THREAD_NUMBER            = new AtomicInteger(0);
-    /***
-     * 每一个固定周期调度都会有这样的一个实例
+
+    /**
+     * Every fixed-cycle schedule will have such an instance.
      */
     private Map<String, SofaTracerStatisticReporter> statReporters            = new ConcurrentHashMap<String, SofaTracerStatisticReporter>();
 
-    /***
-     * 周期时间,默认 {@link SofaTracerStatisticReporterManager#DEFAULT_CYCLE_SECONDS}=60 s
+    /**
+     * Period time, default {@link SofaTracerStatisticReporterManager#DEFAULT_CYCLE_SECONDS}=60 s
      */
     private long                                     cycleTime;
 
@@ -66,7 +70,7 @@ public class SofaTracerStatisticReporterManager {
     SofaTracerStatisticReporterManager(final long cycleTime) {
         this.cycleTime = cycleTime;
         this.executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-
+            @Override
             public Thread newThread(Runnable r) {
                 final Thread thread = new Thread(r, "Tracer-TimedAppender-"
                                                     + THREAD_NUMBER.incrementAndGet() + "-"
@@ -82,10 +86,10 @@ public class SofaTracerStatisticReporterManager {
         executor.scheduleAtFixedRate(new StatReporterPrinter(), 0, cycleTime, TimeUnit.SECONDS);
     }
 
-    /***
-     * 根据名称获取统计 Reporter 实例
-     * @param statTracerName 统计日志 tracer 名称
-     * @return 统计实现
+    /**
+     * Get a stat Reporter instance by statTracerName
+     * @param statTracerName Stat log tracer name
+     * @return
      */
     public SofaTracerStatisticReporter getStatTracer(String statTracerName) {
         if (StringUtils.isBlank(statTracerName)) {
@@ -94,9 +98,9 @@ public class SofaTracerStatisticReporterManager {
         return statReporters.get(statTracerName);
     }
 
-    /***
-     * 保存统计 Reporter 实例
-     * @param statisticReporter 要保存的统计 Reporter 实例
+    /**
+     * Save Stat Reporter instance
+     * @param statisticReporter statisticReporter
      */
     public synchronized void addStatReporter(SofaTracerStatisticReporter statisticReporter) {
         if (statisticReporter == null) {
@@ -114,29 +118,32 @@ public class SofaTracerStatisticReporterManager {
     }
 
     class StatReporterPrinter implements Runnable {
-
+        @Override
         public void run() {
             SofaTracerStatisticReporter st = null;
             try {
-                // 此任务默认 60 秒执行一次
+                // once/60s
                 for (SofaTracerStatisticReporter statTracer : statReporters.values()) {
                     if (statTracer.shouldPrintNow()) {
                         st = statTracer;
-                        // 切换下标并获取过去一段时间的statDatas
+                        // Switch subscripts and get statDatas for a while
                         Map<StatKey, StatValues> statDatas = statTracer.shiftCurrentIndex();
                         for (Map.Entry<StatKey, StatValues> e : statDatas.entrySet()) {
                             StatKey statKeys = e.getKey();
                             StatValues values = e.getValue();
-                            // 打印日志
-                            long tobePrint[] = values.getCurrentValue();
-                            // 当计数大于0的时候才打印
+                            // print log
+                            long[] tobePrint = values.getCurrentValue();
+                            // print when the count is greater than 0
                             if (tobePrint[0] > 0) {
                                 statTracer.print(statKeys, tobePrint);
                             }
-                            // 更新槽中值，清除掉已打印内容
-                            values.clear(tobePrint);// 这里必须保证传入的参数是print过程中使用的数组的值
+                            // Update the slot value to clear the printed content
+                            // Here you must ensure that the input params is the value of the array used in the print process.
+                            values.clear(tobePrint);
                         }
-                        // 如果该统计日志的key的数量大于阈值，表示key可能有带可变参数，因此清空掉防止占用太多内存
+                        // If the number of keys in the statistics log is greater than the threshold,
+                        // it indicates that the key may have variable parameters,
+                        // so clearing it prevents taking up too much memory.
                         if (statDatas.size() > CLEAR_STAT_KEY_THRESHOLD) {
                             statDatas.clear();
                         }
@@ -144,7 +151,7 @@ public class SofaTracerStatisticReporterManager {
                 }
             } catch (Throwable t) {
                 if (st != null) {
-                    SelfLog.error("统计日志<" + st.getStatTracerName() + ">flush失败", t);
+                    SelfLog.error("Stat log <" + st.getStatTracerName() + "> flush failure.", t);
                 }
             }
 

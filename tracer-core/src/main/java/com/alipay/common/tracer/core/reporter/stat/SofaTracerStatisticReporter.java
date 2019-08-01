@@ -25,54 +25,54 @@ import java.util.Map;
 /**
  * SofaTracerStatisticReporter
  * <p>
- * 参考: {com.alipay.common.tracer.tracer.StatTracer}
- *
+ * Reference: {com.alipay.common.tracer.tracer.StatTracer}
+ * </p>
  * @author yangguanchao
  * @since 2017/06/26
  */
 public interface SofaTracerStatisticReporter {
 
-    /***
-     * 获取周期时间,即多长时间调度一次
-     * @return 一次统计数据的周期时间
+    /**
+     * get the period time
+     * @return
      */
     long getPeriodTime();
 
-    /***
-     * 获取统计类型额唯一标示
-     * @return 统计名称(全局唯一标识)
+    /**
+     * Get the unique identifier of the statistic type
+     * @return
      */
     String getStatTracerName();
 
-    /***
-     * 向槽中更新数据 前面是唯一的key，后面是数值列 统计计算会对不同key的数值列进行加和
-     *
-     * @param sofaTracerSpan span 上下文
+    /**
+     * Update data to the slot
+     * @param sofaTracerSpan
      */
     void reportStat(SofaTracerSpan sofaTracerSpan);
 
-    /***
-     * 切换当前下标并返回切换前的统计数据
-     * @return 当前时间段内的统计数据
+    /**
+     * Switch the current subscript and return the stat before switching
+     * @return
      */
     Map<StatKey, StatValues> shiftCurrentIndex();
 
     /**
-     * 当该方法被调用，说明已经过去了一个周期，要判断是否已经过去了足够的周期，是否需要flush
+     * When the method is called, it indicates that a cycle has passed,
+     * to determine whether enough cycles have passed, and whether flush is needed.
      *
-     * @return true 统计数据可以打印,框架会调用 {@link SofaTracerStatisticReporter#print}
+     * @return true:stat log can be printed and the framework will call {@link SofaTracerStatisticReporter#print}
      */
     boolean shouldPrintNow();
 
-    /***
-     * 打印,即可以打印到本地磁盘,也可以上报到远程服务器
-     * @param statKey 统计关键字
-     * @param values 要打印的值
+    /**
+     * Print, you can print to a local disk, or you can report to a remote server
+     * @param statKey
+     * @param values
      */
     void print(StatKey statKey, long[] values);
 
-    /***
-     * 关闭打印能力
+    /**
+     * close print
      */
     void close();
 }

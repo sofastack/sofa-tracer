@@ -23,22 +23,25 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 /**
  *
  * @author luoguimu123
- * @version $Id: AbstractDigestSpanEncoder.java, v 0.1 2017年08月28日 上午10:23 luoguimu123 Exp $
+ * @version $Id: AbstractDigestSpanEncoder.java, v 0.1 August 28, 2017 10:23 AM luoguimu123 Exp $
  */
 public abstract class AbstractDigestSpanEncoder implements SpanEncoder<SofaTracerSpan> {
 
-    /***
-     * 系统透传数据
-     * @param spanContext span 上下文
+    /**
+     * System transparent transmission of data
+     * @param spanContext span context
      * @return String
      */
     protected String baggageSystemSerialized(SofaTracerSpanContext spanContext) {
-        //目前只有一个 baggage
         return spanContext.getSysSerializedBaggage();
     }
 
+    /**
+     * Business transparent transmission of data
+     * @param spanContext span context
+     * @return
+     */
     protected String baggageSerialized(SofaTracerSpanContext spanContext) {
-        //目前只有一个 baggage
         return spanContext.getBizSerializedBaggage();
     }
 

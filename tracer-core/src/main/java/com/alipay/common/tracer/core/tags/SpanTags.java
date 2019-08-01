@@ -26,8 +26,8 @@ import io.opentracing.tag.StringTag;
  */
 public class SpanTags {
 
-    /***
-     * 当前应用名称
+    /**
+     * current span tags
      */
     public static final StringTag CURR_APP_TAG = new StringTag("curr.app");
 }

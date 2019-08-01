@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * @author luoguimu123
- * @version $Id: SofaTracerRunnableTest.java, v 0.1 2017年06月22日 下午3:53 luoguimu123 Exp $
+ * @version $Id: SofaTracerRunnableTest.java, v 0.1 June 22, 2017 3:53 PM luoguimu123 Exp $
  */
 public class SofaTracerRunnableTest {
     SofaTraceContext traceContext;

@@ -21,16 +21,31 @@ import io.opentracing.Span;
 /**
  *
  * @author luoguimu123
- * @version $Id: TracerExtension.java, v 0.1 2017年06月23日 上午11:48 luoguimu123 Exp $
+ * @version $Id: TracerExtension.java, v 0.1 June 23, 2017 11:48 AM luoguimu123 Exp $
  */
 public interface SpanExtension {
-
+    /**
+     * Called at the beginning of span
+     * @param currentSpan
+     */
     void logStartedSpan(Span currentSpan);
 
+    /**
+     * Called at the end of span
+     * @param currentSpan
+     */
     void logStoppedSpan(Span currentSpan);
 
+    /**
+     * Called at the end of span in Runnable
+     * @param currentSpan
+     */
     void logStoppedSpanInRunnable(Span currentSpan);
 
+    /**
+     * return support name
+     * @return
+     */
     String supportName();
 
 }

@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>五月 14, 2018</pre>
+ * @since <pre>May 14, 2018</pre>
  */
 public class JsonStringBuilderTest {
 

@@ -17,10 +17,7 @@
 package com.alipay.common.tracer.core.utils;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * @author qilong.zql

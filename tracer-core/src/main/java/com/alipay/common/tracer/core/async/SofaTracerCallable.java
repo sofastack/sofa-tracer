@@ -26,8 +26,9 @@ import java.util.concurrent.Callable;
 /**
  * Callable that passes Span between threads. The Span name is
  * taken either from the passed value or from the interface.
+ *
  * @author luoguimu123
- * @version $Id: Callable.java, v 0.1 2017年06月19日 下午5:52 luoguimu123 Exp $
+ * @version $Id: Callable.java, v 0.1 June 19, 2017 5:52 PM luoguimu123 Exp $
  */
 public class SofaTracerCallable<T> implements Callable<T> {
 

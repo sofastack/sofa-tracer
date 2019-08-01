@@ -33,17 +33,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class AbstractRollingFileAppender implements TraceAppender {
 
     /**
-     * 日志刷新间隔，buffer 时间超过间隔，则把缓存的日志数据刷新出去
+     * The log refresh interval, when the buffer time exceeds the interval, the cached log data is refreshed.
      */
     private static final long      LOG_FLUSH_INTERVAL         = TimeUnit.SECONDS.toMillis(1);
     /**
-     * 默认输出缓冲大小
+     * Default output buffer size 8KB
      */
-    public static final int        DEFAULT_BUFFER_SIZE        = 8 * 1024;                    // 8KB
+    public static final int        DEFAULT_BUFFER_SIZE        = 8 * 1024;
     private static final long      IOEXCEPTION_PRINT_INTERVAL = 60 * 1000;
 
     /**
-     * 日志缓存大小
+     * Log cache buffer size
      */
     private final int              bufferSize;
 
@@ -96,6 +96,7 @@ public abstract class AbstractRollingFileAppender implements TraceAppender {
         }
     }
 
+    @Override
     public void append(String log) throws IOException {
         if (bos != null) {
             waitUntilRollFinish();
@@ -107,29 +108,30 @@ public abstract class AbstractRollingFileAppender implements TraceAppender {
                     isRolling.set(false);
                 }
             } else {
-                // 超过指定刷新时间没刷新，就刷新一次
+                // Refreshed after the specified refresh time has not been refreshed
                 long now;
                 if ((now = System.currentTimeMillis()) >= nextFlushTime) {
                     flush();
                     nextFlushTime = now + LOG_FLUSH_INTERVAL;
                 }
             }
-            // 无论有没有做 RollOver，都需要将输入往 bos 中写入
+            // Whether you have RollOver or not, you need to write the input to bos
             byte[] bytes = log.getBytes(TracerLogRootDaemon.DEFAULT_CHARSET);
             write(bytes);
         }
     }
 
     /**
-     * 是否现在马上进行滚动
-     *
-     * @return true: 是
+     * Whether to scroll right now
+     * @return true
      */
     protected abstract boolean shouldRollOverNow();
 
     /**
-     * 进行 RollOver
-     * WARNING：RollOver 的时候日志不要用 SelfLog 打印，因为这个时候可能 SelfLog 自己在 RollOver。
+     * Ready to RollOver
+     *
+     * WARNING：Do not use SelfLog when logging RollOver,
+     * because this time it is possible that SelfLog is in RollOver itself.
      */
     protected abstract void rollOver();
 
@@ -146,8 +148,9 @@ public abstract class AbstractRollingFileAppender implements TraceAppender {
     }
 
     /**
-     * 超过指定刷新时间没刷新，就刷新一次
+     * Refreshed after the specified refresh time has not been refreshed
      */
+    @Override
     public void flush() {
         if (bos != null) {
             try {

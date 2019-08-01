@@ -105,13 +105,8 @@ public abstract class AbstractTestBase {
         return new File(logDirectoryPath + File.separator + "tracer-self.log");
     }
 
-    protected static File middlewareErrorLog() {
-        return new File(logDirectoryPath + File.separator
-                        + TracerSystemLogEnum.MIDDLEWARE_ERROR.getDefaultLogName());
-    }
-
     /**
-     * 检查传入的参数和日志中的内容是否匹配
+     * Whether the parameters and the contents of the log match
      *
      * @param params String Array which is compared with logContent.
      * @param logContent String Content which is split up with comma
@@ -124,8 +119,9 @@ public abstract class AbstractTestBase {
         List<String> slots = Arrays.asList(logContent.split(String
             .valueOf(XStringBuilder.DEFAULT_SEPARATOR)));
 
-        assertEquals("日志内容中的栏位数量为 " + slots.size() + ";参数的栏位数量为" + params.size() + ";两者不一致",
-            params.size(), slots.size());
+        assertEquals("The number of fields in the log content is " + slots.size()
+                     + "; the number of fields in the parameter is " + params.size()
+                     + "; the two are inconsistent", params.size(), slots.size());
 
         for (int i = 0; i < params.size(); i++) {
             String param = params.get(i);
@@ -136,11 +132,16 @@ public abstract class AbstractTestBase {
                 }
             }
             if (param.length() > 2 && param.startsWith("M|")) {
-                Assert.assertTrue("日志和参数中的第 " + i + " 栏内容不一致，日志中为 " + slot + ";参数中为 " + param,
+                Assert.assertTrue(
+                    "The contents of the " + i
+                            + " column in the log and parameters are inconsistent. The log is "
+                            + slot + ";The parameter is " + param,
                     TestUtil.compareSlotMap(param.substring(2), slot));
             } else {
-                Assert.assertTrue("日志和参数中的第 " + i + " 栏内容不一致，日志中为 " + slot + ";参数中为 " + param,
-                    param.equals(slot));
+                Assert.assertTrue(
+                    "The contents of the " + i
+                            + " column in the log and parameters are inconsistent. The log is "
+                            + slot + ";The parameter is " + param, param.equals(slot));
             }
         }
         return true;

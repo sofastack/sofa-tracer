@@ -37,7 +37,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  *
  * @author liangen
- * @version $Id: ConcurrentConsumerCorrectTest.java, v 0.1 2017年10月23日 下午3:01 liangen Exp $
+ * @version $Id: ConcurrentConsumerCorrectTest.java, v 0.1 October 23, 2017 3:01 PM liangen Exp $
  */
 public class ConcurrentConsumerCorrectTest {
 
@@ -61,7 +61,7 @@ public class ConcurrentConsumerCorrectTest {
 
     @Test
     public void testConcurrentConsumerCorrect() throws InterruptedException, IOException {
-        /**不允许丢失日志，避免日志丢失影响结果校验的正确性*/
+        /** Logs are not allowed to be lost, and log loss is avoided to affect the correctness of the result check. */
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.TRACER_ASYNC_APPENDER_ALLOW_DISCARD, "false");
 
@@ -90,65 +90,55 @@ public class ConcurrentConsumerCorrectTest {
 
         final CountDownLatch countDownLatch = new CountDownLatch(30);
         for (int i = 0; i < 20; i++) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                    SofaTracerSpan span1 = ManagerTestUtil.createSofaTracerSpan(1);
-                    for (int j = 0; j < 30; j++) {
-                        asyncCommonDigestAppenderManager.append(span1);
-                    }
-
-                    SofaTracerSpan span2 = ManagerTestUtil.createSofaTracerSpan(2);
-                    for (int j = 0; j < 40; j++) {
-                        asyncCommonDigestAppenderManager.append(span2);
-                    }
-
-                    SofaTracerSpan span3 = ManagerTestUtil.createSofaTracerSpan(3);
-                    for (int j = 0; j < 50; j++) {
-                        asyncCommonDigestAppenderManager.append(span3);
-                    }
-
-                    SofaTracerSpan span4 = ManagerTestUtil.createSofaTracerSpan(4);
-                    for (int j = 0; j < 60; j++) {
-                        asyncCommonDigestAppenderManager.append(span4);
-                    }
-
-                    SofaTracerSpan span5 = ManagerTestUtil.createSofaTracerSpan(5);
-                    for (int j = 0; j < 70; j++) {
-                        asyncCommonDigestAppenderManager.append(span5);
-                    }
-
-                    countDownLatch.countDown();
+            new Thread(()->{
+                SofaTracerSpan span1 = ManagerTestUtil.createSofaTracerSpan(1);
+                for (int j = 0; j < 30; j++) {
+                    asyncCommonDigestAppenderManager.append(span1);
                 }
+
+                SofaTracerSpan span2 = ManagerTestUtil.createSofaTracerSpan(2);
+                for (int j = 0; j < 40; j++) {
+                    asyncCommonDigestAppenderManager.append(span2);
+                }
+
+                SofaTracerSpan span3 = ManagerTestUtil.createSofaTracerSpan(3);
+                for (int j = 0; j < 50; j++) {
+                    asyncCommonDigestAppenderManager.append(span3);
+                }
+
+                SofaTracerSpan span4 = ManagerTestUtil.createSofaTracerSpan(4);
+                for (int j = 0; j < 60; j++) {
+                    asyncCommonDigestAppenderManager.append(span4);
+                }
+
+                SofaTracerSpan span5 = ManagerTestUtil.createSofaTracerSpan(5);
+                for (int j = 0; j < 70; j++) {
+                    asyncCommonDigestAppenderManager.append(span5);
+                }
+
+                countDownLatch.countDown();
             }).start();
         }
 
         for (int i = 0; i < 10; i++) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                    SofaTracerSpan span1 = ManagerTestUtil.createSofaTracerSpan(1);
-                    SofaTracerSpan span2 = ManagerTestUtil.createSofaTracerSpan(2);
-                    SofaTracerSpan span3 = ManagerTestUtil.createSofaTracerSpan(3);
-                    SofaTracerSpan span4 = ManagerTestUtil.createSofaTracerSpan(4);
-                    SofaTracerSpan span5 = ManagerTestUtil.createSofaTracerSpan(5);
-
-                    for (int j = 0; j < 40; j++) {
-                        asyncCommonDigestAppenderManager.append(span1);
-                        asyncCommonDigestAppenderManager.append(span2);
-                        asyncCommonDigestAppenderManager.append(span3);
-                        asyncCommonDigestAppenderManager.append(span4);
-                        asyncCommonDigestAppenderManager.append(span5);
-                    }
-
-                    countDownLatch.countDown();
+            new Thread(()->{
+                SofaTracerSpan span1 = ManagerTestUtil.createSofaTracerSpan(1);
+                SofaTracerSpan span2 = ManagerTestUtil.createSofaTracerSpan(2);
+                SofaTracerSpan span3 = ManagerTestUtil.createSofaTracerSpan(3);
+                SofaTracerSpan span4 = ManagerTestUtil.createSofaTracerSpan(4);
+                SofaTracerSpan span5 = ManagerTestUtil.createSofaTracerSpan(5);
+                for (int j = 0; j < 40; j++) {
+                    asyncCommonDigestAppenderManager.append(span1);
+                    asyncCommonDigestAppenderManager.append(span2);
+                    asyncCommonDigestAppenderManager.append(span3);
+                    asyncCommonDigestAppenderManager.append(span4);
+                    asyncCommonDigestAppenderManager.append(span5);
                 }
+                countDownLatch.countDown();
             }).start();
         }
 
-        /**校验*/
+        /** check */
         countDownLatch.await();
         Thread.sleep(3000);
 

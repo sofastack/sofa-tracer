@@ -21,29 +21,30 @@ import io.opentracing.propagation.Format;
 
 public interface RegistryExtractorInjector<T> {
 
-    /***
-     * 作为跨进程传输字段的关键字key或者头部标识信息,其 value 就是 {@link SofaTracerSpanContext} 的序列化表现:sofa tracer head
+    /**
+     * As the keyword key or header identification information of the cross-process transmission field,
+     * its value is the serialization representation of {@link SofaTracerSpanContext}: sofa tracer head
      */
     String FORMATER_KEY_HEAD = "sftc_head";
 
-    /***
-     * 获取支持的格式类型
-     * @return 格式类型 {@link Format}
+    /**
+     * Get supported format types
+     * @return Format type {@link Format}
      */
     Format<T> getFormatType();
 
     /**
-     * 从负载中提取出 Span 上下文
+     * Extract the Span context from the payload
      *
-     * @param carrier 负载
-     * @return Span 上下文
+     * @param carrier payload
+     * @return SpanContext
      */
     SofaTracerSpanContext extract(T carrier);
 
-    /***
-     * 向负载中注入 Span 上下文
-     * @param spanContext 要注入或者序列化的 span 上下文
-     * @param carrier 负载
+    /**
+     * Inject a Span context into the payload
+     * @param spanContext The span context to be injected or serialized
+     * @param carrier payload
      */
     void inject(SofaTracerSpanContext spanContext, T carrier);
 }

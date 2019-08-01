@@ -33,7 +33,7 @@ public abstract class AbstractTextFormatter implements RegistryExtractorInjector
     @Override
     public SofaTracerSpanContext extract(TextMap carrier) {
         if (carrier == null) {
-            //根节点开始
+            //Root node starts
             return SofaTracerSpanContext.rootStart();
         }
         SofaTracerSpanContext sofaTracerSpanContext = null;
@@ -49,7 +49,7 @@ public abstract class AbstractTextFormatter implements RegistryExtractorInjector
             }
         }
         if (sofaTracerSpanContext == null) {
-            //根节点开始
+            //Root node starts
             return SofaTracerSpanContext.rootStart();
         }
         return sofaTracerSpanContext;
@@ -63,17 +63,17 @@ public abstract class AbstractTextFormatter implements RegistryExtractorInjector
         carrier.put(FORMATER_KEY_HEAD, this.encodedValue(spanContext.serializeSpanContext()));
     }
 
-    /***
-     * 对指定的值进行编码
-     * @param value 字符串
-     * @return 编码后的 value
+    /**
+     * Encode the specified value
+     * @param value
+     * @return encoded value
      */
     protected abstract String encodedValue(String value);
 
-    /***
-     * 对指定的值进行解码
-     * @param value 字符串
-     * @return 编码后的字符串
+    /**
+     * Decode the specified value
+     * @param value
+     * @return decoded value
      */
     protected abstract String decodedValue(String value);
 }

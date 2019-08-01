@@ -29,9 +29,9 @@ import java.io.IOException;
  */
 public final class LoadTestAwareAppender implements TraceAppender {
 
-    // 非压测数据的 TraceAppender
+    /** TraceAppender for non-pressure */
     private TraceAppender nonLoadTestTraceAppender;
-    // 压测数据的 TraceAppender
+    /** TraceAppender for pressure*/
     private TraceAppender loadTestTraceAppender;
 
     private LoadTestAwareAppender(TraceAppender nonLoadTestTraceAppender,

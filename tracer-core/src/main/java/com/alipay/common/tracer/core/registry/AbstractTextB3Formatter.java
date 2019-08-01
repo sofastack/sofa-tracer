@@ -66,7 +66,7 @@ public abstract class AbstractTextB3Formatter implements RegistryExtractorInject
         String parentId = null;
         boolean sampled = false;
         boolean isGetSampled = false;
-        //sys bizBaggage
+        //sysBaggage
         Map<String, String> sysBaggage = new ConcurrentHashMap<String, String>();
         //bizBaggage
         Map<String, String> bizBaggage = new ConcurrentHashMap<String, String>();
@@ -161,14 +161,14 @@ public abstract class AbstractTextB3Formatter implements RegistryExtractorInject
         }
     }
 
-    /***
+    /**
      * encode string
      * @param value string will be encoded
      * @return  encoded value
      */
     protected abstract String encodedValue(String value);
 
-    /***
+    /**
      * decode string
      * @param value string will be decoded
      * @return decoded value

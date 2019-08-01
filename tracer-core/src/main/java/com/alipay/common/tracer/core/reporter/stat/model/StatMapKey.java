@@ -28,7 +28,7 @@ import java.util.Map;
 public class StatMapKey extends StatKey {
 
     /**
-     * 统计信息的 Key
+     * Key for statistic
      */
     private Map<String, String> keyMap = new HashMap<String, String>();
 

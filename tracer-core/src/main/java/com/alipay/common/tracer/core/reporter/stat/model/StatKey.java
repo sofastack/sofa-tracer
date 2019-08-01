@@ -25,22 +25,22 @@ package com.alipay.common.tracer.core.reporter.stat.model;
 public class StatKey {
 
     /**
-     * 统计信息的 Key
+     * Key for statistics
      */
     private String  key;
 
     /**
-     * 统计哪一类信息，Y 成功，N 失败
+     * Y success，N failure
      */
     private String  result;
 
     /**
-     * 是否是压测的统计信息
+     * Whether it is pressure measurement stat
      */
     private boolean loadTest;
 
     /**
-     * 打印出来的结尾
+     * Printed end
      */
     private String  end;
 

@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  *
  * @author liangen
- * @version $Id: AsyncCommonDigestAppenderManager.java, v 0.1 2017年10月23日 上午9:47 liangen Exp $
+ * @version $Id: AsyncCommonDigestAppenderManager.java, v 0.1 October 23, 2017 9：47 AM liangen Exp $
  */
 public class AsyncCommonDigestAppenderManager {
     private final Map<String, TraceAppender> appenders                     = new ConcurrentHashMap<String, TraceAppender>();
@@ -233,7 +233,6 @@ public class AsyncCommonDigestAppenderManager {
     }
 
     class PaddedAtomicLong extends AtomicLong {
-
         public volatile long p1, p2, p3, p4, p5, p6 = 7L;
 
         public PaddedAtomicLong(long initialValue) {

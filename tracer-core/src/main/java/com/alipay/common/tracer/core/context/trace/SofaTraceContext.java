@@ -49,14 +49,14 @@ public interface SofaTraceContext {
      */
     SofaTracerSpan pop();
 
-    /***
-     *  Retrieves the current span size stored in current thread local
+    /**
+     * Retrieves the current span size stored in current thread local
      *
      * @return the span size of current thread local
      */
     int getThreadLocalSpanSize();
 
-    /***
+    /**
      * Clear current thread local span
      */
     void clear();
