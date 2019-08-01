@@ -18,6 +18,7 @@ package com.alipay.sofa.tracer.plugins.dubbo;
 
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
@@ -49,10 +50,6 @@ public class DubboSofaTracerFilter implements Filter {
     private String                             appName         = StringUtils.EMPTY_STRING;
 
     private static final String                BLANK           = StringUtils.EMPTY_STRING;
-
-    private static final String                SUCCESS_CODE    = "00";
-
-    private static final String                FAILED_CODE     = "99";
 
     private static final String                SPAN_INVOKE_KEY = "sofa.current.span.key";
 
@@ -102,14 +99,14 @@ public class DubboSofaTracerFilter implements Filter {
                     this.dubboConsumerSofaTracer = DubboConsumerSofaTracer
                         .getDubboConsumerSofaTracerSingleton();
                 }
-                String resultCode = SUCCESS_CODE;
+                String resultCode = SofaTracerConstant.RESULT_CODE_SUCCESS;
                 if (result.hasException()) {
                     if (result.getException() instanceof RpcException) {
                         resultCode = Integer.toString(((RpcException) result.getException())
                             .getCode());
                         sofaTracerSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
                     } else {
-                        resultCode = FAILED_CODE;
+                        resultCode = SofaTracerConstant.RESULT_CODE_ERROR;
                     }
                 }
                 // add elapsed time
@@ -166,7 +163,7 @@ public class DubboSofaTracerFilter implements Filter {
         }
         Result result;
         Throwable exception = null;
-        String resultCode = SUCCESS_CODE;
+        String resultCode = SofaTracerConstant.RESULT_CODE_SUCCESS;
         try {
             // do invoke
             result = invoker.invoke(invocation);
@@ -193,7 +190,7 @@ public class DubboSofaTracerFilter implements Filter {
                     RpcException rpcException = (RpcException) exception;
                     resultCode = String.valueOf(rpcException.getCode());
                 } else {
-                    resultCode = FAILED_CODE;
+                    resultCode = SofaTracerConstant.RESULT_CODE_ERROR;
                 }
             }
 
@@ -206,7 +203,7 @@ public class DubboSofaTracerFilter implements Filter {
                     // Record client send event
                     sofaTracerSpan.log(LogData.CLIENT_SEND_EVENT_VALUE);
                 }
-                // 将当前 span 缓存
+                // cache the current span
                 TracerSpanMap.put(getTracerSpanMapKey(invoker), sofaTracerSpan);
                 if (clientSpan != null && clientSpan.getParentSofaTracerSpan() != null) {
                     //restore parent
@@ -258,7 +255,7 @@ public class DubboSofaTracerFilter implements Filter {
             exception = t;
             throw new RpcException(t);
         } finally {
-            String resultCode = SUCCESS_CODE;
+            String resultCode = SofaTracerConstant.RESULT_CODE_SUCCESS;
             if (exception != null) {
                 if (exception instanceof RpcException) {
                     sofaTracerSpan.setTag(Tags.ERROR.getKey(), exception.getMessage());
@@ -267,7 +264,7 @@ public class DubboSofaTracerFilter implements Filter {
                         resultCode = String.valueOf(rpcException.getCode());
                     }
                 } else {
-                    resultCode = FAILED_CODE;
+                    resultCode = SofaTracerConstant.RESULT_CODE_ERROR;
                 }
             }
             dubboProviderSofaTracer.serverSend(resultCode);
