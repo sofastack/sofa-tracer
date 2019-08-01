@@ -27,9 +27,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**
- * 测试日志的清理功能
+ * Test log cleanup function
  *
- * @author khotyn 15/2/16 下午3:50
+ * @author khotyn 15/2/16 PM 3:50
  */
 public class LogCleanupTest extends AbstractTestBase {
 
@@ -42,41 +42,37 @@ public class LogCleanupTest extends AbstractTestBase {
     private File                fiveDayAgoFile    = null;
 
     @Test
-    public void 测试清理日志_按天滚动() throws IOException {
+    public void test_cleanup_log_scroll_by_day() throws IOException {
         generateLogFilesToBeCleanup(new SimpleDateFormat(
             TimedRollingFileAppender.DAILY_ROLLING_PATTERN));
         TraceAppender appender = new TimedRollingFileAppender(CLEAN_UP_TEST_LOG,
             TimedRollingFileAppender.DAILY_ROLLING_PATTERN, "3");
         appender.cleanup();
 
-        Assert.assertTrue("今天的日志应该还是存在", todayFile.exists());
-        Assert.assertTrue("昨天的日志应该还是存在", yesterdayFile.exists());
-        Assert.assertTrue("两天前的日志应该还是存在", twoDayAgoFile.exists());
-        Assert.assertTrue("三天前的日志应该还是存在", threeDayAgoFile.exists());
-        Assert.assertTrue("四天前的日志应该不存在", !fourDayAgoFile.exists());
-        Assert.assertTrue("五天前的日志应该不存在", !fiveDayAgoFile.exists());
+        Assert.assertTrue("Today's log should still exist", todayFile.exists());
+        Assert.assertTrue("Yesterday's log should still exist", yesterdayFile.exists());
+        Assert.assertTrue("The log two days ago should still exist", twoDayAgoFile.exists());
+        Assert.assertTrue("The log three days ago should still exist", threeDayAgoFile.exists());
+        Assert.assertTrue("The log four days ago should not exist", !fourDayAgoFile.exists());
+        Assert.assertTrue("The log five days ago should not exist", !fiveDayAgoFile.exists());
     }
 
     @Test
-    public void 测试清理日志_按小时滚() throws IOException {
+    public void test_cleanup_log_scroll_by_hour() throws IOException {
         generateLogFilesToBeCleanup(new SimpleDateFormat(
             TimedRollingFileAppender.HOURLY_ROLLING_PATTERN));
         TraceAppender appender = new TimedRollingFileAppender(CLEAN_UP_TEST_LOG,
             TimedRollingFileAppender.HOURLY_ROLLING_PATTERN, "2");
         appender.cleanup();
 
-        Assert.assertTrue("今天的日志应该还是存在", todayFile.exists());
-        Assert.assertTrue("昨天的日志应该还是存在", yesterdayFile.exists());
-        Assert.assertTrue("两天前的日志应该还是存在", twoDayAgoFile.exists());
-        Assert.assertTrue("三天前的日志应该还是存在", !threeDayAgoFile.exists());
-        Assert.assertTrue("四天前的日志应该不存在", !fourDayAgoFile.exists());
-        Assert.assertTrue("五天前的日志应该不存在", !fiveDayAgoFile.exists());
+        Assert.assertTrue("Today's log should still exist", todayFile.exists());
+        Assert.assertTrue("Yesterday's log should still exist", yesterdayFile.exists());
+        Assert.assertTrue("The log two days ago should still exist", twoDayAgoFile.exists());
+        Assert.assertTrue("The log three days ago should not exist", !threeDayAgoFile.exists());
+        Assert.assertTrue("The log four days ago should not exist", !fourDayAgoFile.exists());
+        Assert.assertTrue("The log five days ago should not exist", !fiveDayAgoFile.exists());
     }
 
-    /***
-     * 测试按小时清理日志_按小时滚动_两小时
-     * @throws IOException exception
-     */
     @Test
     public void rolling_by_two_hour() throws IOException {
         generateLogFilesToBeCleanupHourly(new SimpleDateFormat(
@@ -85,18 +81,14 @@ public class LogCleanupTest extends AbstractTestBase {
             TimedRollingFileAppender.HOURLY_ROLLING_PATTERN, "0D2H");
         appender.cleanup();
 
-        Assert.assertTrue("这个小时前的日志应该还是存在", todayFile.exists());
-        Assert.assertTrue("一个小时前的日志应该还是存在", yesterdayFile.exists());
-        Assert.assertTrue("两个小时前的日志应该还是存在", twoDayAgoFile.exists());
-        Assert.assertTrue("三个小时前的日志应该不存在", !threeDayAgoFile.exists());
-        Assert.assertTrue("四个小时前的日志应该不存在", !fourDayAgoFile.exists());
-        Assert.assertTrue("五个小时前的日志应该不存在", !fiveDayAgoFile.exists());
+        Assert.assertTrue("The log before this hour should still exist", todayFile.exists());
+        Assert.assertTrue("The log An hour ago should still exist", yesterdayFile.exists());
+        Assert.assertTrue("The log two hours ago should still exist", twoDayAgoFile.exists());
+        Assert.assertTrue("The log three hours ago should not exist", !threeDayAgoFile.exists());
+        Assert.assertTrue("The log four hours ago should not exist", !fourDayAgoFile.exists());
+        Assert.assertTrue("The log five hours ago should not exist", !fiveDayAgoFile.exists());
     }
 
-    /***
-     * 测试按小时清理日志_按小时滚动_三小时
-     * @throws IOException
-     */
     @Test
     public void rolling_by_three_hour() throws IOException {
         generateLogFilesToBeCleanupHourly(new SimpleDateFormat(
@@ -105,12 +97,12 @@ public class LogCleanupTest extends AbstractTestBase {
             TimedRollingFileAppender.HOURLY_ROLLING_PATTERN, "0D3H");
         appender.cleanup();
 
-        Assert.assertTrue("这个小时前的日志应该还是存在", todayFile.exists());
-        Assert.assertTrue("一个小时前的日志应该还是存在", yesterdayFile.exists());
-        Assert.assertTrue("两个小时前的日志应该还是存在", twoDayAgoFile.exists());
-        Assert.assertTrue("三个小时前的日志应该还是存在", threeDayAgoFile.exists());
-        Assert.assertTrue("四个小时前的日志应该不存在", !fourDayAgoFile.exists());
-        Assert.assertTrue("五个小时前的日志应该不存在", !fiveDayAgoFile.exists());
+        Assert.assertTrue("The log before this hour should still exist", todayFile.exists());
+        Assert.assertTrue("The log An hour ago should still exist", yesterdayFile.exists());
+        Assert.assertTrue("The log two hours ago should still exist", twoDayAgoFile.exists());
+        Assert.assertTrue("The log three hours ago should still exist", threeDayAgoFile.exists());
+        Assert.assertTrue("The log four hours ago should not exist", !fourDayAgoFile.exists());
+        Assert.assertTrue("The log five hours ago should not exist", !fiveDayAgoFile.exists());
     }
 
     private void generateLogFilesToBeCleanupHourly(SimpleDateFormat sdf) throws IOException {

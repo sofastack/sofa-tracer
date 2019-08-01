@@ -24,7 +24,7 @@ import com.alipay.common.tracer.core.utils.StringUtils;
  * SofaTracerSpanReferenceRelationship
  * <p>
  * {@link io.opentracing.References}
- *
+ * </p>
  * @author yangguanchao
  * @since  2017/06/17
  */
@@ -32,7 +32,7 @@ public class SofaTracerSpanReferenceRelationship {
 
     private SofaTracerSpanContext sofaTracerSpanContext;
 
-    /***
+    /**
      * {@link io.opentracing.References}
      */
     private String                referenceType;

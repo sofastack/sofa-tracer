@@ -22,7 +22,6 @@ import com.alipay.common.tracer.core.generator.TraceIdGenerator;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 import io.opentracing.SpanContext;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,10 +35,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SofaTracerSpanContext implements SpanContext {
 
-    //spanId 分隔符
+    //spanId separator
     public static final String        RPC_ID_SEPARATOR       = ".";
 
-    //======================== 以下为序列化数据的 key ========================
+    //======================== The following is the key for serializing data ========================
 
     private static final String       TRACE_ID_KET           = "tcid";
 
@@ -49,41 +48,42 @@ public class SofaTracerSpanContext implements SpanContext {
 
     private static final String       SAMPLE_KET             = "sample";
 
-    /***
-     * 序列化系统透传属性 key 的关键字前缀(需要序列化添加,反序列化去除 key 的前缀)
+    /**
+     * The serialization system transparently passes the prefix of the attribute key
      */
     private static final String       SYS_BAGGAGE_PREFIX_KEY = "_sys_";
 
-    //span  关键属性参数
     private String                    traceId                = StringUtils.EMPTY_STRING;
 
     private String                    spanId                 = StringUtils.EMPTY_STRING;
 
     private String                    parentId               = StringUtils.EMPTY_STRING;
 
-    /***
-     * 默认不会采样
+    /**
+     * Default will not be sampled
      */
     private boolean                   isSampled              = false;
 
-    /***
-     * 系统透传数据,主要是指系统维度的透传数据,注意业务透传不能使用此字段
+    /**
+     * The system transparently transmits data,
+     * mainly refers to the transparent transmission data of the system dimension.
+     * Note that this field cannot be used for transparent transmission of business.
      */
     private final Map<String, String> sysBaggage             = new ConcurrentHashMap<String, String>();
 
-    /***
-     * 透传数据,主要是指业务的透传数据
+    /**
+     * Transparent transmission of data, mainly refers to the transparent transmission data of the business
      */
     private final Map<String, String> bizBaggage             = new ConcurrentHashMap<String, String>();
 
     /**
-     * 子上下文的计数器
+     * sub-context counter
      */
     private AtomicInteger             childContextIndex      = new AtomicInteger(0);
 
-    /***
-     * clone 一个当前模型
-     * @return clone 对象
+    /**
+     * clone a SofaTracerSpanContext instance
+     * @return
      */
     public SofaTracerSpanContext cloneInstance() {
         SofaTracerSpanContext spanContext = new SofaTracerSpanContext(this.traceId, this.spanId,
@@ -95,17 +95,17 @@ public class SofaTracerSpanContext implements SpanContext {
     }
 
     public SofaTracerSpanContext() {
-        //默认不会采样
+        //Default will not be sampled
         this(StringUtils.EMPTY_STRING, StringUtils.EMPTY_STRING, null, false);
     }
 
     public SofaTracerSpanContext(String traceId, String spanId) {
-        //默认不会采样
+        //Default will not be sampled
         this(traceId, spanId, null, false);
     }
 
     public SofaTracerSpanContext(String traceId, String spanId, String parentId) {
-        //默认不会采样
+        //Default will not be sampled
         this(traceId, spanId, parentId, false);
     }
 
@@ -130,9 +130,9 @@ public class SofaTracerSpanContext implements SpanContext {
         return this;
     }
 
-    /***
-     * 系统和业务 baggage 均返回
-     * @return 迭代器
+    /**
+     * return both system and business baggage
+     * @return Iterable
      */
     @Override
     public Iterable<Map.Entry<String, String>> baggageItems() {
@@ -146,21 +146,20 @@ public class SofaTracerSpanContext implements SpanContext {
         return allBaggage.entrySet();
     }
 
-    /****
-     * 关键信息统一生成字符串
+    /**
+     * return key information string for SofaTracerSpanContext
      * @return
      */
-    private String contextAsString() {// NOPMD
+    private String contextAsString() {
         return String.format("%s:%s:%s:%s", traceId, spanId, parentId, isSampled);
     }
 
     /**
-     * 将 Tracer 中的穿透属性序列化成一个 String
+     * Serialize the Penetration property in Tracer into a String
      * <p>
-     * <strong>此方法一般是 Tracer 内部或者直接集成 Tracer 的中间件使用</strong>
+     *     This method is generally used internally by Tracer or directly integrated with Tracer.
      * </p>
-     *
-     * @return 序列化以后的穿透属性
+     * @return
      */
     public String getBizSerializedBaggage() {
         return StringUtils.mapToString(bizBaggage);
@@ -171,12 +170,12 @@ public class SofaTracerSpanContext implements SpanContext {
     }
 
     /**
-     * 将一个穿透属性序列化后的 String，反序列化回来成为一个 Map 接口
-     * <p>
-     * <strong>此方法一般是 Tracer 内部或者直接集成 Tracer 的中间件使用</strong>
-     * </p>
+     * deserialize string to map
      *
-     * @param bizBaggageAttrs 序列化后的穿透属性 String
+     * <p>
+     *     This method is generally used internally by Tracer or directly integrated with Tracer.
+     * </p>
+     * @param bizBaggageAttrs serialized penetration properties
      */
     public void deserializeBizBaggage(String bizBaggageAttrs) {
         StringUtils.stringToMap(bizBaggageAttrs, this.bizBaggage);
@@ -201,10 +200,10 @@ public class SofaTracerSpanContext implements SpanContext {
         }
     }
 
-    /***
-     * 将 SpanContext 序列化为一个字符串,与 {@link SofaTracerSpanContext#deserializeFromString} 互逆
+    /**
+     * Serialize the SpanContext to a string that is reciprocal to {@link SofaTracerSpanContext#deserializeFromString}
      *
-     * @return 序列化后的字符串, 格式:tcid:0,spid:1
+     * @return Serialized string, format: tcid:0,spid:1
      */
     public String serializeSpanContext() {
         StringBuilder serializedValue = new StringBuilder();
@@ -228,20 +227,21 @@ public class SofaTracerSpanContext implements SpanContext {
         return serializedValue.toString();
     }
 
-    /***
-     * 反序列化并还原一个 SofaTracerSpanContext,与 {@link SofaTracerSpanContext#serializeSpanContext()} 互逆
-     * @param deserializedValue 反序列化的字符串,格式:tcid:0,spid:1
+    /**
+     *
+     * Deserialize and restore a SofaTracerSpanContext, reciprocal with {@link SofaTracerSpanContext#serializeSpanContext()}
+     * @param deserializedValue deserialize string, format: tcid:0,spid:1
      * @return SofaTracerSpanContext
      */
     public static SofaTracerSpanContext deserializeFromString(String deserializedValue) {
         if (StringUtils.isBlank(deserializedValue)) {
             return SofaTracerSpanContext.rootStart();
         }
-        //默认值
+        //default value for SofaTracerSpanContext
         String traceId = TraceIdGenerator.generate();
         String spanId = SofaTracer.ROOT_SPAN_ID;
         String parentId = StringUtils.EMPTY_STRING;
-        //默认false
+        //sampled default is false
         boolean sampled = false;
         //sys bizBaggage
         Map<String, String> sysBaggage = new HashMap<String, String>();
@@ -275,11 +275,11 @@ public class SofaTracerSpanContext implements SpanContext {
             }
             int sysIndex = key.indexOf(SYS_BAGGAGE_PREFIX_KEY);
             if (sysIndex == 0) {
-                //必须前缀作为开始
+                //must have a prefix
                 String sysKey = key.substring(SYS_BAGGAGE_PREFIX_KEY.length());
                 sysBaggage.put(sysKey, value);
             } else {
-                //剩余全部为业务 bizBaggage
+                //bizBaggage
                 baggage.put(key, value);
             }
         }
@@ -294,21 +294,20 @@ public class SofaTracerSpanContext implements SpanContext {
         return sofaTracerSpanContext;
     }
 
-    /****
-     * 作为根节点而开始
+    /**
+     * As root start ,it will be return a new sofaTracerSpanContext
      *
-     * 注意:1.留下这个接口,不对接具体的 tracer 实现,主要为了在序列化或者反序列化发生异常时,做补救
-     *     2.不可以随意调用此方法,正确的入口应该是 {@link SofaTracer.SofaTracerSpanBuilder#createRootSpanContext()}
-     * @return 根节点
+     * Note:1.Leave this interface, do not dock the specific tracer implementation, mainly to remedy when an exception occurs in serialization or deserialization
+     *      2.This method cannot be called at will, the correct entry should be {@link SofaTracer.SofaTracerSpanBuilder#createRootSpanContext()}
+     * @return root node
      */
     public static SofaTracerSpanContext rootStart() {
         return rootStart(false);
     }
 
     public static SofaTracerSpanContext rootStart(boolean isSampled) {
-        //生成 traceId
+        //create traceId
         String traceId = TraceIdGenerator.generate();
-        //默认不采样
         return new SofaTracerSpanContext(traceId, SofaTracer.ROOT_SPAN_ID,
             StringUtils.EMPTY_STRING, isSampled);
     }
@@ -318,16 +317,16 @@ public class SofaTracerSpanContext implements SpanContext {
             : spanId.substring(0, spanId.lastIndexOf(RPC_ID_SEPARATOR));
     }
 
-    /***
-     * 允许设置 tracdId
+    /**
+     * Allow to set traceId
      * @param traceId traceId
      */
     public void setTraceId(String traceId) {
         this.traceId = traceId;
     }
 
-    /****
-     * 允许设置 spanId
+    /**
+     * Allow to set spanId
      * @param spanId spanId
      */
     public void setSpanId(String spanId) {
@@ -392,18 +391,18 @@ public class SofaTracerSpanContext implements SpanContext {
     }
 
     /**
-     * 获取下一个子上下文的 ID
+     * Get the ID of the next sub context
      *
-     * @return 下一个 spanId
+     * @return next spanId
      */
     public String nextChildContextId() {
         return this.spanId + RPC_ID_SEPARATOR + childContextIndex.incrementAndGet();
     }
 
     /**
-     * 获取上一个子上下文的 rpcId
+     * Get the spanId of the previous sub context
      *
-     * @return 上一个子上下文的 rpcId
+     * @return prev spanId
      */
     public String lastChildContextId() {
         return this.spanId + RPC_ID_SEPARATOR + childContextIndex.get();
@@ -427,9 +426,6 @@ public class SofaTracerSpanContext implements SpanContext {
             return false;
         }
         if (StringUtils.isBlank(parentId)) {
-            //一个为空
-            //另一个也为空
-            //另一个不为空
             return StringUtils.isBlank(that.parentId);
         }
         return parentId.equals(that.parentId);

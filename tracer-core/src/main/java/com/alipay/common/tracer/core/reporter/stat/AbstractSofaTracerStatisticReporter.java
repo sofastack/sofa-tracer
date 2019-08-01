@@ -45,70 +45,59 @@ import java.util.concurrent.locks.ReentrantLock;
 public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerStatisticReporter {
 
     /**
-     * 默认的周期为0(从0开始)，即输出间隔时间是一个周期时间（一个周期多长时间是可以设置的，默认是60s）,
+     * The default period is 0 (starting at 0), that is,
+     * the output interval is a cycle time (how long a cycle can be set, the default is 60s),
      * {@link com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager#DEFAULT_CYCLE_SECONDS}
      */
     public static final int            DEFAULT_CYCLE = 0;
 
     /**
-     * 用来控制初始化槽时的并发
+     * Used to control the concurrency when initializing the slot
      */
     private static final ReentrantLock initLock      = new ReentrantLock(false);
 
-    /***
-     * 输出拼接器
-     */
     private static XStringBuilder      buffer        = new XStringBuilder();
 
-    /***
-     * 是否关闭统计日志打印,默认不关闭
+    /**
+     * Whether to turn off stat log print, the default is not closed
      */
     protected AtomicBoolean            isClosePrint  = new AtomicBoolean(false);
 
-    /***
-     * 输出器
-     */
     protected TraceAppender            appender      = null;
 
     /**
-     * 统计日志的名称
+     * The name of the stat log
      */
     protected String                   statTracerName;
 
-    /***
-     * 周期时间,一次统计数据的周期时间,单位:秒
+    /**
+     * period time(Unit:second)
      */
     private long                       periodTime;
-
-    /**
-     * 滚动策略
-     */
     private String                     rollingPolicy;
-
-    /**
-     * 日志保留天数
-     */
     private String                     logReserveConfig;
-
     /**
-     * 输出周期间隔,单位:次数
+     * Output cycle interval
      */
     private int                        printCycle    = 0;
+
     /**
-     * 当前已被计数的周期数,单位:次数
+     * The number of cycles currently counted
      */
     private long                       countCycle    = 0;
+
     /**
-     * "统计数据"滚动数组
+     * "Statistics" scrolling array
      */
     private Map<StatKey, StatValues>[] statDatasPair = new ConcurrentHashMap[2];
+
     /**
-     * "统计数据"滚动数组的当前下标
+     * The current subscript of the "statistics" scrolling array
      */
     private int                        currentIndex  = 0;
 
     /**
-     * 统计数据
+     * Statistical data
      */
     protected Map<StatKey, StatValues> statDatas;
 
@@ -124,7 +113,6 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
 
         AssertUtils.hasText(statTracerName, "Statistics tracer name cat't be empty.");
         this.statTracerName = statTracerName;
-        //周期时间:单位秒
         this.periodTime = this.globalConfiguredCycleTime(periodTime);
         this.printCycle = outputCycle;
         this.rollingPolicy = rollingPolicy;
@@ -133,14 +121,14 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
             this.statDatasPair[i] = new ConcurrentHashMap<StatKey, StatValues>(100);
         }
         this.statDatas = statDatasPair[currentIndex];
-        //注册定时任务并启动
+        //Register a scheduled task and start
         SofaTracerStatisticReporterCycleTimesManager.registerStatReporter(this);
     }
 
-    /****
-     * 获取统计日志的输出时间间隔
-     * @param defaultCycle 默认间隔 60s
-     * @return 统计日志的时间间隔
+    /**
+     * Get the output interval of the stat log
+     * @param defaultCycle default interval is 60s
+     * @return
      */
     private long globalConfiguredCycleTime(long defaultCycle) {
         long cycleTime = defaultCycle;
@@ -186,30 +174,31 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
         this.doReportStat(sofaTracerSpan);
     }
 
-    /***
-     * 执行统计操作,并调用 {@link AbstractSofaTracerStatisticReporter#addStat}
-     * @param sofaTracerSpan 要被统计的 span
+    /**
+     * report stat log,and call {@link AbstractSofaTracerStatisticReporter#addStat}
+     * @param sofaTracerSpan
      */
     public abstract void doReportStat(SofaTracerSpan sofaTracerSpan);
 
     /**
-     * 默认只提供累加的统计方法
+     * By default, only the accumulated stat methods are provided.
      *
-     * 向槽中更新数据 前面是唯一的key，后面是数值列 统计计算会对不同key的数值列进行加和
+     * Update the data to the slot. The front is the unique key, followed by the numeric column.
+     * The statistical calculation adds the numeric columns of different keys.
      *
-     * @param keys   被统计 key 的唯一标示
-     * @param values 被统计的值
+     * @param keys   Unique identifier of the key being counted
+     * @param values Statistical value
      */
     protected void addStat(StatKey keys, long... values) {
         StatValues oldValues = statDatas.get(keys);
         if (oldValues == null) {
-            // 初始化过程，需要加锁和二次判空
+            // need to lock and double judgment
             initLock.lock();
             try {
                 oldValues = statDatas.get(keys);
-                // 新增一个key，先判断是否超出最大key上限
+                // check whether the maximum key limit is exceeded
                 if (null == oldValues) {
-                    // 本次是第一次创建该槽，创建完毕设置第一次的统计值，即可返回
+                    // Create a slot with specified value
                     oldValues = new StatValues(values);
                     statDatas.put(keys, oldValues);
                     return;
@@ -218,14 +207,14 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
                 initLock.unlock();
             }
         }
-        // 已有其他线程创建过槽，合并新数据
+        // Other threads have created slots and merge new data
         if (oldValues != null) {
             oldValues.update(values);
         }
     }
 
     /**
-     * 切换当前下标并返回切换前的统计数据
+     * Switch the current subscript and return the stat before switching
      */
     @Override
     public Map<StatKey, StatValues> shiftCurrentIndex() {
@@ -236,18 +225,19 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
     }
 
     /**
-     * 返回当前被统计的数据
+     * Return the currently statistical data
      *
-     * @return 当前被统计的数据
+     * @return
      */
     public Map<StatKey, StatValues> getStatData() {
         return new HashMap<StatKey, StatValues>(statDatas);
     }
 
     /**
-     * 获取另一组非当前正在统计的数据,总共:两组数据进行统计和打印
+     * Get another set of data that is not currently being counted,
+     * Total: two sets of data for statistics and printing
      *
-     * @return 非当前正在统计的数据
+     * @return
      */
     public Map<StatKey, StatValues> getOtherStatData() {
         return new HashMap<StatKey, StatValues>(statDatasPair[1 - currentIndex]);
@@ -261,7 +251,7 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
     @Override
     public void print(StatKey statKey, long[] values) {
         if (this.isClosePrint.get()) {
-            //关闭统计日志输出
+            //Close the statistics log output
             return;
         }
         buffer.reset();
@@ -279,10 +269,10 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
             } else {
                 appender.append(buffer.toString());
             }
-            // 这里强制刷一次
+            // Forced to flush
             appender.flush();
         } catch (Throwable t) {
-            SelfLog.error("统计日志<" + statTracerName + ">输出异常", t);
+            SelfLog.error("Stat log <" + statTracerName + "> output error!", t);
         }
     }
 
@@ -314,6 +304,6 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
 
     protected boolean isHttpOrMvcSuccess(String resultCode) {
         return resultCode.charAt(0) == '1' || resultCode.charAt(0) == '2'
-               || resultCode.trim().equals("302") || resultCode.trim().equals("301");
+               || "302".equals(resultCode.trim()) || ("301".equals(resultCode.trim()));
     }
 }

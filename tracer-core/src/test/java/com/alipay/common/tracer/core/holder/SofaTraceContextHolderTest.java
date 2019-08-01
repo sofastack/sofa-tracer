@@ -34,7 +34,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>七月 6, 2017</pre>
+ * @since <pre>July 6, 2017</pre>
  */
 public class SofaTraceContextHolderTest {
 

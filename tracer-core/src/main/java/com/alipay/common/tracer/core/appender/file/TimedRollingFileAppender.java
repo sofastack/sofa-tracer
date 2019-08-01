@@ -24,22 +24,26 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * 基于时间的 RollingFileAppender
+ * RollingFileAppender based on Time
  *
  * @author khotyn 4/8/14 2:56 PM
  */
 public class TimedRollingFileAppender extends AbstractRollingFileAppender {
 
-    // The code assumes that the following constants are in a increasing sequence.
+    /**
+     * The code assumes that the following constants are in a increasing sequence.
+     */
     static final int            TOP_OF_TROUBLE          = -1;
-    static final int            TOP_OF_SECONDS          = 0;                             // 添加秒级的滚动主要是为了测试方便
+    /**
+     * Adding seconds of scrolling is mainly for testing convenience
+     */
+    static final int            TOP_OF_SECONDS          = 0;
     static final int            TOP_OF_MINUTE           = 1;
     static final int            TOP_OF_HOUR             = 2;
     static final int            HALF_DAY                = 3;
@@ -54,47 +58,39 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
     private static final String DEFAULT_ROLLING_PATTERN = DAILY_ROLLING_PATTERN;
 
     /**
-     * 下次日志 RollOver 的时候，日志文件会被重命名成这个文件。
+     * The next time you log RollOver, the log file will be renamed to this file.
      */
     private String              scheduledFilename;
     /**
-     * 预计下次 RollOver 发生的时间
+     * Expect the time of the next RollOver
      */
     private long                nextCheck               = System.currentTimeMillis() - 1;
     /**
-     * 备份的文件的后缀模式
+     * Suffix mode of the backed up file
      */
     private String              datePattern;
     /**
-     * 日期格式化，主要用于格式化文件名用
+     * Date formatting, mainly used to format file names
      */
     private SimpleDateFormat    sdf;
 
     private Date                now                     = new Date();
     /**
-     * 此 Calender 主要用于计算下一次 RollOver 发生的时间
+     * This Calender is mainly used to calculate the time when the next RollOver occurs.
      */
     private RollingCalendar     rc                      = new RollingCalendar();
 
     /**
-     * 日志的保留时间
+     * Log retention time
      */
     private LogReserveConfig    logReserveConfig        = new LogReserveConfig(
                                                             SofaTracerConfiguration.DEFAULT_LOG_RESERVE_DAY,
                                                             0);
 
-    /**
-     * @param file 文件名
-     * @param append 是否累加
-     */
     public TimedRollingFileAppender(String file, boolean append) {
         this(file, DEFAULT_BUFFER_SIZE, append, DEFAULT_ROLLING_PATTERN);
     }
 
-    /**
-     * @param file 文件
-     * @param datePattern 日期格式
-     */
     public TimedRollingFileAppender(String file, String datePattern) {
         this(file, DEFAULT_BUFFER_SIZE, true, datePattern);
     }
@@ -104,20 +100,15 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
         this.logReserveConfig = TracerUtils.parseLogReserveConfig(logReserveConfigString);
     }
 
-    /**
-     * @param file 文件
-     * @param bufferSize 缓冲区大小
-     * @param append 是否追加,默认是
-     */
     public TimedRollingFileAppender(String file, int bufferSize, boolean append) {
         this(file, bufferSize, append, DEFAULT_ROLLING_PATTERN);
     }
 
     /**
-     * @param file 文件
-     * @param bufferSize 缓冲区大小
-     * @param append 是否追加,默认是
-     * @param datePatternParam 日期格式
+     * @param file fileName
+     * @param bufferSize bufferSize
+     * @param append default is true
+     * @param datePatternParam date format
      */
     public TimedRollingFileAppender(String file, int bufferSize, boolean append,
                                     String datePatternParam) {
@@ -134,10 +125,10 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
     }
 
     /**
-     * 判断是否应该现在进行 RollOver
-     *
-     * @return true 现在进行 RollOver
+     * Determine if RollOver should be done now
+     * @return true:Now RollOver
      */
+    @Override
     public boolean shouldRollOverNow() {
         long n = System.currentTimeMillis();
         if (n >= nextCheck) {
@@ -150,8 +141,9 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
     }
 
     /**
-     * 清理日志
+     * clean log
      */
+    @Override
     public void cleanup() {
         try {
             File parentDirectory = logFile.getParentFile();
@@ -166,12 +158,8 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
                 return;
             }
 
-            File[] logFiles = parentDirectory.listFiles(new FilenameFilter() {
-
-                public boolean accept(File dir, String name) {
-                    return StringUtils.isNotBlank(name) && name.startsWith(baseName);
-                }
-            });
+            File[] logFiles = parentDirectory.listFiles((dir,name)->
+                 StringUtils.isNotBlank(name) && name.startsWith(baseName));
 
             if (logFiles == null || logFiles.length == 0) {
                 return;
@@ -248,13 +236,11 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
         }
     }
 
-    /**
-     *
-     */
+    @Override
     public void rollOver() {
-        /* Compute filename, but only if datePattern is specified */
+        // Compute filename, but only if datePattern is specified
         if (datePattern == null) {
-            SelfLog.error("没有设置文件滚动的后缀名模式");
+            SelfLog.error("No Settings for file rolling suffix's model");
             return;
         }
 
@@ -269,7 +255,7 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
         try {
             bos.close();
         } catch (IOException e) {
-            SelfLog.error("关闭输出流失败", e);
+            SelfLog.error("Failed to closing the output stream", e);
         }
 
         File target = new File(scheduledFilename);
@@ -279,10 +265,9 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
 
         boolean result = logFile.renameTo(target);
         if (result) {
-            System.out.println(fileName + " -> " + scheduledFilename);
+            SelfLog.info(fileName + " -> " + scheduledFilename);
         } else {
-            System.err.println("Failed to rename [" + fileName + "] to [" + scheduledFilename
-                               + "].");
+            SelfLog.error("Failed to rename [" + fileName + "] to [" + scheduledFilename + "].");
         }
 
         this.setFile(false);
@@ -305,7 +290,8 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
         if (datePattern != null) {
             for (int i = TOP_OF_SECONDS; i <= TOP_OF_MONTH; i++) {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(datePattern);
-                simpleDateFormat.setTimeZone(gmtTimeZone); // do all date formatting in GMT
+                // do all date formatting in GMT
+                simpleDateFormat.setTimeZone(gmtTimeZone);
                 String r0 = simpleDateFormat.format(epoch);
                 rollingCalendar.setType(i);
                 Date next = new Date(rollingCalendar.getNextCheckMillis(epoch));
@@ -315,7 +301,8 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
                 }
             }
         }
-        return TOP_OF_TROUBLE; // Deliberately head for trouble...
+        // Deliberately head for trouble...
+        return TOP_OF_TROUBLE;
     }
 }
 
@@ -342,16 +329,16 @@ class RollingCalendar extends GregorianCalendar {
     }
 
     /**
-     * @param now 日期
-     * @return 下一个整数日期
+     * @param now
+     * @return Next Date
      */
     public long getNextCheckMillis(Date now) {
         return getNextCheckDate(now).getTime();
     }
 
     /**
-     * @param now 当前
-     * @return 下一个周期日周期
+     * @param now
+     * @return Next cycle day
      */
     public Date getNextCheckDate(Date now) {
         this.setTime(now);

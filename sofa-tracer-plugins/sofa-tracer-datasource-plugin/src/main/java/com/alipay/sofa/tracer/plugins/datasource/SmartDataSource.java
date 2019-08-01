@@ -19,7 +19,6 @@ package com.alipay.sofa.tracer.plugins.datasource;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.datasource.tracer.*;
 import com.alipay.sofa.tracer.plugins.datasource.utils.DataSourceUtils;
-import com.alipay.sofa.tracer.plugins.datasource.tracer.Endpoint;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -93,6 +92,7 @@ public class SmartDataSource extends BaseDataSource {
     /**
      * init method must be invoked first after construction
      */
+    @Override
     public void init() {
         if (initialized.compareAndSet(false, true)) {
             if (StringUtils.isBlank(dbType)) {

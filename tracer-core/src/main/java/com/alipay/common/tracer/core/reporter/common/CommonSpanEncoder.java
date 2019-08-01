@@ -29,9 +29,10 @@ import java.io.IOException;
 /**
  * CommonSpanEncoder
  * <p>
- * 客户端错误和服务端错误均打印在同一个文件中
+ *      Client errors and server errors are printed in the same file
+ * </p>
  *
- * 注意是无状态实例:多个日志打印共用的一个实例
+ * Note that there is a stateless instance: an instance of multiple log prints shared
  *
  * @author yangguanchao
  * @since 2017/06/27
@@ -45,9 +46,9 @@ public class CommonSpanEncoder implements SpanEncoder<CommonLogSpan> {
         }
         SofaTracerSpanContext spanContext = commonLogSpan.getSofaTracerSpanContext();
         XStringBuilder xsb = new XStringBuilder();
-        //报告开始的时间作为打印的时间,不存在完成时间
+        //The time when the report started as the time of printing, there is no completion time
         xsb.append(Timestamp.format(commonLogSpan.getStartTime()))
-            //保证构造common也携带过来
+            //Ensure that the construct common is also carried
             .append(commonLogSpan.getTagsWithStr().get(SpanTags.CURR_APP_TAG.getKey()))
             .append(spanContext.getTraceId()).append(spanContext.getSpanId());
 

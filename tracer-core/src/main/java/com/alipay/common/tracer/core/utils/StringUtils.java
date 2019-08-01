@@ -57,11 +57,6 @@ public class StringUtils {
 
     private static final String  CURRENT_PATH             = ".";
 
-    /***
-     * 字符串是否为空
-     * @param str 字符串
-     * @return true : 字符串为空
-     */
     public static boolean isBlank(String str) {
         int strLen;
         if (str == null || (strLen = str.length()) == 0) {
@@ -75,23 +70,16 @@ public class StringUtils {
         return true;
     }
 
-    /**
-     * 字符串是否不为空
-     *
-     * @param str 字符串
-     * @return true : 非空
-     */
     public static boolean isNotBlank(String str) {
         return !isBlank(str);
     }
 
     /**
-     * <p>
-     * 将map转成string并在每一个 key 添加指定的前缀, 如 {"k1":"v1"}
-     * </p>
-     * @param map map 要映射的集合
-     * @param prefix prefix 前缀
-     * @return 字符串携带指定前缀 prefix_k1=v1
+     * Convert the map to a string and add the specified prefix to each key, such as {"k1":"v1"}
+     *
+     * @param map       origin data
+     * @param prefix    prefix
+     * @return
      */
     public static String mapToStringWithPrefix(Map<String, String> map, String prefix) {
         StringBuilder sb = new StringBuilder(XStringBuilder.DEFAULT_BUFFER_SIZE);
@@ -113,11 +101,10 @@ public class StringUtils {
     }
 
     /**
-     * <p>
-     * 将map转成string, 如{"k1":"v1"}
-     * </p>
-     * @param map 要映射的集合
-     * @return 字符串 k1=v1
+     * Convert the map to a string, such as {"k1":"v1"}
+     *
+     * @param map origin data
+     * @return
      */
     public static String mapToString(Map<String, String> map) {
         StringBuilder sb = new StringBuilder(XStringBuilder.DEFAULT_BUFFER_SIZE);
@@ -136,16 +123,14 @@ public class StringUtils {
     }
 
     /**
-     * 由string转成map, 函数 mapToString 的逆过程
-     * @param str 字符串
-     * @param map 映射的集合
+     * Convert from string to map, the inverse of the function mapToString
+     * @param str origin data
+     * @param map default result
      */
     public static void stringToMap(String str, Map<String, String> map) {
-
         if (isBlank(str)) {
             return;
         }
-
         String key = null;
         String value = null;
         int mark = -1;
@@ -188,15 +173,15 @@ public class StringUtils {
     }
 
     /**
-     * @param items 列表
-     * @param separator 分隔符
-     * @param prefix 前缀
-     * @param postfix 后缀
-     * @return 字符串
+     * Array to string
+     * @param items     origin data
+     * @param separator separator
+     * @param prefix    prefix
+     * @param postfix   postfix
+     * @return
      */
     public static String arrayToString(Object[] items, char separator, String prefix, String postfix) {
         String emptyArrayString = (EMPTY_STRING + prefix) + postfix;
-
         // handle null, zero and one elements before building a buffer
         if (items == null) {
             return emptyArrayString;
@@ -231,24 +216,34 @@ public class StringUtils {
         return buf.toString();
     }
 
-    //替换str中的"&"，"=" 和 "%"
+    /**
+     * Replace "&"、"=" and "%"
+     * @param str origin data
+     */
     public static String escapePercentEqualAnd(String str) {
-        // 必须先对 % 做转义
+        //You must first escape the %
         return escape(
             escape(escape(str, PERCENT, PERCENT_ESCAPE), AND_SEPARATOR, AND_SEPARATOR_ESCAPE),
             EQUAL_SEPARATOR, EQUAL_SEPARATOR_ESCAPE);
     }
 
-    //将 str 中被转义的 & ， = 和 % 转义回来
+    /**
+     * escapePercentEqualAnd's Reverse Operation
+     * @param str
+     * @return
+     */
     public static String unescapeEqualAndPercent(String str) {
-        // 必须最后才对 % 做转义
+        // You must first escape the %
         return escape(
             escape(escape(str, EQUAL_SEPARATOR_ESCAPE, EQUAL_SEPARATOR), AND_SEPARATOR_ESCAPE,
                 AND_SEPARATOR), PERCENT_ESCAPE, PERCENT);
     }
 
     /**
-     * 将str中的oldStr替换为newStr
+     * Replace oldStr in str with newStr
+     * @param str       target origin data
+     * @param oldStr    oldStr
+     * @param newStr    newStr
      */
     private static String escape(String str, String oldStr, String newStr) {
         if (str == null) {
@@ -468,25 +463,23 @@ public class StringUtils {
         return sb.toString();
     }
 
-    /***
-     * 对指定的字符串中出现的字符进行计数
-     * @param str 要被统计的字符串
-     * @param c 出现的字符
-     * @return 个数
+    /**
+     * Counts the characters that appear in the specified string
+     *
+     * @param str   target str
+     * @param c     target char c
+     * @return
      */
     public static int countMatches(String str, char c) {
         if (str == null || str.length() == 0) {
             return 0;
         }
-
         int count = 0;
-
         for (int i = 0; i < str.length(); i++) {
             if (str.charAt(i) == c) {
                 count++;
             }
         }
-
         return count;
     }
 

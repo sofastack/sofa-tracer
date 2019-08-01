@@ -37,9 +37,9 @@ import java.util.List;
  */
 public class SofaTracerOkHttpInterceptor implements okhttp3.Interceptor {
 
-    protected String         appName       = null;
+    protected String         appName;
 
-    protected String         targetAppName = null;
+    protected String         targetAppName;
 
     protected AbstractTracer okHttpTracer;
 

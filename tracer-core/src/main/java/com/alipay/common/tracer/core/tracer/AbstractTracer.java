@@ -50,7 +50,6 @@ public abstract class AbstractTracer {
 
     public AbstractTracer(String tracerType, boolean clientTracer, boolean serverTracer) {
         SofaTracer.Builder builder = new SofaTracer.Builder(tracerType);
-        //构造 client 的日志打印实例
         if (clientTracer) {
             Reporter clientReporter = this.generateReporter(this.generateClientStatReporter(),
                 this.getClientDigestReporterLogName(), this.getClientDigestReporterRollingKey(),
@@ -59,7 +58,6 @@ public abstract class AbstractTracer {
                 builder.withClientReporter(clientReporter);
             }
         }
-        //构造 server 的日志打印实例
         if (serverTracer) {
             Reporter serverReporter = this.generateReporter(this.generateServerStatReporter(),
                 this.getServerDigestReporterLogName(), this.getServerDigestReporterRollingKey(),
@@ -75,10 +73,8 @@ public abstract class AbstractTracer {
     protected Reporter generateReporter(AbstractSofaTracerStatisticReporter statReporter,
                                         String logName, String logRollingKey, String logNameKey,
                                         SpanEncoder<SofaTracerSpan> spanEncoder) {
-        //构造摘要实例
         String digestRollingPolicy = SofaTracerConfiguration.getRollingPolicy(logRollingKey);
         String digestLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(logNameKey);
-        //构造实例
         DiskReporterImpl reporter = new DiskReporterImpl(logName, digestRollingPolicy,
             digestLogReserveConfig, spanEncoder, statReporter, logNameKey);
         return reporter;
@@ -197,7 +193,7 @@ public abstract class AbstractTracer {
 
     /**
      * server receive request
-     * @param sofaTracerSpanContext 要恢复的上下文
+     * @param sofaTracerSpanContext The context to restore
      * @return SofaTracerSpan
      */
     public SofaTracerSpan serverReceive(SofaTracerSpanContext sofaTracerSpanContext) {

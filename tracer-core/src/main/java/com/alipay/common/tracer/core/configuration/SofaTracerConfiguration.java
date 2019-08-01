@@ -31,77 +31,78 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  *
  * @author luoguimu123
- * @version $Id: SofaTracerConfiguration.java, v 0.1 2017年06月22日 下午3:12 luoguimu123 Exp $
+ * @version $Id: SofaTracerConfiguration.java, v 0.1 June 22, 2017 3:12 PM luoguimu123 Exp $
  */
 public class SofaTracerConfiguration {
 
     /**
-     * 是否开启中间件的 Digest 日志，关闭这个开关将会关闭所有的中间件的 Digest 日志
+     * Whether to open the Digest log of the middleware, closing this switch will close the Digest log of all middleware.
      */
     public static final String                     DISABLE_MIDDLEWARE_DIGEST_LOG_KEY            = "disable_middleware_digest_log";
     /**
-     * key=是否开启特定的中间件 Digest 日志开关,value=map[日志类型为key:value(开关)]
+     * com.alipay.sofa.tracer.disableConfiguration[logType]=true
      */
     public final static String                     DISABLE_DIGEST_LOG_KEY                       = "disable_digest_log";
 
     /**
-     * Tracer 的全局的 Rolling 的配置的 Key
+     * Tracer's Global Rolling configured Key
      */
     public final static String                     TRACER_GLOBAL_ROLLING_KEY                    = "tracer_global_rolling_policy";
 
     /**
-     * Tracer 的全局的日志的保留天数配置的 Key
+     * Tracer's global log retention days configured Key
      */
     public final static String                     TRACER_GLOBAL_LOG_RESERVE_DAY                = "tracer_global_log_reserve_day";
 
-    /***
-     * 默认日志的保留天数
+    /**
+     * Default log retention days
      */
     public static final int                        DEFAULT_LOG_RESERVE_DAY                      = 7;
 
     /**
-     * 阈值，业务透传字段的限制长度
+     * Threshold, the length of the service transparent field
      */
     public final static int                        PEN_ATTRS_LENGTH_TRESHOLD                    = 1024;
 
     /**
-     * Tracer 的穿透数据的最大值的配置的 Key
+     * The configuration of the maximum value of the tracer's penetration data
      */
     public static final String                     TRACER_PENETRATE_ATTRIBUTE_MAX_LENGTH        = "tracer_penetrate_attribute_max_length";
 
     /**
-     * Tracer 系统穿透数据的最大值的配置的 Key
+     * The configuration key of the maximum value of the Tracer system penetration data
      */
     public static final String                     TRACER_SYSTEM_PENETRATE_ATTRIBUTE_MAX_LENGTH = "tracer_system_penetrate_attribute_max_length";
 
     /**
-     * 统计日志的打印的间隔，加入这个选项主要是为了可测试性的考虑,系统属性关键字
+     * The interval for printing the stat log.
+     * This option is mainly for testability considerations. System attribute keywords.
      */
     public static final String                     STAT_LOG_INTERVAL                            = "stat_log_interval";
 
-    /*****************异步队列配置项   start***************/
+    /***************** Asynchronous queue configuration item  start ***************/
 
     /**
-     * 是否允许丢失日志
+     * Whether to allow lost logs
      */
     public static final String                     TRACER_ASYNC_APPENDER_ALLOW_DISCARD          = "tracer_async_appender_allow_discard";
     /**
-     * 是否日志输出丢失日志的数量
+     * Whether the log output loses the number of logs
      */
     public static final String                     TRACER_ASYNC_APPENDER_IS_OUT_DISCARD_NUMBER  = "tracer_async_appender_is_out_discard_number";
     /**
-     * 是否日志输出丢失日志的TraceId和RpcId
+     * Whether the log output loses the trace of the TraceId and RpcId
      */
     public static final String                     TRACER_ASYNC_APPENDER_IS_OUT_DISCARD_ID      = "tracer_async_appender_is_out_discard_id";
     /**
-     * 丢失日志的数量达到该阈值进行一次日志输出
+     * The number of lost logs reaches this threshold for a log output
      */
     public static final String                     TRACER_ASYNC_APPENDER_DISCARD_OUT_THRESHOLD  = "tracer_async_appender_discard_out_threshold";
 
-    /*****************异步队列配置项   end***************/
+    /***************** Asynchronous queue configuration item   end ***************/
 
     /**
-     * 应用名称
+     * app name
      */
     public static final String                     TRACER_APPNAME_KEY                           = "spring.application.name";
 
@@ -111,13 +112,11 @@ public class SofaTracerConfiguration {
 
     private static SofaTracerExternalConfiguration sofaTracerExternalConfiguration              = null;
 
-    /***************** 采样配置项  end ***************/
-
-    /** 采样策略名称key */
+    /** The key of Sampling policy name */
     public static final String                     SAMPLER_STRATEGY_NAME_KEY                    = "tracer_sampler_strategy_name_key";
-    /** 自定义采样规则类名 */
+    /** Custom sampling rule class name */
     public static final String                     SAMPLER_STRATEGY_CUSTOM_RULE_CLASS_NAME      = "tracer_sampler_strategy_custom_rule_class_name";
-    /** 采样率key */
+    /** The key of Sampling rate */
     public static final String                     SAMPLER_STRATEGY_PERCENTAGE_KEY              = "tracer_sampler_strategy_percentage_key";
 
     static {
@@ -132,41 +131,43 @@ public class SofaTracerConfiguration {
         } catch (Exception e) {
             SelfLog.info("sofa.tracer.properties文件不存在");
         }
-        //静态统计信息
+        //Static statistics
         StaticInfoLog.logStaticInfo();
     }
 
     /**
-     * 设置配置项
+     * Setting configuration item for String type value
      *
-     * @param key   配置项 key
-     * @param value 配置项的值
+     * @param key   configuration item key
+     * @param value configuration item value
      */
     public static void setProperty(String key, String value) {
         properties.put(key, value);
     }
 
     /**
-     * @param key 关键字
-     * @param value 值
+     * Setting configuration item for Integer type value
+     * @param key    configuration item key
+     * @param value  configuration item value
      */
     public static void setProperty(String key, Integer value) {
         properties.put(key, value);
     }
 
     /**
-     * @param key 关键字
-     * @param value 值
+     * Setting configuration item for Map type value
+     * @param key   configuration item key
+     * @param value configuration item value
      */
     public static void setProperty(String key, Map<String, String> value) {
         properties.put(key, value);
     }
 
     /**
-     * 获取配置项
+     * get property by key
      *
-     * @param key 配置项的 key
-     * @return 属性值
+     * @param key configuration item key
+     * @return
      */
     public static String getProperty(String key) {
         return getProperty(key, StringUtils.EMPTY_STRING);
@@ -186,9 +187,10 @@ public class SofaTracerConfiguration {
     }
 
     /**
-     * @param key 关键字
-     * @param defaultValue 默认值
-     * @return 整数
+     * get property with default value
+     * @param key key
+     * @param defaultValue default value
+     * @return Integer
      */
     public static Integer getIntegerDefaultIfNull(String key, Integer defaultValue) {
         Integer value = getInteger(key);
@@ -196,7 +198,8 @@ public class SofaTracerConfiguration {
     }
 
     /**
-     * @param key 关键字
+     * get property
+     * @param key key
      * @return map
      */
     public static Map<String, String> getMapEmptyIfNull(String key) {
@@ -213,11 +216,11 @@ public class SofaTracerConfiguration {
     }
 
     /**
-     * 获取配置项
+     * get property
      *
-     * @param key          配置项的 key
-     * @param defaultValue 如果获取出得配置项是 null，则返回 defaultValue
-     * @return 配置值或者默认值
+     * @param key           key
+     * @param defaultValue  defaultValue
+     * @return defaultValue if value is not null
      */
     public static String getProperty(String key, String defaultValue) {
         if (properties.containsKey(key)) {
@@ -229,7 +232,8 @@ public class SofaTracerConfiguration {
         if (fileProperties.containsKey(key)) {
             return (String) fileProperties.get(key);
         }
-        //最后判断外部注入的配置中是否存在该key对应的配置值
+        // Finally, it is determined whether the configuration value corresponding to
+        // the key exists in the externally injected configuration.
         if (sofaTracerExternalConfiguration != null
             && sofaTracerExternalConfiguration.contains(key)) {
             return sofaTracerExternalConfiguration.getValue(key);
@@ -238,10 +242,10 @@ public class SofaTracerConfiguration {
     }
 
     /**
-     * 获取某一个日志的 Rolling 策略
+     * Get a Rolling policy for a log
      *
-     * @param rollingKey 滚动策略名称
-     * @return 某一个日志的 Rolling 策略，默认的策略是
+     * @param rollingKey rollingKey
+     * @return The Rolling policy of a log, the default policy is
      * {@link TimedRollingFileAppender#DAILY_ROLLING_PATTERN}
      */
     public static String getRollingPolicy(String rollingKey) {
@@ -256,10 +260,10 @@ public class SofaTracerConfiguration {
             : rollingPolicy;
     }
 
-    /***
-     * 获取日志保留天数
-     * @param logReserveKey 日志保留天数关键字,跟进此获取具体的保留值
-     * @return 此关键字对应的日志保留天数
+    /**
+     * Get log retention days
+     * @param logReserveKey The key of Log retention days
+     * @return
      */
     public static String getLogReserveConfig(String logReserveKey) {
         if (StringUtils.isBlank(logReserveKey)) {

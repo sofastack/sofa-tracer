@@ -26,7 +26,7 @@ import org.mockito.Mockito;
 /**
  *
  * @author luoguimu123
- * @version $Id: SofaTracerCallableTest.java, v 0.1 2017年06月22日 下午3:38 luoguimu123 Exp $
+ * @version $Id: SofaTracerCallableTest.java, v 0.1 June 22, 2017 3:38 PM luoguimu123 Exp $
  */
 public class SofaTracerCallableTest {
     SofaTraceContext traceContext;
@@ -69,5 +69,4 @@ public class SofaTracerCallableTest {
         Mockito.verify(wrappedCallable, Mockito.times(1)).call();
         Mockito.verifyNoMoreInteractions(traceContext, wrappedCallable);
     }
-
 }

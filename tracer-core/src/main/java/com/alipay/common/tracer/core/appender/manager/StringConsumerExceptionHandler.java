@@ -22,12 +22,12 @@ import com.alipay.disruptor.ExceptionHandler;
 /**
  *
  * @author luoguimu123
- * @version $Id: StringConsumerExceptionHandler.java, v 0.1 2017年11月21日 下午7:06 luoguimu123 Exp $
+ * @version $Id: StringConsumerExceptionHandler.java, v 0.1 November 21, 2017 7:06 PM luoguimu123 Exp $
  */
 public class StringConsumerExceptionHandler implements ExceptionHandler<StringEvent> {
     @Override
     public void handleEventException(Throwable ex, long sequence, StringEvent event) {
-        //循环调用
+        //Loop call
         if (event != null) {
             SynchronizingSelfLog.error(
                 "AsyncConsumer occurs exception during handle StringEvent, The string is["

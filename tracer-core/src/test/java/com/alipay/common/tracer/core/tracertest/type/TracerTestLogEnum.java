@@ -24,23 +24,15 @@ package com.alipay.common.tracer.core.tracertest.type;
  */
 public enum TracerTestLogEnum {
 
-    // 其他日志
-    RPC_CLIENT("rpc_client_log_name", "rpc_client.log", "rpc_client_rolling"), // 业务成功日志
-    RPC_SERVER("rpc_server_log_name", "rpc_server.log", "rpc_server_rolling");// 业务异常日志
+    RPC_CLIENT("rpc_client_log_name", "rpc_client.log", "rpc_client_rolling"), RPC_SERVER(
+                                                                                          "rpc_server_log_name",
+                                                                                          "rpc_server.log",
+                                                                                          "rpc_server_rolling");
 
-    /***
-     * 获取保留天数 getLogReverseDay 关键字
-     */
     private String logReverseKey;
 
-    /***
-     * 默认生成的日志名字 .log 结尾同时作为一个类型
-     */
     private String defaultLogName;
 
-    /***
-     * 日志的滚动策略
-     */
     private String rollingKey;
 
     TracerTestLogEnum(String logReverseKey, String defaultLogName, String rollingKey) {

@@ -27,24 +27,23 @@ public class CommonUtils {
     private static int LONG_BYTES            = Long.SIZE / 8;
     private static int LONG_HEX_STRING_BYTES = LONG_BYTES * 2;
 
-    /***
-     * 取数值
-     * @param num  数字
-     * @param defaultInt 默认值
-     * @param <T> 类型 Number
-     * @return Number
+    /**
+     * Take the value
+     * @param num
+     * @param defaultInt
+     * @param <T>  Number
+     * @return T
      */
     public static <T extends Number> T parseNum(T num, T defaultInt) {
         return num == null ? defaultInt : num;
     }
 
-    /***
+    /**
      * Convert a hex string to a array containing two unsigned long elements
      * @param hexString hex string
      * @return long array: [0] -- High 64 bit, [1] -- low 64 bit
      */
     public static long[] hexToDualLong(String hexString) {
-        //Assert.hasText(hexString, "Can't convert empty hex string to long");
         int length = hexString.length();
         if (length < 1) {
             throw new IllegalArgumentException("Malformed id(length must be more than zero): "
@@ -76,13 +75,12 @@ public class CommonUtils {
         return result;
     }
 
-    /***
+    /**
      * Convert a hex string to a unsigned long
      * @param hexString hex string
      * @return long
      */
     public static long hexToLong(String hexString) {
-        //Assert.hasText(hexString, "Can't convert empty hex string to long");
         int length = hexString.length();
         if (length < 1) {
             throw new IllegalArgumentException("Malformed id(length must be more than zero): "
@@ -106,7 +104,7 @@ public class CommonUtils {
         return result;
     }
 
-    /***
+    /**
      * Judge if a string is hex string
      * @param str string
      * @return boolean

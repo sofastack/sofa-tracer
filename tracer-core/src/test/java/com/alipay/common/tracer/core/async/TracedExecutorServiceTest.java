@@ -34,7 +34,7 @@ import static org.mockito.Mockito.*;
 /**
  *
  * @author luoguimu123
- * @version $Id: TracedExecutorServiceTest.java, v 0.1 2017年06月22日 下午3:59 luoguimu123 Exp $
+ * @version $Id: TracedExecutorServiceTest.java, v 0.1 June 22, 2017 3:59 PM luoguimu123 Exp $
  */
 public class TracedExecutorServiceTest {
     private static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;

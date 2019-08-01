@@ -27,12 +27,12 @@ import com.alipay.common.tracer.core.context.trace.SofaTracerThreadLocalTraceCon
  */
 public class SofaTraceContextHolder {
 
-    /***
+    /**
      * singleton SofaTraceContext
      */
     private static final SofaTraceContext SOFA_TRACE_CONTEXT = new SofaTracerThreadLocalTraceContext();
 
-    /***
+    /**
      * Get threadlocal alipay trace context
      * @return SofaTraceContext
      */

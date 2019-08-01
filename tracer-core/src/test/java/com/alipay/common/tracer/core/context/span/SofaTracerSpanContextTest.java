@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>七月 8, 2017</pre>
+ * @since <pre>July 8, 2017</pre>
  */
 public class SofaTracerSpanContextTest {
 
