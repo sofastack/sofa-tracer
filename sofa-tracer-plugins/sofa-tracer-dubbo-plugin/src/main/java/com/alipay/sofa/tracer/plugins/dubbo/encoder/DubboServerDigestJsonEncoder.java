@@ -23,6 +23,7 @@ import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.tracer.plugins.dubbo.constants.AttachmentKeyConstants;
 import io.opentracing.tag.Tags;
 
 import java.io.IOException;
@@ -60,10 +61,17 @@ public class DubboServerDigestJsonEncoder extends AbstractDigestSpanEncoder {
         data.append(CommonSpanTags.LOCAL_PORT, tagStr.get(CommonSpanTags.LOCAL_PORT));
         //protocol
         data.append(CommonSpanTags.PROTOCOL, tagStr.get(CommonSpanTags.PROTOCOL));
-        long serializeTime = getTime(tagNum.get(CommonSpanTags.SERVER_SERIALIZE_TIME));
+
+        long serializeTime = getTime(tagNum.get(AttachmentKeyConstants.SERVER_SERIALIZE_TIME));
         data.append(CommonSpanTags.SERVER_SERIALIZE_TIME, serializeTime);
-        long deserializeTime = getTime(tagNum.get(CommonSpanTags.SERVER_DESERIALIZE_TIME));
+        long deserializeTime = getTime(tagNum.get(AttachmentKeyConstants.SERVER_DESERIALIZE_TIME));
         data.append(CommonSpanTags.SERVER_DESERIALIZE_TIME, deserializeTime);
+
+        Number reqSizeNum = tagNum.get(AttachmentKeyConstants.SERVER_DESERIALIZE_SIZE);
+        data.append(CommonSpanTags.REQ_SIZE, reqSizeNum == null ? 0 : reqSizeNum.longValue());
+        Number respSizeNum = tagNum.get(AttachmentKeyConstants.SERVER_SERIALIZE_SIZE);
+        data.append(CommonSpanTags.RESP_SIZE, respSizeNum == null ? 0 : respSizeNum.longValue());
+
         //Http status code
         data.append(CommonSpanTags.RESULT_CODE, tagStr.get(CommonSpanTags.RESULT_CODE));
         //error message
