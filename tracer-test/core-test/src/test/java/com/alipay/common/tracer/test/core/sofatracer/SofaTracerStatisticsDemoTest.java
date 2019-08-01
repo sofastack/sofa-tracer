@@ -111,7 +111,8 @@ public class SofaTracerStatisticsDemoTest extends AbstractTestBase {
 
         //统计
         String[] clientArray = clientStatContents.get(clientStatContents.size() - 1).split(",");
-        assertEquals(clientArray[6], String.valueOf(times * duration));
+        // 统计调用次数即可
+        assertEquals(clientArray[5], String.valueOf(times));
         //server stat
         List<String> serverStatContents = FileUtils
             .readLines(customFileLog(TracerTestLogEnum.RPC_SERVER_STAT.getDefaultLogName()));
