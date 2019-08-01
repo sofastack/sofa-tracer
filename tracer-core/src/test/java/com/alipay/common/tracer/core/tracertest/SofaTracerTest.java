@@ -38,12 +38,8 @@ import io.opentracing.tag.Tags;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -53,7 +49,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>七月 1, 2017</pre>
+ * @since <pre>July 1, 2017</pre>
  */
 public class SofaTracerTest extends AbstractTestBase {
 
@@ -135,7 +131,7 @@ public class SofaTracerTest extends AbstractTestBase {
     public void testReportSpan() throws Exception {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testInjectSpan")
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
-        //report 不要禁写
+        //Report Do not prohibit writing
         span.finish();
 
         TestUtil.waitForAsyncLog();
@@ -144,7 +140,7 @@ public class SofaTracerTest extends AbstractTestBase {
             .getDefaultLogName()));
         assertTrue(contents.get(0), contents.size() == 1);
         String contextStr = contents.get(0);
-        //测试打印一条只放了一个 tags
+        //Test print one only put one tag
         assertTrue(contextStr.contains(Tags.SPAN_KIND.getKey())
                    && contextStr.contains(Tags.SPAN_KIND_CLIENT));
     }
@@ -154,7 +150,7 @@ public class SofaTracerTest extends AbstractTestBase {
      */
     @Test
     public void testIsDisableAllDigestLog() {
-        //全局关闭摘要日志
+        //Close the digest log globally
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY, "true");
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testInjectSpan")
@@ -169,7 +165,7 @@ public class SofaTracerTest extends AbstractTestBase {
 
     @Test
     public void testIsDisableClientDigestLog() {
-        //关闭client摘要日志
+        //Close the client digest log
         String clientLogTypeName = TracerTestLogEnum.RPC_CLIENT.getDefaultLogName();
 
         Map<String, String> prop = new HashMap<String, String>();
@@ -182,7 +178,7 @@ public class SofaTracerTest extends AbstractTestBase {
         span.finish();
         assertTrue(!customFileLog(clientLogTypeName).exists());
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.DISABLE_DIGEST_LOG_KEY,
-            new HashMap<String, String>());
+            new HashMap<>());
     }
 
     /**
@@ -207,7 +203,6 @@ public class SofaTracerTest extends AbstractTestBase {
         SofaTracer sofaTracer = new SofaTracer.Builder(tracerType).withClientReporter(reporter)
             .withSampler(sampler).build();
         sofaTracer.close();
-        //确认被调用
         verify(reporter).close();
         sampler.close();
         verify(sampler).close();
@@ -323,7 +318,7 @@ public class SofaTracerTest extends AbstractTestBase {
 
     /**
      * Method: asChildOf(Span parentSpan)
-     * 多个的时候，baggage 复用 只选择第一个父亲
+     * Multiple times, baggage reuse only select the first father
      */
     @Test
     public void testAsChildOfMultiParentSpan() {
@@ -406,9 +401,6 @@ public class SofaTracerTest extends AbstractTestBase {
         String fol1BagKey = "fol1BagKey";
         String fol1BagValue = "fol1BagValue";
         spanFollow1.setBaggageItem(fol1BagKey, fol1BagValue);
-
-        String followTraceId1 = spanFollow1.getSofaTracerSpanContext().getTraceId();
-        String followSpanId1 = spanFollow1.getSofaTracerSpanContext().getSpanId();
         //follow1
         SofaTracerSpan spanFollow2 = (SofaTracerSpan) this.sofaTracer.buildSpan("spanFollow2")
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER).start();

@@ -36,9 +36,6 @@ import java.util.Map;
  */
 public class SpringMvcJsonStatReporter extends SpringMvcStatReporter {
 
-    /***
-     * 输出拼接器
-     */
     private static JsonStringBuilder jsonBuffer = new JsonStringBuilder();
 
     public SpringMvcJsonStatReporter(String statTracerName, String rollingPolicy,
@@ -62,8 +59,7 @@ public class SpringMvcJsonStatReporter extends SpringMvcStatReporter {
         statKey.setResult(success ? "true" : "false");
         //end
         statKey.setEnd(TracerUtils.getLoadTestMark(sofaTracerSpan));
-        //value
-        //次数和耗时，最后一个耗时是单独打印的字段
+        //duration
         long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
         long values[] = new long[] { 1, duration };
         //reserve
@@ -97,7 +93,7 @@ public class SpringMvcJsonStatReporter extends SpringMvcStatReporter {
             } else {
                 appender.append(jsonBuffer.toString());
             }
-            // 这里强制刷一次
+            // Forced to flush
             appender.flush();
         } catch (Throwable t) {
             SelfLog.error("统计日志<" + statTracerName + ">输出异常", t);

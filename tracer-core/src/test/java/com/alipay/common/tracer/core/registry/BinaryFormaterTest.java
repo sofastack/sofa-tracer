@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>六月 24, 2017</pre>
+ * @since <pre>June 24, 2017</pre>
  */
 public class BinaryFormaterTest {
 
@@ -70,7 +70,7 @@ public class BinaryFormaterTest {
     }
 
     /**
-     * 将我们的 spanContext 放在数据头部
+     * Put our spanContext in the data header
      * Method: inject(SofaTracerSpanContext spanContext, ByteBuffer carrier)
      * <p>
      * Method: extract(ByteBuffer carrier)
@@ -89,7 +89,7 @@ public class BinaryFormaterTest {
     }
 
     /**
-     * 将我们的 spanContext 放在数据头部
+     * Put our spanContext in the data header
      * Method: inject(SofaTracerSpanContext spanContext, ByteBuffer carrier)
      * <p>
      * Method: extract(ByteBuffer carrier)
@@ -97,7 +97,7 @@ public class BinaryFormaterTest {
     @Test
     public void testExtract() throws Exception {
         SofaTracerSpanContext spanContext = SofaTracerSpanContext.rootStart();
-        Map<String, String> baggage = new HashMap<String, String>();
+        Map<String, String> baggage = new HashMap<>();
         baggage.put("key", "value");
         baggage.put("key1", "value1");
         baggage.put("key2", "value2");
@@ -115,7 +115,7 @@ public class BinaryFormaterTest {
     }
 
     /**
-     * 将我们的 spanContext 字节码放在数据中间位置
+     * Put our spanContext bytecode in the middle of the data
      * Method: inject(SofaTracerSpanContext spanContext, ByteBuffer carrier)
      * <p>
      * Method: extract(ByteBuffer carrier)
@@ -123,12 +123,12 @@ public class BinaryFormaterTest {
     @Test
     public void testExtractInject() throws Exception {
         SofaTracerSpanContext spanContext = SofaTracerSpanContext.rootStart();
-        Map<String, String> baggage = new HashMap<String, String>();
+        Map<String, String> baggage = new HashMap<>();
         baggage.put("key", "value");
         baggage.put("key1", "value1");
         baggage.put("key2", "value2");
         spanContext.addBizBaggage(baggage);
-        Map<String, String> sysBaggage = new HashMap<String, String>();
+        Map<String, String> sysBaggage = new HashMap<>();
         sysBaggage.put("sys1", "value1");
         sysBaggage.put("sys2", "value2");
         sysBaggage.put("sys3", "value3");
@@ -137,8 +137,8 @@ public class BinaryFormaterTest {
         //inject
         //200 bytes
         ByteBuffer carrier = ByteBuffer.allocate(400);
-        //提前放一些数据进行测试
-        String header = "index_=test雪连哈哈";
+        //Put some data in advance to test
+        String header = "index_=testSOFATracerInject";
         byte[] headerBytes = header.getBytes(SofaTracerConstant.DEFAULT_UTF8_CHARSET);
         carrier.put(headerBytes);
         this.registryExtractorInjector.inject(spanContext, carrier);
@@ -153,7 +153,7 @@ public class BinaryFormaterTest {
     }
 
     /**
-     * 注意：此测试用例不通过,只支持堆内存不支持堆外内存
+     * Note: This test case does not pass, only supports heap memory does not support off-heap memory
      * Method: inject(SofaTracerSpanContext spanContext, ByteBuffer carrier)
      * <p>
      *
@@ -171,11 +171,10 @@ public class BinaryFormaterTest {
         //200 bytes
         ByteBuffer carrier = ByteBuffer.allocateDirect(200);
         this.registryExtractorInjector.inject(spanContext, carrier);
-        SofaTracerSpanContext extractContext = null;
         //extract
         boolean isException = false;
         try {
-            extractContext = this.registryExtractorInjector.extract(carrier);
+            this.registryExtractorInjector.extract(carrier);
         } catch (UnsupportedOperationException exception) {
             isException = true;
         }

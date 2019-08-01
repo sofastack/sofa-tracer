@@ -24,9 +24,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Tracer 的 Daemon 线程，主要是做清理日志的事情
+ * Tracer's Daemon thread, mainly to do the cleanup log
  *
- * @author khotyn 15/2/16 下午4:32
+ * @author khotyn 15/2/16 PM 4:32
  */
 public class TracerDaemon implements Runnable {
 
@@ -36,15 +36,16 @@ public class TracerDaemon implements Runnable {
     private static long                scanInterval     = ONE_HOUR;
 
     /**
-     * 注册被监听的 Appender
+     * Register the Appender being monitored
      *
-     * @param traceAppender 输出实现
+     * @param traceAppender
      */
     public static void watch(TraceAppender traceAppender) {
         watchedAppenders.add(traceAppender);
     }
 
     @SuppressWarnings("InfiniteLoopStatement")
+    @Override
     public void run() {
         while (true) {
             try {
@@ -60,9 +61,9 @@ public class TracerDaemon implements Runnable {
     }
 
     /**
-     * 为了测试方便，调整 Daemon 线程的扫描周期
+     * Adjust the scanning cycle of the Daemon thread for testing convenience
      *
-     * @param scanInterval 扫描周期，单位为秒
+     * @param scanInterval Scan period in seconds
      */
     public static void setScanInterval(long scanInterval) {
         TracerDaemon.scanInterval = scanInterval;

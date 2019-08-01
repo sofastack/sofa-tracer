@@ -28,59 +28,59 @@ import java.util.Map;
 /**
  * AbstractDiskReporter
  *
- * 持久化抽象类,摘要持久化和统计持久化
+ * Abstract classes for persisting log information, including digest log persistence and stat log persistence
  * @author yangguanchao
  * @since 2017/07/14
  */
 public abstract class AbstractDiskReporter extends AbstractReporter {
 
-    /***
-     * 获取 Reporter 实例类型
-     * @return 类型
+    /**
+     * Get Reporter instance type
+     * @return
      */
     @Override
     public String getReporterType() {
-        //默认用摘要日志的类型作为 span 的类型
+        //By default, the type of the digest log is used as the type of span
         return this.getDigestReporterType();
     }
 
-    /***
-     * 输出 span
-     * @param span 要被输出的 span
+    /**
+     * output span
+     * @param span
      */
     @Override
     public void doReport(SofaTracerSpan span) {
-        //设置日志类型,方便打印，否则无法正确打印
+        //Set the log type for easy printing, otherwise it will not print correctly.
         span.setLogType(this.getDigestReporterType());
         if (!isDisableDigestLog(span)) {
-            //打印摘要日志
+            //print digest log
             this.digestReport(span);
         }
-        //统计日志默认是不关闭的
+        //print stat log
         this.statisticReport(span);
     }
 
-    /***
-     * 获取摘要 Reporter 实例类型
-     * @return 类型
+    /**
+     * Get digest reporter instance type
+     * @return
      */
     public abstract String getDigestReporterType();
 
-    /***
-     * 获取统计 Reporter 实例类型
-     * @return 类型
+    /**
+     * Get stat reporter instance type
+     * @return
      */
     public abstract String getStatReporterType();
 
-    /***
-     * 打印摘要日志
-     * @param span 被打印 span
+    /**
+     * print digest log
+     * @param span span
      */
     public abstract void digestReport(SofaTracerSpan span);
 
-    /***
-     * 打印统计日志
-     * @param span 被统计 span
+    /**
+     * print stat log
+     * @param span span
      */
     public abstract void statisticReport(SofaTracerSpan span);
 
@@ -103,13 +103,13 @@ public abstract class AbstractDiskReporter extends AbstractReporter {
 
         Map<String, String> disableConfiguration = SofaTracerConfiguration
             .getMapEmptyIfNull(SofaTracerConfiguration.DISABLE_DIGEST_LOG_KEY);
-        //摘要日志类型
+        //digest log type
         String logType = StringUtils.EMPTY_STRING + span.getLogType();
         if (StringUtils.isBlank(logType)) {
-            //摘要日志类型为空,就不打印了
+            //if the digest log type is empty, it will not be printed.
             return true;
         }
-        // rpc-2-jvm特殊处理, 适配rpc2jvm中关闭digest而只打印stat的情况
+        // Rpc-2-jvm special handling, adapting rpc2jvm to close digest and only print stat
         if (SofaTracerConstant.RPC_2_JVM_DIGEST_LOG_NAME.equals(logType)) {
             if (Boolean.FALSE.toString().equalsIgnoreCase(
                 SofaTracerConfiguration.getProperty("enable_rpc_2_jvm_digest_log"))) {

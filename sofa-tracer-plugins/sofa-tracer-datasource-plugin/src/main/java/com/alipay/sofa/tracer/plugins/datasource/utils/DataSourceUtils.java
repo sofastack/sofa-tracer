@@ -259,7 +259,7 @@ public class DataSourceUtils {
         int start = url.lastIndexOf("/");
         if (start < 0) {
             /**
-             * oracle sid 格式，{@see jdbc:oracle:thin:@host:port:SID}
+             * oracle sid format，{@see jdbc:oracle:thin:@host:port:SID}
              */
             if ("oracle".equals(resolveDbTypeFromUrl(url))) {
                 start = url.lastIndexOf(":");

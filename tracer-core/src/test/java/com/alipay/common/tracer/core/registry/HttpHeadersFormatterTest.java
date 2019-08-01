@@ -34,7 +34,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>七月 8, 2017</pre>
+ * @since <pre>July 8, 2017</pre>
  */
 public class HttpHeadersFormatterTest {
 
@@ -62,15 +62,14 @@ public class HttpHeadersFormatterTest {
     @Test
     public void testEncodedValue() throws Exception {
         SofaTracerSpanContext spanContext = SofaTracerSpanContext.rootStart();
-        Map<String, String> baggage = new HashMap<String, String>();
+        Map<String, String> baggage = new HashMap<>();
         baggage.put("key", "value");
         baggage.put("key1", "value1");
         baggage.put("key2", "value2");
         spanContext.addBizBaggage(baggage);
         //
         final TextMap carrier = new TextMap() {
-
-            Map<String, String> carr = new HashMap<String, String>();
+            Map<String, String> carr = new HashMap<>();
 
             @Override
             public Iterator<Map.Entry<String, String>> iterator() {
@@ -89,7 +88,7 @@ public class HttpHeadersFormatterTest {
         };
         this.registryExtractorInjector.inject(spanContext, carrier);
         SofaTracerSpanContext extractContext = this.registryExtractorInjector.extract(carrier);
-        //traceid spanId sampled
+        // traceId spanId sampled
         extractContext.equals(spanContext);
         assertTrue("Extract baggage : " + extractContext.getBizBaggage(),
             baggage.equals(extractContext.getBizBaggage()));

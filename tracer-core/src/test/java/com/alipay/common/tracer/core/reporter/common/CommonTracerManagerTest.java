@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
@@ -37,7 +36,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>七月 25, 2017</pre>
+ * @since <pre>July 25, 2017</pre>
  */
 public class CommonTracerManagerTest extends AbstractTestBase {
 
@@ -61,7 +60,7 @@ public class CommonTracerManagerTest extends AbstractTestBase {
             System.currentTimeMillis(), "testReportProfile", SofaTracerSpanContext.rootStart(),
             null);
         assertTrue(CommonTracerManager.isAppenderExist(logType));
-        //注意：对于 commonSpan 一定要设置日志类型
+        //Note: Be sure to set the log type for commonSpan
         commonLogSpan.setLogType(logType);
         CommonTracerManager.reportCommonSpan(commonLogSpan);
 
@@ -88,7 +87,7 @@ public class CommonTracerManagerTest extends AbstractTestBase {
             System.currentTimeMillis(), "testReportProfile", SofaTracerSpanContext.rootStart(),
             null);
         assertTrue(CommonTracerManager.isAppenderExist(logTypeStr));
-        //注意：对于 commonSpan 一定要设置日志类型
+        //Note: Be sure to set the log type for commonSpan
         commonLogSpan.setLogType(logTypeStr);
         commonLogSpan.addSlot("hello");
         commonLogSpan.addSlot("word");

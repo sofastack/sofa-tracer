@@ -26,30 +26,30 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
  */
 public interface Reporter {
 
-    /***
-     * 上报到远程服务器的持久化类型
+    /**
+     * Persistence type reported to the remote server
      */
     String REMOTE_REPORTER    = "REMOTE_REPORTER";
 
     /**
-     * 组合类型
+     * Combined reporting type
      */
     String COMPOSITE_REPORTER = "COMPOSITE_REPORTER";
 
-    /***
-     * 获取 Reporter 实例类型
-     * @return 类型
+    /**
+     * get reporter type
+     * @return
      */
     String getReporterType();
 
-    /***
-     * 输出 span
-     * @param span 要被输出的 span
+    /**
+     * report span
+     * @param span
      */
     void report(SofaTracerSpan span);
 
-    /***
-     *关闭输出 span 的能力
+    /**
+     * turn off output ability
      */
     void close();
 }

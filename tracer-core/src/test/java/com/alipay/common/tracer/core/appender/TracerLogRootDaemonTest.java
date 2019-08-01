@@ -29,7 +29,7 @@ import static junit.framework.TestCase.assertEquals;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>七月 24, 2017</pre>
+ * @since <pre>July 24, 2017</pre>
  */
 public class TracerLogRootDaemonTest {
 

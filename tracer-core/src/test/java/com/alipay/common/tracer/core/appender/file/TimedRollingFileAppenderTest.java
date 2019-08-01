@@ -58,12 +58,13 @@ public class TimedRollingFileAppenderTest extends AbstractTestBase {
         Resource[] resources = resolver.getResources("file:" + TracerLogRootDaemon.LOG_FILE_DIR
                                                      + File.separator + ROLLING_TEST_FILE_NAME
                                                      + "*");
-        Assert.assertTrue("文件的数量不正确，以 " + ROLLING_TEST_FILE_NAME + " 为开头的文件数量应该是 2 个",
-            resources.length == 2);
+        Assert.assertTrue("The number of files is incorrect. The number of files starting with "
+                          + ROLLING_TEST_FILE_NAME + " should be 2", resources.length == 2);
 
         for (Resource resource : resources) {
             String c = FileUtils.readFileToString(resource.getFile());
-            Assert.assertEquals("文件 " + resource.getFilename() + " 中的内容不正确", content, c);
+            Assert.assertEquals("File content in " + resource.getFilename() + " is incorrect",
+                content, c);
         }
     }
 }

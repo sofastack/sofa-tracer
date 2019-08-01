@@ -30,12 +30,12 @@ import static org.junit.Assert.assertEquals;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>七月 12, 2017</pre>
+ * @since <pre>July 12, 2017</pre>
  */
 public class XStringBuilderTest {
 
-    /***
-     * 测试_appendEndMap_逗号被转义
+    /**
+     * Test appendEndMap comma is escaped
      */
     @Test
     public void appendEndMapTransferredMeaning() {
@@ -49,8 +49,8 @@ public class XStringBuilderTest {
     @Test
     public void testXStringBuilderAppender() {
         XStringBuilder xStringBuilder = new XStringBuilder(128);
-        xStringBuilder.append(1l, ",");
-        xStringBuilder.append(1l, ',');
+        xStringBuilder.append(1L, ",");
+        xStringBuilder.append(1L, ',');
         xStringBuilder.append("test1", ",");
 
         Map<String, String> map = new HashMap<String, String>();

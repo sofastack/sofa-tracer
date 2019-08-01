@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  *
  * @author liangen
- * @version $Id: ConcurrentDiscardTest.java, v 0.1 2017年10月23日 下午8:22 liangen Exp $
+ * @version $Id: ConcurrentDiscardTest.java, v 0.1 October 23, 2017 8:22 PM liangen Exp $
  */
 public class ConcurrentDiscardTest {
     static final String fileNameRoot    = TracerLogRootDaemon.LOG_FILE_DIR + File.separator;
@@ -120,40 +120,35 @@ public class ConcurrentDiscardTest {
 
         final CountDownLatch countDownLatch = new CountDownLatch(50);
         for (int i = 0; i < 50; i++) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    SofaTracerSpan span1 = ManagerTestUtil.createSofaTracerSpan(1);
-                    SofaTracerSpan span2 = ManagerTestUtil.createSofaTracerSpan(2);
-                    SofaTracerSpan span3 = ManagerTestUtil.createSofaTracerSpan(3);
-                    SofaTracerSpan span4 = ManagerTestUtil.createSofaTracerSpan(4);
-                    SofaTracerSpan span5 = ManagerTestUtil.createSofaTracerSpan(5);
-
-                    for (int j = 0; j < 100; j++) {
-                        if (!asyncCommonDigestAppenderManager.append(span1)) {
-                            discardNum.incrementAndGet();
-                        }
-                        if (!asyncCommonDigestAppenderManager.append(span2)) {
-                            discardNum.incrementAndGet();
-                        }
-                        if (!asyncCommonDigestAppenderManager.append(span3)) {
-                            discardNum.incrementAndGet();
-                        }
-                        if (!asyncCommonDigestAppenderManager.append(span4)) {
-                            discardNum.incrementAndGet();
-                        }
-                        if (!asyncCommonDigestAppenderManager.append(span5)) {
-                            discardNum.incrementAndGet();
-                        }
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+            new Thread(()-> {
+                SofaTracerSpan span1 = ManagerTestUtil.createSofaTracerSpan(1);
+                SofaTracerSpan span2 = ManagerTestUtil.createSofaTracerSpan(2);
+                SofaTracerSpan span3 = ManagerTestUtil.createSofaTracerSpan(3);
+                SofaTracerSpan span4 = ManagerTestUtil.createSofaTracerSpan(4);
+                SofaTracerSpan span5 = ManagerTestUtil.createSofaTracerSpan(5);
+                for (int j = 0; j < 100; j++) {
+                    if (!asyncCommonDigestAppenderManager.append(span1)) {
+                        discardNum.incrementAndGet();
                     }
-
-                    countDownLatch.countDown();
+                    if (!asyncCommonDigestAppenderManager.append(span2)) {
+                        discardNum.incrementAndGet();
+                    }
+                    if (!asyncCommonDigestAppenderManager.append(span3)) {
+                        discardNum.incrementAndGet();
+                    }
+                    if (!asyncCommonDigestAppenderManager.append(span4)) {
+                        discardNum.incrementAndGet();
+                    }
+                    if (!asyncCommonDigestAppenderManager.append(span5)) {
+                        discardNum.incrementAndGet();
+                    }
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
+                countDownLatch.countDown();
             }).start();
         }
 
@@ -161,7 +156,7 @@ public class ConcurrentDiscardTest {
         Thread.sleep(3000);
         SynchronizingSelfLog.flush();
 
-        /**校验*/
+        /**check*/
         int log1Num = getLineNum(fileName1);
         int log2Num = getLineNum(fileName2);
         int log3Num = getLineNum(fileName3);
@@ -169,19 +164,18 @@ public class ConcurrentDiscardTest {
         int log5Num = getLineNum(fileName5);
         int allNum = log1Num + log2Num + log3Num + log4Num + log5Num;
 
-        /**落地日志 + 丢失日志 = 打印日志*/
-        SelfLog.info("落地日志：" + allNum);
-        SelfLog.info("丢失日志：" + discardNum.get());
+        /**Landing log + Lost log = Print log*/
+        SelfLog.info("Landing log：" + allNum);
+        SelfLog.info("Lost log：" + discardNum.get());
         Assert.assertEquals(25000, allNum + discardNum.get());
-        /**sync.log丢失日志数据小于实际丢失数*/
+        /** Sync.log lost log data is less than the actual number of lost */
         int logDiscard = getDiscardNumFromTracerSelfLog();
-        SelfLog.info("sync.log记录丢失日志数：" + logDiscard);
+        SelfLog.info("Sync.log records the number of lost logs：" + logDiscard);
         Assert.assertTrue(logDiscard <= discardNum.get());
-        /**sync.log记录的具体丢失日志数据的准确性:与真实丢失数的差应该小于500*/
-
+        /** Accuracy of the specific lost log data recorded by sync.log: the difference from the true lost number should be less than 500 */
         int allTraceIdDiscard = traceId1Discard + traceId2Discard + traceId3Discard
                                 + traceId4Discard + traceId5Discard;
-        SelfLog.info("sync.log记录的具有traceId的具体丢失日志数据的数：" + allTraceIdDiscard);
+        SelfLog.info("The number of specific lost log data with traceId recorded by sync.log:" + allTraceIdDiscard);
         Assert.assertTrue((discardNum.get() == allTraceIdDiscard)
                           || (discardNum.get() - allTraceIdDiscard) < 500);
 

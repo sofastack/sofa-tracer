@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author <guanchao.ygc>
  * @version 1.0
- * @since <pre>五月 15, 2018</pre>
+ * @since <pre>May 15, 2018</pre>
  */
 public class StringUtilsTest {
 
