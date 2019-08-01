@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.tracer.plugins.springmvc;
 
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
@@ -48,13 +49,14 @@ public class SpringMvcStatReporter extends AbstractSofaTracerStatisticReporter {
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
         boolean success = (resultCode != null && resultCode.length() > 0 && this
             .isHttpOrMvcSuccess(resultCode));
-        statKey.setResult(success ? "Y" : "N");
+        statKey.setResult(success ? SofaTracerConstant.DIGEST_FLAG_SUCCESS
+            : SofaTracerConstant.DIGEST_FLAG_FAILS);
         statKey.setEnd(buildString(new String[] { TracerUtils.getLoadTestMark(sofaTracerSpan) }));
         //pressure mark
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
         //duration
         long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
-        long values[] = new long[] { 1, duration };
+        long[] values = new long[] { 1, duration };
         this.addStat(statKey, values);
     }
 }

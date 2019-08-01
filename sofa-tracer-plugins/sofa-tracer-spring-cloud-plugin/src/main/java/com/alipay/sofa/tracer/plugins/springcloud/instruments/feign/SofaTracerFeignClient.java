@@ -143,8 +143,6 @@ public class SofaTracerFeignClient implements Client {
         String[] hostWithPort = parseRemoteHostAndPort(request);
         sofaTracerSpan.setTag(CommonSpanTags.REMOTE_HOST, hostWithPort[0]);
         sofaTracerSpan.setTag(CommonSpanTags.REMOTE_PORT, hostWithPort[1]);
-        sofaTracerSpan.setTag(CommonSpanTags.COMPONENT_CLIENT, feignClientTracer.getSofaTracer()
-            .getTracerType());
 
         if (request.body() != null) {
             sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE, request.body().length);
