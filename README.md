@@ -1,7 +1,7 @@
 ## SOFATracer
 
 [![Build Status](https://travis-ci.com/sofastack/sofa-tracer.svg?branch=master)](https://travis-ci.com/sofastack/sofa-tracer)
-[![Coverage Status](https://coveralls.io/repos/github/sofastack/sofa-tracer/badge.svg?branch=master)](https://coveralls.io/github/sofastack/sofa-tracer?branch=master)
+[![Coverage Status](https://codecov.io/gh/sofastack/sofa-tracer/branch/master/graph/badge.svg)](https://codecov.io/gh/sofastack/sofa-tracer/branch/master)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)
 [![Maven](https://img.shields.io/github/release/sofastack/sofa-tracer.svg)](https://github.com/sofastack/sofa-tracer/releases)
 
