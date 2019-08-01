@@ -83,4 +83,41 @@ public class SofaTracerConstant {
      * Return value in case of non-pressure measurement {@link AbstractSofaTracerStatisticReporter}
      */
     public static final String  NON_LOAD_TEST_VALUE       = "F";
+
+    /**
+     * Result code for time out
+     */
+    public static final String  RESULT_CODE_TIME_OUT      = "03";
+    /**
+     * Result code for success
+     */
+    public static final String  RESULT_CODE_SUCCESS       = "00";
+    /**
+     * Result code for failure
+     */
+    public static final String  RESULT_CODE_ERROR         = "99";
+    /**
+     * Result state for success
+     */
+    public static final String  RESULT_SUCCESS            = "success";
+    /**
+     * Result state for failed
+     */
+    public static final String  RESULT_FAILED             = "failed";
+    /**
+     * digest result state for success
+     */
+    public static final String  DIGEST_FLAG_SUCCESS       = "Y";
+    /**
+     * digest result state for failure
+     */
+    public static final String  DIGEST_FLAG_FAILS         = "N";
+    /**
+     * stat result state for success
+     */
+    public static final String  STAT_FLAG_SUCCESS         = "true";
+    /**
+     * stat result state for failure
+     */
+    public static final String  STAT_FLAG_FAILS           = "false";
 }

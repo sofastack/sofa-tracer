@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.appender.self.Timestamp;
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.reporter.stat.model.StatMapKey;
@@ -52,14 +53,15 @@ public class OpenFeignStatJsonReporter extends AbstractSofaTracerStatisticReport
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
         boolean success = (resultCode != null && resultCode.length() > 0 && this
             .isHttpOrMvcSuccess(resultCode));
-        statKey.setResult(success ? "true" : "false");
+        statKey.setResult(success ? SofaTracerConstant.STAT_FLAG_SUCCESS
+            : SofaTracerConstant.STAT_FLAG_FAILS);
         //pressure mark
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
         //end
         statKey.setEnd(TracerUtils.getLoadTestMark(sofaTracerSpan));
         //value the count and duration
         long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
-        long values[] = new long[] { 1, duration };
+        long[] values = new long[] { 1, duration };
         //reserve
         this.addStat(statKey, values);
     }
@@ -76,13 +78,13 @@ public class OpenFeignStatJsonReporter extends AbstractSofaTracerStatisticReport
         try {
             buffer.reset();
             buffer.appendBegin();
-            buffer.append("time", Timestamp.currentTime());
-            buffer.append("stat.key", this.statKeySplit(statMapKey));
-            buffer.append("count", values[0]);
-            buffer.append("total.cost.milliseconds", values[1]);
-            buffer.append("success", statMapKey.getResult());
+            buffer.append(CommonSpanTags.TIME, Timestamp.currentTime());
+            buffer.append(CommonSpanTags.STAT_KEY, this.statKeySplit(statMapKey));
+            buffer.append(CommonSpanTags.COUNT, values[0]);
+            buffer.append(CommonSpanTags.TOTAL_COST_MILLISECONDS, values[1]);
+            buffer.append(CommonSpanTags.SUCCESS, statMapKey.getResult());
             //pressure
-            buffer.appendEnd("load.test", statMapKey.getEnd());
+            buffer.appendEnd(CommonSpanTags.LOAD_TEST, statMapKey.getEnd());
             if (appender instanceof LoadTestAwareAppender) {
                 ((LoadTestAwareAppender) appender).append(buffer.toString(),
                     statMapKey.isLoadTest());

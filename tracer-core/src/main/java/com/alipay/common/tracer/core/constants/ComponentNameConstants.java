@@ -14,31 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.plugins.springmvc;
-
-import io.opentracing.propagation.TextMap;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+package com.alipay.common.tracer.core.constants;
 
 /**
- * @author yangguanchao
- */
-public class SpringMvcHeadersCarrier implements TextMap {
-    private HashMap<String, String> headers;
+ * Component Name Constants
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/4/8 9:16 PM
+ * @since:
+ **/
+public class ComponentNameConstants {
 
-    public SpringMvcHeadersCarrier(HashMap<String, String> headers) {
-        this.headers = headers;
-    }
+    public static final String DATA_SOURCE   = "dataSource";
 
-    @Override
-    public void put(String key, String value) {
-        headers.put(key, value);
-    }
+    public static final String DUBBO_CLIENT  = "dubbo-client";
 
-    @Override
-    public Iterator<Map.Entry<String, String>> iterator() {
-        return headers.entrySet().iterator();
-    }
+    public static final String DUBBO_SERVER  = "dubbo-server";
+
+    public static final String HTTP_CLIENT   = "httpclient";
+
+    public static final String OK_HTTP       = "okhttp";
+
+    public static final String REST_TEMPLATE = "resttemplate";
+
+    public static final String SPRING_MVC    = "springmvc";
 }

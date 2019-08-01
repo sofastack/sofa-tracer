@@ -23,6 +23,7 @@ import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.tracer.plugins.dubbo.constants.AttachmentKeyConstants;
 import io.opentracing.tag.Tags;
 
 import java.io.IOException;
@@ -39,16 +40,16 @@ public class DubboClientDigestJsonEncoder extends AbstractDigestSpanEncoder {
 
         JsonStringBuilder data = new JsonStringBuilder();
         //span end time
-        data.appendBegin("time", Timestamp.format(sofaTracerSpan.getEndTime()));
+        data.appendBegin(CommonSpanTags.TIME, Timestamp.format(sofaTracerSpan.getEndTime()));
 
         Map<String, String> tagStr = sofaTracerSpan.getTagsWithStr();
         Map<String, Number> tagNum = sofaTracerSpan.getTagsWithNumber();
         SofaTracerSpanContext context = sofaTracerSpan.getSofaTracerSpanContext();
 
         // TraceId
-        data.append("traceId", context.getTraceId());
+        data.append(CommonSpanTags.TRACE_ID, context.getTraceId());
         // SpanId
-        data.append("spanId", context.getSpanId());
+        data.append(CommonSpanTags.SPAN_ID, context.getSpanId());
         // Span Type
         data.append(Tags.SPAN_KIND.getKey(), tagStr.get(Tags.SPAN_KIND.getKey()));
         // app name
@@ -69,16 +70,17 @@ public class DubboClientDigestJsonEncoder extends AbstractDigestSpanEncoder {
         data.append(CommonSpanTags.LOCAL_HOST, tagStr.get(CommonSpanTags.LOCAL_HOST));
         //request serialize time
         data.append(CommonSpanTags.CLIENT_SERIALIZE_TIME,
-            tagNum.get(CommonSpanTags.CLIENT_SERIALIZE_TIME));
+            tagNum.get(AttachmentKeyConstants.CLIENT_SERIALIZE_TIME));
         //response deserialize time
         data.append(CommonSpanTags.CLIENT_DESERIALIZE_TIME,
-            tagNum.get(CommonSpanTags.CLIENT_DESERIALIZE_TIME));
+            tagNum.get(AttachmentKeyConstants.CLIENT_DESERIALIZE_TIME));
         //Request Body bytes length
-        Number reqSizeNum = tagNum.get(CommonSpanTags.REQ_SIZE);
+        Number reqSizeNum = tagNum.get(AttachmentKeyConstants.CLIENT_SERIALIZE_SIZE);
         data.append(CommonSpanTags.REQ_SIZE, reqSizeNum == null ? 0 : reqSizeNum.longValue());
         //Response Body bytes length
-        Number respSizeNum = tagNum.get(CommonSpanTags.REQ_SIZE);
+        Number respSizeNum = tagNum.get(AttachmentKeyConstants.CLIENT_DESERIALIZE_SIZE);
         data.append(CommonSpanTags.RESP_SIZE, respSizeNum == null ? 0 : respSizeNum.longValue());
+
         //Http status code
         data.append(CommonSpanTags.RESULT_CODE, tagStr.get(CommonSpanTags.RESULT_CODE));
         //error message
@@ -89,7 +91,7 @@ public class DubboClientDigestJsonEncoder extends AbstractDigestSpanEncoder {
         data.append(CommonSpanTags.CURRENT_THREAD_NAME,
             tagStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
         //time-consuming ms
-        data.append("time.cost.milliseconds",
+        data.append(CommonSpanTags.TIME_COST_MILLISECONDS,
             (sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime()));
         this.appendBaggage(data, context);
         return data.toString();
@@ -98,7 +100,8 @@ public class DubboClientDigestJsonEncoder extends AbstractDigestSpanEncoder {
     private void appendBaggage(JsonStringBuilder jsonStringBuilder,
                                SofaTracerSpanContext sofaTracerSpanContext) {
         //baggage
-        jsonStringBuilder.appendEnd("baggage", baggageSerialized(sofaTracerSpanContext));
+        jsonStringBuilder.appendEnd(CommonSpanTags.BAGGAGE,
+            baggageSerialized(sofaTracerSpanContext));
     }
 
 }
