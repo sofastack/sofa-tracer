@@ -81,18 +81,17 @@ public class OpenTracingSpringMvcAutoConfiguration {
             return filterRegistrationBean;
         }
 
-
         @Bean
         @ConditionalOnClass(RestTemplate.class)
         @ConditionalOnMissingBean
-        public RestTemplate restTemplate(){
+        public RestTemplate restTemplate() {
             return SofaTracerRestTemplateBuilder.buildRestTemplate();
         }
 
         @Bean
         @ConditionalOnClass(AsyncRestTemplate.class)
         @ConditionalOnMissingBean
-        public AsyncRestTemplate asyncRestTemplate(){
+        public AsyncRestTemplate asyncRestTemplate() {
             return SofaTracerRestTemplateBuilder.buildAsyncRestTemplate();
         }
     }
