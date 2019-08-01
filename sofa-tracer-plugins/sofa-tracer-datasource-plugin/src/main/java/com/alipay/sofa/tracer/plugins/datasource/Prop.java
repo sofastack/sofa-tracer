@@ -32,6 +32,8 @@ public class Prop {
 
     private final MethodRegistry    methodRegistry = new MethodRegistry();
 
+    private boolean                 fastDelegate   = true;
+
     public Method getTargetMethod(String methodName) {
         return methodRegistry.getMethod(methodName);
     }
@@ -46,5 +48,13 @@ public class Prop {
 
     public void addAll(Collection<Interceptor> interceptors) {
         this.interceptors.addAll(interceptors);
+    }
+
+    public boolean isFastDelegate() {
+        return fastDelegate;
+    }
+
+    public void setFastDelegate(boolean fastDelegate) {
+        this.fastDelegate = fastDelegate;
     }
 }

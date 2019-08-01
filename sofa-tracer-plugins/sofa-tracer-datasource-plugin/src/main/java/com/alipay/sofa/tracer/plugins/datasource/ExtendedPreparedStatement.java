@@ -20,7 +20,21 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Date;
+import java.sql.NClob;
+import java.sql.ParameterMetaData;
+import java.sql.PreparedStatement;
+import java.sql.Ref;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.RowId;
+import java.sql.SQLException;
+import java.sql.SQLXML;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Calendar;
 
 /**
@@ -50,7 +64,9 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
 
         @Override
         void beforeInvoke(Invocation invocation) throws Exception {
-            ((BasePreparedStatement) delegate).initPreparedStatement(getProcessingSql());
+            if (delegate instanceof BasePreparedStatement) {
+                ((BasePreparedStatement) delegate).initPreparedStatement(getProcessingSql());
+            }
         }
     }
 
@@ -61,11 +77,7 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
         try {
             return (ResultSet) chain.proceed();
         } catch (Exception e) {
-            if (e instanceof SQLException) {
-                throw (SQLException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+            throw handleException(e);
         }
     }
 
@@ -76,11 +88,7 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
         try {
             return (Integer) chain.proceed();
         } catch (Exception e) {
-            if (e instanceof SQLException) {
-                throw (SQLException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+            throw handleException(e);
         }
     }
 
@@ -91,11 +99,7 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
         try {
             return (int[]) chain.proceed();
         } catch (Exception e) {
-            if (e instanceof SQLException) {
-                throw (SQLException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+            throw handleException(e);
         }
     }
 
@@ -106,11 +110,7 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
         try {
             return (Boolean) chain.proceed();
         } catch (Exception e) {
-            if (e instanceof SQLException) {
-                throw (SQLException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+            throw handleException(e);
         }
     }
 
@@ -379,6 +379,7 @@ public class ExtendedPreparedStatement extends ExtendedStatement implements Prep
         getDelegate().setNClob(parameterIndex, reader);
     }
 
+    @Override
     public PreparedStatement getDelegate() {
         return (PreparedStatement) delegate;
     }
