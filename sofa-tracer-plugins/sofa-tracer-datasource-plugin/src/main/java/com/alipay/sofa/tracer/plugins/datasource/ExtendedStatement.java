@@ -16,8 +16,13 @@
  */
 package com.alipay.sofa.tracer.plugins.datasource;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,6 +134,7 @@ public class ExtendedStatement implements Statement {
             super(sql, sql, invocation);
         }
 
+        @Override
         protected void beforeInvoke(Invocation invocation) {
             invocation.getArgs()[0] = getProcessingSql();
         }
@@ -149,11 +155,7 @@ public class ExtendedStatement implements Statement {
         try {
             return (ResultSet) chain.proceed();
         } catch (Exception e) {
-            if (e instanceof SQLException) {
-                throw (SQLException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+            throw handleException(e);
         }
     }
 
@@ -169,12 +171,18 @@ public class ExtendedStatement implements Statement {
         try {
             return (Integer) chain.proceed();
         } catch (Exception e) {
-            if (e instanceof SQLException) {
-                throw (SQLException) e;
-            } else {
-                throw new RuntimeException(e);
+            throw handleException(e);
+        }
+    }
+
+    protected SQLException handleException(Exception e) throws SQLException {
+        if (e instanceof InvocationTargetException) {
+            Throwable t = ((InvocationTargetException) e).getTargetException();
+            if (t instanceof SQLException) {
+                throw (SQLException) t;
             }
         }
+        throw new SQLException(e);
     }
 
     @Override
@@ -366,11 +374,7 @@ public class ExtendedStatement implements Statement {
         try {
             return (Boolean) chain.proceed();
         } catch (Exception e) {
-            if (e instanceof SQLException) {
-                throw (SQLException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+            throw handleException(e);
         }
     }
 
