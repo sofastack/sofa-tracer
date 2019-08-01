@@ -37,4 +37,3 @@ public class AttachmentKeyConstants {
     public static final String CLIENT_DESERIALIZE_TIME = "client.deserialize.time";
     public static final String CLIENT_SERIALIZE_TIME   = "client.serialize.time";
 }
-
