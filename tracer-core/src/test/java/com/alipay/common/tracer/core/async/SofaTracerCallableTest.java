@@ -69,5 +69,4 @@ public class SofaTracerCallableTest {
         Mockito.verify(wrappedCallable, Mockito.times(1)).call();
         Mockito.verifyNoMoreInteractions(traceContext, wrappedCallable);
     }
-
 }

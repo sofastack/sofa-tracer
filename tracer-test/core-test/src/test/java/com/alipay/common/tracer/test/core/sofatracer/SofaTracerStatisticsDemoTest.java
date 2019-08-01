@@ -28,7 +28,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.List;
-
 import static org.junit.Assert.*;
 
 /**
@@ -41,6 +40,8 @@ public class SofaTracerStatisticsDemoTest extends AbstractTestBase {
 
     @Before
     public void beforeTest() throws Exception {
+        // wait stat cycle clean > 1000s(default)
+        Thread.sleep(1100);
         File f = customFileLog(TracerTestLogEnum.RPC_SERVER_DIGEST.getDefaultLogName());
         if (f.exists()) {
             FileUtils.writeStringToFile(f, "");
@@ -112,7 +113,8 @@ public class SofaTracerStatisticsDemoTest extends AbstractTestBase {
 
         //统计
         String[] clientArray = clientStatContents.get(clientStatContents.size() - 1).split(",");
-        assertEquals(clientArray[6], String.valueOf(times * duration));
+        // 统计调用次数即可
+        assertEquals(clientArray[5], String.valueOf(times));
         //server stat
         List<String> serverStatContents = FileUtils
             .readLines(customFileLog(TracerTestLogEnum.RPC_SERVER_STAT.getDefaultLogName()));

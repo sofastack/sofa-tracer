@@ -27,13 +27,19 @@ import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.tracer.plugins.dubbo.constants.AttachmentKeyConstants;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboConsumerSofaTracer;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboProviderSofaTracer;
 import io.opentracing.tag.Tags;
-import org.apache.dubbo.common.Constants;
+import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.remoting.TimeoutException;
-import org.apache.dubbo.rpc.*;
+import org.apache.dubbo.rpc.Filter;
+import org.apache.dubbo.rpc.Invocation;
+import org.apache.dubbo.rpc.Invoker;
+import org.apache.dubbo.rpc.Result;
+import org.apache.dubbo.rpc.RpcContext;
+import org.apache.dubbo.rpc.RpcException;
 import org.apache.dubbo.rpc.support.RpcUtils;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/2/26 2:02 PM
  * @since: 2.3.4
  **/
-@Activate(group = { Constants.PROVIDER, Constants.CONSUMER }, value = "dubboSofaTracerFilter", order = 1)
+@Activate(group = { CommonConstants.PROVIDER, CommonConstants.CONSUMER }, value = "dubboSofaTracerFilter", order = 1)
 public class DubboSofaTracerFilter implements Filter {
 
     private String                             appName         = StringUtils.EMPTY_STRING;
@@ -76,7 +82,7 @@ public class DubboSofaTracerFilter implements Filter {
         String spanKind = spanKind(rpcContext);
         Result result;
         if (spanKind.equals(Tags.SPAN_KIND_SERVER)) {
-            result = doServerFilter(rpcContext, invoker, invocation);
+            result = doServerFilter(invoker, invocation);
         } else {
             result = doClientFilter(rpcContext, invoker, invocation);
         }
@@ -223,12 +229,11 @@ public class DubboSofaTracerFilter implements Filter {
 
     /**
      * rpc client handler
-     * @param rpcContext
      * @param invoker
      * @param invocation
      * @return
      */
-    private Result doServerFilter(RpcContext rpcContext, Invoker<?> invoker, Invocation invocation) {
+    private Result doServerFilter(Invoker<?> invoker, Invocation invocation) {
         if (dubboProviderSofaTracer == null) {
             this.dubboProviderSofaTracer = DubboProviderSofaTracer
                 .getDubboProviderSofaTracerSingleton();
@@ -272,7 +277,7 @@ public class DubboSofaTracerFilter implements Filter {
     }
 
     private SofaTracerSpan serverReceived(Invocation invocation) {
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
         tags.put(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
         String serializeSpanContext = invocation.getAttachments()
             .get(CommonSpanTags.RPC_TRACE_NAME);
@@ -309,29 +314,38 @@ public class DubboSofaTracerFilter implements Filter {
         if (sofaTracerSpan == null) {
             return;
         }
-        String reqSize = invocation.getAttachment(Constants.INPUT_KEY);
-        String respSize = result.getAttachment(Constants.OUTPUT_KEY);
+        String reqSize;
+        String respSize;
         String elapsed;
         String deElapsed;
         if (isClient) {
-            elapsed = invocation.getAttachment(CommonSpanTags.CLIENT_SERIALIZE_TIME);
-            deElapsed = invocation.getAttachment(CommonSpanTags.CLIENT_DESERIALIZE_TIME);
-            //The client request serialization time-consuming
-            sofaTracerSpan
-                .setTag(CommonSpanTags.CLIENT_SERIALIZE_TIME, parseAttachment(elapsed, 0));
-            //The client accepted response deserialization time-consuming
-            sofaTracerSpan.setTag(CommonSpanTags.CLIENT_DESERIALIZE_TIME,
+            reqSize = invocation.getAttachment(AttachmentKeyConstants.CLIENT_SERIALIZE_SIZE);
+            elapsed = invocation.getAttachment(AttachmentKeyConstants.CLIENT_SERIALIZE_TIME);
+            respSize = result.getAttachment(AttachmentKeyConstants.CLIENT_DESERIALIZE_SIZE);
+            deElapsed = result.getAttachment(AttachmentKeyConstants.CLIENT_DESERIALIZE_TIME);
+            sofaTracerSpan.setTag(AttachmentKeyConstants.CLIENT_SERIALIZE_TIME,
+                parseAttachment(elapsed, 0));
+            sofaTracerSpan.setTag(AttachmentKeyConstants.CLIENT_DESERIALIZE_TIME,
                 parseAttachment(deElapsed, 0));
+            sofaTracerSpan.setTag(AttachmentKeyConstants.CLIENT_SERIALIZE_SIZE,
+                parseAttachment(reqSize, 0));
+            sofaTracerSpan.setTag(AttachmentKeyConstants.CLIENT_DESERIALIZE_SIZE,
+                parseAttachment(respSize, 0));
         } else {
-            elapsed = invocation.getAttachment(CommonSpanTags.SERVER_SERIALIZE_TIME);
-            deElapsed = invocation.getAttachment(CommonSpanTags.SERVER_DESERIALIZE_TIME);
-            sofaTracerSpan
-                .setTag(CommonSpanTags.SERVER_SERIALIZE_TIME, parseAttachment(elapsed, 0));
-            sofaTracerSpan.setTag(CommonSpanTags.SERVER_DESERIALIZE_TIME,
+            reqSize = invocation.getAttachment(AttachmentKeyConstants.SERVER_DESERIALIZE_SIZE);
+            deElapsed = invocation.getAttachment(AttachmentKeyConstants.SERVER_DESERIALIZE_TIME);
+            respSize = result.getAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_SIZE);
+            elapsed = result.getAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_TIME);
+            sofaTracerSpan.setTag(AttachmentKeyConstants.SERVER_DESERIALIZE_SIZE,
+                parseAttachment(reqSize, 0));
+            sofaTracerSpan.setTag(AttachmentKeyConstants.SERVER_DESERIALIZE_TIME,
                 parseAttachment(deElapsed, 0));
+            sofaTracerSpan.setTag(AttachmentKeyConstants.SERVER_SERIALIZE_SIZE,
+                parseAttachment(respSize, 0));
+            sofaTracerSpan.setTag(AttachmentKeyConstants.SERVER_SERIALIZE_TIME,
+                parseAttachment(elapsed, 0));
         }
-        sofaTracerSpan.setTag(CommonSpanTags.REQ_SIZE, parseAttachment(reqSize, 0));
-        sofaTracerSpan.setTag(CommonSpanTags.RESP_SIZE, parseAttachment(respSize, 0));
+
     }
 
     private int parseAttachment(String value, int defaultVal) {
@@ -361,7 +375,7 @@ public class DubboSofaTracerFilter implements Filter {
         tagsStr.put(CommonSpanTags.SERVICE, service == null ? BLANK : service);
         String methodName = rpcContext.getMethodName();
         tagsStr.put(CommonSpanTags.METHOD, methodName == null ? BLANK : methodName);
-        String app = rpcContext.getUrl().getParameter(Constants.APPLICATION_KEY);
+        String app = rpcContext.getUrl().getParameter(CommonConstants.APPLICATION_KEY);
         tagsStr.put(CommonSpanTags.REMOTE_HOST, rpcContext.getRemoteHost());
         tagsStr.put(CommonSpanTags.LOCAL_APP, app == null ? BLANK : app);
         tagsStr.put(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread().getName());
@@ -385,7 +399,7 @@ public class DubboSofaTracerFilter implements Filter {
         String methodName = rpcContext.getMethodName();
         tagsStr.put(CommonSpanTags.METHOD, methodName == null ? BLANK : methodName);
         tagsStr.put(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread().getName());
-        String app = rpcContext.getUrl().getParameter(Constants.APPLICATION_KEY);
+        String app = rpcContext.getUrl().getParameter(CommonConstants.APPLICATION_KEY);
         tagsStr.put(CommonSpanTags.LOCAL_APP, app == null ? BLANK : app);
         tagsStr.put(CommonSpanTags.REMOTE_HOST, rpcContext.getRemoteHost());
         tagsStr.put(CommonSpanTags.REMOTE_PORT, String.valueOf(rpcContext.getRemotePort()));

@@ -85,7 +85,7 @@ public class SpringMvcFilterJsonOutputTest extends AbstractTestBase {
             "mvc reporter cannot be null");
 
         //stat log : 设置了周期 1s 输出一次
-        Thread.sleep(2000);
+        Thread.sleep(1000);
 
         //wait for async output
         List<String> statContents = FileUtils
