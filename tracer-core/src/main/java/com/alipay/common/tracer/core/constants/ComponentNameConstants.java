@@ -36,4 +36,6 @@ public class ComponentNameConstants {
     public static final String REST_TEMPLATE = "resttemplate";
 
     public static final String SPRING_MVC    = "springmvc";
+
+    public static final String FLEXIBLE      = "flexible-biz";
 }

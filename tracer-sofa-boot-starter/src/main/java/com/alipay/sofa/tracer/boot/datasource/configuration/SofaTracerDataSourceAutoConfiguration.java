@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Configuration;
  * @since 2.2.0
  */
 @Configuration
+@ConditionalOnProperty(prefix = "com.alipay.sofa.tracer.plugins", value = "enable", matchIfMissing = true)
 @EnableConfigurationProperties(SofaTracerDataSourceProperties.class)
 public class SofaTracerDataSourceAutoConfiguration {
 

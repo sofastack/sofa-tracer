@@ -36,15 +36,14 @@ public class TracerFormatRegistryTest {
     @Test
     public void testRegister() throws Exception {
         Registry registry = new Registry();
-        TracerFormatRegistry.register(io.opentracing.propagation.Format.Builtin.BINARY, registry);
+        TracerFormatRegistry.register(ExtendFormat.Builtin.BYTE_BUFFER, registry);
         Registry registry1 = (Registry) TracerFormatRegistry
-            .getRegistry(io.opentracing.propagation.Format.Builtin.BINARY);
+            .getRegistry(ExtendFormat.Builtin.BYTE_BUFFER);
         assertTrue(registry == registry1);
 
         //Restore the registry affected by the test
         BinaryFormater binaryFormater = new BinaryFormater();
-        TracerFormatRegistry.register(io.opentracing.propagation.Format.Builtin.BINARY,
-            binaryFormater);
+        TracerFormatRegistry.register(ExtendFormat.Builtin.BYTE_BUFFER, binaryFormater);
     }
 
     class Registry implements RegistryExtractorInjector {
