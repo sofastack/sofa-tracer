@@ -18,10 +18,8 @@ package com.alipay.sofa.tracer.boot.datasource.configuration;
 
 import com.alipay.sofa.tracer.boot.datasource.processor.DataSourceBeanFactoryPostProcessor;
 import com.alipay.sofa.tracer.boot.datasource.processor.DataSourceBeanPostProcessor;
-import com.alipay.sofa.tracer.boot.datasource.properties.SofaTracerDataSourceProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,20 +28,17 @@ import org.springframework.context.annotation.Configuration;
  * @since 2.2.0
  */
 @Configuration
-@ConditionalOnProperty(prefix = "com.alipay.sofa.tracer.plugins", value = "enable", matchIfMissing = true)
-@EnableConfigurationProperties(SofaTracerDataSourceProperties.class)
+@ConditionalOnProperty(prefix = "com.alipay.sofa.tracer.datasource", value = "enable", matchIfMissing = true)
 public class SofaTracerDataSourceAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "com.alipay.sofa.tracer.datasource", value = "enable", matchIfMissing = true)
     public static DataSourceBeanFactoryPostProcessor DataSourceBeanFactoryPostProcessor() {
         return new DataSourceBeanFactoryPostProcessor();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "com.alipay.sofa.tracer.datasource", value = "enable", matchIfMissing = true)
     public static DataSourceBeanPostProcessor dataSourceBeanPostProcessor() {
         return new DataSourceBeanPostProcessor();
     }

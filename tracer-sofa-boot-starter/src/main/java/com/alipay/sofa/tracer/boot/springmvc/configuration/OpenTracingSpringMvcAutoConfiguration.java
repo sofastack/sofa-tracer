@@ -44,6 +44,7 @@ import java.util.List;
 @Configuration
 @EnableConfigurationProperties(OpenTracingSpringMvcProperties.class)
 @ConditionalOnWebApplication
+@ConditionalOnProperty(prefix = "com.alipay.sofa.tracer.springmvc", value = "enable", matchIfMissing = true)
 @AutoConfigureAfter(SofaTracerAutoConfiguration.class)
 public class OpenTracingSpringMvcAutoConfiguration {
 

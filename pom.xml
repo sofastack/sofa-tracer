@@ -21,6 +21,7 @@
         <module>sofa-tracer-plugins/sofa-tracer-httpclient-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-okhttp-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-datasource-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-resttmplate-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-zipkin-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-dubbo-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-spring-cloud-plugin</module>
@@ -131,10 +132,14 @@
                 <artifactId>sofa-tracer-flexible-plugin</artifactId>
                 <version>${sofa.tracer.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-flexible-plugin</artifactId>
+                <version>${sofa.tracer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-resttmplate-plugin</artifactId>
                 <version>${sofa.tracer.version}</version>
             </dependency>
 
@@ -340,6 +345,9 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
+                        <configuration>
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -32,7 +32,7 @@ import org.springframework.context.annotation.Configuration;
  * @since:
  **/
 @Configuration
-@ConditionalOnProperty(prefix = "com.alipay.sofa.flexible", value = "enable", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "com.alipay.sofa.tracer.flexible", value = "enable", matchIfMissing = true)
 @AutoConfigureAfter(SofaTracerAutoConfiguration.class)
 @ConditionalOnBean(Tracer.class)
 public class TracerAnnotationConfiguration {
