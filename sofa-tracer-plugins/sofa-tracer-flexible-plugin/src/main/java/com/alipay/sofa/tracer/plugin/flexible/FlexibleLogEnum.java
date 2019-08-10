@@ -17,11 +17,11 @@
 package com.alipay.sofa.tracer.plugin.flexible;
 
 /**
- * HttpClientLogEnum
+ * FlexibleLogEnum for flexible biz tracer
  *
- * @author yangguanchao
- * @since 2018/08/07
- */
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/2 11:45 AM
+ * @since:
+ **/
 public enum FlexibleLogEnum {
 
     // Http Client Digest Log

@@ -22,12 +22,8 @@ import com.alipay.sofa.tracer.boot.springmvc.properties.OpenTracingSpringMvcProp
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcSofaTracerFilter;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import com.alipay.sofa.tracer.plugins.webflux.WebfluxSofaTracerFilter;
-import com.sofa.alipay.tracer.plugins.rest.SofaTracerRestTemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -35,8 +31,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.web.client.AsyncRestTemplate;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.WebFilter;
 
 import java.util.List;
@@ -50,7 +44,6 @@ import java.util.List;
 @Configuration
 @EnableConfigurationProperties(OpenTracingSpringMvcProperties.class)
 @ConditionalOnWebApplication
-@ConditionalOnProperty(prefix = "com.alipay.sofa.tracer.springmvc", value = "enable", matchIfMissing = true)
 @AutoConfigureAfter(SofaTracerAutoConfiguration.class)
 public class OpenTracingSpringMvcAutoConfiguration {
 
@@ -81,20 +74,6 @@ public class OpenTracingSpringMvcAutoConfiguration {
             filterRegistrationBean.setAsyncSupported(true);
             filterRegistrationBean.setOrder(openTracingSpringProperties.getFilterOrder());
             return filterRegistrationBean;
-        }
-
-        @Bean
-        @ConditionalOnClass(RestTemplate.class)
-        @ConditionalOnMissingBean
-        public RestTemplate restTemplate() {
-            return SofaTracerRestTemplateBuilder.buildRestTemplate();
-        }
-
-        @Bean
-        @ConditionalOnClass(AsyncRestTemplate.class)
-        @ConditionalOnMissingBean
-        public AsyncRestTemplate asyncRestTemplate() {
-            return SofaTracerRestTemplateBuilder.buildAsyncRestTemplate();
         }
     }
 

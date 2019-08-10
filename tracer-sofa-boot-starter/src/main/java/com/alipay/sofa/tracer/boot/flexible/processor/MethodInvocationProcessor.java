@@ -14,21 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sofa.tracer.plugins.resttemplate.base;
+package com.alipay.sofa.tracer.boot.flexible.processor;
 
-import org.springframework.boot.SpringApplication;
+import com.alipay.sofa.tracer.plugin.flexible.annotations.Tracer;
+import org.aopalliance.intercept.MethodInvocation;
 
 /**
- * SpringBootWebApplication
- *
- * @author yangguanchao
- * @since v2.3.0
- */
-@org.springframework.boot.autoconfigure.SpringBootApplication
-public class SpringBootWebApplication {
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/9 2:50 PM
+ * @since:
+ **/
+public interface MethodInvocationProcessor {
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication springApplication = new SpringApplication(SpringBootWebApplication.class);
-        springApplication.run(args);
-    }
+    /**
+     * proxy method
+     * @param invocation
+     * @param tracerSpan
+     * @return
+     * @throws Throwable
+     */
+    Object process(MethodInvocation invocation, Tracer tracerSpan) throws Throwable;
 }

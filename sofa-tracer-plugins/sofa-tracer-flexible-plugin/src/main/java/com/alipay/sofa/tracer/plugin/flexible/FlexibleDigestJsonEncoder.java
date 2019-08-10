@@ -23,20 +23,19 @@ import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * HttpClientDigestJsonEncoder
+ * FlexibleDigestJsonEncoder for flexible biz tracer
  *
- * @author yangguanchao
- * @since 2018/08/07
- */
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/2 11:39 AM
+ * @since:
+ **/
 public class FlexibleDigestJsonEncoder extends AbstractDigestSpanEncoder {
 
     @Override
-    public String encode(SofaTracerSpan span) throws IOException {
+    public String encode(SofaTracerSpan span) {
         JsonStringBuilder bizJsonBuilder = new JsonStringBuilder();
         //span end time
         bizJsonBuilder.appendBegin(CommonSpanTags.TIME, Timestamp.format(span.getEndTime()));

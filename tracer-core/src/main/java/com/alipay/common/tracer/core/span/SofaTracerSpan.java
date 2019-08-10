@@ -54,13 +54,13 @@ public class SofaTracerSpan implements Span {
 
     private final List<SofaTracerSpanReferenceRelationship> spanReferences;
     /** tags for String  */
-    private final Map<String, String>                       tagsWithStr          = new LinkedHashMap<String, String>();
+    private final Map<String, String>                       tagsWithStr          = new LinkedHashMap<>();
     /** tags for Boolean */
-    private final Map<String, Boolean>                      tagsWithBool         = new LinkedHashMap<String, Boolean>();
+    private final Map<String, Boolean>                      tagsWithBool         = new LinkedHashMap<>();
     /** tags for Number  */
-    private final Map<String, Number>                       tagsWithNumber       = new LinkedHashMap<String, Number>();
+    private final Map<String, Number>                       tagsWithNumber       = new LinkedHashMap<>();
 
-    private final List<LogData>                             logs                 = new LinkedList<LogData>();
+    private final List<LogData>                             logs                 = new LinkedList<>();
 
     private String                                          operationName        = StringUtils.EMPTY_STRING;
 
@@ -83,7 +83,7 @@ public class SofaTracerSpan implements Span {
 
     public SofaTracerSpan cloneInstance() {
         SofaTracerSpanContext spanContext = this.sofaTracerSpanContext.cloneInstance();
-        Map<String, Object> tags = new HashMap<String, Object>();
+        Map<String, Object> tags = new HashMap<>();
         tags.putAll(this.tagsWithBool);
         tags.putAll(this.tagsWithStr);
         tags.putAll(this.tagsWithNumber);
@@ -140,8 +140,7 @@ public class SofaTracerSpan implements Span {
         AssertUtils.notNull(sofaTracerSpanContext);
         this.sofaTracer = sofaTracer;
         this.startTime = startTime;
-        this.spanReferences = spanReferences != null ? new ArrayList<SofaTracerSpanReferenceRelationship>(
-            spanReferences) : null;
+        this.spanReferences = spanReferences != null ? new ArrayList<>(spanReferences) : null;
         this.operationName = operationName;
         this.sofaTracerSpanContext = sofaTracerSpanContext;
         this.setTags(tags);
@@ -217,7 +216,7 @@ public class SofaTracerSpan implements Span {
     @Override
     public Span log(long currentTime, String eventValue) {
         AssertUtils.isTrue(currentTime >= startTime, "Current time must greater than start time");
-        Map<String, String> fields = new HashMap<String, String>();
+        Map<String, String> fields = new HashMap<>();
         fields.put(LogData.EVENT_TYPE_KEY, eventValue);
         return this.log(currentTime, fields);
     }
@@ -252,7 +251,7 @@ public class SofaTracerSpan implements Span {
     public Span log(long currentTime, String eventName, /* @Nullable */Object payload) {
         //key:value
         AssertUtils.isTrue(currentTime >= startTime, "current time must greater than start time");
-        Map<String, Object> fields = new HashMap<String, Object>();
+        Map<String, Object> fields = new HashMap<>();
         fields.put(eventName, payload);
         return this.log(currentTime, fields);
     }
@@ -300,7 +299,7 @@ public class SofaTracerSpan implements Span {
                             String errorSourceApp, String... errorSources) {
         Tags.ERROR.set(this, true);
         //all tags set
-        Map<String, Object> tags = new HashMap<String, Object>();
+        Map<String, Object> tags = new HashMap<>();
         tags.putAll(this.getTagsWithStr());
         tags.putAll(this.getTagsWithBool());
         tags.putAll(this.getTagsWithNumber());
@@ -336,7 +335,7 @@ public class SofaTracerSpan implements Span {
      * @param profileMessage profileMessage
      */
     public void profile(String profileApp, String protocolType, String profileMessage) {
-        Map<String, Object> tags = new HashMap<String, Object>();
+        Map<String, Object> tags = new HashMap<>();
         tags.putAll(this.getTagsWithStr());
         tags.putAll(this.getTagsWithBool());
         tags.putAll(this.getTagsWithNumber());
@@ -367,7 +366,7 @@ public class SofaTracerSpan implements Span {
         if (StringUtils.countMatches(rpcId, '.') + 1 > SofaTracerConstant.MAX_LAYER) {
             SofaTracerSpanContext parentSpanContext = SofaTracerSpanContext.rootStart();
             // discard tags
-            Map<String, String> baggage = new HashMap<String, String>();
+            Map<String, String> baggage = new HashMap<>();
             baggage.putAll(this.sofaTracerSpanContext.getBizBaggage());
             parentSpanContext.addBizBaggage(baggage);
             parent = new SofaTracerSpan(this.sofaTracer, System.currentTimeMillis(),

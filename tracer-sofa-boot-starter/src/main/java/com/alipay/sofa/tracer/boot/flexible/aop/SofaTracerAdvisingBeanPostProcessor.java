@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.flexible.processor;
+package com.alipay.sofa.tracer.boot.flexible.aop;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.framework.AbstractAdvisingBeanPostProcessor;
@@ -26,12 +26,13 @@ import org.springframework.beans.factory.BeanFactoryAware;
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/10 11:51 AM
  * @since:
  **/
-public class TracerAnnotationBeanPostProcessor extends AbstractAdvisingBeanPostProcessor implements
-                                                                                        BeanFactoryAware {
+public class SofaTracerAdvisingBeanPostProcessor extends AbstractAdvisingBeanPostProcessor
+                                                                                          implements
+                                                                                          BeanFactoryAware {
 
     private MethodInterceptor interceptor;
 
-    public TracerAnnotationBeanPostProcessor(MethodInterceptor interceptor) {
+    public SofaTracerAdvisingBeanPostProcessor(MethodInterceptor interceptor) {
         this.interceptor = interceptor;
     }
 

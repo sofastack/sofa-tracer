@@ -22,7 +22,6 @@
         <module>tracer-sample-with-sampler</module>
         <module>tracer-sample-with-dubbo</module>
         <module>tracer-sample-with-openfeign</module>
-        <module>tracer-sample-with-resttemplate</module>
     </modules>
 
     <properties>

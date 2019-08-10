@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.flexible.processor;
+package com.alipay.sofa.tracer.boot.flexible.aop;
 
 import com.alipay.sofa.tracer.plugin.flexible.annotations.Tracer;
 import org.springframework.aop.ClassFilter;
@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since:
  **/
 public class TracerAnnotationClassPointcut extends DynamicMethodMatcherPointcut {
+
     @Override
     public boolean matches(Method method, Class<?> aClass, Object... objects) {
         return true;
@@ -39,26 +40,21 @@ public class TracerAnnotationClassPointcut extends DynamicMethodMatcherPointcut 
 
     @Override
     public ClassFilter getClassFilter() {
-        return new ClassFilter() {
-            @Override
-            public boolean matches(Class<?> clazz) {
-                return new AnnotationClassOrMethodFilter(Tracer.class).matches(clazz);
-            }
-        };
+        return (clazz) -> new AnnotationClassOrMethodFilter(Tracer.class).matches(clazz);
     }
 
     private final class AnnotationClassOrMethodFilter extends AnnotationClassFilter {
 
-        private final AnnotationMethodsResolver methodResolver;
+        private final AnnotationMethodsResolver methodsResolver;
 
         AnnotationClassOrMethodFilter(Class<? extends Annotation> annotationType) {
             super(annotationType, true);
-            this.methodResolver = new AnnotationMethodsResolver(annotationType);
+            this.methodsResolver = new AnnotationMethodsResolver(annotationType);
         }
 
         @Override
         public boolean matches(Class<?> clazz) {
-            return super.matches(clazz) || this.methodResolver.hasAnnotatedMethods(clazz);
+            return super.matches(clazz) || this.methodsResolver.hasAnnotatedMethods(clazz);
         }
 
     }
@@ -73,22 +69,17 @@ public class TracerAnnotationClassPointcut extends DynamicMethodMatcherPointcut 
 
         boolean hasAnnotatedMethods(Class<?> clazz) {
             final AtomicBoolean found = new AtomicBoolean(false);
-            ReflectionUtils.MethodCallback mc = new ReflectionUtils.MethodCallback() {
-                @Override
-                public void doWith(Method method) throws IllegalArgumentException {
-                    if (found.get()) {
-                        return;
-                    }
-                    Annotation annotation = AnnotationUtils.findAnnotation(method,
-                        AnnotationMethodsResolver.this.annotationType);
-                    if (annotation != null) {
-                        found.set(true);
-                    }
+            ReflectionUtils.doWithMethods(clazz, (method) ->{
+                if (found.get()) {
+                    return;
                 }
-            };
-            ReflectionUtils.doWithMethods(clazz, mc);
+                Annotation annotation = AnnotationUtils.findAnnotation(method,
+                        AnnotationMethodsResolver.this.annotationType);
+                if (annotation != null) {
+                    found.set(true);
+                }
+            });
             return found.get();
         }
-
     }
 }

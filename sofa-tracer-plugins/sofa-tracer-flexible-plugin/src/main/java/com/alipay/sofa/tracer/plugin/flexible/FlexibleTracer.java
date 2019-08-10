@@ -37,7 +37,7 @@ import io.opentracing.tag.Tags;
 import java.util.Map;
 
 /**
- * 认为用户自定义的 Tracer 类型都是 client 类型
+ * FlexibleTracer for process manual and @Tracer trace
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/1 9:33 PM
  * @since:
  **/
@@ -46,7 +46,7 @@ public class FlexibleTracer extends SofaTracer {
     private final Reporter reporter;
 
     /**
-     * 支持自定义采样和自定义上报器的构造器
+     * support with custom reporter and sampler
      * @param sampler
      * @param reporter
      */
@@ -56,7 +56,7 @@ public class FlexibleTracer extends SofaTracer {
     }
 
     /**
-     * 默认提供的支持 manual report 的构造器
+     * support with manual reporter with official reporter type, and the trace log will be record in biz-digest.log and biz-stat.log
      */
     public FlexibleTracer() {
         super(ComponentNameConstants.FLEXIBLE, null, null, initSampler(), null);
@@ -73,12 +73,19 @@ public class FlexibleTracer extends SofaTracer {
         return null;
     }
 
+    /**
+     * override default reportSpan, and also allow to extension ReportListener interface
+     *
+     * only when provide Reporter implement, It will begin to work
+     *
+     * @param span
+     */
     @Override
     public void reportSpan(SofaTracerSpan span) {
         if (span == null) {
             return;
         }
-        // //sampler is support &  current span is root span
+        // sampler is support &  current span is root span
         if (this.getSampler() != null && span.getParentSofaTracerSpan() == null) {
             span.getSofaTracerSpanContext().setSampled(this.getSampler().sample(span).isSampled());
         }

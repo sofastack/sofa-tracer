@@ -33,11 +33,11 @@ import io.opentracing.tag.Tags;
 import java.util.Map;
 
 /**
- * HttpClientStatJsonReporter
+ * FlexibleStatJsonReporter for flexible biz tracer
  *
- * @author yangguanchao
- * @since 2018/08/11
- */
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/2 11:50 AM
+ * @since:
+ **/
 public class FlexibleStatJsonReporter extends AbstractSofaTracerStatisticReporter {
 
     /***

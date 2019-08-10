@@ -52,7 +52,6 @@ public class ZipkinSofaTracerAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ZipkinSofaTracerSpanRemoteReporter zipkinSofaTracerSpanReporter(ZipkinSofaTracerRestTemplateCustomizer zipkinSofaTracerRestTemplateCustomizer) {
-        // do not use RestTemplate plugin to record
         RestTemplate restTemplate = new RestTemplate();
         zipkinSofaTracerRestTemplateCustomizer.customize(restTemplate);
         return new ZipkinSofaTracerSpanRemoteReporter(restTemplate, zipkinProperties.getBaseUrl());

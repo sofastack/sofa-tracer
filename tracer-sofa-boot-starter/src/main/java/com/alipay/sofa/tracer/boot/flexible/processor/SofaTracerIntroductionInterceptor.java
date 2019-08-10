@@ -35,9 +35,9 @@ import java.lang.reflect.Method;
  **/
 public class SofaTracerIntroductionInterceptor implements IntroductionInterceptor, BeanFactoryAware {
 
-    private BeanFactory                   beanFactory;
+    private BeanFactory               beanFactory;
 
-    private SofaMethodInvocationProcessor sofaMethodInvocationProcessor;
+    private MethodInvocationProcessor sofaMethodInvocationProcessor;
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
@@ -65,10 +65,10 @@ public class SofaTracerIntroductionInterceptor implements IntroductionIntercepto
         this.beanFactory = beanFactory;
     }
 
-    private SofaMethodInvocationProcessor sofaMethodInvocationProcessor() {
+    private MethodInvocationProcessor sofaMethodInvocationProcessor() {
         if (this.sofaMethodInvocationProcessor == null) {
             this.sofaMethodInvocationProcessor = this.beanFactory
-                .getBean(SofaMethodInvocationProcessor.class);
+                .getBean(MethodInvocationProcessor.class);
         }
         return this.sofaMethodInvocationProcessor;
     }

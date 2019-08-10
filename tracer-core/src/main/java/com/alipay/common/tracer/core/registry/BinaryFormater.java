@@ -45,7 +45,7 @@ public class BinaryFormater implements RegistryExtractorInjector<ByteBuffer> {
 
     @Override
     public Format<ByteBuffer> getFormatType() {
-        return ExtendFormat.Builtin.BYTE_BUFFER;
+        return Format.Builtin.BINARY;
     }
 
     @Override

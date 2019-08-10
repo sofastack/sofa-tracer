@@ -30,7 +30,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/9 2:51 PM
  * @since:
  **/
-public class SofaTracerMethodInvocationProcessor implements SofaMethodInvocationProcessor,
+public class SofaTracerMethodInvocationProcessor implements MethodInvocationProcessor,
                                                 BeanFactoryAware {
 
     private BeanFactory           beanFactory;

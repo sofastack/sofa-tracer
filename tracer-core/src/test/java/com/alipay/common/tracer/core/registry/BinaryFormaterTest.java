@@ -19,6 +19,7 @@ package com.alipay.common.tracer.core.registry;
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import io.opentracing.propagation.Format;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -44,8 +45,7 @@ public class BinaryFormaterTest {
 
     @Before
     public void before() throws Exception {
-        registryExtractorInjector = TracerFormatRegistry
-            .getRegistry(ExtendFormat.Builtin.BYTE_BUFFER);
+        registryExtractorInjector = TracerFormatRegistry.getRegistry(Format.Builtin.BINARY);
         assertTrue(registryExtractorInjector instanceof BinaryFormater);
     }
 
@@ -66,7 +66,7 @@ public class BinaryFormaterTest {
      */
     @Test
     public void testGetFormatType() throws Exception {
-        assertEquals(ExtendFormat.Builtin.BYTE_BUFFER, registryExtractorInjector.getFormatType());
+        assertEquals(Format.Builtin.BINARY, registryExtractorInjector.getFormatType());
     }
 
     /**

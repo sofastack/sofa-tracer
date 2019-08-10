@@ -47,7 +47,7 @@ public class SampleRestController {
     TestService                 testService;
 
     /**
-     * 生效
+     * work
      * @param name
      * @return
      */
@@ -61,7 +61,7 @@ public class SampleRestController {
     }
 
     /**
-     * 不生效
+     * do not be proxy
      */
     @Tracer
     public void testAnno() {

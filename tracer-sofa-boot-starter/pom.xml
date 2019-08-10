@@ -37,12 +37,6 @@
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-tracer-datasource-plugin</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.alipay.sofa</groupId>
-            <artifactId>sofa-tracer-resttmplate-plugin</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-tracer-spring-cloud-plugin</artifactId>
@@ -163,6 +157,5 @@
             <version>1.4</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 </project>
