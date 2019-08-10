@@ -51,7 +51,7 @@ public class FlexibleTracer extends SofaTracer {
      * @param reporter
      */
     public FlexibleTracer(Sampler sampler, Reporter reporter) {
-        super(sampler);
+        super(ComponentNameConstants.FLEXIBLE, sampler);
         this.reporter = reporter;
     }
 
@@ -130,7 +130,7 @@ public class FlexibleTracer extends SofaTracer {
         return new FlexibleStatJsonReporter(statLog, statRollingPolicy, statLogReserveConfig);
     }
 
-    public void beforeInvoke(String operationName) {
+    public SofaTracerSpan beforeInvoke(String operationName) {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         SofaTracerSpan serverSpan = sofaTraceContext.pop();
         SofaTracerSpan methodSpan = null;
@@ -164,6 +164,8 @@ public class FlexibleTracer extends SofaTracer {
                 sofaTraceContext.push(methodSpan);
             }
         }
+
+        return methodSpan;
     }
 
     public void afterInvoke(String error) {

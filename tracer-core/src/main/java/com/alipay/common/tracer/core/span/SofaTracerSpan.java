@@ -28,7 +28,6 @@ import com.alipay.common.tracer.core.utils.AssertUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
-import io.opentracing.tag.Tag;
 import io.opentracing.tag.Tags;
 
 import java.io.PrintWriter;
@@ -168,6 +167,7 @@ public class SofaTracerSpan implements Span {
         SpanExtensionFactory.logStoppedSpan(this);
     }
 
+    @Override
     public void close() {
         this.finish();
     }
@@ -209,12 +209,6 @@ public class SofaTracerSpan implements Span {
     }
 
     @Override
-    public <T> Span setTag(Tag<T> tag, T value) {
-        tag.set(this, value);
-        return this;
-    }
-
-    @Override
     public Span log(String eventValue) {
         //log with current time
         return log(System.currentTimeMillis(), eventValue);
@@ -248,11 +242,13 @@ public class SofaTracerSpan implements Span {
         return this.log(System.currentTimeMillis(), map);
     }
 
+    @Override
     public Span log(String eventName, /* @Nullable */Object payload) {
         //key:value
         return this.log(System.currentTimeMillis(), eventName, payload);
     }
 
+    @Override
     public Span log(long currentTime, String eventName, /* @Nullable */Object payload) {
         //key:value
         AssertUtils.isTrue(currentTime >= startTime, "current time must greater than start time");

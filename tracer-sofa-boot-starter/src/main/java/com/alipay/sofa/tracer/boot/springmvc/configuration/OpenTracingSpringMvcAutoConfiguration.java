@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -82,18 +83,17 @@ public class OpenTracingSpringMvcAutoConfiguration {
             return filterRegistrationBean;
         }
 
-
         @Bean
         @ConditionalOnClass(RestTemplate.class)
         @ConditionalOnMissingBean
-        public RestTemplate restTemplate(){
+        public RestTemplate restTemplate() {
             return SofaTracerRestTemplateBuilder.buildRestTemplate();
         }
 
         @Bean
         @ConditionalOnClass(AsyncRestTemplate.class)
         @ConditionalOnMissingBean
-        public AsyncRestTemplate asyncRestTemplate(){
+        public AsyncRestTemplate asyncRestTemplate() {
             return SofaTracerRestTemplateBuilder.buildAsyncRestTemplate();
         }
     }

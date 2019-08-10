@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.tracer.boot.flexible.processor;
 
+import com.alipay.sofa.tracer.plugin.flexible.annotations.Tracer;
 import org.aopalliance.intercept.MethodInvocation;
 
 /**
@@ -27,8 +28,9 @@ public interface SofaMethodInvocationProcessor {
     /**
      * 代理方法
      * @param invocation
+     * @param tracerSpan
      * @return
      * @throws Throwable
      */
-    Object process(MethodInvocation invocation) throws Throwable;
+    Object process(MethodInvocation invocation, Tracer tracerSpan) throws Throwable;
 }

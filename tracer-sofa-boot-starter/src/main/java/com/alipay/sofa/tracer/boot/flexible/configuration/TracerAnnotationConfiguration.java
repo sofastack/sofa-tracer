@@ -17,8 +17,10 @@
 package com.alipay.sofa.tracer.boot.flexible.configuration;
 
 import com.alipay.sofa.tracer.boot.configuration.SofaTracerAutoConfiguration;
+import com.alipay.sofa.tracer.boot.flexible.processor.SofaMethodInvocationProcessor;
+import com.alipay.sofa.tracer.boot.flexible.processor.SofaTracerIntroductionInterceptor;
 import com.alipay.sofa.tracer.boot.flexible.processor.SofaTracerMethodInvocationProcessor;
-import com.alipay.sofa.tracer.boot.flexible.processor.TracerAnnotationClassAdvisor;
+import com.alipay.sofa.tracer.boot.flexible.processor.TracerAnnotationBeanPostProcessor;
 import io.opentracing.Tracer;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -39,13 +41,20 @@ public class TracerAnnotationConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    TracerAnnotationClassAdvisor tracerAnnotationClassAdvisor() {
-        return new TracerAnnotationClassAdvisor();
+    TracerAnnotationBeanPostProcessor tracerAnnotationBeanPostProcessor(SofaTracerIntroductionInterceptor methodInterceptor) {
+        return new TracerAnnotationBeanPostProcessor(methodInterceptor);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    SofaTracerMethodInvocationProcessor sofaTracerMethodInvocationProcessor() {
+    SofaTracerIntroductionInterceptor sofaTracerIntroductionInterceptor() {
+        return new SofaTracerIntroductionInterceptor();
+
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    SofaMethodInvocationProcessor sofaMethodInvocationProcessor() {
         return new SofaTracerMethodInvocationProcessor();
     }
 }

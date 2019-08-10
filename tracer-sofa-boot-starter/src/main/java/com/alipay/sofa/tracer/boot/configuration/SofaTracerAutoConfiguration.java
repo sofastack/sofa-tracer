@@ -68,5 +68,4 @@ public class SofaTracerAutoConfiguration {
         Tracer tracer = new FlexibleTracer();
         return tracer;
     }
-
 }

@@ -52,7 +52,7 @@ public class SofaTracerIntroductionInterceptor implements IntroductionIntercepto
         if (tracerSpan == null) {
             return invocation.proceed();
         }
-        return sofaMethodInvocationProcessor().process(invocation);
+        return sofaMethodInvocationProcessor().process(invocation, tracerSpan);
     }
 
     @Override

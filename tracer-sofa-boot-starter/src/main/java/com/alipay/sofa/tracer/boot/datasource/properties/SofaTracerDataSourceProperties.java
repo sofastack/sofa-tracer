@@ -19,7 +19,7 @@ package com.alipay.sofa.tracer.boot.datasource.properties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * @author qilong.zql 18/9/4-下午1:41
+ * @author qilong.zql 18/9/4-PM 1:41
  */
 @ConfigurationProperties("com.alipay.sofa.tracer.datasource")
 public class SofaTracerDataSourceProperties {

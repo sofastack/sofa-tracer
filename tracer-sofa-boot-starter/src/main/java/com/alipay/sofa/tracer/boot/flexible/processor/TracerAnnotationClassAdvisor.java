@@ -17,34 +17,23 @@
 package com.alipay.sofa.tracer.boot.flexible.processor;
 
 import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AbstractPointcutAdvisor;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/9 3:17 PM
  * @since:
  **/
-public class TracerAnnotationClassAdvisor extends AbstractPointcutAdvisor implements
-                                                                         BeanFactoryAware {
+public class TracerAnnotationClassAdvisor extends AbstractPointcutAdvisor {
 
-    private Advice      advice;
+    private Advice   advice;
 
-    private Pointcut    pointcut;
+    private Pointcut pointcut;
 
-    private BeanFactory beanFactory;
-
-    @PostConstruct
-    public void init() {
+    public TracerAnnotationClassAdvisor(MethodInterceptor interceptor) {
+        this.advice = interceptor;
         this.pointcut = new TracerAnnotationClassPointcut();
-        this.advice = new SofaTracerIntroductionInterceptor();
-        if (this.advice instanceof BeanFactoryAware) {
-            ((BeanFactoryAware) this.advice).setBeanFactory(this.beanFactory);
-        }
     }
 
     @Override
@@ -55,11 +44,6 @@ public class TracerAnnotationClassAdvisor extends AbstractPointcutAdvisor implem
     @Override
     public Advice getAdvice() {
         return this.advice;
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
     }
 
 }

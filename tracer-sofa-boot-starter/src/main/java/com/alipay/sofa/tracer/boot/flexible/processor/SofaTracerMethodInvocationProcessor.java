@@ -16,7 +16,11 @@
  */
 package com.alipay.sofa.tracer.boot.flexible.processor;
 
+import com.alipay.common.tracer.core.span.CommonSpanTags;
+import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugin.flexible.FlexibleTracer;
+import com.alipay.sofa.tracer.plugin.flexible.annotations.Tracer;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -34,8 +38,8 @@ public class SofaTracerMethodInvocationProcessor implements SofaMethodInvocation
     private io.opentracing.Tracer tracer;
 
     @Override
-    public Object process(MethodInvocation invocation) throws Throwable {
-        return proceedUnderSynchronousSpan(invocation);
+    public Object process(MethodInvocation invocation, Tracer tracerSpan) throws Throwable {
+        return proceedProxyMethodWithTracerAnnotation(invocation, tracerSpan);
     }
 
     @Override
@@ -43,11 +47,25 @@ public class SofaTracerMethodInvocationProcessor implements SofaMethodInvocation
         this.beanFactory = beanFactory;
     }
 
-    private Object proceedUnderSynchronousSpan(MethodInvocation invocation) throws Throwable {
-
+    private Object proceedProxyMethodWithTracerAnnotation(MethodInvocation invocation,
+                                                          Tracer tracerSpan) throws Throwable {
         if (tracer() instanceof FlexibleTracer) {
             try {
-                ((FlexibleTracer) tracer()).beforeInvoke(invocation.getMethod().getName());
+                String operationName = tracerSpan.operateName();
+                if (StringUtils.isBlank(operationName)) {
+                    operationName = invocation.getMethod().getName();
+                }
+                SofaTracerSpan sofaTracerSpan = ((FlexibleTracer) tracer())
+                    .beforeInvoke(operationName);
+                sofaTracerSpan.setTag(CommonSpanTags.METHOD, invocation.getMethod().getName());
+                if (invocation.getArguments() != null && invocation.getArguments().length != 0) {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (Object obj : invocation.getArguments()) {
+                        stringBuilder.append(obj.getClass().getName()).append(";");
+                    }
+                    sofaTracerSpan.setTag("param.types",
+                        stringBuilder.toString().substring(0, stringBuilder.length() - 1));
+                }
                 return invocation.proceed();
             } catch (Exception ex) {
                 ((FlexibleTracer) tracer()).afterInvoke(ex.getMessage());

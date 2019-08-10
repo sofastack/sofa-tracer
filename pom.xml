@@ -25,7 +25,7 @@
         <module>sofa-tracer-plugins/sofa-tracer-zipkin-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-dubbo-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-spring-cloud-plugin</module>
-        <module>sofa-tracer-plugins/sofa-tracer-resttmplate-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-flexible-plugin</module>
         <module>tracer-all</module>
         <module>tracer-sofa-boot-starter</module>
         <module>tracer-samples</module>
@@ -33,12 +33,11 @@
         <module>tracer-test/logback-test</module>
         <module>tracer-test/log4j2-test</module>
         <module>tracer-test/log4j-test</module>
-        <module>sofa-tracer-plugins/sofa-tracer-flexible-plugin</module>
-        <module>tracer-samples/tracer-sample-with-opentracing</module>
+
     </modules>
 
     <properties>
-        <opentracing.version>0.32.0</opentracing.version>
+        <opentracing.version>0.22.0</opentracing.version>
         <sofa.tracer.version>3.0.6-SNAPSHOT</sofa.tracer.version>
         <java.compiler.source.version>1.8</java.compiler.source.version>
         <java.compiler.target.version>1.8</java.compiler.target.version>
@@ -138,17 +137,6 @@
                 <artifactId>sofa-tracer-flexible-plugin</artifactId>
                 <version>${sofa.tracer.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.alipay.sofa</groupId>
-                <artifactId>sofa-tracer-flexible-plugin</artifactId>
-                <version>${sofa.tracer.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.alipay.sofa</groupId>
-                <artifactId>sofa-tracer-resttmplate-plugin</artifactId>
-                <version>${sofa.tracer.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>tracer-all</artifactId>
