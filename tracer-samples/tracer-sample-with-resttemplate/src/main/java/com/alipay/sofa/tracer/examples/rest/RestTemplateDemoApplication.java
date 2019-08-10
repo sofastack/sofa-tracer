@@ -38,13 +38,13 @@ public class RestTemplateDemoApplication {
         SpringApplication.run(RestTemplateDemoApplication.class, args);
         RestTemplate restTemplate = SofaTracerRestTemplateBuilder.buildRestTemplate();
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(
-            "http://sac.alipay.net:8080/rest", String.class);
+            "http://localhost:8801/rest", String.class);
         logger.info("Response is {}", responseEntity.getBody());
 
         AsyncRestTemplate asyncRestTemplate = SofaTracerRestTemplateBuilder
             .buildAsyncRestTemplate();
         ListenableFuture<ResponseEntity<String>> forEntity = asyncRestTemplate.getForEntity(
-            "http://sac.alipay.net:8080/asyncrest", String.class);
+            "http://localhost:8801/asyncrest", String.class);
         //async
         logger.info("Async Response is {}", forEntity.get().getBody());
 
