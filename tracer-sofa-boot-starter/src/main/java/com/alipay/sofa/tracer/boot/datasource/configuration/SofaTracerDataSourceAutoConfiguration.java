@@ -31,18 +31,17 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @EnableConfigurationProperties(SofaTracerDataSourceProperties.class)
+@ConditionalOnProperty(prefix = "com.alipay.sofa.tracer.datasource", value = "enable", matchIfMissing = true)
 public class SofaTracerDataSourceAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "com.alipay.sofa.tracer.datasource", value = "enable", matchIfMissing = true)
     public static DataSourceBeanFactoryPostProcessor DataSourceBeanFactoryPostProcessor() {
         return new DataSourceBeanFactoryPostProcessor();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "com.alipay.sofa.tracer.datasource", value = "enable", matchIfMissing = true)
     public static DataSourceBeanPostProcessor dataSourceBeanPostProcessor() {
         return new DataSourceBeanPostProcessor();
     }
