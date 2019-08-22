@@ -14,22 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.datasource.properties;
+package com.sofa.tracer.plugins.resttemplate.base;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.SpringApplication;
 
 /**
- * @author qilong.zql 18/9/4-PM 1:41
+ * SpringBootWebApplication
+ *
+ * @author yangguanchao
+ * @since v2.3.0
  */
-@ConfigurationProperties("com.alipay.sofa.tracer.datasource")
-public class SofaTracerDataSourceProperties {
-    private boolean enable;
+@org.springframework.boot.autoconfigure.SpringBootApplication
+public class SpringBootWebApplication {
 
-    public boolean isEnable() {
-        return enable;
-    }
-
-    public void setEnable(boolean enable) {
-        this.enable = enable;
+    public static void main(String[] args) throws Exception {
+        SpringApplication springApplication = new SpringApplication(SpringBootWebApplication.class);
+        springApplication.run(args);
     }
 }

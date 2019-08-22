@@ -14,22 +14,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.datasource.properties;
+package com.sofa.tracer.plugins.resttemplate.base;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * @author qilong.zql 18/9/4-PM 1:41
+ * SampleRestController
+ *
+ * @author yangguanchao
+ * @since v2.3.0
  */
-@ConfigurationProperties("com.alipay.sofa.tracer.datasource")
-public class SofaTracerDataSourceProperties {
-    private boolean enable;
-
-    public boolean isEnable() {
-        return enable;
+@RestController
+public class SampleRestController {
+    /**
+     * Request http://localhost:8080/
+     * @return Map of Result
+     */
+    @GetMapping("/")
+    public Map<String, Object> greeting() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("name", "weiheng");
+        return map;
     }
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
+    /**
+     * Request http://localhost:8080/
+     * @param postBody body
+     * @return Result
+     */
+    @PostMapping("/")
+    public PostBody postBody(@RequestBody PostBody postBody) {
+        return postBody;
     }
 }

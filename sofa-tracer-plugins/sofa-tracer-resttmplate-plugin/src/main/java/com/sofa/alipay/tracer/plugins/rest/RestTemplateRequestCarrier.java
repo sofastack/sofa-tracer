@@ -14,22 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.datasource.properties;
+package com.sofa.alipay.tracer.plugins.rest;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import io.opentracing.propagation.TextMap;
+import org.springframework.http.HttpRequest;
+
+import java.util.Iterator;
+import java.util.Map;
 
 /**
- * @author qilong.zql 18/9/4-PM 1:41
+ * RestTemplateRequestCarrier
+ * @author: guolei.sgl
+ * @since: v2.3.0
  */
-@ConfigurationProperties("com.alipay.sofa.tracer.datasource")
-public class SofaTracerDataSourceProperties {
-    private boolean enable;
+public class RestTemplateRequestCarrier implements TextMap {
 
-    public boolean isEnable() {
-        return enable;
+    private final HttpRequest request;
+
+    public RestTemplateRequestCarrier(HttpRequest request) {
+        this.request = request;
     }
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
+    @Override
+    public Iterator<Map.Entry<String, String>> iterator() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void put(String key, String value) {
+        request.getHeaders().add(key, value);
     }
 }
