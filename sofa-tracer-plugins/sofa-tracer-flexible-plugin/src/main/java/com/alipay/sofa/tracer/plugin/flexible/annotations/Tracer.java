@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD })
 public @interface Tracer {
     /**
-     * 操作名
+     * operateName
      * @return
      */
     String operateName() default "";
