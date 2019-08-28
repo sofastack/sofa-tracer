@@ -22,40 +22,33 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugin.flexible.FlexibleTracer;
 import com.alipay.sofa.tracer.plugin.flexible.annotations.Tracer;
 import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/9 2:51 PM
  * @since:
  **/
-public class SofaTracerMethodInvocationProcessor implements MethodInvocationProcessor,
-                                                BeanFactoryAware {
-
-    private BeanFactory           beanFactory;
+public class SofaTracerMethodInvocationProcessor implements MethodInvocationProcessor {
 
     private io.opentracing.Tracer tracer;
+
+    public SofaTracerMethodInvocationProcessor(io.opentracing.Tracer tracer) {
+        this.tracer = tracer;
+    }
 
     @Override
     public Object process(MethodInvocation invocation, Tracer tracerSpan) throws Throwable {
         return proceedProxyMethodWithTracerAnnotation(invocation, tracerSpan);
     }
 
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
-    }
-
     private Object proceedProxyMethodWithTracerAnnotation(MethodInvocation invocation,
                                                           Tracer tracerSpan) throws Throwable {
-        if (tracer() instanceof FlexibleTracer) {
+        if (tracer instanceof FlexibleTracer) {
             try {
                 String operationName = tracerSpan.operateName();
                 if (StringUtils.isBlank(operationName)) {
                     operationName = invocation.getMethod().getName();
                 }
-                SofaTracerSpan sofaTracerSpan = ((FlexibleTracer) tracer())
+                SofaTracerSpan sofaTracerSpan = ((FlexibleTracer) tracer)
                     .beforeInvoke(operationName);
                 sofaTracerSpan.setTag(CommonSpanTags.METHOD, invocation.getMethod().getName());
                 if (invocation.getArguments() != null && invocation.getArguments().length != 0) {
@@ -68,21 +61,14 @@ public class SofaTracerMethodInvocationProcessor implements MethodInvocationProc
                 }
                 return invocation.proceed();
             } catch (Exception ex) {
-                ((FlexibleTracer) tracer()).afterInvoke(ex.getMessage());
+                ((FlexibleTracer) tracer).afterInvoke(ex.getMessage());
                 throw ex;
             } finally {
-                ((FlexibleTracer) tracer()).afterInvoke(null);
+                ((FlexibleTracer) tracer).afterInvoke(null);
             }
         } else {
             return invocation.proceed();
         }
-    }
-
-    io.opentracing.Tracer tracer() {
-        if (this.tracer == null) {
-            this.tracer = this.beanFactory.getBean(io.opentracing.Tracer.class);
-        }
-        return this.tracer;
     }
 
 }

@@ -21,9 +21,6 @@ import com.alipay.sofa.tracer.plugin.flexible.annotations.Tracer;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.IntroductionInterceptor;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.core.annotation.AnnotationUtils;
 
 import java.lang.annotation.Annotation;
@@ -33,11 +30,13 @@ import java.lang.reflect.Method;
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/9 3:05 PM
  * @since:
  **/
-public class SofaTracerIntroductionInterceptor implements IntroductionInterceptor, BeanFactoryAware {
+public class SofaTracerIntroductionInterceptor implements IntroductionInterceptor {
 
-    private BeanFactory               beanFactory;
+    private final MethodInvocationProcessor sofaMethodInvocationProcessor;
 
-    private MethodInvocationProcessor sofaMethodInvocationProcessor;
+    public SofaTracerIntroductionInterceptor(MethodInvocationProcessor sofaMethodInvocationProcessor) {
+        this.sofaMethodInvocationProcessor = sofaMethodInvocationProcessor;
+    }
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
@@ -52,25 +51,12 @@ public class SofaTracerIntroductionInterceptor implements IntroductionIntercepto
         if (tracerSpan == null) {
             return invocation.proceed();
         }
-        return sofaMethodInvocationProcessor().process(invocation, tracerSpan);
+        return sofaMethodInvocationProcessor.process(invocation, tracerSpan);
     }
 
     @Override
     public boolean implementsInterface(Class<?> aClass) {
         return true;
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
-    }
-
-    private MethodInvocationProcessor sofaMethodInvocationProcessor() {
-        if (this.sofaMethodInvocationProcessor == null) {
-            this.sofaMethodInvocationProcessor = this.beanFactory
-                .getBean(MethodInvocationProcessor.class);
-        }
-        return this.sofaMethodInvocationProcessor;
     }
 
     private <T extends Annotation> T findAnnotation(Method method, Class<T> clazz) {

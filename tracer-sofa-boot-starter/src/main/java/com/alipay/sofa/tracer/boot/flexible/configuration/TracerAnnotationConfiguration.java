@@ -41,20 +41,20 @@ public class TracerAnnotationConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    MethodInvocationProcessor sofaMethodInvocationProcessor(Tracer tracer) {
+        return new SofaTracerMethodInvocationProcessor(tracer);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    SofaTracerIntroductionInterceptor sofaTracerIntroductionInterceptor(MethodInvocationProcessor methodInvocationProcessor) {
+        return new SofaTracerIntroductionInterceptor(methodInvocationProcessor);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
     SofaTracerAdvisingBeanPostProcessor tracerAnnotationBeanPostProcessor(SofaTracerIntroductionInterceptor methodInterceptor) {
         return new SofaTracerAdvisingBeanPostProcessor(methodInterceptor);
     }
 
-    @Bean
-    @ConditionalOnMissingBean
-    SofaTracerIntroductionInterceptor sofaTracerIntroductionInterceptor() {
-        return new SofaTracerIntroductionInterceptor();
-
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    MethodInvocationProcessor sofaMethodInvocationProcessor() {
-        return new SofaTracerMethodInvocationProcessor();
-    }
 }
