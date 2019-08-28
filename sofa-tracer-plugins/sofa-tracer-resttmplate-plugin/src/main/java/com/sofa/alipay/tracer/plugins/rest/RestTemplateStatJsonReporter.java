@@ -37,8 +37,6 @@ import java.util.Map;
  */
 public class RestTemplateStatJsonReporter extends AbstractSofaTracerStatisticReporter {
 
-    private static JsonStringBuilder jsonBuffer = new JsonStringBuilder();
-
     public RestTemplateStatJsonReporter(String statTracerName, String rollingPolicy,
                                         String logReserveConfig) {
         super(statTracerName, rollingPolicy, logReserveConfig);
@@ -70,6 +68,9 @@ public class RestTemplateStatJsonReporter extends AbstractSofaTracerStatisticRep
 
     @Override
     public void print(StatKey statKey, long[] values) {
+
+        JsonStringBuilder jsonBuffer = new JsonStringBuilder();
+
         if (this.isClosePrint.get()) {
             //close
             return;

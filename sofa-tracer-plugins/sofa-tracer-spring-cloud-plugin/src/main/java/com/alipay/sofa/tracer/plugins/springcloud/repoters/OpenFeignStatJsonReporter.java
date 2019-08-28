@@ -41,8 +41,6 @@ public class OpenFeignStatJsonReporter extends AbstractSofaTracerStatisticReport
         super(statTracerName, rollingPolicy, logReserveConfig);
     }
 
-    private static JsonStringBuilder buffer = new JsonStringBuilder();
-
     @Override
     public void doReportStat(SofaTracerSpan sofaTracerSpan) {
         Map<String, String> tagsWithStr = sofaTracerSpan.getTagsWithStr();
@@ -68,6 +66,9 @@ public class OpenFeignStatJsonReporter extends AbstractSofaTracerStatisticReport
 
     @Override
     public void print(StatKey statKey, long[] values) {
+
+        JsonStringBuilder buffer = new JsonStringBuilder();
+
         if (this.isClosePrint.get()) {
             return;
         }
