@@ -16,6 +16,8 @@
  */
 package com.alipay.sofa.tracer.boot.base.controller;
 
+import com.alipay.sofa.tracer.plugin.flexible.annotations.Tracer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,6 +43,14 @@ public class SampleRestController {
 
     private final AtomicLong    counter    = new AtomicLong();
 
+    @Autowired
+    TestService                 testService;
+
+    /**
+     * work
+     * @param name
+     * @return
+     */
     @RequestMapping("/greeting")
     public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
         Greeting greeting = new Greeting();
@@ -48,6 +58,14 @@ public class SampleRestController {
         greeting.setId(counter.incrementAndGet());
         greeting.setContent(String.format(template, name));
         return greeting;
+    }
+
+    /**
+     * do not be proxy
+     */
+    @Tracer
+    public void testAnno() {
+        System.out.println("111");
     }
 
     @RequestMapping("/noDigestLog")
@@ -65,6 +83,27 @@ public class SampleRestController {
         AsyncContext asyncContext = request.startAsync();
         asyncContext.getResponse().getWriter().write(ASYNC_RESP);
         asyncContext.complete();
+    }
+
+    @RequestMapping("tracer")
+    @Tracer
+    public String tracer() {
+        return testService.testTraceAnnotation();
+    }
+
+    @RequestMapping("tracerException")
+    public String tracerException() {
+        try {
+            return testService.testTraceAnnotationException();
+        } catch (Exception e) {
+            //ignore
+        }
+        return "exception";
+    }
+
+    @RequestMapping("/feign")
+    public String feign() {
+        return "feign";
     }
 
     public static class Greeting {

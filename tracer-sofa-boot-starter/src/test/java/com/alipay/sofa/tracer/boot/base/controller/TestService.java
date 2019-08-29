@@ -14,28 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.common.tracer.core.constants;
+package com.alipay.sofa.tracer.boot.base.controller;
+
+import com.alipay.sofa.tracer.plugin.flexible.annotations.Tracer;
+import org.springframework.stereotype.Service;
 
 /**
- * Component Name Constants
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/4/8 9:16 PM
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/3 10:27 AM
  * @since:
  **/
-public class ComponentNameConstants {
+@Service
+public class TestService {
 
-    public static final String DATA_SOURCE   = "dataSource";
+    /**
+     * 生效
+     * @return
+     */
+    @Tracer
+    public String testTraceAnnotation() {
+        return "tracer";
+    }
 
-    public static final String DUBBO_CLIENT  = "dubbo-client";
-
-    public static final String DUBBO_SERVER  = "dubbo-server";
-
-    public static final String HTTP_CLIENT   = "httpclient";
-
-    public static final String OK_HTTP       = "okhttp";
-
-    public static final String REST_TEMPLATE = "resttemplate";
-
-    public static final String SPRING_MVC    = "springmvc";
-
-    public static final String FLEXIBLE      = "flexible-biz";
+    @Tracer
+    public String testTraceAnnotationException() {
+        throw new RuntimeException("testException");
+    }
 }

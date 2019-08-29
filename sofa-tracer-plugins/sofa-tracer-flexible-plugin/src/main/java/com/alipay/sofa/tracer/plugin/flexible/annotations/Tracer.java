@@ -14,28 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.common.tracer.core.constants;
+package com.alipay.sofa.tracer.plugin.flexible.annotations;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Component Name Constants
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/4/8 9:16 PM
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/2 11:39 AM
  * @since:
  **/
-public class ComponentNameConstants {
-
-    public static final String DATA_SOURCE   = "dataSource";
-
-    public static final String DUBBO_CLIENT  = "dubbo-client";
-
-    public static final String DUBBO_SERVER  = "dubbo-server";
-
-    public static final String HTTP_CLIENT   = "httpclient";
-
-    public static final String OK_HTTP       = "okhttp";
-
-    public static final String REST_TEMPLATE = "resttemplate";
-
-    public static final String SPRING_MVC    = "springmvc";
-
-    public static final String FLEXIBLE      = "flexible-biz";
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.METHOD })
+public @interface Tracer {
+    /**
+     * operateName
+     * @return
+     */
+    String operateName() default "";
 }

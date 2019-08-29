@@ -14,28 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.common.tracer.core.constants;
+package com.alipay.sofa.tracer.boot.flexible.processor;
+
+import com.alipay.sofa.tracer.plugin.flexible.annotations.Tracer;
+import org.aopalliance.intercept.MethodInvocation;
 
 /**
- * Component Name Constants
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/4/8 9:16 PM
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/9 2:50 PM
  * @since:
  **/
-public class ComponentNameConstants {
+public interface MethodInvocationProcessor {
 
-    public static final String DATA_SOURCE   = "dataSource";
-
-    public static final String DUBBO_CLIENT  = "dubbo-client";
-
-    public static final String DUBBO_SERVER  = "dubbo-server";
-
-    public static final String HTTP_CLIENT   = "httpclient";
-
-    public static final String OK_HTTP       = "okhttp";
-
-    public static final String REST_TEMPLATE = "resttemplate";
-
-    public static final String SPRING_MVC    = "springmvc";
-
-    public static final String FLEXIBLE      = "flexible-biz";
+    /**
+     * proxy method
+     * @param invocation
+     * @param tracerSpan
+     * @return
+     * @throws Throwable
+     */
+    Object process(MethodInvocation invocation, Tracer tracerSpan) throws Throwable;
 }
