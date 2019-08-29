@@ -38,11 +38,6 @@ import java.util.Map;
  */
 public class HttpClientStatJsonReporter extends AbstractSofaTracerStatisticReporter {
 
-    /***
-     * print builder
-     */
-    private static JsonStringBuilder jsonBuffer = new JsonStringBuilder();
-
     public HttpClientStatJsonReporter(String statTracerName, String rollingPolicy,
                                       String logReserveConfig) {
         super(statTracerName, rollingPolicy, logReserveConfig);
@@ -74,6 +69,9 @@ public class HttpClientStatJsonReporter extends AbstractSofaTracerStatisticRepor
 
     @Override
     public void print(StatKey statKey, long[] values) {
+
+        JsonStringBuilder jsonBuffer = new JsonStringBuilder();
+
         if (this.isClosePrint.get()) {
             //close
             return;

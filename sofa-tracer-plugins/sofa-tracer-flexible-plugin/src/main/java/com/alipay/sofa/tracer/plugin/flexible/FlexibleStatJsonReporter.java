@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sofa.alipay.tracer.plugins.rest;
+package com.alipay.sofa.tracer.plugin.flexible;
 
 import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
@@ -26,19 +26,22 @@ import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.reporter.stat.model.StatMapKey;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
+import io.opentracing.tag.Tags;
 
 import java.util.Map;
 
 /**
- * RestTemplateStatJsonReporter
- * @author: guolei.sgl
- * @since: v2.3.0
- */
-public class RestTemplateStatJsonReporter extends AbstractSofaTracerStatisticReporter {
+ * FlexibleStatJsonReporter for flexible biz tracer
+ *
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/2 11:50 AM
+ * @since:
+ **/
+public class FlexibleStatJsonReporter extends AbstractSofaTracerStatisticReporter {
 
-    public RestTemplateStatJsonReporter(String statTracerName, String rollingPolicy,
-                                        String logReserveConfig) {
+    public FlexibleStatJsonReporter(String statTracerName, String rollingPolicy,
+                                    String logReserveConfig) {
         super(statTracerName, rollingPolicy, logReserveConfig);
     }
 
@@ -47,16 +50,13 @@ public class RestTemplateStatJsonReporter extends AbstractSofaTracerStatisticRep
         Map<String, String> tagsWithStr = sofaTracerSpan.getTagsWithStr();
         StatMapKey statKey = new StatMapKey();
         statKey.addKey(CommonSpanTags.LOCAL_APP, tagsWithStr.get(CommonSpanTags.LOCAL_APP));
-        statKey.addKey(CommonSpanTags.REQUEST_URL, tagsWithStr.get(CommonSpanTags.REQUEST_URL));
         statKey.addKey(CommonSpanTags.METHOD, tagsWithStr.get(CommonSpanTags.METHOD));
-        //success
-        String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
-        boolean success = (resultCode != null && resultCode.length() > 0 && this
-            .isHttpOrMvcSuccess(resultCode));
-        statKey.setResult(success ? SofaTracerConstant.STAT_FLAG_SUCCESS
-            : SofaTracerConstant.STAT_FLAG_FAILS);
         //pressure mark
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
+        //success
+        String error = tagsWithStr.get(Tags.ERROR.getKey());
+        statKey.setResult(StringUtils.isBlank(error) ? SofaTracerConstant.STAT_FLAG_SUCCESS
+            : SofaTracerConstant.STAT_FLAG_FAILS);
         //end
         statKey.setEnd(TracerUtils.getLoadTestMark(sofaTracerSpan));
         //value the count and duration
@@ -68,9 +68,7 @@ public class RestTemplateStatJsonReporter extends AbstractSofaTracerStatisticRep
 
     @Override
     public void print(StatKey statKey, long[] values) {
-
-        JsonStringBuilder jsonBuffer = new JsonStringBuilder();
-
+        JsonStringBuilder statJson = new JsonStringBuilder();
         if (this.isClosePrint.get()) {
             //close
             return;
@@ -80,21 +78,21 @@ public class RestTemplateStatJsonReporter extends AbstractSofaTracerStatisticRep
         }
         StatMapKey statMapKey = (StatMapKey) statKey;
         try {
-            jsonBuffer.reset();
-            jsonBuffer.appendBegin();
-            jsonBuffer.append(CommonSpanTags.TIME, Timestamp.currentTime());
-            jsonBuffer.append(CommonSpanTags.STAT_KEY, this.statKeySplit(statMapKey));
-            jsonBuffer.append(CommonSpanTags.COUNT, values[0]);
-            jsonBuffer.append(CommonSpanTags.TOTAL_COST_MILLISECONDS, values[1]);
-            jsonBuffer.append(CommonSpanTags.SUCCESS, statMapKey.getResult());
+            statJson.reset();
+            statJson.appendBegin();
+            statJson.append(CommonSpanTags.TIME, Timestamp.currentTime());
+            statJson.append(CommonSpanTags.STAT_KEY, this.statKeySplit(statMapKey));
+            statJson.append(CommonSpanTags.COUNT, values[0]);
+            statJson.append(CommonSpanTags.TOTAL_COST_MILLISECONDS, values[1]);
+            statJson.append(CommonSpanTags.SUCCESS, statMapKey.getResult());
             //pressure
-            jsonBuffer.appendEnd(CommonSpanTags.LOAD_TEST, statMapKey.getEnd());
+            statJson.appendEnd(CommonSpanTags.LOAD_TEST, statMapKey.getEnd());
 
             if (appender instanceof LoadTestAwareAppender) {
-                ((LoadTestAwareAppender) appender).append(jsonBuffer.toString(),
+                ((LoadTestAwareAppender) appender).append(statJson.toString(),
                     statMapKey.isLoadTest());
             } else {
-                appender.append(jsonBuffer.toString());
+                appender.append(statJson.toString());
             }
             // force print
             appender.flush();

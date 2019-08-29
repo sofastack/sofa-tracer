@@ -36,11 +36,6 @@ import java.util.Map;
  **/
 public class DubboClientStatJsonReporter extends AbstractSofaTracerStatisticReporter {
 
-    /***
-     * print builder
-     */
-    private static JsonStringBuilder jsonBuffer = new JsonStringBuilder();
-
     public DubboClientStatJsonReporter(String statTracerName, String rollingPolicy,
                                        String logReserveConfig) {
         super(statTracerName, rollingPolicy, logReserveConfig);
@@ -83,6 +78,9 @@ public class DubboClientStatJsonReporter extends AbstractSofaTracerStatisticRepo
 
     @Override
     public void print(StatKey statKey, long[] values) {
+
+        JsonStringBuilder jsonBuffer = new JsonStringBuilder();
+
         if (this.isClosePrint.get()) {
             //Close the statistics log output
             return;

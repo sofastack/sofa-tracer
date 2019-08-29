@@ -36,11 +36,6 @@ import java.util.Map;
  **/
 public class DubboServerStatJsonReporter extends AbstractSofaTracerStatisticReporter {
 
-    /***
-     * print builder
-     */
-    private static JsonStringBuilder jsonBuffer = new JsonStringBuilder();
-
     public DubboServerStatJsonReporter(String statTracerName, String rollingPolicy,
                                        String logReserveConfig) {
         super(statTracerName, rollingPolicy, logReserveConfig);
@@ -68,7 +63,6 @@ public class DubboServerStatJsonReporter extends AbstractSofaTracerStatisticRepo
         statKey.addKey(CommonSpanTags.REMOTE_APP, toApp);
         statKey.addKey(CommonSpanTags.SERVICE, serviceName);
         statKey.addKey(CommonSpanTags.METHOD, methodName);
-        //次数和耗时，最后一个耗时是单独打印的字段
         long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
         long[] values = new long[] { 1, duration };
         this.addStat(statKey, values);
@@ -84,6 +78,9 @@ public class DubboServerStatJsonReporter extends AbstractSofaTracerStatisticRepo
 
     @Override
     public void print(StatKey statKey, long[] values) {
+
+        JsonStringBuilder jsonBuffer = new JsonStringBuilder();
+
         if (this.isClosePrint.get()) {
             //Close the statistics log output
             return;

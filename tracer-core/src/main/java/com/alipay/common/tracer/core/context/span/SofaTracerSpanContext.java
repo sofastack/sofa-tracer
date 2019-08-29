@@ -230,11 +230,11 @@ public class SofaTracerSpanContext implements SpanContext {
     /**
      *
      * Deserialize and restore a SofaTracerSpanContext, reciprocal with {@link SofaTracerSpanContext#serializeSpanContext()}
-     * @param deserializedValue deserialize string, format: tcid:0,spid:1
+     * @param deserializeValue deserialize string, format: tcid:0,spid:1
      * @return SofaTracerSpanContext
      */
-    public static SofaTracerSpanContext deserializeFromString(String deserializedValue) {
-        if (StringUtils.isBlank(deserializedValue)) {
+    public static SofaTracerSpanContext deserializeFromString(String deserializeValue) {
+        if (StringUtils.isBlank(deserializeValue)) {
             return SofaTracerSpanContext.rootStart();
         }
         //default value for SofaTracerSpanContext
@@ -249,7 +249,7 @@ public class SofaTracerSpanContext implements SpanContext {
         Map<String, String> baggage = new HashMap<String, String>();
 
         Map<String, String> spanContext = new HashMap<String, String>();
-        StringUtils.stringToMap(deserializedValue, spanContext);
+        StringUtils.stringToMap(deserializeValue, spanContext);
 
         for (Map.Entry<String, String> entry : spanContext.entrySet()) {
             String key = entry.getKey();

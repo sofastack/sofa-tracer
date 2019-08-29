@@ -37,8 +37,6 @@ import java.util.Map;
  */
 public class SpringMvcJsonStatReporter extends SpringMvcStatReporter {
 
-    private static JsonStringBuilder jsonBuffer = new JsonStringBuilder();
-
     public SpringMvcJsonStatReporter(String statTracerName, String rollingPolicy,
                                      String logReserveConfig) {
         super(statTracerName, rollingPolicy, logReserveConfig);
@@ -70,6 +68,9 @@ public class SpringMvcJsonStatReporter extends SpringMvcStatReporter {
 
     @Override
     public void print(StatKey statKey, long[] values) {
+
+        JsonStringBuilder jsonBuffer = new JsonStringBuilder();
+
         if (this.isClosePrint.get()) {
             //Close the statistics log output
             return;
