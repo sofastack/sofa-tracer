@@ -35,7 +35,6 @@ import java.util.Map;
  * @since 2.2.0
  */
 public class DataSourceClientStatJsonReporter extends AbstractSofaTracerStatisticReporter {
-    private static JsonStringBuilder jsonBuffer = new JsonStringBuilder();
 
     public DataSourceClientStatJsonReporter(String statTracerName, String rollingPolicy,
                                             String logReserveConfig) {
@@ -68,6 +67,9 @@ public class DataSourceClientStatJsonReporter extends AbstractSofaTracerStatisti
 
     @Override
     public void print(StatKey statKey, long[] values) {
+
+        JsonStringBuilder jsonBuffer = new JsonStringBuilder();
+
         if (this.isClosePrint.get()) {
             //close
             return;
