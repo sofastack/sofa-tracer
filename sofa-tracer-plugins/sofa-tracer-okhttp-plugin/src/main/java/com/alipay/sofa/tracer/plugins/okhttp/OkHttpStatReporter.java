@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sofa.alipay.tracer.plugins.rest;
+package com.alipay.sofa.tracer.plugins.okhttp;
 
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
-import com.alipay.common.tracer.core.reporter.stat.model.StatMapKey;
+import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.TracerUtils;
@@ -26,34 +26,33 @@ import com.alipay.common.tracer.core.utils.TracerUtils;
 import java.util.Map;
 
 /**
- * RestTemplateStatJsonReporter
- * @author: guolei.sgl
- * @since: v2.3.0
- */
-public class RestTemplateStatJsonReporter extends AbstractSofaTracerStatisticReporter {
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/9/1 5:40 PM
+ * @since:
+ **/
+public class OkHttpStatReporter extends AbstractSofaTracerStatisticReporter {
 
-    public RestTemplateStatJsonReporter(String statTracerName, String rollingPolicy,
-                                        String logReserveConfig) {
+    public OkHttpStatReporter(String statTracerName, String rollingPolicy, String logReserveConfig) {
         super(statTracerName, rollingPolicy, logReserveConfig);
     }
 
     @Override
     public void doReportStat(SofaTracerSpan sofaTracerSpan) {
         Map<String, String> tagsWithStr = sofaTracerSpan.getTagsWithStr();
-        StatMapKey statKey = new StatMapKey();
-        statKey.addKey(CommonSpanTags.LOCAL_APP, tagsWithStr.get(CommonSpanTags.LOCAL_APP));
-        statKey.addKey(CommonSpanTags.REQUEST_URL, tagsWithStr.get(CommonSpanTags.REQUEST_URL));
-        statKey.addKey(CommonSpanTags.METHOD, tagsWithStr.get(CommonSpanTags.METHOD));
-        //success
+        StatKey statKey = new StatKey();
+        String localApp = tagsWithStr.get(CommonSpanTags.LOCAL_APP);
+        String requestUrl = tagsWithStr.get(CommonSpanTags.REQUEST_URL);
+        //method name
+        String methodName = tagsWithStr.get(CommonSpanTags.METHOD);
+        statKey.setKey(buildString(new String[] { localApp, requestUrl, methodName }));
+
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
-        boolean success = (resultCode != null && resultCode.length() > 0 && this
-            .isHttpOrMvcSuccess(resultCode));
-        statKey.setResult(success ? SofaTracerConstant.STAT_FLAG_SUCCESS
-            : SofaTracerConstant.STAT_FLAG_FAILS);
+        statKey
+            .setResult(SofaTracerConstant.RESULT_CODE_SUCCESS.equals(resultCode) ? SofaTracerConstant.STAT_FLAG_SUCCESS
+                : SofaTracerConstant.STAT_FLAG_FAILS);
+
+        statKey.setEnd(buildString(new String[] { TracerUtils.getLoadTestMark(sofaTracerSpan) }));
         //pressure mark
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
-        //end
-        statKey.setEnd(TracerUtils.getLoadTestMark(sofaTracerSpan));
         //value the count and duration
         long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
         long[] values = new long[] { 1, duration };

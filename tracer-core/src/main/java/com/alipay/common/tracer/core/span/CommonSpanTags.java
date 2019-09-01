@@ -138,6 +138,10 @@ public class CommonSpanTags {
      */
     public static final String BAGGAGE                 = "baggage";
 
+    public static final String BIZ_BAGGAGE             = "biz.baggage";
+
+    public static final String SYS_BAGGAGE             = "sys.baggage";
+
     /**
      * TIME records the current span's begin time
      */

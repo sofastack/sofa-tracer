@@ -31,9 +31,7 @@ import com.alipay.common.tracer.core.tracer.AbstractServerTracer;
  */
 public class SpringMvcTracer extends AbstractServerTracer {
 
-    public static final String              SPRING_MVC_JSON_FORMAT_OUTPUT = "spring_mvc_json_format_output";
-
-    private volatile static SpringMvcTracer springMvcTracer               = null;
+    private volatile static SpringMvcTracer springMvcTracer = null;
 
     /***
      * Spring MVC Tracer Singleton
@@ -71,8 +69,7 @@ public class SpringMvcTracer extends AbstractServerTracer {
 
     @Override
     protected SpanEncoder<SofaTracerSpan> getServerDigestEncoder() {
-        if (Boolean.TRUE.toString().equalsIgnoreCase(
-            SofaTracerConfiguration.getProperty(SPRING_MVC_JSON_FORMAT_OUTPUT))) {
+        if (SofaTracerConfiguration.isJsonOutput()) {
             return new SpringMvcDigestJsonEncoder();
         } else {
             return new SpringMvcDigestEncoder();
@@ -91,8 +88,7 @@ public class SpringMvcTracer extends AbstractServerTracer {
             .getRollingKey());
         String statLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(springMvcLogEnum
             .getLogNameKey());
-        if (Boolean.TRUE.toString().equalsIgnoreCase(
-            SofaTracerConfiguration.getProperty(SPRING_MVC_JSON_FORMAT_OUTPUT))) {
+        if (SofaTracerConfiguration.isJsonOutput()) {
             return new SpringMvcJsonStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
         } else {
             return new SpringMvcStatReporter(statLog, statRollingPolicy, statLogReserveConfig);

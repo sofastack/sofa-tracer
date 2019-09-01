@@ -18,63 +18,43 @@ package com.alipay.sofa.tracer.plugin.flexible;
 
 import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
-import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import io.opentracing.tag.Tags;
 
 import java.util.Map;
 import java.util.Set;
 
 /**
- * FlexibleDigestJsonEncoder for flexible biz tracer
- *
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/2 11:39 AM
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/9/1 7:23 PM
  * @since:
  **/
-public class FlexibleDigestJsonEncoder extends AbstractDigestSpanEncoder {
+public class FlexibleDigestEncoder extends FlexibleDigestJsonEncoder {
 
     @Override
     protected void appendComponentSlot(XStringBuilder xsb, JsonStringBuilder jsb, SofaTracerSpan span) {
         Map<String, String> strTags = span.getTagsWithStr();
         Map<String, Number> numTags = span.getTagsWithNumber();
         Map<String, Number> boolTags = span.getTagsWithNumber();
-        //POST/GET
-        jsb.append(CommonSpanTags.METHOD, strTags.get(CommonSpanTags.METHOD));
+
+        xsb.append(strTags.get(CommonSpanTags.METHOD));
 
         Set<String> strKeys = strTags.keySet();
         strKeys.forEach(key->{
             if (!isFlexible(key)){
-                jsb.append(key,strTags.get(key));
+                xsb.append(strTags.get(key));
             }
         });
         Set<String> numKeys = numTags.keySet();
         numKeys.forEach(key->{
             if (!isFlexible(key)){
-                jsb.append(key,numTags.get(key));
+                xsb.append(String.valueOf(numTags.get(key)));
             }
         });
         Set<String> boolKeys = boolTags.keySet();
         boolKeys.forEach(key->{
             if (!isFlexible(key)){
-                jsb.append(key,boolTags.get(key));
+                xsb.append(String.valueOf(boolTags.get(key)));
             }
         });
-    }
-
-    /**
-     * common tag and component tag excluded
-     * @param key
-     * @return
-     */
-    protected boolean isFlexible(String key) {
-        return CommonSpanTags.LOCAL_APP.equalsIgnoreCase(key)
-               || CommonSpanTags.TRACE_ID.equalsIgnoreCase(key)
-               || CommonSpanTags.SPAN_ID.equalsIgnoreCase(key)
-               || CommonSpanTags.CURRENT_THREAD_NAME.equalsIgnoreCase(key)
-               || CommonSpanTags.METHOD.equalsIgnoreCase(key)
-               || CommonSpanTags.TIME.equalsIgnoreCase(key)
-               || CommonSpanTags.TIME_COST_MILLISECONDS.equalsIgnoreCase(key)
-               || Tags.SPAN_KIND.getKey().equalsIgnoreCase(key);
     }
 }
