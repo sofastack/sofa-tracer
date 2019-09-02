@@ -119,6 +119,8 @@ public class SofaTracerConfiguration {
     /** The key of Sampling rate */
     public static final String                     SAMPLER_STRATEGY_PERCENTAGE_KEY              = "tracer_sampler_strategy_percentage_key";
 
+    public static final String                     JSON_FORMAT_OUTPUT                           = "global_json_format_output";
+
     static {
         InputStream inputStream = null;
         try {
@@ -289,5 +291,15 @@ public class SofaTracerConfiguration {
             return null;
         }
         return samplerName;
+    }
+
+    /**
+     * use json to print
+     * @return
+     */
+    public static boolean isJsonOutput() {
+        return StringUtils.isNotBlank(SofaTracerConfiguration.getProperty(JSON_FORMAT_OUTPUT))
+               && "false".equalsIgnoreCase(SofaTracerConfiguration.getProperty(JSON_FORMAT_OUTPUT)) ? false
+            : true;
     }
 }

@@ -21,9 +21,11 @@ import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
+import com.alipay.sofa.tracer.plugins.springcloud.encodes.OpenFeignDigestEncoder;
 import com.alipay.sofa.tracer.plugins.springcloud.repoters.OpenFeignStatJsonReporter;
 import com.alipay.sofa.tracer.plugins.springcloud.encodes.OpenFeignDigestJsonEncoder;
 import com.alipay.sofa.tracer.plugins.springcloud.enums.FeignClientLogEnum;
+import com.alipay.sofa.tracer.plugins.springcloud.repoters.OpenFeignStatReporter;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/13 10:52 AM
@@ -69,7 +71,11 @@ public class FeignClientTracer extends AbstractClientTracer {
 
     @Override
     protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
-        return new OpenFeignDigestJsonEncoder();
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new OpenFeignDigestJsonEncoder();
+        } else {
+            return new OpenFeignDigestEncoder();
+        }
     }
 
     @Override
@@ -86,8 +92,12 @@ public class FeignClientTracer extends AbstractClientTracer {
     protected AbstractSofaTracerStatisticReporter getOpenFeignStatJsonReporter(String statTracerName,
                                                                                String statRollingPolicy,
                                                                                String statLogReserveConfig) {
-        return new OpenFeignStatJsonReporter(statTracerName, statRollingPolicy,
-            statLogReserveConfig);
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new OpenFeignStatJsonReporter(statTracerName, statRollingPolicy,
+                statLogReserveConfig);
+        } else {
+            return new OpenFeignStatReporter(statTracerName, statRollingPolicy,
+                statLogReserveConfig);
+        }
     }
-
 }

@@ -78,6 +78,11 @@ public class SofaTracerProperties {
 
     private String              reporterName;
 
+    /**
+     * json output : com.alipay.sofa.tracer.jsonOutput=true,
+     */
+    private boolean             jsonOutput                       = true;
+
     public String getDisableDigestLog() {
         return disableDigestLog;
     }
@@ -156,5 +161,13 @@ public class SofaTracerProperties {
 
     public void setReporterName(String reporterName) {
         this.reporterName = reporterName;
+    }
+
+    public boolean isJsonOutput() {
+        return jsonOutput;
+    }
+
+    public void setJsonOutput(boolean jsonOutput) {
+        this.jsonOutput = jsonOutput;
     }
 }

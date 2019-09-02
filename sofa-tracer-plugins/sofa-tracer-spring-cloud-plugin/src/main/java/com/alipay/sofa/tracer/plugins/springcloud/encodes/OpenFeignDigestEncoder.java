@@ -27,34 +27,33 @@ import io.opentracing.tag.Tags;
 import java.util.Map;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/13 3:30 PM
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/9/1 3:52 PM
  * @since:
  **/
-public class OpenFeignDigestJsonEncoder extends AbstractDigestSpanEncoder {
+public class OpenFeignDigestEncoder extends AbstractDigestSpanEncoder {
 
     @Override
     protected void appendComponentSlot(XStringBuilder xsb, JsonStringBuilder jsb,
                                        SofaTracerSpan span) {
-
         Map<String, String> tagWithStr = span.getTagsWithStr();
         Map<String, Number> tagWithNum = span.getTagsWithNumber();
 
-        jsb.append(CommonSpanTags.REQUEST_URL, tagWithStr.get(CommonSpanTags.REQUEST_URL));
-        jsb.append(CommonSpanTags.METHOD, tagWithStr.get(CommonSpanTags.METHOD));
+        xsb.append(tagWithStr.get(CommonSpanTags.REQUEST_URL));
+        xsb.append(tagWithStr.get(CommonSpanTags.METHOD));
 
         if (StringUtils.isNotBlank(tagWithStr.get(Tags.ERROR.getKey()))) {
-            jsb.append(Tags.ERROR.getKey(), tagWithStr.get(Tags.ERROR.getKey()));
+            xsb.append(tagWithStr.get(Tags.ERROR.getKey()));
         } else {
-            jsb.append(Tags.ERROR.getKey(), StringUtils.EMPTY_STRING);
+            xsb.append(StringUtils.EMPTY_STRING);
         }
 
         Number requestSize = tagWithNum.get(CommonSpanTags.REQ_SIZE);
-        jsb.append(CommonSpanTags.REQ_SIZE, (requestSize == null ? 0L : requestSize.longValue()));
+        xsb.append(requestSize == null ? 0L : requestSize.longValue());
         Number responseSize = tagWithNum.get(CommonSpanTags.RESP_SIZE);
-        jsb.append(CommonSpanTags.RESP_SIZE, (responseSize == null ? 0L : responseSize.longValue()));
+        xsb.append(responseSize == null ? 0L : responseSize.longValue());
 
         //target appName
-        jsb.append(CommonSpanTags.REMOTE_HOST, tagWithStr.get(CommonSpanTags.REMOTE_HOST));
-        jsb.append(CommonSpanTags.REMOTE_PORT, tagWithStr.get(CommonSpanTags.REMOTE_PORT));
+        xsb.append(tagWithStr.get(CommonSpanTags.REMOTE_HOST));
+        xsb.append(tagWithStr.get(CommonSpanTags.REMOTE_PORT));
     }
 }
