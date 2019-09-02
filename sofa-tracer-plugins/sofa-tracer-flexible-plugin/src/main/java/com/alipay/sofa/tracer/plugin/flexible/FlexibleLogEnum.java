@@ -24,9 +24,9 @@ package com.alipay.sofa.tracer.plugin.flexible;
  **/
 public enum FlexibleLogEnum {
 
-    // Http Client Digest Log
+    // Flexible Digest Log
     FLEXIBLE_DIGEST("biz_digest_log_name", "biz-digest.log", "biz_digest_rolling"),
-    // Http Client Stat Log
+    // Flexible Stat Log
     FLEXIBLE_STAT("biz_stat_log_name", "biz-stat.log", "biz_stat_rolling"), ;
 
     private String logNameKey;
