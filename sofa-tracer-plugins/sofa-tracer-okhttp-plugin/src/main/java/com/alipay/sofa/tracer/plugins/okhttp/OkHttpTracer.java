@@ -63,7 +63,11 @@ public class OkHttpTracer extends AbstractClientTracer {
 
     @Override
     protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
-        return new OkHttpDigestJsonEncoder();
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new OkHttpDigestJsonEncoder();
+        } else {
+            return new OkHttpDigestEncoder();
+        }
     }
 
     @Override
@@ -80,6 +84,10 @@ public class OkHttpTracer extends AbstractClientTracer {
     private AbstractSofaTracerStatisticReporter getOkHttpStatReporter(String statLog,
                                                                       String statRollingPolicy,
                                                                       String statLogReserveConfig) {
-        return new OkHttpStatJsonReporter(statLog, statRollingPolicy, statLogReserveConfig);
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new OkHttpStatJsonReporter(statLog, statRollingPolicy, statLogReserveConfig);
+        } else {
+            return new OkHttpStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
+        }
     }
 }

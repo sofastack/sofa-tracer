@@ -16,6 +16,7 @@
  */
 package com.alipay.common.tracer.test.core.sofatracer;
 
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
@@ -40,6 +41,7 @@ public class SofaTracerStatisticsDemoTest extends AbstractTestBase {
 
     @Before
     public void beforeTest() throws Exception {
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.JSON_FORMAT_OUTPUT, "false");
         // wait stat cycle clean > 1000s(default)
         Thread.sleep(1100);
         File f = customFileLog(TracerTestLogEnum.RPC_SERVER_DIGEST.getDefaultLogName());

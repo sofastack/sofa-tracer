@@ -17,6 +17,7 @@
 package com.sofa.tracer.plugins.datasource.base;
 
 import com.alibaba.druid.mock.MockResultSet;
+import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.sofa.tracer.plugins.datasource.BaseDataSource;
 import com.alipay.sofa.tracer.plugins.datasource.DBType;
 import com.alipay.sofa.tracer.plugins.datasource.Interceptor;
@@ -290,7 +291,7 @@ public abstract class BaseTest {
         Assert.assertTrue(result.get("database.name").equals("mockDB"));
         Assert.assertTrue(result.get("sql").equals("select * from mars"));
         Assert.assertTrue(result.get("result.code").equals("success"));
-        String totalTime = result.get("total.time").toString();
+        String totalTime = result.get(CommonSpanTags.TIME_COST_MILLISECONDS).toString();
         Assert.assertTrue(totalTime.endsWith("ms"));
         Assert.assertTrue(Integer.valueOf(totalTime.substring(0, totalTime.length() - 2)) >= 0);
         Assert.assertTrue(result.get("database.type").equals(DBType.MYSQL.getName()));

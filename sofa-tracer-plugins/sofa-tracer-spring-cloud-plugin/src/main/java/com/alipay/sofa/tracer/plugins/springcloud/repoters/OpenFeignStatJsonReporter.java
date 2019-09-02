@@ -16,13 +16,8 @@
  */
 package com.alipay.sofa.tracer.plugins.springcloud.repoters;
 
-import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
-import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
-import com.alipay.common.tracer.core.appender.self.SelfLog;
-import com.alipay.common.tracer.core.appender.self.Timestamp;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
-import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.reporter.stat.model.StatMapKey;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
@@ -62,51 +57,5 @@ public class OpenFeignStatJsonReporter extends AbstractSofaTracerStatisticReport
         long[] values = new long[] { 1, duration };
         //reserve
         this.addStat(statKey, values);
-    }
-
-    @Override
-    public void print(StatKey statKey, long[] values) {
-
-        JsonStringBuilder buffer = new JsonStringBuilder();
-
-        if (this.isClosePrint.get()) {
-            return;
-        }
-        if (!(statKey instanceof StatMapKey)) {
-            return;
-        }
-        StatMapKey statMapKey = (StatMapKey) statKey;
-        try {
-            buffer.reset();
-            buffer.appendBegin();
-            buffer.append(CommonSpanTags.TIME, Timestamp.currentTime());
-            buffer.append(CommonSpanTags.STAT_KEY, this.statKeySplit(statMapKey));
-            buffer.append(CommonSpanTags.COUNT, values[0]);
-            buffer.append(CommonSpanTags.TOTAL_COST_MILLISECONDS, values[1]);
-            buffer.append(CommonSpanTags.SUCCESS, statMapKey.getResult());
-            //pressure
-            buffer.appendEnd(CommonSpanTags.LOAD_TEST, statMapKey.getEnd());
-            if (appender instanceof LoadTestAwareAppender) {
-                ((LoadTestAwareAppender) appender).append(buffer.toString(),
-                    statMapKey.isLoadTest());
-            } else {
-                appender.append(buffer.toString());
-            }
-            // force print
-            appender.flush();
-        } catch (Throwable t) {
-            SelfLog.error("Stat log <" + statTracerName + "> error!", t);
-        }
-    }
-
-    private String statKeySplit(StatMapKey statKey) {
-        JsonStringBuilder bufferKey = new JsonStringBuilder();
-        Map<String, String> keyMap = statKey.getKeyMap();
-        bufferKey.appendBegin();
-        for (Map.Entry<String, String> entry : keyMap.entrySet()) {
-            bufferKey.append(entry.getKey(), entry.getValue());
-        }
-        bufferKey.appendEnd(false);
-        return bufferKey.toString();
     }
 }

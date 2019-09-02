@@ -80,7 +80,11 @@ public class DataSourceClientTracer extends AbstractClientTracer {
 
     @Override
     protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
-        return new DataSourceClientDigestJsonEncoder();
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new DataSourceClientDigestJsonEncoder();
+        } else {
+            return new DataSourceClientDigestEncoder();
+        }
     }
 
     @Override
@@ -91,8 +95,13 @@ public class DataSourceClientTracer extends AbstractClientTracer {
             .getRollingKey());
         String statLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(dataSourceLogEnum
             .getLogNameKey());
-        return new DataSourceClientStatJsonReporter(statLogName, statRollingPolicy,
-            statLogReserveConfig);
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new DataSourceClientStatJsonReporter(statLogName, statRollingPolicy,
+                statLogReserveConfig);
+        } else {
+            return new DataSourceClientStatReporter(statLogName, statRollingPolicy,
+                statLogReserveConfig);
+        }
     }
 
     public void startTrace(String sql) {
