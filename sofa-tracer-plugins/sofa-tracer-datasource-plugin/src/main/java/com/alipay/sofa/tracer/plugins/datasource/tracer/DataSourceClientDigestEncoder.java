@@ -19,9 +19,7 @@ package com.alipay.sofa.tracer.plugins.datasource.tracer;
 import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
-import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
-import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
 import java.util.Map;
@@ -39,8 +37,8 @@ public class DataSourceClientDigestEncoder extends AbstractDigestSpanEncoder {
         Map<String, Number> tagWithNum = span.getTagsWithNumber();
         //dataBase Name
         xsb.append(tagWithStr.get(DataSourceTracerKeys.DATABASE_NAME));
-        //SQL //todo 需要转义处理
-        xsb.append(tagWithStr.get(DataSourceTracerKeys.SQL));
+        //SQL
+        xsb.appendEscape(tagWithStr.get(DataSourceTracerKeys.SQL));
         //db connection established cost time
         xsb.append(tagWithNum.get(DataSourceTracerKeys.CONNECTION_ESTABLISH_COST)
                    + SofaTracerConstant.MS);
