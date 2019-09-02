@@ -24,7 +24,11 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.httpclient.HttpClientRequestCarrier;
-import org.apache.http.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.RequestLine;
 import org.apache.http.client.methods.HttpRequestWrapper;
 
 /**

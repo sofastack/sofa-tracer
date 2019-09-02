@@ -51,7 +51,11 @@ public class RestTemplateTracer extends AbstractClientTracer {
 
     @Override
     protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
-        return new RestTemplateDigestJsonEncoder();
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new RestTemplateDigestJsonEncoder();
+        } else {
+            return new RestTemplateDigestEncoder();
+        }
     }
 
     @Override
@@ -69,7 +73,12 @@ public class RestTemplateTracer extends AbstractClientTracer {
     protected AbstractSofaTracerStatisticReporter getRestTemplateStatReporter(String statTracerName,
                                                                               String statRollingPolicy,
                                                                               String statLogReserveConfig) {
-        return new RestTemplateStatJsonReporter(statTracerName, statRollingPolicy,
-            statLogReserveConfig);
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new RestTemplateStatJsonReporter(statTracerName, statRollingPolicy,
+                statLogReserveConfig);
+        } else {
+            return new RestTemplateStatReporter(statTracerName, statRollingPolicy,
+                statLogReserveConfig);
+        }
     }
 }
