@@ -111,8 +111,6 @@ public class RestTemplateInterceptor implements ClientHttpRequestInterceptor {
         //appName
         sofaTracerSpan.setTag(CommonSpanTags.LOCAL_APP, appName == null ? StringUtils.EMPTY_STRING
             : appName);
-        //targetAppName
-        sofaTracerSpan.setTag(CommonSpanTags.REMOTE_APP, StringUtils.EMPTY_STRING);
         sofaTracerSpan.setTag(CommonSpanTags.REQUEST_URL, request.getURI().toString());
         //method
         sofaTracerSpan.setTag(CommonSpanTags.METHOD, methodName);
