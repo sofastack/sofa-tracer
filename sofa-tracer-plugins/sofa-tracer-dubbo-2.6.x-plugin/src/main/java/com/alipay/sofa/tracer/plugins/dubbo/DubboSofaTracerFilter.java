@@ -537,16 +537,10 @@ public class DubboSofaTracerFilter implements Filter {
             @Override
             public void caught(Throwable throwable) {
                 String spanKey = getTracerSpanMapKey(invoker);
-                try {
-                    if (TracerSpanMap.containsKey(spanKey)) {
-                        SofaTracerSpan sofaTracerSpan = TracerSpanMap.get(spanKey);
-                        handleError(throwable, sofaTracerSpan);
-                    }
-                } finally {
-                    // clean TracerSpanMap
-                    if (TracerSpanMap.containsKey(spanKey)) {
-                        TracerSpanMap.remove(spanKey);
-                    }
+                // get and clear cache map
+                SofaTracerSpan sofaSpan = getAndClearTracerSpanMap(spanKey);
+                if (sofaSpan != null) {
+                    handleError(throwable, sofaSpan);
                 }
             }
         }
