@@ -47,7 +47,6 @@ public class OkHttpDigestEncoder extends AbstractDigestSpanEncoder {
         Number responseSize = tagWithNum.get(CommonSpanTags.RESP_SIZE);
         //Response Body bytes length
         xsb.append(responseSize == null ? 0L : responseSize.longValue());
-        //target appName
         xsb.append(tagWithStr.get(CommonSpanTags.REMOTE_APP));
     }
 }

@@ -46,5 +46,6 @@ public class HttpClientDigestEncoder extends AbstractDigestSpanEncoder {
         Number responseSize = tagWithNum.get(CommonSpanTags.RESP_SIZE);
         //Response Body bytes length
         xsb.append((responseSize == null ? 0L : responseSize.longValue()));
+        xsb.append(tagWithStr.get(CommonSpanTags.REMOTE_APP));
     }
 }
