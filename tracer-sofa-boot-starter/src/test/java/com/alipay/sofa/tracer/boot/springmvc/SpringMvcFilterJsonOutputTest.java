@@ -22,12 +22,17 @@ import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticRe
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
 import com.alipay.sofa.tracer.boot.TestUtil;
 import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
+import com.alipay.sofa.tracer.boot.base.SpringBootWebApplication;
 import com.alipay.sofa.tracer.boot.base.controller.SampleRestController;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcLogEnum;
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
 import java.util.List;
@@ -41,8 +46,16 @@ import static org.junit.Assert.*;
  * @author yangguanchao
  * @since 2018/05/01
  */
-@ActiveProfiles("json")
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = SpringBootWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestPropertySource(locations = "classpath:application-json.properties")
 public class SpringMvcFilterJsonOutputTest extends AbstractTestBase {
+
+    @Before
+    public void before() throws InterruptedException {
+        // wait other stat log print over
+        Thread.sleep(1100);
+    }
 
     @Test
     public void testSofaRestGet() throws Exception {
@@ -80,13 +93,11 @@ public class SpringMvcFilterJsonOutputTest extends AbstractTestBase {
         }
         SofaTracerStatisticReporterManager s = SofaTracerStatisticReporterCycleTimesManager
             .getSofaTracerStatisticReporterManager(1L);
-        Assert.notNull(
-            s.getStatReporters().get(SpringMvcLogEnum.SPRING_MVC_STAT.getDefaultLogName()),
-            "mvc reporter cannot be null");
+        Assert.notNull(s.getStatReporters().get(
+            SpringMvcLogEnum.SPRING_MVC_STAT.getDefaultLogName()));
 
         //stat log : 设置了周期 1s 输出一次
         Thread.sleep(1000);
-
         //wait for async output
         List<String> statContents = FileUtils
             .readLines(customFileLog(SpringMvcLogEnum.SPRING_MVC_STAT.getDefaultLogName()));

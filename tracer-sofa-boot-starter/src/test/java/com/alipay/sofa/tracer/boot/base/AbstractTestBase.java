@@ -99,7 +99,7 @@ public abstract class AbstractTestBase {
 
         // clear stat
         SofaTracerStatisticReporterManager statReporterManager = SofaTracerStatisticReporterCycleTimesManager
-            .getSofaTracerStatisticReporterManager(1l);
+            .getSofaTracerStatisticReporterManager(1L);
         Field fieldStat = SofaTracerStatisticReporterManager.class
             .getDeclaredField("statReporters");
         fieldStat.setAccessible(true);

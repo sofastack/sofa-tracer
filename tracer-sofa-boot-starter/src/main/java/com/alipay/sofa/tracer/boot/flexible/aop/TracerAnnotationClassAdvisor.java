@@ -14,28 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.common.tracer.core.constants;
+package com.alipay.sofa.tracer.boot.flexible.aop;
+
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.springframework.aop.Pointcut;
+import org.springframework.aop.support.AbstractPointcutAdvisor;
 
 /**
- * Component Name Constants
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/4/8 9:16 PM
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/8/9 3:17 PM
  * @since:
  **/
-public class ComponentNameConstants {
+public class TracerAnnotationClassAdvisor extends AbstractPointcutAdvisor {
 
-    public static final String DATA_SOURCE   = "dataSource";
+    private Advice   advice;
 
-    public static final String DUBBO_CLIENT  = "dubbo-client";
+    private Pointcut pointcut;
 
-    public static final String DUBBO_SERVER  = "dubbo-server";
+    public TracerAnnotationClassAdvisor(MethodInterceptor interceptor) {
+        this.advice = interceptor;
+        this.pointcut = new TracerAnnotationClassPointcut();
+    }
 
-    public static final String HTTP_CLIENT   = "httpclient";
+    @Override
+    public Pointcut getPointcut() {
+        return this.pointcut;
+    }
 
-    public static final String OK_HTTP       = "okhttp";
+    @Override
+    public Advice getAdvice() {
+        return this.advice;
+    }
 
-    public static final String REST_TEMPLATE = "resttemplate";
-
-    public static final String SPRING_MVC    = "springmvc";
-
-    public static final String FLEXIBLE      = "flexible-biz";
 }
