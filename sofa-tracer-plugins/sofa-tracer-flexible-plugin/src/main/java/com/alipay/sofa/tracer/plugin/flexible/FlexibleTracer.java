@@ -26,6 +26,7 @@ import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
 import com.alipay.common.tracer.core.reporter.facade.Reporter;
+import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.samplers.Sampler;
 import com.alipay.common.tracer.core.samplers.SamplerFactory;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
@@ -117,9 +118,9 @@ public class FlexibleTracer extends SofaTracer {
         String digestRollingPolicy = SofaTracerConfiguration.getRollingPolicy(logRollingKey);
         String digestLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(logNameKey);
 
-        SpanEncoder spanEncoder = new FlexibleDigestJsonEncoder();
+        SpanEncoder spanEncoder = generateAbstractDigestSpanEncoder();
 
-        FlexibleStatJsonReporter statReporter = generateFlexibleStatJsonReporter();
+        AbstractSofaTracerStatisticReporter statReporter = generateFlexibleStatJsonReporter();
 
         DiskReporterImpl reporter = new DiskReporterImpl(logName, digestRollingPolicy,
             digestLogReserveConfig, spanEncoder, statReporter, logNameKey);
@@ -127,14 +128,27 @@ public class FlexibleTracer extends SofaTracer {
         return reporter;
     }
 
-    private FlexibleStatJsonReporter generateFlexibleStatJsonReporter() {
+    private SpanEncoder generateAbstractDigestSpanEncoder() {
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new FlexibleDigestJsonEncoder();
+        } else {
+            return new FlexibleDigestEncoder();
+        }
+    }
+
+    private AbstractSofaTracerStatisticReporter generateFlexibleStatJsonReporter() {
         FlexibleLogEnum flexibleLogEnum = FlexibleLogEnum.FLEXIBLE_STAT;
         String statLog = flexibleLogEnum.getDefaultLogName();
         String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(flexibleLogEnum
             .getRollingKey());
         String statLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(flexibleLogEnum
             .getLogNameKey());
-        return new FlexibleStatJsonReporter(statLog, statRollingPolicy, statLogReserveConfig);
+
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new FlexibleStatJsonReporter(statLog, statRollingPolicy, statLogReserveConfig);
+        } else {
+            return new FlexibleStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
+        }
     }
 
     public SofaTracerSpan beforeInvoke(String operationName) {

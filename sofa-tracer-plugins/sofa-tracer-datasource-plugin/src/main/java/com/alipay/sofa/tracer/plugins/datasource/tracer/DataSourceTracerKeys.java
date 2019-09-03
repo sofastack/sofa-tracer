@@ -36,9 +36,6 @@ public class DataSourceTracerKeys {
 
     public static final String LOCAL_APP                 = "local.app";
 
-    public static final String RESULT_CODE               = "result.code";
-
     public static final String START_TIME                = "start.time";
 
-    public static final String TOTAL_TIME                = "total.time";
 }

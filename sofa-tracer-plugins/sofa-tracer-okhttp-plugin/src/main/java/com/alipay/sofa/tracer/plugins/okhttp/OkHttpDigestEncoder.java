@@ -14,11 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.plugins.springmvc;
+package com.alipay.sofa.tracer.plugins.okhttp;
 
 import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
-import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
@@ -26,12 +25,10 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import java.util.Map;
 
 /**
- * SpringMvcDigestEncoder
- *
- * @author yangguanchao
- * @since 2018/04/30
- */
-public class SpringMvcDigestEncoder extends AbstractDigestSpanEncoder {
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/9/1 3:44 PM
+ * @since:
+ **/
+public class OkHttpDigestEncoder extends AbstractDigestSpanEncoder {
 
     @Override
     protected void appendComponentSlot(XStringBuilder xsb, JsonStringBuilder jsb,
@@ -40,15 +37,16 @@ public class SpringMvcDigestEncoder extends AbstractDigestSpanEncoder {
         Map<String, Number> tagWithNum = span.getTagsWithNumber();
         //URL
         xsb.append(tagWithStr.get(CommonSpanTags.REQUEST_URL));
-        //method
+        //POST/GET
         xsb.append(tagWithStr.get(CommonSpanTags.METHOD));
-        // requestSize
+        //Http status code
+        xsb.append(tagWithStr.get(CommonSpanTags.RESULT_CODE));
         Number requestSize = tagWithNum.get(CommonSpanTags.REQ_SIZE);
-        //Request Body bytes
-        xsb.append((requestSize == null ? 0L : requestSize.longValue()) + SofaTracerConstant.BYTE);
-        // responseSize
+        //Request Body bytes length
+        xsb.append(requestSize == null ? 0L : requestSize.longValue());
         Number responseSize = tagWithNum.get(CommonSpanTags.RESP_SIZE);
-        //Response Body bytes
-        xsb.append((responseSize == null ? 0L : responseSize.longValue()) + SofaTracerConstant.BYTE);
+        //Response Body bytes length
+        xsb.append(responseSize == null ? 0L : responseSize.longValue());
+        xsb.append(tagWithStr.get(CommonSpanTags.REMOTE_APP));
     }
 }

@@ -16,13 +16,12 @@
  */
 package com.alipay.sofa.tracer.boot.condition;
 
-import com.alipay.sofa.tracer.boot.annotation.ExcludeClasses;
 import com.alipay.sofa.tracer.boot.base.SpringBootWebApplication;
 import com.alipay.sofa.tracer.boot.junit.SeparateClassloaderTestRunner;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -33,13 +32,14 @@ import org.springframework.context.ApplicationContextAware;
  */
 @RunWith(SeparateClassloaderTestRunner.class)
 @SpringBootTest(classes = SpringBootWebApplication.class)
-@ExcludeClasses({ "com.alipay.sofa.tracer.plugins.springmvc.SpringMvcSofaTracerFilter" })
 public class ConditionOnClassTest implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
-    @Test(expected = NoSuchBeanDefinitionException.class)
+    @Test
     public void testConditionOnMissingClass() {
-        applicationContext.getBean("springMvcDelegatingFilterProxy");
+        Object springMvcDelegatingFilterProxy = applicationContext
+            .getBean("springMvcDelegatingFilterProxy");
+        Assert.assertTrue(springMvcDelegatingFilterProxy != null);
     }
 
     @Override
