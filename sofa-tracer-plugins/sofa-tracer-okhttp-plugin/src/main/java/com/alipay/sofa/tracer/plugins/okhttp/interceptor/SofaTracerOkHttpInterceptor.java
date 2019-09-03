@@ -70,8 +70,6 @@ public class SofaTracerOkHttpInterceptor implements okhttp3.Interceptor {
         String methodName = request.method();
         sofaTracerSpan.setTag(CommonSpanTags.LOCAL_APP, appName == null ? StringUtils.EMPTY_STRING
             : appName);
-        //targetAppName
-        sofaTracerSpan.setTag(CommonSpanTags.REMOTE_APP, StringUtils.EMPTY_STRING);
         sofaTracerSpan.setTag(CommonSpanTags.REQUEST_URL, request.url().toString());
         //method
         sofaTracerSpan.setTag(CommonSpanTags.METHOD, methodName);
