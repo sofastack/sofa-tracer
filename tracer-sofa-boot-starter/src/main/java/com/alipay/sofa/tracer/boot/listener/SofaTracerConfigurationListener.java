@@ -120,6 +120,9 @@ public class SofaTracerConfigurationListener
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.SAMPLER_STRATEGY_PERCENTAGE_KEY,
             String.valueOf(tempTarget.getSamplerPercentage()));
+
+        SofaTracerConfiguration.setProperty(SofaTracerConfiguration.JSON_FORMAT_OUTPUT,
+            String.valueOf(tempTarget.isJsonOutput()));
     }
 
     @Override

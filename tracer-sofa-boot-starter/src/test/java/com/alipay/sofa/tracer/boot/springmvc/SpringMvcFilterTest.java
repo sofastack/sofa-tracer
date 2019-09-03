@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
  * @author yangguanchao
  * @since 2018/05/01
  */
-@ActiveProfiles("zipkin")
+@ActiveProfiles("non-json")
 public class SpringMvcFilterTest extends AbstractTestBase {
 
     @Value("${spring.application.name}")

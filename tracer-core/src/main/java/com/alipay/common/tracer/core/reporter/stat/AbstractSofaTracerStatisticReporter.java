@@ -17,6 +17,7 @@
 package com.alipay.common.tracer.core.reporter.stat;
 
 import com.alipay.common.tracer.core.appender.TraceAppender;
+import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
 import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
@@ -25,7 +26,9 @@ import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
 import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
+import com.alipay.common.tracer.core.reporter.stat.model.StatMapKey;
 import com.alipay.common.tracer.core.reporter.stat.model.StatValues;
+import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.AssertUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
@@ -57,6 +60,7 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
     private static final ReentrantLock initLock      = new ReentrantLock(false);
 
     private static XStringBuilder      buffer        = new XStringBuilder();
+    private static JsonStringBuilder   jsonBuffer    = new JsonStringBuilder();
 
     /**
      * Whether to turn off stat log print, the default is not closed
@@ -230,7 +234,7 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
      * @return
      */
     public Map<StatKey, StatValues> getStatData() {
-        return new HashMap<StatKey, StatValues>(statDatas);
+        return new HashMap<>(statDatas);
     }
 
     /**
@@ -240,7 +244,7 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
      * @return
      */
     public Map<StatKey, StatValues> getOtherStatData() {
-        return new HashMap<StatKey, StatValues>(statDatasPair[1 - currentIndex]);
+        return new HashMap<>(statDatasPair[1 - currentIndex]);
     }
 
     @Override
@@ -254,16 +258,25 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
             //Close the statistics log output
             return;
         }
-        buffer.reset();
-        buffer.append(Timestamp.currentTime()).append(statKey.getKey());
-        int i = 0;
-        for (; i < values.length - 1; i++) {
-            buffer.append(values[i]);
+        if ("false".equalsIgnoreCase(SofaTracerConfiguration
+            .getProperty(SofaTracerConfiguration.JSON_FORMAT_OUTPUT))) {
+            printXsbStat(statKey, values);
+        } else {
+            printJsbStat(statKey, values);
         }
-        buffer.append(values[i]);
-        buffer.append(statKey.getResult());
-        buffer.appendEnd(statKey.getEnd());
+    }
+
+    protected void printXsbStat(StatKey statKey, long[] values) {
         try {
+            buffer.reset();
+            buffer.append(Timestamp.currentTime()).append(statKey.getKey());
+            int i = 0;
+            for (; i < values.length - 1; i++) {
+                buffer.append(values[i]);
+            }
+            buffer.append(values[i]);
+            buffer.append(statKey.getResult());
+            buffer.appendEnd(statKey.getEnd());
             if (appender instanceof LoadTestAwareAppender) {
                 ((LoadTestAwareAppender) appender).append(buffer.toString(), statKey.isLoadTest());
             } else {
@@ -274,6 +287,47 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
         } catch (Throwable t) {
             SelfLog.error("Stat log <" + statTracerName + "> output error!", t);
         }
+    }
+
+    protected void printJsbStat(StatKey statKey, long[] values) {
+
+        if (!(statKey instanceof StatMapKey)) {
+            return;
+        }
+        StatMapKey statMapKey = (StatMapKey) statKey;
+        try {
+            jsonBuffer.reset();
+            jsonBuffer.appendBegin();
+            jsonBuffer.append(CommonSpanTags.TIME, Timestamp.currentTime());
+            jsonBuffer.append(CommonSpanTags.STAT_KEY, this.statKeySplit(statMapKey));
+            jsonBuffer.append(CommonSpanTags.COUNT, values[0]);
+            jsonBuffer.append(CommonSpanTags.TOTAL_COST_MILLISECONDS, values[1]);
+            jsonBuffer.append(CommonSpanTags.SUCCESS, statMapKey.getResult());
+            //pressure test mark
+            jsonBuffer.appendEnd(CommonSpanTags.LOAD_TEST, statMapKey.getEnd());
+
+            if (appender instanceof LoadTestAwareAppender) {
+                ((LoadTestAwareAppender) appender).append(jsonBuffer.toString(),
+                    statMapKey.isLoadTest());
+            } else {
+                appender.append(jsonBuffer.toString());
+            }
+            // Forced to flush
+            appender.flush();
+        } catch (Throwable t) {
+            SelfLog.error("Stat log<" + statTracerName + "> error!", t);
+        }
+    }
+
+    private String statKeySplit(StatMapKey statKey) {
+        JsonStringBuilder jsonBufferKey = new JsonStringBuilder();
+        Map<String, String> keyMap = statKey.getKeyMap();
+        jsonBufferKey.appendBegin();
+        for (Map.Entry<String, String> entry : keyMap.entrySet()) {
+            jsonBufferKey.append(entry.getKey(), entry.getValue());
+        }
+        jsonBufferKey.appendEnd(false);
+        return jsonBufferKey.toString();
     }
 
     @Override
