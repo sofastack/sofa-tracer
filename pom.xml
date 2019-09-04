@@ -24,6 +24,7 @@
         <module>sofa-tracer-plugins/sofa-tracer-resttmplate-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-zipkin-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-dubbo-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-flexible-plugin</module>
         <module>tracer-all</module>
         <module>tracer-sofa-boot-starter</module>
         <module>tracer-samples</module>
@@ -130,6 +131,13 @@
                 <artifactId>sofa-tracer-dubbo-plugin</artifactId>
                 <version>${sofa.tracer.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-flexible-plugin</artifactId>
+                <version>${sofa.tracer.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>tracer-all</artifactId>

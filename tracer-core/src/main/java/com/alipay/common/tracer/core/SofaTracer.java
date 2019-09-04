@@ -17,6 +17,7 @@
 package com.alipay.common.tracer.core;
 
 import com.alipay.common.tracer.core.appender.self.SelfLog;
+import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.generator.TraceIdGenerator;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
@@ -37,7 +38,11 @@ import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -78,8 +83,8 @@ public class SofaTracer implements Tracer {
      */
     private final Sampler             sampler;
 
-    private SofaTracer(String tracerType, Reporter clientReporter, Reporter serverReporter,
-                       Sampler sampler, Map<String, Object> tracerTags) {
+    protected SofaTracer(String tracerType, Reporter clientReporter, Reporter serverReporter,
+                         Sampler sampler, Map<String, Object> tracerTags) {
         this.tracerType = tracerType;
         this.clientReporter = clientReporter;
         this.serverReporter = serverReporter;
@@ -87,6 +92,13 @@ public class SofaTracer implements Tracer {
         if (tracerTags != null && tracerTags.size() > 0) {
             this.tracerTags.putAll(tracerTags);
         }
+    }
+
+    protected SofaTracer(String tracerType, Sampler sampler) {
+        this.tracerType = tracerType;
+        this.clientReporter = null;
+        this.serverReporter = null;
+        this.sampler = sampler;
     }
 
     @Override
@@ -123,7 +135,8 @@ public class SofaTracer implements Tracer {
         }
         //invoke listener
         this.invokeReportListeners(span);
-        if (span.isClient()) {
+        if (span.isClient()
+            || this.getTracerType().equalsIgnoreCase(ComponentNameConstants.FLEXIBLE)) {
             if (this.clientReporter != null) {
                 this.clientReporter.report(span);
             }
@@ -178,7 +191,7 @@ public class SofaTracer implements Tracer {
         return "SofaTracer{" + "tracerType='" + tracerType + '}';
     }
 
-    private void invokeReportListeners(SofaTracerSpan sofaTracerSpan) {
+    protected void invokeReportListeners(SofaTracerSpan sofaTracerSpan) {
         List<SpanReportListener> listeners = SpanReportListenerHolder
             .getSpanReportListenersHolder();
         if (listeners != null && listeners.size() > 0) {
@@ -206,7 +219,7 @@ public class SofaTracer implements Tracer {
          */
         private List<SofaTracerSpanReferenceRelationship> references = Collections.emptyList();
 
-        private final Map<String, Object>                 tags       = new HashMap<String, Object>();
+        private final Map<String, Object>                 tags       = new HashMap<>();
 
         public SofaTracerSpanBuilder(String operationName) {
             this.operationName = operationName;
@@ -278,7 +291,7 @@ public class SofaTracer implements Tracer {
 
         @Override
         public Span start() {
-            SofaTracerSpanContext sofaTracerSpanContext = null;
+            SofaTracerSpanContext sofaTracerSpanContext;
             if (this.references != null && this.references.size() > 0) {
                 //Parent context exist
                 sofaTracerSpanContext = this.createChildContext();
@@ -345,7 +358,7 @@ public class SofaTracer implements Tracer {
             }
             Map<String, String> baggage = null;
             for (SofaTracerSpanReferenceRelationship reference : references) {
-                Map<String, String> referenceBaggage = null;
+                Map<String, String> referenceBaggage;
                 if (isBiz) {
                     referenceBaggage = reference.getSofaTracerSpanContext().getBizBaggage();
                 } else {
@@ -353,7 +366,7 @@ public class SofaTracer implements Tracer {
                 }
                 if (referenceBaggage != null && referenceBaggage.size() > 0) {
                     if (baggage == null) {
-                        baggage = new HashMap<String, String>();
+                        baggage = new HashMap<>();
                     }
                     baggage.putAll(referenceBaggage);
                 }

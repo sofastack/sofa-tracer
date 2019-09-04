@@ -17,11 +17,9 @@
 package com.alipay.sofa.tracer.plugins.datasource.tracer;
 
 import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
-import com.alipay.common.tracer.core.appender.self.Timestamp;
+import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
-import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
-import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
 import java.util.Map;
@@ -34,60 +32,27 @@ import java.util.Map;
 public class DataSourceClientDigestJsonEncoder extends AbstractDigestSpanEncoder {
 
     @Override
-    public String encode(SofaTracerSpan span) {
-        JsonStringBuilder jsonStringBuilder = new JsonStringBuilder();
-        jsonStringBuilder.appendBegin(CommonSpanTags.TIME, Timestamp.format(span.getEndTime()));
-        appendSlot(jsonStringBuilder, span);
-        return jsonStringBuilder.toString();
-    }
-
-    private void appendSlot(JsonStringBuilder jsonStringBuilder, SofaTracerSpan sofaTracerSpan) {
-        SofaTracerSpanContext context = sofaTracerSpan.getSofaTracerSpanContext();
-        Map<String, String> tagWithStr = sofaTracerSpan.getTagsWithStr();
-        Map<String, Number> tagsWithLong = sofaTracerSpan.getTagsWithNumber();
-        // app name
-        jsonStringBuilder
-            .append(CommonSpanTags.LOCAL_APP, tagWithStr.get(CommonSpanTags.LOCAL_APP));
-        //TraceId
-        jsonStringBuilder.append(CommonSpanTags.TRACE_ID, context.getTraceId());
-        //SpanId
-        jsonStringBuilder.append(CommonSpanTags.SPAN_ID, context.getSpanId());
+    protected void appendComponentSlot(XStringBuilder xsb, JsonStringBuilder jsb,
+                                       SofaTracerSpan span) {
+        Map<String, String> tagWithStr = span.getTagsWithStr();
+        Map<String, Number> tagsWithLong = span.getTagsWithNumber();
         //schema
-        jsonStringBuilder.append(DataSourceTracerKeys.DATABASE_NAME,
+        jsb.append(DataSourceTracerKeys.DATABASE_NAME,
             tagWithStr.get(DataSourceTracerKeys.DATABASE_NAME));
         //sql
-        jsonStringBuilder
-            .append(DataSourceTracerKeys.SQL, tagWithStr.get(DataSourceTracerKeys.SQL));
-        //result
-        jsonStringBuilder.append(DataSourceTracerKeys.RESULT_CODE,
-            tagWithStr.get(DataSourceTracerKeys.RESULT_CODE));
-        //total cost time
-        jsonStringBuilder.append(DataSourceTracerKeys.TOTAL_TIME, sofaTracerSpan.getEndTime()
-                                                                  - sofaTracerSpan.getStartTime()
-                                                                  + SofaTracerConstant.MS);
+        jsb.append(DataSourceTracerKeys.SQL, tagWithStr.get(DataSourceTracerKeys.SQL));
         //db connection established cost time
-        jsonStringBuilder.append(DataSourceTracerKeys.CONNECTION_ESTABLISH_COST,
+        jsb.append(DataSourceTracerKeys.CONNECTION_ESTABLISH_COST,
             tagsWithLong.get(DataSourceTracerKeys.CONNECTION_ESTABLISH_COST)
                     + SofaTracerConstant.MS);
         //db cost time
-        jsonStringBuilder.append(DataSourceTracerKeys.DB_EXECUTE_COST,
+        jsb.append(DataSourceTracerKeys.DB_EXECUTE_COST,
             tagsWithLong.get(DataSourceTracerKeys.DB_EXECUTE_COST) + SofaTracerConstant.MS);
         //db type
-        jsonStringBuilder.append(DataSourceTracerKeys.DATABASE_TYPE,
+        jsb.append(DataSourceTracerKeys.DATABASE_TYPE,
             tagWithStr.get(DataSourceTracerKeys.DATABASE_TYPE));
         //db connection(ip:port)
-        jsonStringBuilder.append(DataSourceTracerKeys.DATABASE_ENDPOINT,
+        jsb.append(DataSourceTracerKeys.DATABASE_ENDPOINT,
             tagWithStr.get(DataSourceTracerKeys.DATABASE_ENDPOINT));
-        //thread name
-        jsonStringBuilder.append(CommonSpanTags.CURRENT_THREAD_NAME,
-            tagWithStr.get(CommonSpanTags.CURRENT_THREAD_NAME));
-        this.appendBaggage(jsonStringBuilder, context);
-    }
-
-    private void appendBaggage(JsonStringBuilder jsonStringBuilder,
-                               SofaTracerSpanContext sofaTracerSpanContext) {
-        //baggage
-        jsonStringBuilder.appendEnd(CommonSpanTags.BAGGAGE,
-            baggageSerialized(sofaTracerSpanContext));
     }
 }

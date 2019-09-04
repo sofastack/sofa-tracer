@@ -16,13 +16,8 @@
  */
 package com.alipay.sofa.tracer.plugins.dubbo.stat;
 
-import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
-import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
-import com.alipay.common.tracer.core.appender.self.SelfLog;
-import com.alipay.common.tracer.core.appender.self.Timestamp;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
-import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.reporter.stat.model.StatMapKey;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
@@ -36,11 +31,6 @@ import java.util.Map;
  **/
 public class DubboServerStatJsonReporter extends AbstractSofaTracerStatisticReporter {
 
-    /***
-     * print builder
-     */
-    private static JsonStringBuilder jsonBuffer = new JsonStringBuilder();
-
     public DubboServerStatJsonReporter(String statTracerName, String rollingPolicy,
                                        String logReserveConfig) {
         super(statTracerName, rollingPolicy, logReserveConfig);
@@ -51,24 +41,23 @@ public class DubboServerStatJsonReporter extends AbstractSofaTracerStatisticRepo
         //tags
         Map<String, String> tagsWithStr = sofaTracerSpan.getTagsWithStr();
         StatMapKey statKey = new StatMapKey();
-        String fromApp = tagsWithStr.get(CommonSpanTags.REMOTE_APP);
-        String toApp = tagsWithStr.get(CommonSpanTags.LOCAL_APP);
+        String appName = tagsWithStr.get(CommonSpanTags.LOCAL_APP);
         //service name
         String serviceName = tagsWithStr.get(CommonSpanTags.SERVICE);
         //method name
         String methodName = tagsWithStr.get(CommonSpanTags.METHOD);
-        statKey.setKey(buildString(new String[] { fromApp, toApp, serviceName, methodName }));
+
+        statKey.addKey(CommonSpanTags.LOCAL_APP, appName);
+        statKey.addKey(CommonSpanTags.SERVICE, serviceName);
+        statKey.addKey(CommonSpanTags.METHOD, methodName);
+
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
         statKey
             .setResult(SofaTracerConstant.RESULT_CODE_SUCCESS.equals(resultCode) ? SofaTracerConstant.STAT_FLAG_SUCCESS
                 : SofaTracerConstant.STAT_FLAG_FAILS);
         statKey.setEnd(buildString(new String[] { getLoadTestMark(sofaTracerSpan) }));
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
-        statKey.addKey(CommonSpanTags.LOCAL_APP, fromApp);
-        statKey.addKey(CommonSpanTags.REMOTE_APP, toApp);
-        statKey.addKey(CommonSpanTags.SERVICE, serviceName);
-        statKey.addKey(CommonSpanTags.METHOD, methodName);
-        //次数和耗时，最后一个耗时是单独打印的字段
+
         long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
         long[] values = new long[] { 1, duration };
         this.addStat(statKey, values);
@@ -80,46 +69,5 @@ public class DubboServerStatJsonReporter extends AbstractSofaTracerStatisticRepo
         } else {
             return "F";
         }
-    }
-
-    @Override
-    public void print(StatKey statKey, long[] values) {
-        if (this.isClosePrint.get()) {
-            //Close the statistics log output
-            return;
-        }
-
-        StatMapKey statMapKey = (StatMapKey) statKey;
-
-        jsonBuffer.reset();
-        jsonBuffer.appendBegin(CommonSpanTags.TIME, Timestamp.currentTime());
-        jsonBuffer.append(CommonSpanTags.STAT_KEY, this.statKeySplit(statMapKey));
-        jsonBuffer.append(CommonSpanTags.COUNT, values[0]);
-        jsonBuffer.append(CommonSpanTags.TIME_COST_MILLISECONDS, values[1]);
-        jsonBuffer.append(CommonSpanTags.SUCCESS, statMapKey.getResult());
-        jsonBuffer.appendEnd();
-        try {
-            if (appender instanceof LoadTestAwareAppender) {
-                ((LoadTestAwareAppender) appender).append(jsonBuffer.toString(),
-                    statKey.isLoadTest());
-            } else {
-                appender.append(jsonBuffer.toString());
-            }
-            // Forced to flush
-            appender.flush();
-        } catch (Throwable t) {
-            SelfLog.error("stat log <" + statTracerName + "> error!", t);
-        }
-    }
-
-    private String statKeySplit(StatMapKey statKey) {
-        JsonStringBuilder jsonBufferKey = new JsonStringBuilder();
-        Map<String, String> keyMap = statKey.getKeyMap();
-        jsonBufferKey.appendBegin();
-        for (Map.Entry<String, String> entry : keyMap.entrySet()) {
-            jsonBufferKey.append(entry.getKey(), entry.getValue());
-        }
-        jsonBufferKey.appendEnd(false);
-        return jsonBufferKey.toString();
     }
 }

@@ -76,6 +76,13 @@ public class SofaTracerProperties {
     private float               samplerPercentage                = 100;
     private String              samplerCustomRuleClassName;
 
+    private String              reporterName;
+
+    /**
+     * json output : com.alipay.sofa.tracer.jsonOutput=true,
+     */
+    private boolean             jsonOutput                       = true;
+
     public String getDisableDigestLog() {
         return disableDigestLog;
     }
@@ -146,5 +153,21 @@ public class SofaTracerProperties {
 
     public void setSamplerCustomRuleClassName(String samplerCustomRuleClassName) {
         this.samplerCustomRuleClassName = samplerCustomRuleClassName;
+    }
+
+    public String getReporterName() {
+        return reporterName;
+    }
+
+    public void setReporterName(String reporterName) {
+        this.reporterName = reporterName;
+    }
+
+    public boolean isJsonOutput() {
+        return jsonOutput;
+    }
+
+    public void setJsonOutput(boolean jsonOutput) {
+        this.jsonOutput = jsonOutput;
     }
 }
