@@ -91,8 +91,9 @@ public abstract class AbstractDigestSpanEncoder implements SpanEncoder<SofaTrace
      * @param jsb
      * @param span
      */
-    protected abstract void appendComponentSlot(XStringBuilder xsb, JsonStringBuilder jsb,
-                                                SofaTracerSpan span);
+    protected void appendComponentSlot(XStringBuilder xsb, JsonStringBuilder jsb,
+                                       SofaTracerSpan span) {
+    }
 
     /**
      * System transparent transmission of data
