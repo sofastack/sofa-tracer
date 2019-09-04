@@ -21,6 +21,7 @@ import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.constants.ComponentNameConstants;
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
@@ -195,6 +196,13 @@ public class FlexibleTracer extends SofaTracer {
         if (clientSpan == null) {
             return;
         }
+
+        if (StringUtils.isNotBlank(error)){
+            clientSpan.setTag(CommonSpanTags.RESULT_CODE, SofaTracerConstant.RESULT_CODE_SUCCESS);
+        } else {
+            clientSpan.setTag(CommonSpanTags.RESULT_CODE, SofaTracerConstant.RESULT_CODE_ERROR);
+        }
+
         // log event
         clientSpan.log(LogData.CLIENT_RECV_EVENT_VALUE);
         // set resultCode
