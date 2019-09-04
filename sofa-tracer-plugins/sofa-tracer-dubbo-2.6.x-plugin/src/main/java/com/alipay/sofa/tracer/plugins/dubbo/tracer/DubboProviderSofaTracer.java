@@ -22,9 +22,11 @@ import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractServerTracer;
+import com.alipay.sofa.tracer.plugins.dubbo.encoder.DubboServerDigestEncoder;
 import com.alipay.sofa.tracer.plugins.dubbo.encoder.DubboServerDigestJsonEncoder;
 import com.alipay.sofa.tracer.plugins.dubbo.enums.DubboLogEnum;
 import com.alipay.sofa.tracer.plugins.dubbo.stat.DubboServerStatJsonReporter;
+import com.alipay.sofa.tracer.plugins.dubbo.stat.DubboServerStatReporter;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/2/26 3:47 PM
@@ -67,7 +69,11 @@ public class DubboProviderSofaTracer extends AbstractServerTracer {
 
     @Override
     protected SpanEncoder<SofaTracerSpan> getServerDigestEncoder() {
-        return new DubboServerDigestJsonEncoder();
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new DubboServerDigestJsonEncoder();
+        } else {
+            return new DubboServerDigestEncoder();
+        }
     }
 
     @Override
@@ -78,6 +84,11 @@ public class DubboProviderSofaTracer extends AbstractServerTracer {
             .getRollingKey());
         String statLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(dubboClientStat
             .getLogNameKey());
-        return new DubboServerStatJsonReporter(statLog, statRollingPolicy, statLogReserveConfig);
+
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new DubboServerStatJsonReporter(statLog, statRollingPolicy, statLogReserveConfig);
+        } else {
+            return new DubboServerStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
+        }
     }
 }
