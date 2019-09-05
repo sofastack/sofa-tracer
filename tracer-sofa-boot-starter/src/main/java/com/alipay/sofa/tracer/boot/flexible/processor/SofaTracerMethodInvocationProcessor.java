@@ -60,11 +60,11 @@ public class SofaTracerMethodInvocationProcessor implements MethodInvocationProc
                         stringBuilder.toString().substring(0, stringBuilder.length() - 1));
                 }
                 return invocation.proceed();
-            } catch (Exception ex) {
-                ((FlexibleTracer) tracer).afterInvoke(ex.getMessage());
-                throw ex;
+            } catch (Throwable t) {
+                ((FlexibleTracer) tracer).afterInvoke(t.getMessage());
+                throw t;
             } finally {
-                ((FlexibleTracer) tracer).afterInvoke(null);
+                ((FlexibleTracer) tracer).afterInvoke();
             }
         } else {
             return invocation.proceed();

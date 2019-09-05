@@ -190,6 +190,10 @@ public class FlexibleTracer extends SofaTracer {
         return methodSpan;
     }
 
+    public void afterInvoke() {
+        afterInvoke(StringUtils.EMPTY_STRING);
+    }
+
     public void afterInvoke(String error) {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         SofaTracerSpan clientSpan = sofaTraceContext.pop();
@@ -197,7 +201,7 @@ public class FlexibleTracer extends SofaTracer {
             return;
         }
 
-        if (StringUtils.isNotBlank(error)){
+        if (StringUtils.isNotBlank(error)) {
             clientSpan.setTag(CommonSpanTags.RESULT_CODE, SofaTracerConstant.RESULT_CODE_SUCCESS);
         } else {
             clientSpan.setTag(CommonSpanTags.RESULT_CODE, SofaTracerConstant.RESULT_CODE_ERROR);
