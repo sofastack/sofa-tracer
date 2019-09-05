@@ -194,7 +194,7 @@ public class FlexibleTracer extends SofaTracer {
      * normal finish
      */
     public void afterInvoke() {
-        afterInvoke(null);
+        afterInvoke(StringUtils.EMPTY_STRING);
     }
 
     /**
