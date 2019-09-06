@@ -5,7 +5,7 @@
     <parent>
         <artifactId>tracer-sample-with-dubbo</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>2.4.1-SNAPSHOT</version>
+        <version>2.4.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>tracer-sample-with-dubbo-facade</artifactId>
-            <version>2.4.1-SNAPSHOT</version>
+            <version>2.4.1</version>
         </dependency>
 
         <dependency>
