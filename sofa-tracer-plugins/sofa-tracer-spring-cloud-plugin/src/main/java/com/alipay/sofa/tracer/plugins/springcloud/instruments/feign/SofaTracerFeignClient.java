@@ -67,8 +67,8 @@ public class SofaTracerFeignClient implements Client {
             throw new RuntimeException(ex);
         } finally {
             if (sofaTracerSpan != null) {
-                feignClientTracer
-                    .clientReceiveTagFinish(sofaTracerSpan, String.valueOf(resultCode));
+                // do clear tl
+                feignClientTracer.clientReceive(String.valueOf(resultCode));
             }
         }
     }
