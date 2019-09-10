@@ -55,7 +55,7 @@ import java.util.concurrent.Future;
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/2/26 2:02 PM
  * @since: 2.3.4
  **/
-@Activate(group = { Constants.PROVIDER, Constants.CONSUMER }, value = "dubboSofaTracerFilter")
+@Activate(group = { Constants.PROVIDER, Constants.CONSUMER })
 public class DubboSofaTracerFilter implements Filter {
 
     private String                             appName         = StringUtils.EMPTY_STRING;
@@ -162,8 +162,8 @@ public class DubboSofaTracerFilter implements Filter {
             throw new RpcException(t);
         } finally {
             if (exception != null) {
-                // finish span on exception
-                handleError(exception, sofaTracerSpan);
+                // finish span on exception, delay to clear tl in handleError
+                handleError(exception, null);
             } else {
                 // sync invoke
                 if (isOneWay || !deferFinish) {
@@ -239,8 +239,12 @@ public class DubboSofaTracerFilter implements Filter {
             errorCode = SofaTracerConstant.RESULT_CODE_ERROR;
         }
         span.setTag(Tags.ERROR.getKey(), error.getMessage());
-        DubboConsumerSofaTracer.getDubboConsumerSofaTracerSingleton().clientReceiveTagFinish(span,
-            errorCode);
+        if (span == null) {
+            DubboConsumerSofaTracer.getDubboConsumerSofaTracerSingleton().clientReceive(errorCode);
+        } else {
+            DubboConsumerSofaTracer.getDubboConsumerSofaTracerSingleton().clientReceiveTagFinish(
+                span, errorCode);
+        }
     }
 
     /**
