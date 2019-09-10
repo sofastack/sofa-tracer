@@ -162,8 +162,8 @@ public class DubboSofaTracerFilter implements Filter {
             throw new RpcException(t);
         } finally {
             if (exception != null) {
-                // finish span on exception
-                handleError(exception, sofaTracerSpan);
+                // finish span on exception, delay to clear tl in handleError
+                handleError(exception, null);
             } else {
                 // sync invoke
                 if (isOneWay || !deferFinish) {
@@ -239,8 +239,12 @@ public class DubboSofaTracerFilter implements Filter {
             errorCode = SofaTracerConstant.RESULT_CODE_ERROR;
         }
         span.setTag(Tags.ERROR.getKey(), error.getMessage());
-        DubboConsumerSofaTracer.getDubboConsumerSofaTracerSingleton().clientReceiveTagFinish(span,
-            errorCode);
+        if (span == null) {
+            DubboConsumerSofaTracer.getDubboConsumerSofaTracerSingleton().clientReceive(errorCode);
+        } else {
+            DubboConsumerSofaTracer.getDubboConsumerSofaTracerSingleton().clientReceiveTagFinish(
+                span, errorCode);
+        }
     }
 
     /**
