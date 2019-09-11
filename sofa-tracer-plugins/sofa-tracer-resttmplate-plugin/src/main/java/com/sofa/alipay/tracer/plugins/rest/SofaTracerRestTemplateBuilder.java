@@ -46,6 +46,7 @@ public class SofaTracerRestTemplateBuilder {
         return restTemplate;
     }
 
+    @Deprecated
     public static AsyncRestTemplate buildAsyncRestTemplate() {
         AsyncRestTemplate asyncRestTemplate = new AsyncRestTemplate();
         List<AsyncClientHttpRequestInterceptor> interceptors = new ArrayList<AsyncClientHttpRequestInterceptor>();
