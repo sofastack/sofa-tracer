@@ -41,6 +41,9 @@ public class RestTemplateDigestJsonEncoder extends AbstractDigestSpanEncoder {
         jsb.append(CommonSpanTags.REQUEST_URL, tagWithStr.get(CommonSpanTags.REQUEST_URL));
         //POST/GET
         jsb.append(CommonSpanTags.METHOD, tagWithStr.get(CommonSpanTags.METHOD));
+        Number requestSize = tagWithNum.get(CommonSpanTags.REQ_SIZE);
+        //request bytes length
+        jsb.append(CommonSpanTags.RESP_SIZE, (requestSize == null ? 0L : requestSize.longValue()));
         Number responseSize = tagWithNum.get(CommonSpanTags.RESP_SIZE);
         //Response Body bytes length
         jsb.append(CommonSpanTags.RESP_SIZE, (responseSize == null ? 0L : responseSize.longValue()));

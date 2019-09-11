@@ -59,6 +59,24 @@ public class RestTemplateTest extends AbstractTestBase {
     public void testRestTemplate() throws IOException, InterruptedException {
         testGetFromEntity();
         testPostFromEntity();
+        testRestTemplate404();
+    }
+
+    public void testRestTemplate404() throws InterruptedException, IOException {
+        RestTemplate restTemplate = SofaTracerRestTemplateBuilder.buildRestTemplate();
+        String restUrl = "http://localhost:8888/greeting";
+        try {
+            restTemplate.getForEntity(restUrl, String.class);
+        } catch (Exception e) {
+            Assert.assertTrue(e != null);
+        }
+
+        Thread.sleep(1000);
+        //wait for async output
+        List<String> contents = FileUtils.readLines(new File(
+            logDirectoryPath + File.separator
+                    + RestTemplateLogEnum.REST_TEMPLATE_DIGEST.getDefaultLogName()));
+        assertTrue(contents.size() == 3);
     }
 
     public void testGetFromEntity() throws IOException, InterruptedException {
