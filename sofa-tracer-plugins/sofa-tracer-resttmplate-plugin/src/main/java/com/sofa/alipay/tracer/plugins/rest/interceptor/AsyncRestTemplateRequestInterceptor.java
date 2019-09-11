@@ -25,6 +25,7 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.sofa.alipay.tracer.plugins.rest.RestTemplateRequestCarrier;
+import io.opentracing.tag.Tags;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.AsyncClientHttpRequestExecution;
@@ -66,6 +67,9 @@ public class AsyncRestTemplateRequestInterceptor implements AsyncClientHttpReque
         } finally {
             // when error , clear tl soon
             if (exception != null) {
+                SofaTracerSpan currentSpan = SofaTraceContextHolder.getSofaTraceContext()
+                    .getCurrentSpan();
+                currentSpan.setTag(Tags.ERROR.getKey(), exception.getMessage());
                 restTemplateTracer.clientReceive(String.valueOf(500));
             } else {
                 // clear current
