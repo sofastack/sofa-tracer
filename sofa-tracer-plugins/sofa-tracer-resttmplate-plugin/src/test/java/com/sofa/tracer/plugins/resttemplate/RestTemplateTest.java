@@ -73,9 +73,9 @@ public class RestTemplateTest extends AbstractTestBase {
 
         Thread.sleep(1000);
         //wait for async output
-       List<String> contents = FileUtils.readLines(new File(                        
-           logDirectoryPath + File.separator                                        
-                   + RestTemplateLogEnum.REST_TEMPLATE_DIGEST.getDefaultLogName()));
+        List<String> contents = FileUtils.readLines(new File(
+            logDirectoryPath + File.separator
+                    + RestTemplateLogEnum.REST_TEMPLATE_DIGEST.getDefaultLogName()));
         assertTrue(contents.size() == 3);
     }
 
