@@ -20,7 +20,6 @@ import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.sofa.tracer.boot.TestUtil;
 import com.alipay.sofa.tracer.boot.base.SpringBootWebApplication;
-import com.alipay.sofa.tracer.boot.base.controller.SampleRestController;
 import com.sofa.alipay.tracer.plugins.rest.RestTemplateLogEnum;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
