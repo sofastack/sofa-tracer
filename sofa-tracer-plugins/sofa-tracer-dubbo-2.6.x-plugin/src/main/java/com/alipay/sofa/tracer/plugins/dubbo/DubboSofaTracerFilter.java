@@ -238,10 +238,16 @@ public class DubboSofaTracerFilter implements Filter {
         } else {
             errorCode = SofaTracerConstant.RESULT_CODE_ERROR;
         }
-        span.setTag(Tags.ERROR.getKey(), error.getMessage());
         if (span == null) {
-            DubboConsumerSofaTracer.getDubboConsumerSofaTracerSingleton().clientReceive(errorCode);
+            SofaTracerSpan currentSpan = SofaTraceContextHolder.getSofaTraceContext()
+                .getCurrentSpan();
+            if (currentSpan != null) {
+                span.setTag(Tags.ERROR.getKey(), error.getMessage());
+                DubboConsumerSofaTracer.getDubboConsumerSofaTracerSingleton().clientReceive(
+                    errorCode);
+            }
         } else {
+            span.setTag(Tags.ERROR.getKey(), error.getMessage());
             DubboConsumerSofaTracer.getDubboConsumerSofaTracerSingleton().clientReceiveTagFinish(
                 span, errorCode);
         }

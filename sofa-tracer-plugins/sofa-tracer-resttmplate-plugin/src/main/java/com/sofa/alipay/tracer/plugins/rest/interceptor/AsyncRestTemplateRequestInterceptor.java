@@ -18,12 +18,14 @@ package com.sofa.alipay.tracer.plugins.rest.interceptor;
 
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.sofa.alipay.tracer.plugins.rest.RestTemplateRequestCarrier;
+import io.opentracing.tag.Tags;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.AsyncClientHttpRequestExecution;
@@ -53,14 +55,31 @@ public class AsyncRestTemplateRequestInterceptor implements AsyncClientHttpReque
                                                                                                     throws IOException {
         SofaTracerSpan sofaTracerSpan = restTemplateTracer.clientSend(request.getMethod().name());
         appendRestTemplateRequestSpanTags(request, sofaTracerSpan);
+        Exception exception = null;
         try {
             ListenableFuture<ClientHttpResponse> result = execution.executeAsync(request, body);
             result.addCallback(new SofaTraceListenableFutureCallback(restTemplateTracer,
                 sofaTracerSpan));
             return result;
         } catch (IOException e) {
-            restTemplateTracer.clientReceiveTagFinish(sofaTracerSpan, String.valueOf(500));
+            exception = e;
             throw e;
+        } finally {
+            // when error , clear tl soon
+            if (exception != null) {
+                SofaTracerSpan currentSpan = SofaTraceContextHolder.getSofaTraceContext()
+                    .getCurrentSpan();
+                currentSpan.setTag(Tags.ERROR.getKey(), exception.getMessage());
+                restTemplateTracer.clientReceive(String.valueOf(500));
+            } else {
+                // clear current
+                SofaTraceContextHolder.getSofaTraceContext().pop();
+                if (sofaTracerSpan != null && sofaTracerSpan.getParentSofaTracerSpan() != null) {
+                    // reset parent
+                    SofaTraceContextHolder.getSofaTraceContext().push(
+                        sofaTracerSpan.getParentSofaTracerSpan());
+                }
+            }
         }
     }
 
