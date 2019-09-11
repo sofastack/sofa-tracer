@@ -79,11 +79,11 @@ public class RestTemplateTest {
      * @throws Exception
      */
     @Test
-    public void testSofaRestGet() throws Exception {
+    public void testRestTemplate404() throws Exception {
         assertNotNull(restTemplate);
         String restUrl = "http://localhost:8888/greeting";
         try {
-            restTemplate.getForEntity(restUrl, SampleRestController.Greeting.class);
+            restTemplate.getForEntity(restUrl, String.class);
         } catch (Exception e) {
             Assert.assertTrue(e != null);
         }
