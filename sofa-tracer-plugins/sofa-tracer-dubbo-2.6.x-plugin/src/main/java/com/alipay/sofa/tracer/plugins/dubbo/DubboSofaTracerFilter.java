@@ -242,7 +242,7 @@ public class DubboSofaTracerFilter implements Filter {
             SofaTracerSpan currentSpan = SofaTraceContextHolder.getSofaTraceContext()
                 .getCurrentSpan();
             if (currentSpan != null) {
-                span.setTag(Tags.ERROR.getKey(), error.getMessage());
+                currentSpan.setTag(Tags.ERROR.getKey(), error.getMessage());
                 DubboConsumerSofaTracer.getDubboConsumerSofaTracerSingleton().clientReceive(
                     errorCode);
             }
