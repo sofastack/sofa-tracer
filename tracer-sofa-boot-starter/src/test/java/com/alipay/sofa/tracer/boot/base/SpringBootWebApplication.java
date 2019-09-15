@@ -17,7 +17,10 @@
 package com.alipay.sofa.tracer.boot.base;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * SpringBootWebApplication
@@ -32,5 +35,11 @@ public class SpringBootWebApplication {
     public static void main(String[] args) throws Exception {
         SpringApplication springApplication = new SpringApplication(SpringBootWebApplication.class);
         springApplication.run(args);
+    }
+
+    @Bean
+    @LoadBalanced
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }

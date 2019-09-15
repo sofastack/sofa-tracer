@@ -18,6 +18,7 @@ package com.sofa.alipay.tracer.plugins.rest.interceptor;
 
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.registry.ExtendFormat;
@@ -26,6 +27,7 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.sofa.alipay.tracer.plugins.rest.RestTemplateRequestCarrier;
+import io.opentracing.tag.Tags;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -54,20 +56,30 @@ public class RestTemplateInterceptor implements ClientHttpRequestInterceptor {
         SofaTracerSpan sofaTracerSpan = restTemplateTracer.clientSend(request.getMethod().name());
         appendRestTemplateRequestSpanTags(request, sofaTracerSpan);
         ClientHttpResponse response = null;
+        Throwable t = null;
         try {
             return response = execution.execute(request, body);
         } catch (IOException e) {
+            t = e;
             throw e;
         } finally {
+            SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+            SofaTracerSpan currentSpan = sofaTraceContext.getCurrentSpan();
+            String resultCode = SofaTracerConstant.RESULT_CODE_ERROR;
+            // is get error
+            if (t != null) {
+                currentSpan.setTag(Tags.ERROR.getKey(), t.getMessage());
+                // current thread name
+                sofaTracerSpan.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread()
+                    .getName());
+            }
             if (response != null) {
-                SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-                SofaTracerSpan currentSpan = sofaTraceContext.getCurrentSpan();
                 //tag append
                 appendRestTemplateResponseSpanTags(response, currentSpan);
                 //finish
-                int statusCode = response.getStatusCode().value();
-                restTemplateTracer.clientReceive(String.valueOf(statusCode));
+                resultCode = String.valueOf(response.getStatusCode().value());
             }
+            restTemplateTracer.clientReceive(resultCode);
         }
     }
 
