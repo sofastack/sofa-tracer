@@ -44,8 +44,7 @@ public class OpenFeignStatJsonReporter extends AbstractSofaTracerStatisticReport
         statKey.addKey(CommonSpanTags.REQUEST_URL, tagsWithStr.get(CommonSpanTags.REQUEST_URL));
         statKey.addKey(CommonSpanTags.METHOD, tagsWithStr.get(CommonSpanTags.METHOD));
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
-        boolean success = (resultCode != null && resultCode.length() > 0 && this
-            .isHttpOrMvcSuccess(resultCode));
+        boolean success = isWebHttpClientSuccess(resultCode);
         statKey.setResult(success ? SofaTracerConstant.STAT_FLAG_SUCCESS
             : SofaTracerConstant.STAT_FLAG_FAILS);
         //pressure mark
