@@ -45,10 +45,11 @@ public class OkHttpStatReporter extends AbstractSofaTracerStatisticReporter {
         String methodName = tagsWithStr.get(CommonSpanTags.METHOD);
         statKey.setKey(buildString(new String[] { localApp, requestUrl, methodName }));
 
+        //success
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
-        statKey
-            .setResult(SofaTracerConstant.RESULT_CODE_SUCCESS.equals(resultCode) ? SofaTracerConstant.STAT_FLAG_SUCCESS
-                : SofaTracerConstant.STAT_FLAG_FAILS);
+        boolean success = isWebHttpClientSuccess(resultCode);
+        statKey.setResult(success ? SofaTracerConstant.STAT_FLAG_SUCCESS
+            : SofaTracerConstant.STAT_FLAG_FAILS);
 
         statKey.setEnd(buildString(new String[] { TracerUtils.getLoadTestMark(sofaTracerSpan) }));
         //pressure mark
