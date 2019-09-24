@@ -23,6 +23,7 @@ import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.appender.self.Timestamp;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
 import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
@@ -359,5 +360,11 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
     protected boolean isHttpOrMvcSuccess(String resultCode) {
         return resultCode.charAt(0) == '1' || resultCode.charAt(0) == '2'
                || "302".equals(resultCode.trim()) || ("301".equals(resultCode.trim()));
+    }
+
+    protected boolean isWebHttpClientSuccess(String resultCode) {
+        return StringUtils.isNotBlank(resultCode)
+               && (isHttpOrMvcSuccess(resultCode) || SofaTracerConstant.RESULT_CODE_SUCCESS
+                   .equals(resultCode));
     }
 }
