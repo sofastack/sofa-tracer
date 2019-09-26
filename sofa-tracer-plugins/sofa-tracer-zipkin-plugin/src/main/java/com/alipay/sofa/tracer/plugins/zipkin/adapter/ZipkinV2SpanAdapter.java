@@ -39,7 +39,7 @@ public class ZipkinV2SpanAdapter {
     /**
      * cache and performance improve
      */
-    private int ipAddressInt = -1;
+    private InetAddress localIpAddress = null;
 
     /**
      * convent sofaTracerSpan model to zipKinSpan model
@@ -116,18 +116,15 @@ public class ZipkinV2SpanAdapter {
     }
 
     private Endpoint getZipkinEndpoint(SofaTracerSpan span) {
-        InetAddress ipAddress = null;
-        if (this.ipAddressInt <= 0) {
+        if (this.localIpAddress == null) {
             try {
-                ipAddress = InetAddress.getLocalHost();
-                this.ipAddressInt = ByteBuffer.wrap(ipAddress.getAddress()).getInt();
+                localIpAddress = InetAddress.getLocalHost();
             } catch (UnknownHostException e) {
-                //127.0.0.1 256
-                this.ipAddressInt = 256 * 256 * 256 * 127 + 1;
+                localIpAddress = InetAddress.getLoopbackAddress();
             }
         }
         String appName = span.getTagsWithStr().get(CommonSpanTags.LOCAL_APP);
-        return Endpoint.newBuilder().serviceName(appName).ip(ipAddress).build();
+        return Endpoint.newBuilder().serviceName(appName).ip(localIpAddress).build();
     }
 
     /**
