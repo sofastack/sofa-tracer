@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.alipay.sofa.tracer.plugins.zipkin.adapter;
 
 import com.alipay.common.tracer.core.utils.StringUtils;
@@ -19,12 +35,12 @@ class NetUtils {
     /**
      * slf4j Logger for this class
      */
-    private final static Logger LOGGER = LoggerFactory.getLogger(NetUtils.class);
+    private final static Logger  LOGGER           = LoggerFactory.getLogger(NetUtils.class);
 
     /**
      * 任意地址
      */
-    public static final  String  ANYHOST          = "0.0.0.0";
+    public static final String   ANYHOST          = "0.0.0.0";
     /**
      * 本机地址正则
      */
@@ -33,11 +49,11 @@ class NetUtils {
     /**
      * IPv4地址
      */
-    public static final Pattern IPV4_PATTERN = Pattern
-            .compile(
-                    "^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
+    public static final Pattern  IPV4_PATTERN     = Pattern
+                                                      .compile("^(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}$");
 
-    private NetUtils() {}
+    private NetUtils() {
+    }
 
     /**
      * 是否本地地址 127.x.x.x 或者 localhost
@@ -47,7 +63,7 @@ class NetUtils {
      */
     public static boolean isLocalHost(String host) {
         return StringUtils.isNotBlank(host)
-                && (LOCAL_IP_PATTERN.matcher(host).matches() || "localhost".equalsIgnoreCase(host));
+               && (LOCAL_IP_PATTERN.matcher(host).matches() || "localhost".equalsIgnoreCase(host));
     }
 
     /**
@@ -67,8 +83,7 @@ class NetUtils {
      * @return 是否默认地址
      */
     public static boolean isIPv4Host(String host) {
-        return StringUtils.isNotBlank(host)
-                && IPV4_PATTERN.matcher(host).matches();
+        return StringUtils.isNotBlank(host) && IPV4_PATTERN.matcher(host).matches();
     }
 
     /**
@@ -82,10 +97,7 @@ class NetUtils {
             return false;
         }
         String name = address.getHostAddress();
-        return (name != null
-                && !isAnyHost(name)
-                && !isLocalHost(name)
-                && isIPv4Host(name));
+        return (name != null && !isAnyHost(name) && !isLocalHost(name) && isIPv4Host(name));
     }
 
     /**
@@ -130,7 +142,8 @@ class NetUtils {
                                 }
                             } catch (Throwable e) {
                                 if (LOGGER.isWarnEnabled()) {
-                                    LOGGER.warn("Error when retrieving ip address: " + e.getMessage(), e);
+                                    LOGGER.warn(
+                                        "Error when retrieving ip address: " + e.getMessage(), e);
                                 }
                             }
                         }
