@@ -4,7 +4,7 @@
     <parent>
         <artifactId>tracer-all-parent</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>3.0.7-SNAPSHOT</version>
+        <version>3.0.7</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -15,7 +15,7 @@
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>tracer-extensions</artifactId>
-            <version>3.0.7-SNAPSHOT</version>
+            <version>3.0.7</version>
         </dependency>
 
         <dependency>

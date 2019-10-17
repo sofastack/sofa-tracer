@@ -115,9 +115,9 @@ public class SofaTracerConstant {
     /**
      * stat result state for success
      */
-    public static final String  STAT_FLAG_SUCCESS         = "true";
+    public static final String  STAT_FLAG_SUCCESS         = DIGEST_FLAG_SUCCESS;
     /**
      * stat result state for failure
      */
-    public static final String  STAT_FLAG_FAILS           = "false";
+    public static final String  STAT_FLAG_FAILS           = DIGEST_FLAG_FAILS;
 }
