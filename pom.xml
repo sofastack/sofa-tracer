@@ -29,7 +29,6 @@
         <module>sofa-tracer-plugins/sofa-tracer-dubbo-2.6.x-plugin</module>
         <module>tracer-all</module>
         <module>tracer-sofa-boot-starter</module>
-        <module>tracer-samples</module>
         <module>tracer-test/core-test</module>
         <module>tracer-test/logback-test</module>
         <module>tracer-test/log4j2-test</module>
