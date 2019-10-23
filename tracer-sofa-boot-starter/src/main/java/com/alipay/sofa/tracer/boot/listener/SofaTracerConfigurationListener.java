@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.tracer.boot.listener;
 
-import com.alipay.sofa.infra.utils.SOFABootEnvUtils;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.Bindable;
@@ -25,11 +24,13 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
+import org.springframework.util.ClassUtils;
 
 /**
  * Parse SOFATracer Configuration in early stage.
@@ -46,7 +47,7 @@ public class SofaTracerConfigurationListener
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         ConfigurableEnvironment environment = event.getEnvironment();
 
-        if (SOFABootEnvUtils.isSpringCloudBootstrapEnvironment(environment)) {
+        if (isSpringCloudBootstrapEnvironment(environment)) {
             return;
         }
 
@@ -109,5 +110,20 @@ public class SofaTracerConfigurationListener
     @Override
     public int getOrder() {
         return HIGHEST_PRECEDENCE + 30;
+    }
+
+    private boolean isSpringCloudBootstrapEnvironment(Environment environment) {
+        if (!(environment instanceof ConfigurableEnvironment)) {
+            return false;
+        } else {
+            return !((ConfigurableEnvironment) environment).getPropertySources().contains(
+                "sofaBootstrap")
+                   && isSpringCloud();
+        }
+    }
+
+    private boolean isSpringCloud() {
+        return ClassUtils.isPresent("org.springframework.cloud.bootstrap.BootstrapConfiguration",
+            null);
     }
 }
