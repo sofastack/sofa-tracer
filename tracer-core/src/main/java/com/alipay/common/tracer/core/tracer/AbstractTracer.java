@@ -208,7 +208,8 @@ public abstract class AbstractTracer {
                     sofaTracerSpanContext = SofaTracerSpanContext.rootStart();
                     isCalculateSampled = true;
                 } else {
-                    sofaTracerSpanContext.setSpanId(sofaTracerSpanContext.nextChildContextId());
+                    SofaTracerSpanContext spanContext = getChildSofaTracerSpanContext(sofaTracerSpanContext);
+                    spanContext.setSpanId(spanContext.nextChildContextId());
                 }
                 newSpan = this.genSeverSpanInstance(System.currentTimeMillis(),
                     StringUtils.EMPTY_STRING, sofaTracerSpanContext, null);
@@ -244,6 +245,16 @@ public abstract class AbstractTracer {
             }
         }
         return newSpan;
+    }
+
+    private SofaTracerSpanContext getChildSofaTracerSpanContext(SofaTracerSpanContext spanContext) {
+        SofaTracerSpanContext newContext = new SofaTracerSpanContext();
+        newContext.addBizBaggage(spanContext.getBizBaggage());
+        newContext.addSysBaggage(spanContext.getBizBaggage());
+        newContext.setSampled(spanContext.isSampled());
+        newContext.setTraceId(spanContext.getTraceId());
+        newContext.setSpanId(spanContext.getSpanId());
+        return newContext;
     }
 
     /**
