@@ -55,13 +55,16 @@ SOFATracer 的编译环境的要求为 JDK7 或者 JDK8，需要采用 [Apache M
 
 在此工程的 `tracer-samples` 目录下的是 SOFATracer 的示例工程，分别为：
 
-* [SOFATracer 示例工程（基于 Spring MVC 示例落地日志）](./tracer-samples/tracer-sample-with-springmvc)
-* [SOFATracer 示例工程（基于 Spring MVC 示例远程上报 Zipkin）](./tracer-samples/tracer-sample-with-zipkin)
-* [SOFATracer 示例工程（基于 SOFA RPC 示例落地日志）](./tracer-samples/tracer-sample-with-sofarpc)
-* [SOFATracer 示例工程（基于日志编程接口 SLF4J 示例打印 traceId）](./tracer-samples/tracer-sample-with-slf4j)
-* [SOFATracer 示例工程（基于 DataSource 示例落地日志）](./tracer-samples/tracer-sample-with-h2)
-* [SOFATracer 示例工程（基于 HttpClient 示例落地日志）](./tracer-samples/tracer-sample-with-httpclient)
-* [SOFATracer 示例工程（SOFATracer 采样策略）](./tracer-samples/tracer-sample-with-sampler)
+* [SOFATracer 示例工程（基于 Spring MVC 示例落地日志）](https://github.com/sofastack-guides/sofa-tracer-guides/blob/master/tracer-sample-with-springmvc)
+* [SOFATracer 示例工程（基于 Spring MVC 示例远程上报 Zipkin）](https://github.com/sofastack-guides/sofa-tracer-guides/blob/master/tracer-sample-with-zipkin)
+* [SOFATracer 示例工程（基于 SOFA RPC 示例落地日志）](https://github.com/sofastack-guides/sofa-tracer-guides/blob/master/tracer-sample-with-sofarpc)
+* [SOFATracer 示例工程（基于日志编程接口 SLF4J 示例打印 traceId）](https://github.com/sofastack-guides/sofa-tracer-guides/blob/master/tracer-sample-with-slf4j)
+* [SOFATracer 示例工程（基于 DataSource 示例落地日志）](https://github.com/sofastack-guides/sofa-tracer-guides/blob/master/tracer-sample-with-h2)
+* [SOFATracer 示例工程（基于 HttpClient 示例落地日志）](https://github.com/sofastack-guides/sofa-tracer-guides/blob/master/tracer-sample-with-httpclient)
+* [SOFATracer 示例工程（SOFATracer 采样策略）](https://github.com/sofastack-guides/sofa-tracer-guides/blob/master/tracer-sample-with-sampler)
+* [SOFATracer 示例工程（SOFATracer 集成 SpringCloud）](https://github.com/sofastack-guides/sofa-tracer-guides/blob/master/tracer-sample-with-openfeign)
+* [SOFATracer 示例工程（SOFATracer 集成 Dubbo）](https://github.com/sofastack-guides/sofa-tracer-guides/blob/master/tracer-sample-with-dubbo)
+* [SOFATracer 示例工程（SOFATracer RestTemplate）](https://github.com/sofastack-guides/sofa-tracer-guides/blob/master/tracer-sample-with-resttemplate)
  
 ## 六、文档
 
