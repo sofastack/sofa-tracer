@@ -42,32 +42,34 @@ public class AbstractClientTracerTest {
     @Test
     public void getServerDigestReporterLogName() {
         String serverDigestReporterLogName = clientTracer.getDigestReporterLogName();
-        Assert.assertTrue(serverDigestReporterLogName == null);
+        Assert.assertTrue(serverDigestReporterLogName.equalsIgnoreCase("client-digest.log"));
     }
 
     @Test
     public void getServerDigestReporterRollingKey() {
         String serverDigestReporterRollingKey = clientTracer.getDigestReporterRollingKey();
-        Assert.assertTrue(serverDigestReporterRollingKey == null);
+        Assert.assertTrue(serverDigestReporterRollingKey
+            .equalsIgnoreCase("client-digest-rolling.log"));
     }
 
     @Test
     public void getServerDigestReporterLogNameKey() {
         String serverDigestReporterLogNameKey = clientTracer.getDigestReporterLogNameKey();
-        Assert.assertTrue(serverDigestReporterLogNameKey == null);
+        Assert.assertTrue(serverDigestReporterLogNameKey.equalsIgnoreCase("client-digest"));
     }
 
     @Test
     public void getServerDigestEncoder() {
         SpanEncoder<SofaTracerSpan> serverDigestEncoder = clientTracer.getDigestEncoder();
-        Assert.assertTrue(serverDigestEncoder == null);
+        Assert.assertTrue(serverDigestEncoder instanceof SpanEncoder);
     }
 
     @Test
     public void generateServerStatReporter() {
         AbstractSofaTracerStatisticReporter abstractSofaTracerStatisticReporter = clientTracer
             .generateStatReporter();
-        Assert.assertTrue(abstractSofaTracerStatisticReporter == null);
+        Assert
+            .assertTrue(abstractSofaTracerStatisticReporter instanceof AbstractSofaTracerStatisticReporter);
     }
 
     class TestClientTracer extends AbstractClientTracer {

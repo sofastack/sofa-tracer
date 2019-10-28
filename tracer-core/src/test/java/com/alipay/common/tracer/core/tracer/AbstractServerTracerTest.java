@@ -45,28 +45,29 @@ public class AbstractServerTracerTest {
     public void getClientDigestReporterLogName() {
         //user super method
         String clientDigestReporterLogName = serverTracer.getDigestReporterLogName();
-        Assert.assertTrue(clientDigestReporterLogName == null);
+        Assert.assertTrue(clientDigestReporterLogName.equalsIgnoreCase("server-digest.log"));
     }
 
     @Test
     public void getClientDigestReporterRollingKey() {
         //user super method
         String clientDigestReporterRollingKey = serverTracer.getDigestReporterRollingKey();
-        Assert.assertTrue(clientDigestReporterRollingKey == null);
+        Assert.assertTrue(clientDigestReporterRollingKey.equalsIgnoreCase("server-digest_rolling"));
     }
 
     @Test
     public void getClientDigestReporterLogNameKey() {
         //user super method
         String clientDigestReporterLogNameKey = serverTracer.getDigestReporterLogNameKey();
-        Assert.assertTrue(clientDigestReporterLogNameKey == null);
+        Assert
+            .assertTrue(clientDigestReporterLogNameKey.equalsIgnoreCase("server-digest_log_name"));
     }
 
     @Test
     public void getClientDigestEncoder() {
         //user super method
         SpanEncoder<SofaTracerSpan> clientDigestEncoder = serverTracer.getDigestEncoder();
-        Assert.assertTrue(clientDigestEncoder == null);
+        Assert.assertTrue(clientDigestEncoder instanceof SpanEncoder);
     }
 
     /**
@@ -95,7 +96,8 @@ public class AbstractServerTracerTest {
         //user super method
         AbstractSofaTracerStatisticReporter abstractSofaTracerStatisticReporter = serverTracer
             .generateStatReporter();
-        Assert.assertTrue(abstractSofaTracerStatisticReporter == null);
+        Assert
+            .assertTrue(abstractSofaTracerStatisticReporter instanceof AbstractSofaTracerStatisticReporter);
     }
 
     class TestServerTracer extends AbstractServerTracer {
