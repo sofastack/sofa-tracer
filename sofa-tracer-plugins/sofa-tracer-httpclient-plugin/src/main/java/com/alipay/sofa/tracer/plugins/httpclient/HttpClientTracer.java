@@ -53,22 +53,22 @@ public class HttpClientTracer extends AbstractClientTracer {
     }
 
     @Override
-    protected String getClientDigestReporterLogName() {
+    protected String getDigestReporterLogName() {
         return HttpClientLogEnum.HTTP_CLIENT_DIGEST.getDefaultLogName();
     }
 
     @Override
-    protected String getClientDigestReporterRollingKey() {
+    protected String getDigestReporterRollingKey() {
         return HttpClientLogEnum.HTTP_CLIENT_DIGEST.getRollingKey();
     }
 
     @Override
-    protected String getClientDigestReporterLogNameKey() {
+    protected String getDigestReporterLogNameKey() {
         return HttpClientLogEnum.HTTP_CLIENT_DIGEST.getLogNameKey();
     }
 
     @Override
-    protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
+    protected SpanEncoder<SofaTracerSpan> getDigestEncoder() {
         //default json output
         if (SofaTracerConfiguration.isJsonOutput()) {
             return new HttpClientDigestJsonEncoder();
@@ -78,7 +78,7 @@ public class HttpClientTracer extends AbstractClientTracer {
     }
 
     @Override
-    protected AbstractSofaTracerStatisticReporter generateClientStatReporter() {
+    protected AbstractSofaTracerStatisticReporter generateStatReporter() {
         HttpClientLogEnum httpClientLogEnum = HttpClientLogEnum.HTTP_CLIENT_STAT;
         String statLog = httpClientLogEnum.getDefaultLogName();
         String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(httpClientLogEnum

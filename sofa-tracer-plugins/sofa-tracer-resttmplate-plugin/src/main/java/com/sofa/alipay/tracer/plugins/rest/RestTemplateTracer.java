@@ -35,22 +35,22 @@ public class RestTemplateTracer extends AbstractClientTracer {
     }
 
     @Override
-    protected String getClientDigestReporterLogName() {
+    protected String getDigestReporterLogName() {
         return RestTemplateLogEnum.REST_TEMPLATE_DIGEST.getDefaultLogName();
     }
 
     @Override
-    protected String getClientDigestReporterRollingKey() {
+    protected String getDigestReporterRollingKey() {
         return RestTemplateLogEnum.REST_TEMPLATE_DIGEST.getRollingKey();
     }
 
     @Override
-    protected String getClientDigestReporterLogNameKey() {
+    protected String getDigestReporterLogNameKey() {
         return RestTemplateLogEnum.REST_TEMPLATE_DIGEST.getLogNameKey();
     }
 
     @Override
-    protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
+    protected SpanEncoder<SofaTracerSpan> getDigestEncoder() {
         if (SofaTracerConfiguration.isJsonOutput()) {
             return new RestTemplateDigestJsonEncoder();
         } else {
@@ -59,7 +59,7 @@ public class RestTemplateTracer extends AbstractClientTracer {
     }
 
     @Override
-    protected AbstractSofaTracerStatisticReporter generateClientStatReporter() {
+    protected AbstractSofaTracerStatisticReporter generateStatReporter() {
         RestTemplateLogEnum httpClientLogEnum = RestTemplateLogEnum.REST_TEMPLATE_STAT;
         String statLog = httpClientLogEnum.getDefaultLogName();
         String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(httpClientLogEnum

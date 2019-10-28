@@ -50,22 +50,18 @@ public abstract class AbstractTracer {
 
     public AbstractTracer(String tracerType, boolean clientTracer, boolean serverTracer) {
         SofaTracer.Builder builder = new SofaTracer.Builder(tracerType);
-        if (clientTracer) {
-            Reporter clientReporter = this.generateReporter(this.generateClientStatReporter(),
-                this.getClientDigestReporterLogName(), this.getClientDigestReporterRollingKey(),
-                this.getClientDigestReporterLogNameKey(), this.getClientDigestEncoder());
-            if (clientReporter != null) {
-                builder.withClientReporter(clientReporter);
-            }
+        Reporter reporter = this.generateReporter(this.generateStatReporter(),
+            this.getDigestReporterLogName(), this.getDigestReporterRollingKey(),
+            this.getDigestReporterLogNameKey(), this.getDigestEncoder());
+
+        if (clientTracer && reporter != null) {
+            builder.withClientReporter(reporter);
         }
-        if (serverTracer) {
-            Reporter serverReporter = this.generateReporter(this.generateServerStatReporter(),
-                this.getServerDigestReporterLogName(), this.getServerDigestReporterRollingKey(),
-                this.getServerDigestReporterLogNameKey(), this.getServerDigestEncoder());
-            if (serverReporter != null) {
-                builder.withServerReporter(serverReporter);
-            }
+
+        if (serverTracer && reporter != null) {
+            builder.withServerReporter(reporter);
         }
+
         //build
         this.sofaTracer = builder.build();
     }
@@ -80,25 +76,35 @@ public abstract class AbstractTracer {
         return reporter;
     }
 
-    protected abstract String getClientDigestReporterLogName();
+    /**
+     * get digest reporter log name
+     * @return
+     */
+    protected abstract String getDigestReporterLogName();
 
-    protected abstract String getClientDigestReporterRollingKey();
+    /**
+     * get digest reporter rolling key
+     * @return
+     */
+    protected abstract String getDigestReporterRollingKey();
 
-    protected abstract String getClientDigestReporterLogNameKey();
+    /**
+     * get digest reporter log name key
+     * @return
+     */
+    protected abstract String getDigestReporterLogNameKey();
 
-    protected abstract SpanEncoder<SofaTracerSpan> getClientDigestEncoder();
+    /**
+     * get digest encoder
+     * @return
+     */
+    protected abstract SpanEncoder<SofaTracerSpan> getDigestEncoder();
 
-    protected abstract AbstractSofaTracerStatisticReporter generateClientStatReporter();
-
-    protected abstract String getServerDigestReporterLogName();
-
-    protected abstract String getServerDigestReporterRollingKey();
-
-    protected abstract String getServerDigestReporterLogNameKey();
-
-    protected abstract SpanEncoder<SofaTracerSpan> getServerDigestEncoder();
-
-    protected abstract AbstractSofaTracerStatisticReporter generateServerStatReporter();
+    /**
+     * get StatReporter
+     * @return
+     */
+    protected abstract AbstractSofaTracerStatisticReporter generateStatReporter();
 
     /**
      * Stage CS , This stage will produce a new span

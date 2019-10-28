@@ -45,52 +45,28 @@ public class MockAbstractTracer extends AbstractTracer {
     }
 
     @Override
-    protected String getClientDigestReporterLogName() {
+    protected String getDigestReporterLogName() {
         return null;
     }
 
     @Override
-    protected String getClientDigestReporterRollingKey() {
+    protected String getDigestReporterRollingKey() {
         return null;
     }
 
     @Override
-    protected String getClientDigestReporterLogNameKey() {
+    protected String getDigestReporterLogNameKey() {
         return null;
     }
 
     @Override
-    protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
+    protected SpanEncoder<SofaTracerSpan> getDigestEncoder() {
         return null;
     }
 
     @Override
-    protected AbstractSofaTracerStatisticReporter generateClientStatReporter() {
+    protected AbstractSofaTracerStatisticReporter generateStatReporter() {
         return null;
     }
 
-    @Override
-    protected String getServerDigestReporterLogName() {
-        return null;
-    }
-
-    @Override
-    protected String getServerDigestReporterRollingKey() {
-        return null;
-    }
-
-    @Override
-    protected String getServerDigestReporterLogNameKey() {
-        return null;
-    }
-
-    @Override
-    protected SpanEncoder<SofaTracerSpan> getServerDigestEncoder() {
-        return null;
-    }
-
-    @Override
-    protected AbstractSofaTracerStatisticReporter generateServerStatReporter() {
-        return null;
-    }
 }

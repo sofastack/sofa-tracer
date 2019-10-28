@@ -53,22 +53,22 @@ public class DubboProviderSofaTracer extends AbstractServerTracer {
     }
 
     @Override
-    protected String getServerDigestReporterLogName() {
+    protected String getDigestReporterLogName() {
         return DubboLogEnum.DUBBO_SERVER_DIGEST.getDefaultLogName();
     }
 
     @Override
-    protected String getServerDigestReporterRollingKey() {
+    protected String getDigestReporterRollingKey() {
         return DubboLogEnum.DUBBO_SERVER_DIGEST.getRollingKey();
     }
 
     @Override
-    protected String getServerDigestReporterLogNameKey() {
+    protected String getDigestReporterLogNameKey() {
         return DubboLogEnum.DUBBO_SERVER_DIGEST.getLogNameKey();
     }
 
     @Override
-    protected SpanEncoder<SofaTracerSpan> getServerDigestEncoder() {
+    protected SpanEncoder<SofaTracerSpan> getDigestEncoder() {
         if (SofaTracerConfiguration.isJsonOutput()) {
             return new DubboServerDigestJsonEncoder();
         } else {
@@ -77,7 +77,7 @@ public class DubboProviderSofaTracer extends AbstractServerTracer {
     }
 
     @Override
-    protected AbstractSofaTracerStatisticReporter generateServerStatReporter() {
+    protected AbstractSofaTracerStatisticReporter generateStatReporter() {
         DubboLogEnum dubboClientStat = DubboLogEnum.DUBBO_SERVER_STAT;
         String statLog = dubboClientStat.getDefaultLogName();
         String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(dubboClientStat

@@ -53,22 +53,22 @@ public class SpringMvcTracer extends AbstractServerTracer {
     }
 
     @Override
-    protected String getServerDigestReporterLogName() {
+    protected String getDigestReporterLogName() {
         return SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName();
     }
 
     @Override
-    protected String getServerDigestReporterRollingKey() {
+    protected String getDigestReporterRollingKey() {
         return SpringMvcLogEnum.SPRING_MVC_DIGEST.getRollingKey();
     }
 
     @Override
-    protected String getServerDigestReporterLogNameKey() {
+    protected String getDigestReporterLogNameKey() {
         return SpringMvcLogEnum.SPRING_MVC_DIGEST.getLogNameKey();
     }
 
     @Override
-    protected SpanEncoder<SofaTracerSpan> getServerDigestEncoder() {
+    protected SpanEncoder<SofaTracerSpan> getDigestEncoder() {
         if (SofaTracerConfiguration.isJsonOutput()) {
             return new SpringMvcDigestJsonEncoder();
         } else {
@@ -77,7 +77,7 @@ public class SpringMvcTracer extends AbstractServerTracer {
     }
 
     @Override
-    protected AbstractSofaTracerStatisticReporter generateServerStatReporter() {
+    protected AbstractSofaTracerStatisticReporter generateStatReporter() {
         return generateSofaMvcStatReporter();
     }
 

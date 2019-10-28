@@ -16,10 +16,6 @@
  */
 package com.alipay.common.tracer.core.tracer;
 
-import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
-import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
-import com.alipay.common.tracer.core.span.SofaTracerSpan;
-
 /**
  * AbstractServerTracer
  *
@@ -32,23 +28,4 @@ public abstract class AbstractServerTracer extends AbstractTracer {
         super(tracerType, false, true);
     }
 
-    protected String getClientDigestReporterLogName() {
-        return null;
-    }
-
-    protected String getClientDigestReporterRollingKey() {
-        return null;
-    }
-
-    protected String getClientDigestReporterLogNameKey() {
-        return null;
-    }
-
-    protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
-        return null;
-    }
-
-    protected AbstractSofaTracerStatisticReporter generateClientStatReporter() {
-        return null;
-    }
 }

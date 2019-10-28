@@ -41,32 +41,32 @@ public class AbstractClientTracerTest {
 
     @Test
     public void getServerDigestReporterLogName() {
-        String serverDigestReporterLogName = clientTracer.getServerDigestReporterLogName();
+        String serverDigestReporterLogName = clientTracer.getDigestReporterLogName();
         Assert.assertTrue(serverDigestReporterLogName == null);
     }
 
     @Test
     public void getServerDigestReporterRollingKey() {
-        String serverDigestReporterRollingKey = clientTracer.getServerDigestReporterRollingKey();
+        String serverDigestReporterRollingKey = clientTracer.getDigestReporterRollingKey();
         Assert.assertTrue(serverDigestReporterRollingKey == null);
     }
 
     @Test
     public void getServerDigestReporterLogNameKey() {
-        String serverDigestReporterLogNameKey = clientTracer.getServerDigestReporterLogNameKey();
+        String serverDigestReporterLogNameKey = clientTracer.getDigestReporterLogNameKey();
         Assert.assertTrue(serverDigestReporterLogNameKey == null);
     }
 
     @Test
     public void getServerDigestEncoder() {
-        SpanEncoder<SofaTracerSpan> serverDigestEncoder = clientTracer.getServerDigestEncoder();
+        SpanEncoder<SofaTracerSpan> serverDigestEncoder = clientTracer.getDigestEncoder();
         Assert.assertTrue(serverDigestEncoder == null);
     }
 
     @Test
     public void generateServerStatReporter() {
         AbstractSofaTracerStatisticReporter abstractSofaTracerStatisticReporter = clientTracer
-            .generateServerStatReporter();
+            .generateStatReporter();
         Assert.assertTrue(abstractSofaTracerStatisticReporter == null);
     }
 
@@ -77,27 +77,27 @@ public class AbstractClientTracerTest {
         }
 
         @Override
-        protected String getClientDigestReporterLogName() {
+        protected String getDigestReporterLogName() {
             return "client-digest.log";
         }
 
         @Override
-        protected String getClientDigestReporterRollingKey() {
+        protected String getDigestReporterRollingKey() {
             return "client-digest-rolling.log";
         }
 
         @Override
-        protected String getClientDigestReporterLogNameKey() {
+        protected String getDigestReporterLogNameKey() {
             return "client-digest";
         }
 
         @Override
-        protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
+        protected SpanEncoder<SofaTracerSpan> getDigestEncoder() {
             return Mockito.mock(SpanEncoder.class);
         }
 
         @Override
-        protected AbstractSofaTracerStatisticReporter generateClientStatReporter() {
+        protected AbstractSofaTracerStatisticReporter generateStatReporter() {
             return Mockito.mock(AbstractSofaTracerStatisticReporter.class);
         }
 

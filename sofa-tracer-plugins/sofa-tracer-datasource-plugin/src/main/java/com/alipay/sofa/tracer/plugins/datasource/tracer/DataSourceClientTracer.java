@@ -64,22 +64,22 @@ public class DataSourceClientTracer extends AbstractClientTracer {
     }
 
     @Override
-    protected String getClientDigestReporterLogName() {
+    protected String getDigestReporterLogName() {
         return DataSourceLogEnum.DATA_SOURCE_CLIENT_DIGEST.getDefaultLogName();
     }
 
     @Override
-    protected String getClientDigestReporterRollingKey() {
+    protected String getDigestReporterRollingKey() {
         return DataSourceLogEnum.DATA_SOURCE_CLIENT_DIGEST.getRollingKey();
     }
 
     @Override
-    protected String getClientDigestReporterLogNameKey() {
+    protected String getDigestReporterLogNameKey() {
         return DataSourceLogEnum.DATA_SOURCE_CLIENT_DIGEST.getLogNameKey();
     }
 
     @Override
-    protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
+    protected SpanEncoder<SofaTracerSpan> getDigestEncoder() {
         if (SofaTracerConfiguration.isJsonOutput()) {
             return new DataSourceClientDigestJsonEncoder();
         } else {
@@ -88,7 +88,7 @@ public class DataSourceClientTracer extends AbstractClientTracer {
     }
 
     @Override
-    protected AbstractSofaTracerStatisticReporter generateClientStatReporter() {
+    protected AbstractSofaTracerStatisticReporter generateStatReporter() {
         DataSourceLogEnum dataSourceLogEnum = DataSourceLogEnum.DATA_SOURCE_CLIENT_STAT;
         String statLogName = dataSourceLogEnum.getDefaultLogName();
         String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(dataSourceLogEnum

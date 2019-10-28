@@ -47,22 +47,22 @@ public class OkHttpTracer extends AbstractClientTracer {
     }
 
     @Override
-    protected String getClientDigestReporterLogName() {
+    protected String getDigestReporterLogName() {
         return OkHttpLogEnum.OK_HTTP_DIGEST.getDefaultLogName();
     }
 
     @Override
-    protected String getClientDigestReporterRollingKey() {
+    protected String getDigestReporterRollingKey() {
         return OkHttpLogEnum.OK_HTTP_DIGEST.getRollingKey();
     }
 
     @Override
-    protected String getClientDigestReporterLogNameKey() {
+    protected String getDigestReporterLogNameKey() {
         return OkHttpLogEnum.OK_HTTP_DIGEST.getLogNameKey();
     }
 
     @Override
-    protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
+    protected SpanEncoder<SofaTracerSpan> getDigestEncoder() {
         if (SofaTracerConfiguration.isJsonOutput()) {
             return new OkHttpDigestJsonEncoder();
         } else {
@@ -71,7 +71,7 @@ public class OkHttpTracer extends AbstractClientTracer {
     }
 
     @Override
-    protected AbstractSofaTracerStatisticReporter generateClientStatReporter() {
+    protected AbstractSofaTracerStatisticReporter generateStatReporter() {
         OkHttpLogEnum okHttpLogEnum = OkHttpLogEnum.OK_HTTP_STAT;
         String statLog = okHttpLogEnum.getDefaultLogName();
         String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(okHttpLogEnum
