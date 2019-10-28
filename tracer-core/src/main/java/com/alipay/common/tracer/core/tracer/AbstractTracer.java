@@ -201,25 +201,13 @@ public abstract class AbstractTracer {
         // pop LogContext
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         SofaTracerSpan serverSpan = sofaTraceContext.pop();
-        boolean isCalculateSampled = false;
         try {
             if (serverSpan == null) {
-                if (sofaTracerSpanContext == null) {
-                    sofaTracerSpanContext = SofaTracerSpanContext.rootStart();
-                    isCalculateSampled = true;
-                } else {
-                    SofaTracerSpanContext spanContext = getChildSofaTracerSpanContext(sofaTracerSpanContext);
-                    spanContext.setSpanId(spanContext.nextChildContextId());
-                }
-                newSpan = this.genSeverSpanInstance(System.currentTimeMillis(),
-                    StringUtils.EMPTY_STRING, sofaTracerSpanContext, null);
-                // calculate sampled
-                if (isCalculateSampled) {
-                    sofaTracerSpanContext.setSampled(this.sofaTracer.getSampler().sample(newSpan)
-                        .isSampled());
-                }
+                newSpan = (SofaTracerSpan) this.sofaTracer.buildSpan(StringUtils.EMPTY_STRING)
+                    .asChildOf(sofaTracerSpanContext).start();
             } else {
-                // Without the setLogContextAndPush operation, span == null, so cast exception will not be thrown
+                newSpan = (SofaTracerSpan) this.sofaTracer.buildSpan(StringUtils.EMPTY_STRING)
+                    .asChildOf(serverSpan).start();
                 newSpan = serverSpan;
             }
         } catch (Throwable throwable) {
@@ -245,16 +233,6 @@ public abstract class AbstractTracer {
             }
         }
         return newSpan;
-    }
-
-    private SofaTracerSpanContext getChildSofaTracerSpanContext(SofaTracerSpanContext spanContext) {
-        SofaTracerSpanContext newContext = new SofaTracerSpanContext();
-        newContext.addBizBaggage(spanContext.getBizBaggage());
-        newContext.addSysBaggage(spanContext.getBizBaggage());
-        newContext.setSampled(spanContext.isSampled());
-        newContext.setTraceId(spanContext.getTraceId());
-        newContext.setSpanId(spanContext.getSpanId());
-        return newContext;
     }
 
     /**
