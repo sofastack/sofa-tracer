@@ -208,7 +208,6 @@ public abstract class AbstractTracer {
             } else {
                 newSpan = (SofaTracerSpan) this.sofaTracer.buildSpan(StringUtils.EMPTY_STRING)
                     .asChildOf(serverSpan).start();
-                newSpan = serverSpan;
             }
         } catch (Throwable throwable) {
             SelfLog.errorWithTraceId("Middleware server received and restart root span", throwable);
