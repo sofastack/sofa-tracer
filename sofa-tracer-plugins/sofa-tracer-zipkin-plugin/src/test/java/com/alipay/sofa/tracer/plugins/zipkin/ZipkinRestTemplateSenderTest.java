@@ -76,6 +76,6 @@ public class ZipkinRestTemplateSenderTest {
         encodedSpans.add(tests);
         Call<Void> voidCall = zipkinRestTemplateSender.sendSpans(encodedSpans);
         Thread.sleep(500);
-        Assert.assertTrue(voidCall == null);
+        Assert.assertTrue(voidCall != null);
     }
 }
