@@ -21,13 +21,13 @@ import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+
+import java.net.InetAddress;
+import java.util.Map;
+
 import io.opentracing.tag.Tags;
 import zipkin2.Endpoint;
 import zipkin2.Span;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.util.Map;
 
 /***
  * ZipkinV2SpanAdapter : convent sofaTracer span model to zipkin span model
@@ -39,10 +39,11 @@ public class ZipkinV2SpanAdapter {
     /**
      * cache and performance improve
      */
-    private int ipAddressInt = -1;
+    private InetAddress localIpAddress = null;
 
     /**
      * convent sofaTracerSpan model to zipKinSpan model
+     *
      * @param sofaTracerSpan original span
      * @return zipkinSpan model
      */
@@ -101,6 +102,7 @@ public class ZipkinV2SpanAdapter {
 
     /**
      * from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
+     *
      * @param data String data
      * @return fnv hash code
      */
@@ -116,22 +118,16 @@ public class ZipkinV2SpanAdapter {
     }
 
     private Endpoint getZipkinEndpoint(SofaTracerSpan span) {
-        InetAddress ipAddress = null;
-        if (this.ipAddressInt <= 0) {
-            try {
-                ipAddress = InetAddress.getLocalHost();
-                this.ipAddressInt = ByteBuffer.wrap(ipAddress.getAddress()).getInt();
-            } catch (UnknownHostException e) {
-                //127.0.0.1 256
-                this.ipAddressInt = 256 * 256 * 256 * 127 + 1;
-            }
+        if (localIpAddress == null) {
+            localIpAddress = NetUtils.getLocalAddress();
         }
         String appName = span.getTagsWithStr().get(CommonSpanTags.LOCAL_APP);
-        return Endpoint.newBuilder().serviceName(appName).ip(ipAddress).build();
+        return Endpoint.newBuilder().serviceName(appName).ip(localIpAddress).build();
     }
 
     /**
      * Put the baggage data into the tags
+     *
      * @param zipkinSpan
      * @param span
      */
@@ -151,6 +147,7 @@ public class ZipkinV2SpanAdapter {
 
     /**
      * convent Annotations
+     *
      * @param zipkinSpan
      * @param span
      */
@@ -174,6 +171,7 @@ public class ZipkinV2SpanAdapter {
 
     /**
      * convent tags
+     *
      * @param zipkinSpan
      * @param span
      */

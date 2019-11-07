@@ -67,7 +67,7 @@ public class ZipkinRestTemplateSender extends Sender {
         } catch (Throwable e) {
             SelfLog.error("Failed to report span to remote server. Current rest url is " + url, e);
         }
-        return null;
+        return Call.create(null);
     }
 
     private void post(byte[] json) {

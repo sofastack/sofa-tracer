@@ -201,25 +201,13 @@ public abstract class AbstractTracer {
         // pop LogContext
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         SofaTracerSpan serverSpan = sofaTraceContext.pop();
-        boolean isCalculateSampled = false;
         try {
             if (serverSpan == null) {
-                if (sofaTracerSpanContext == null) {
-                    sofaTracerSpanContext = SofaTracerSpanContext.rootStart();
-                    isCalculateSampled = true;
-                } else {
-                    sofaTracerSpanContext.setSpanId(sofaTracerSpanContext.nextChildContextId());
-                }
-                newSpan = this.genSeverSpanInstance(System.currentTimeMillis(),
-                    StringUtils.EMPTY_STRING, sofaTracerSpanContext, null);
-                // calculate sampled
-                if (isCalculateSampled) {
-                    sofaTracerSpanContext.setSampled(this.sofaTracer.getSampler().sample(newSpan)
-                        .isSampled());
-                }
+                newSpan = (SofaTracerSpan) this.sofaTracer.buildSpan(StringUtils.EMPTY_STRING)
+                    .asChildOf(sofaTracerSpanContext).start();
             } else {
-                // Without the setLogContextAndPush operation, span == null, so cast exception will not be thrown
-                newSpan = serverSpan;
+                newSpan = (SofaTracerSpan) this.sofaTracer.buildSpan(StringUtils.EMPTY_STRING)
+                    .asChildOf(serverSpan).start();
             }
         } catch (Throwable throwable) {
             SelfLog.errorWithTraceId("Middleware server received and restart root span", throwable);
