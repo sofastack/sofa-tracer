@@ -21,6 +21,8 @@ import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.tag.Tags;
 
 import java.util.Map;
 
@@ -41,9 +43,18 @@ public class RestTemplateDigestJsonEncoder extends AbstractDigestSpanEncoder {
         jsb.append(CommonSpanTags.REQUEST_URL, tagWithStr.get(CommonSpanTags.REQUEST_URL));
         //POST/GET
         jsb.append(CommonSpanTags.METHOD, tagWithStr.get(CommonSpanTags.METHOD));
+        Number requestSize = tagWithNum.get(CommonSpanTags.REQ_SIZE);
+        //request bytes length
+        jsb.append(CommonSpanTags.RESP_SIZE, (requestSize == null ? 0L : requestSize.longValue()));
         Number responseSize = tagWithNum.get(CommonSpanTags.RESP_SIZE);
         //Response Body bytes length
         jsb.append(CommonSpanTags.RESP_SIZE, (responseSize == null ? 0L : responseSize.longValue()));
+        //error message
+        if (StringUtils.isNotBlank(tagWithStr.get(Tags.ERROR.getKey()))) {
+            jsb.append(Tags.ERROR.getKey(), tagWithStr.get(Tags.ERROR.getKey()));
+        } else {
+            jsb.append(Tags.ERROR.getKey(), StringUtils.EMPTY_STRING);
+        }
     }
 
 }
