@@ -16,7 +16,9 @@
  */
 package com.alipay.sofa.tracer.plugins.zipkin;
 
+import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
+import com.alipay.common.tracer.core.samplers.SamplerFactory;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 import com.alipay.sofa.tracer.plugins.zipkin.adapter.ZipkinV2SpanAdapter;
@@ -32,6 +34,8 @@ import java.io.Flushable;
  * zipkin report
  * @author guolei.sgl
  * @since v2.3.0
+ * @author qingfeng-bi
+ * @since 2019/11/8 Add sample verification before reporting
  */
 public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, Flushable, Closeable {
 
@@ -54,6 +58,14 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
     public void onSpanReport(SofaTracerSpan span) {
         if (span == null) {
             return;
+        }
+        //Add sample verification before reporting
+        try {
+            if(!SamplerFactory.getSampler().sample(span).isSampled()) {
+                return;
+            }
+        } catch (Exception e) {
+            SelfLog.error("Failed to get tracer sampler strategy;");
         }
         //convert
         Span zipkinSpan = zipkinV2SpanAdapter.convertToZipkinSpan(span);
