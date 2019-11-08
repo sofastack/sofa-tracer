@@ -60,12 +60,8 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
             return;
         }
         //Add sample verification before reporting
-        try {
-            if(!SamplerFactory.getSampler().sample(span).isSampled()) {
-                return;
-            }
-        } catch (Exception e) {
-            SelfLog.error("Failed to get tracer sampler strategy;");
+        if(!span.getSofaTracerSpanContext().isSampled()) {
+            return;
         }
         //convert
         Span zipkinSpan = zipkinV2SpanAdapter.convertToZipkinSpan(span);
