@@ -16,7 +16,9 @@
  */
 package com.alipay.sofa.tracer.plugins.zipkin;
 
+import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
+import com.alipay.common.tracer.core.samplers.SamplerFactory;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 import com.alipay.sofa.tracer.plugins.zipkin.adapter.ZipkinV2SpanAdapter;
@@ -54,6 +56,14 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
     public void onSpanReport(SofaTracerSpan span) {
         if (span == null) {
             return;
+        }
+        //Add sample verification before reporting
+        try {
+            if(!SamplerFactory.getSampler().sample(span).isSampled()) {
+                return;
+            }
+        } catch (Exception e) {
+            SelfLog.error("Failed to get tracer sampler strategy;");
         }
         //convert
         Span zipkinSpan = zipkinV2SpanAdapter.convertToZipkinSpan(span);
