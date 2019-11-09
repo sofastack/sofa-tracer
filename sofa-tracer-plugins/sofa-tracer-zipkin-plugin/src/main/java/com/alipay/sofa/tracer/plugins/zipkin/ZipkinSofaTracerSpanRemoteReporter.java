@@ -16,9 +16,7 @@
  */
 package com.alipay.sofa.tracer.plugins.zipkin;
 
-import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
-import com.alipay.common.tracer.core.samplers.SamplerFactory;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 import com.alipay.sofa.tracer.plugins.zipkin.adapter.ZipkinV2SpanAdapter;
@@ -27,6 +25,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 import zipkin2.Span;
 import zipkin2.reporter.AsyncReporter;
+
 import java.io.Closeable;
 import java.io.Flushable;
 
