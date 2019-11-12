@@ -25,9 +25,10 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * ZipkinSofaTracerSpanRemoteReporterTest
+ * Add testOnSpanReport() method 2019/11/11
  * @author: guolei.sgl
+ * @author: qingfeng.bf
  * @since: v2.3.0
- * Add testOnSpanReport() method 2019/11/11 by qingfeng-bi
  **/
 public class ZipkinSofaTracerSpanRemoteReporterTest {
     private SofaTracerSpanContext sofaTracerSpanContext;

@@ -31,9 +31,10 @@ import java.io.Flushable;
 
 /**
  * zipkin report
+ * Add sample verification before reporting 2019/11/8
  * @author guolei.sgl
+ * @author qingfeng.bf
  * @since v2.3.0
- * qingfeng-bi 2019/11/8 Add sample verification before reporting
  */
 public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, Flushable, Closeable {
 
