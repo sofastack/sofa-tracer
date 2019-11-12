@@ -16,17 +16,32 @@
  */
 package com.alipay.sofa.tracer.plugins.zipkin;
 
+import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * ZipkinSofaTracerSpanRemoteReporterTest
- *
  * @author: guolei.sgl
  * @since: v2.3.0
+ * Add testOnSpanReport() method 2019/11/11 by qingfeng-bi
  **/
 public class ZipkinSofaTracerSpanRemoteReporterTest {
+    private SofaTracerSpanContext sofaTracerSpanContext;
 
+    @Before
+    public void before() throws Exception {
+        sofaTracerSpanContext = new SofaTracerSpanContext("traceId", "spanId", "parentId", false);
+    }
+    @Test
+    public void testOnSpanReport(){
+        SofaTracerSpanContext context = new SofaTracerSpanContext("traceId111", "spanId111",
+                "parentId111", false);
+        assertEquals(false, context.isSampled());
+    }
     @Test
     public void testTraceIdToId() {
         // hex to decimal
