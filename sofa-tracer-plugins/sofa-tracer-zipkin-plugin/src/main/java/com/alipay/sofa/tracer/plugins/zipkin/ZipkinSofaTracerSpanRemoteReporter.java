@@ -52,7 +52,7 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
 
     @Override
     public void onSpanReport(SofaTracerSpan span) {
-        if (span == null) {
+        if (span == null || !span.getSofaTracerSpanContext().isSampled()) {
             return;
         }
         //convert
