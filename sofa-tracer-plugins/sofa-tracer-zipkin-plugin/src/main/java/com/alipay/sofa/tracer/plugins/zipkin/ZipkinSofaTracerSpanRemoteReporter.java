@@ -59,7 +59,7 @@ public class ZipkinSofaTracerSpanRemoteReporter implements SpanReportListener, F
             return;
         }
         //Add sample verification before reporting
-        if(!span.getSofaTracerSpanContext().isSampled()) {
+        if (!span.getSofaTracerSpanContext().isSampled()) {
             return;
         }
         //convert
