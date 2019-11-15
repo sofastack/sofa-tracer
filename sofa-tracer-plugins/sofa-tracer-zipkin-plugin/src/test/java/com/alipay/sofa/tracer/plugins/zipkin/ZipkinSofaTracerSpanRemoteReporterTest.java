@@ -37,12 +37,14 @@ public class ZipkinSofaTracerSpanRemoteReporterTest {
     public void before() throws Exception {
         sofaTracerSpanContext = new SofaTracerSpanContext("traceId", "spanId", "parentId", false);
     }
+
     @Test
-    public void testOnSpanReport(){
+    public void testOnSpanReport() {
         SofaTracerSpanContext context = new SofaTracerSpanContext("traceId111", "spanId111",
-                "parentId111", false);
+            "parentId111", false);
         assertEquals(false, context.isSampled());
     }
+
     @Test
     public void testTraceIdToId() {
         // hex to decimal
