@@ -14,30 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.common.tracer.core.constants;
-
 /**
- * Component Name Constants
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/4/8 9:16 PM
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/19 7:59 PM
  * @since:
  **/
-public class ComponentNameConstants {
-
-    public static final String DATA_SOURCE   = "dataSource";
-
-    public static final String DUBBO_CLIENT  = "dubbo-client";
-
-    public static final String DUBBO_SERVER  = "dubbo-server";
-
-    public static final String HTTP_CLIENT   = "httpclient";
-
-    public static final String OK_HTTP       = "okhttp";
-
-    public static final String REST_TEMPLATE = "resttemplate";
-
-    public static final String SPRING_MVC    = "springmvc";
-
-    public static final String FLEXIBLE      = "flexible-biz";
-
-    public static final String REDIS         = "redis";
-}
+package com.alipay.sofa.tracer.boot.redis;
