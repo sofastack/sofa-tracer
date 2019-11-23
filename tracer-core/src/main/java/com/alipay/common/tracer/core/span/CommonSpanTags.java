@@ -176,4 +176,5 @@ public class CommonSpanTags {
      * LOAD_TEST is the span's stat log key for load.test
      */
     public static final String LOAD_TEST               = "load.test";
+
 }

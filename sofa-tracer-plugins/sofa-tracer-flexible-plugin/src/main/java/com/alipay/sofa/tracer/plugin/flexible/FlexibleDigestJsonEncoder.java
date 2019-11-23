@@ -38,7 +38,7 @@ public class FlexibleDigestJsonEncoder extends AbstractDigestSpanEncoder {
     protected void appendComponentSlot(XStringBuilder xsb, JsonStringBuilder jsb, SofaTracerSpan span) {
         Map<String, String> strTags = span.getTagsWithStr();
         Map<String, Number> numTags = span.getTagsWithNumber();
-        Map<String, Number> boolTags = span.getTagsWithNumber();
+        Map<String, Boolean> boolTags = span.getTagsWithBool();
         //POST/GET
         jsb.append(CommonSpanTags.METHOD, strTags.get(CommonSpanTags.METHOD));
 
