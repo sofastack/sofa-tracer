@@ -49,8 +49,7 @@ public class HttpClientStatJsonReporter extends AbstractSofaTracerStatisticRepor
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
         //success
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
-        boolean success = (resultCode != null && resultCode.length() > 0 && this
-            .isHttpOrMvcSuccess(resultCode));
+        boolean success = isWebHttpClientSuccess(resultCode);
         statKey.setResult(success ? SofaTracerConstant.STAT_FLAG_SUCCESS
             : SofaTracerConstant.STAT_FLAG_FAILS);
         //end

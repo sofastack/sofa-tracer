@@ -190,17 +190,10 @@ public class FlexibleTracer extends SofaTracer {
         return methodSpan;
     }
 
-    /**
-     * normal finish
-     */
     public void afterInvoke() {
         afterInvoke(StringUtils.EMPTY_STRING);
     }
 
-    /**
-     * error finish
-     * @param error
-     */
     public void afterInvoke(String error) {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         SofaTracerSpan clientSpan = sofaTraceContext.pop();

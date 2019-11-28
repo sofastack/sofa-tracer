@@ -33,8 +33,7 @@ public abstract class AbstractTextFormatter implements RegistryExtractorInjector
     @Override
     public SofaTracerSpanContext extract(TextMap carrier) {
         if (carrier == null) {
-            //Root node starts
-            return SofaTracerSpanContext.rootStart();
+            return null;
         }
         SofaTracerSpanContext sofaTracerSpanContext = null;
         for (Map.Entry<String, String> entry : carrier) {
@@ -49,8 +48,7 @@ public abstract class AbstractTextFormatter implements RegistryExtractorInjector
             }
         }
         if (sofaTracerSpanContext == null) {
-            //Root node starts
-            return SofaTracerSpanContext.rootStart();
+            return null;
         }
         return sofaTracerSpanContext;
     }
