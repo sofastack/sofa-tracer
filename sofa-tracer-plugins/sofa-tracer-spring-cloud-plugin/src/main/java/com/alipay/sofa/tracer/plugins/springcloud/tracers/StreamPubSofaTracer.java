@@ -22,71 +22,71 @@ import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
-import com.alipay.sofa.tracer.plugins.springcloud.encodes.OpenFeignDigestEncoder;
-import com.alipay.sofa.tracer.plugins.springcloud.repoters.OpenFeignStatJsonReporter;
-import com.alipay.sofa.tracer.plugins.springcloud.encodes.OpenFeignDigestJsonEncoder;
-import com.alipay.sofa.tracer.plugins.springcloud.enums.FeignClientLogEnum;
-import com.alipay.sofa.tracer.plugins.springcloud.repoters.OpenFeignStatReporter;
+import com.alipay.sofa.tracer.plugins.springcloud.encodes.MessagePubDigestEncoder;
+import com.alipay.sofa.tracer.plugins.springcloud.encodes.MessagePubEncoder;
+import com.alipay.sofa.tracer.plugins.springcloud.enums.StreamLogEnum;
+import com.alipay.sofa.tracer.plugins.springcloud.repoters.MessagePubStatJsonReporter;
+import com.alipay.sofa.tracer.plugins.springcloud.repoters.MessagePubStatReporter;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/13 10:52 AM
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/28 9:55 PM
  * @since:
  **/
-public class FeignClientTracer extends AbstractClientTracer {
+public class StreamPubSofaTracer extends AbstractClientTracer {
 
-    private volatile static FeignClientTracer feignClientTracer = null;
+    private volatile static StreamPubSofaTracer streamPubSofaTracer = null;
 
     /***
      * Http Client Tracer Singleton
      * @return singleton
      */
-    public static FeignClientTracer getFeignClientTracerSingleton() {
-        if (feignClientTracer == null) {
-            synchronized (FeignClientTracer.class) {
-                if (feignClientTracer == null) {
-                    feignClientTracer = new FeignClientTracer();
+    public static StreamPubSofaTracer getStreamPubSofaTracerSingleton() {
+        if (streamPubSofaTracer == null) {
+            synchronized (StreamPubSofaTracer.class) {
+                if (streamPubSofaTracer == null) {
+                    streamPubSofaTracer = new StreamPubSofaTracer();
                 }
             }
         }
-        return feignClientTracer;
+        return streamPubSofaTracer;
     }
 
-    protected FeignClientTracer() {
-        super(ComponentNameConstants.FEIGN_CLIENT);
+    public StreamPubSofaTracer() {
+        super(ComponentNameConstants.MESSAGE_PUB);
     }
 
     @Override
     protected String getClientDigestReporterLogName() {
-        return FeignClientLogEnum.FEIGN_CLIENT_DIGEST.getDefaultLogName();
+        return StreamLogEnum.PUB_MESSAGE_DIGEST.getDefaultLogName();
     }
 
     @Override
     protected String getClientDigestReporterRollingKey() {
-        return FeignClientLogEnum.FEIGN_CLIENT_DIGEST.getRollingKey();
+        return StreamLogEnum.PUB_MESSAGE_DIGEST.getRollingKey();
     }
 
     @Override
     protected String getClientDigestReporterLogNameKey() {
-        return FeignClientLogEnum.FEIGN_CLIENT_DIGEST.getLogNameKey();
+        return StreamLogEnum.PUB_MESSAGE_DIGEST.getLogNameKey();
     }
 
     @Override
     protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
         if (SofaTracerConfiguration.isJsonOutput()) {
-            return new OpenFeignDigestJsonEncoder();
+            return new MessagePubDigestEncoder();
         } else {
-            return new OpenFeignDigestEncoder();
+            return new MessagePubEncoder();
         }
     }
 
     @Override
     protected AbstractSofaTracerStatisticReporter generateClientStatReporter() {
-        FeignClientLogEnum feignClientLogEnum = FeignClientLogEnum.FEIGN_CLIENT_STAT;
-        String statLog = feignClientLogEnum.getDefaultLogName();
-        String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(feignClientLogEnum
+        StreamLogEnum streamLogEnum = StreamLogEnum.PUB_MESSAGE_STAT;
+        String statLog = streamLogEnum.getDefaultLogName();
+        String statRollingPolicy = SofaTracerConfiguration.getRollingPolicy(streamLogEnum
             .getRollingKey());
-        String statLogReserveConfig = SofaTracerConfiguration
-            .getLogReserveConfig(feignClientLogEnum.getLogNameKey());
+        String statLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(streamLogEnum
+            .getLogNameKey());
         return this.getOpenFeignStatJsonReporter(statLog, statRollingPolicy, statLogReserveConfig);
     }
 
@@ -94,10 +94,10 @@ public class FeignClientTracer extends AbstractClientTracer {
                                                                                String statRollingPolicy,
                                                                                String statLogReserveConfig) {
         if (SofaTracerConfiguration.isJsonOutput()) {
-            return new OpenFeignStatJsonReporter(statTracerName, statRollingPolicy,
+            return new MessagePubStatJsonReporter(statTracerName, statRollingPolicy,
                 statLogReserveConfig);
         } else {
-            return new OpenFeignStatReporter(statTracerName, statRollingPolicy,
+            return new MessagePubStatReporter(statTracerName, statRollingPolicy,
                 statLogReserveConfig);
         }
     }

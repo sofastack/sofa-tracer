@@ -38,4 +38,10 @@ public class ComponentNameConstants {
     public static final String SPRING_MVC    = "springmvc";
 
     public static final String FLEXIBLE      = "flexible-biz";
+
+    public static final String FEIGN_CLIENT  = "open-feign";
+
+    public static final String MESSAGE_PUB   = "message-pub";
+
+    public static final String MESSAGE_SUB   = "message-sub";
 }
