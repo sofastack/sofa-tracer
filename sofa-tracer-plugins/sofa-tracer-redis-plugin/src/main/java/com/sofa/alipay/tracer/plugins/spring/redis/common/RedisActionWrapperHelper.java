@@ -17,12 +17,11 @@
 package com.sofa.alipay.tracer.plugins.spring.redis.common;
 
 import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.sofa.alipay.tracer.plugins.spring.redis.tracer.RedisSofaTracer;
-import io.opentracing.Span;
-import io.opentracing.Tracer;
-import io.opentracing.tag.Tags;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -30,16 +29,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
+import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.tag.Tags;
+
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/18 9:15 PM
  * @since:
  **/
 public class RedisActionWrapperHelper {
-
-    public static final String    COMPONENT_NAME = "java-redis";
-    public static final String    DB_TYPE        = "redis";
-    protected final SofaTracer    tracer;
-    private final RedisSofaTracer redisSofaTracer;
+    public static final String          COMMAND        = "command";
+    public static final String          COMPONENT_NAME = "java-redis";
+    public static final String          DB_TYPE        = "redis";
+    protected final     SofaTracer      tracer;
+    private final       RedisSofaTracer redisSofaTracer;
+    private             String          appName;
 
     public RedisActionWrapperHelper() {
         redisSofaTracer = RedisSofaTracer.getRedisSofaTracerSingleton();
@@ -106,7 +110,7 @@ public class RedisActionWrapperHelper {
     }
 
     public <T extends Exception> void decorateThrowing(ThrowingAction<T> action, String operateName)
-                                                                                                    throws T {
+            throws T {
         Span span = buildSpan(operateName);
         try {
             action.execute();
@@ -196,10 +200,16 @@ public class RedisActionWrapperHelper {
 
     private Tracer.SpanBuilder builder(String operationName) {
         SofaTracerSpan currentSpan = SofaTraceContextHolder.getSofaTraceContext().getCurrentSpan();
+        if (this.appName == null) {
+            this.appName = SofaTracerConfiguration
+                    .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
+        }
         Tracer.SpanBuilder sb = tracer.buildSpan(operationName).asChildOf(currentSpan)
-            .withTag(Tags.COMPONENT.getKey(), COMPONENT_NAME)
-            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-            .withTag(Tags.DB_TYPE.getKey(), DB_TYPE);
+                .withTag(CommonSpanTags.LOCAL_APP, appName)
+                .withTag(COMMAND, operationName)
+                .withTag(Tags.COMPONENT.getKey(), COMPONENT_NAME)
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
+                .withTag(Tags.DB_TYPE.getKey(), DB_TYPE);
         return sb;
     }
 }

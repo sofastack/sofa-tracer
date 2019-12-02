@@ -85,12 +85,12 @@ public class RedisSofaTracer extends AbstractClientTracer {
         String statLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(redisLogEnum
             .getLogNameKey());
         //stat
-        return this.getHttpClientStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
+        return this.getRedisClientStatReporter(statLog, statRollingPolicy, statLogReserveConfig);
     }
 
-    protected AbstractSofaTracerStatisticReporter getHttpClientStatReporter(String statTracerName,
-                                                                            String statRollingPolicy,
-                                                                            String statLogReserveConfig) {
+    protected AbstractSofaTracerStatisticReporter getRedisClientStatReporter(String statTracerName,
+                                                                             String statRollingPolicy,
+                                                                             String statLogReserveConfig) {
 
         if (SofaTracerConfiguration.isJsonOutput()) {
             return new RedisStatJsonReporter(statTracerName, statRollingPolicy,
