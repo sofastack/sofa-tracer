@@ -38,12 +38,12 @@ import io.opentracing.tag.Tags;
  * @since:
  **/
 public class RedisActionWrapperHelper {
-    public static final String          COMMAND        = "command";
-    public static final String          COMPONENT_NAME = "java-redis";
-    public static final String          DB_TYPE        = "redis";
-    protected final     SofaTracer      tracer;
-    private final       RedisSofaTracer redisSofaTracer;
-    private             String          appName;
+    public static final String    COMMAND        = "command";
+    public static final String    COMPONENT_NAME = "java-redis";
+    public static final String    DB_TYPE        = "redis";
+    protected final SofaTracer    tracer;
+    private final RedisSofaTracer redisSofaTracer;
+    private String                appName;
 
     public RedisActionWrapperHelper() {
         redisSofaTracer = RedisSofaTracer.getRedisSofaTracerSingleton();
@@ -110,7 +110,7 @@ public class RedisActionWrapperHelper {
     }
 
     public <T extends Exception> void decorateThrowing(ThrowingAction<T> action, String operateName)
-            throws T {
+                                                                                                    throws T {
         Span span = buildSpan(operateName);
         try {
             action.execute();
@@ -202,14 +202,13 @@ public class RedisActionWrapperHelper {
         SofaTracerSpan currentSpan = SofaTraceContextHolder.getSofaTraceContext().getCurrentSpan();
         if (this.appName == null) {
             this.appName = SofaTracerConfiguration
-                    .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
+                .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
         }
         Tracer.SpanBuilder sb = tracer.buildSpan(operationName).asChildOf(currentSpan)
-                .withTag(CommonSpanTags.LOCAL_APP, appName)
-                .withTag(COMMAND, operationName)
-                .withTag(Tags.COMPONENT.getKey(), COMPONENT_NAME)
-                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-                .withTag(Tags.DB_TYPE.getKey(), DB_TYPE);
+            .withTag(CommonSpanTags.LOCAL_APP, appName).withTag(COMMAND, operationName)
+            .withTag(Tags.COMPONENT.getKey(), COMPONENT_NAME)
+            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
+            .withTag(Tags.DB_TYPE.getKey(), DB_TYPE);
         return sb;
     }
 }

@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.redis.processor;
+package com.sofa.alipay.tracer.plugins.spring.redis;
 
-import com.sofa.alipay.tracer.plugins.spring.redis.TracingRedisConnectionFactory;
 import com.sofa.alipay.tracer.plugins.spring.redis.common.RedisActionWrapperHelper;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

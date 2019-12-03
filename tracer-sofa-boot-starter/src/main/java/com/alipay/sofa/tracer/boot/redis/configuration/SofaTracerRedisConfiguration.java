@@ -16,17 +16,26 @@
  */
 package com.alipay.sofa.tracer.boot.redis.configuration;
 
-import com.alipay.sofa.tracer.boot.redis.processor.SofaTracerRCFBeanPostProcessor;
+import com.alipay.sofa.tracer.boot.configuration.SofaTracerAutoConfiguration;
+import com.sofa.alipay.tracer.plugins.spring.redis.SofaTracerRCFBeanPostProcessor;
 import com.sofa.alipay.tracer.plugins.spring.redis.common.RedisActionWrapperHelper;
+
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/19 8:03 PM
  * @since:
  **/
 @Configuration
+@ConditionalOnClass({ RedisConnectionFactory.class, RedisActionWrapperHelper.class })
+@ConditionalOnProperty(name = "com.alipay.sofa.tracer.redis.enabled", havingValue = "true", matchIfMissing = true)
+@AutoConfigureAfter(SofaTracerAutoConfiguration.class)
 public class SofaTracerRedisConfiguration {
 
     @Bean
