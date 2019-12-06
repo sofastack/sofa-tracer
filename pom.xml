@@ -27,14 +27,13 @@
         <module>sofa-tracer-plugins/sofa-tracer-resttmplate-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-flexible-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-dubbo-2.6.x-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-springmessage-plugin</module>
         <module>tracer-all</module>
         <module>tracer-sofa-boot-starter</module>
         <module>tracer-test/core-test</module>
         <module>tracer-test/logback-test</module>
         <module>tracer-test/log4j2-test</module>
         <module>tracer-test/log4j-test</module>
-        <module>sofa-tracer-plugins/sofa-tracer-springmessage-plugin</module>
-
     </modules>
 
     <properties>
@@ -193,7 +192,6 @@
                 <groupId>org.apache.rocketmq</groupId>
                 <artifactId>rocketmq-client</artifactId>
                 <version>4.4.0</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- 对外部框架的一些插件使用 -->
