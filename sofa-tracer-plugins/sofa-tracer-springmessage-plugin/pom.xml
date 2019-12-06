@@ -10,18 +10,29 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>sofa-tracer-flexible-plugin</artifactId>
+    <artifactId>sofa-tracer-springmessage-plugin</artifactId>
 
     <dependencies>
-
         <dependency>
             <groupId>com.alipay.sofa</groupId>
             <artifactId>tracer-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>tracer-extensions</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.integration</groupId>
+            <artifactId>spring-integration-core</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-client</artifactId>
+            <version>4.4.0</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
-
 </project>

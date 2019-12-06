@@ -5,12 +5,12 @@
     <parent>
         <artifactId>tracer-all-parent</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>ycpoc-SNAPSHOT</version>
+        <version>3.0.8</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>tracer-all</artifactId>
-    <version>ycpoc-SNAPSHOT</version>
+    <version>3.0.8</version>
     <packaging>jar</packaging>
 
     <name>SOFATracer in one without SOFABoot starter</name>

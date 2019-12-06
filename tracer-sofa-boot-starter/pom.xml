@@ -5,7 +5,7 @@
     <parent>
         <artifactId>tracer-all-parent</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>ycpoc-SNAPSHOT</version>
+        <version>3.0.8</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -66,6 +66,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-tracer-springmessage-plugin</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
         </dependency>
@@ -83,6 +88,20 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-stream-binder-rocketmq</artifactId>
+            <version>0.2.1.RELEASE</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-client</artifactId>
+            <version>4.4.0</version>
+            <optional>true</optional>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>

@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>tracer-all-parent</artifactId>
-    <version>ycpoc-SNAPSHOT</version>
+    <version>3.0.8</version>
     <packaging>pom</packaging>
     <name>tracer-all-parent</name>
     <description>Alipay SOFATracer Log Implemented by OpenTracing</description>
@@ -33,11 +33,13 @@
         <module>tracer-test/logback-test</module>
         <module>tracer-test/log4j2-test</module>
         <module>tracer-test/log4j-test</module>
+        <module>sofa-tracer-plugins/sofa-tracer-springmessage-plugin</module>
+
     </modules>
 
     <properties>
         <opentracing.version>0.22.0</opentracing.version>
-        <sofa.tracer.version>ycpoc-SNAPSHOT</sofa.tracer.version>
+        <sofa.tracer.version>3.0.8</sofa.tracer.version>
         <java.compiler.source.version>1.8</java.compiler.source.version>
         <java.compiler.target.version>1.8</java.compiler.target.version>
         <jmh.version>1.9.3</jmh.version>
@@ -134,6 +136,11 @@
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-flexible-plugin</artifactId>
+                <version>${sofa.tracer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-springmessage-plugin</artifactId>
                 <version>${sofa.tracer.version}</version>
             </dependency>
             <dependency>
