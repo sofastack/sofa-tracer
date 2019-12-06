@@ -4,7 +4,7 @@
     <parent>
         <artifactId>tracer-all-parent</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>3.0.8</version>
+        <version>3.0.9-SNAPSHOT</version>
     </parent>
 
     <artifactId>tracer-extensions</artifactId>
