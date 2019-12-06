@@ -18,6 +18,7 @@ package com.alipay.sofa.tracer.plugins.message.tracers;
 
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
@@ -47,7 +48,7 @@ public class MessagePubTracer extends AbstractClientTracer {
     }
 
     protected MessagePubTracer() {
-        super("message-pub");
+        super(ComponentNameConstants.MSG_PUB);
     }
 
     @Override

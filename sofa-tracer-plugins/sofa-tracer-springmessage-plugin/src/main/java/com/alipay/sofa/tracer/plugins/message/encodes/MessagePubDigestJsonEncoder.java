@@ -42,8 +42,8 @@ public class MessagePubDigestJsonEncoder extends AbstractDigestSpanEncoder {
         } else {
             jsb.append(Tags.ERROR.getKey(), StringUtils.EMPTY_STRING);
         }
-        jsb.append("channelName", tagWithStr.get("channelName"));
-        jsb.append("msgId", tagWithStr.get("msgId"));
+        jsb.append(CommonSpanTags.MSG_CHANNEL, tagWithStr.get(CommonSpanTags.MSG_CHANNEL));
+        jsb.append(CommonSpanTags.MSG_ID, tagWithStr.get(CommonSpanTags.MSG_ID));
         jsb.append(CommonSpanTags.REMOTE_APP, tagWithStr.get(CommonSpanTags.REMOTE_APP));
     }
 }

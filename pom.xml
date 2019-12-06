@@ -182,6 +182,20 @@
                 <scope>provided</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-stream</artifactId>
+                <version>2.1.0.RELEASE</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-client</artifactId>
+                <version>4.4.0</version>
+                <scope>provided</scope>
+            </dependency>
+
             <!-- 对外部框架的一些插件使用 -->
             <dependency>
                 <groupId>javax.servlet</groupId>

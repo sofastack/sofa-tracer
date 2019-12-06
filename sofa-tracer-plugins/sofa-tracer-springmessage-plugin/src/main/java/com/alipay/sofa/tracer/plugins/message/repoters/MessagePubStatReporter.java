@@ -43,8 +43,9 @@ public class MessagePubStatReporter extends AbstractSofaTracerStatisticReporter 
         StatKey statKey = new StatKey();
         String localApp = tagsWithStr.get(CommonSpanTags.LOCAL_APP);
         String operationName = sofaTracerSpan.getOperationName();
+        String channelName = tagsWithStr.get(CommonSpanTags.MSG_CHANNEL);
         //method name
-        statKey.setKey(buildString(new String[] { localApp, operationName }));
+        statKey.setKey(buildString(new String[] { localApp, operationName, channelName }));
         //success
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
         boolean success = isWebHttpClientSuccess(resultCode);

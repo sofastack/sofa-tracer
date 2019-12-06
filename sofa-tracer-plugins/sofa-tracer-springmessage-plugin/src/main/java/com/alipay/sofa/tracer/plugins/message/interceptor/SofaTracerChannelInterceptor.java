@@ -84,6 +84,142 @@ public class SofaTracerChannelInterceptor implements ChannelInterceptor, Executo
         return new SofaTracerChannelInterceptor(applicationName);
     }
 
+    @Override
+    public Message<?> preSend(Message<?> message, MessageChannel channel) {
+        if (emptyMessage(message)) {
+            return message;
+        }
+        Message<?> retrievedMessage = getMessage(message);
+        MessageHeaderAccessor headers = mutableHeaderAccessor(retrievedMessage);
+        Object spanContextSerialize = parseSpanContext(headers);
+        SofaTracerSpan sofaTracerSpan;
+        if (spanContextSerialize instanceof String) {
+            SofaTracerSpanContext spanContext = SofaTracerSpanContext
+                .deserializeFromString(spanContextSerialize.toString());
+            sofaTracerSpan = messageSubTracer.serverReceive(spanContext);
+            sofaTracerSpan.setOperationName("mq-message-receive");
+        } else {
+            sofaTracerSpan = messagePubTracer.clientSend("mq-message-send");
+        }
+        // 塞回到 headers 中去
+        headers.setHeader(SPAN_CONTEXT_KEY, sofaTracerSpan.getSofaTracerSpanContext()
+            .serializeSpanContext());
+        Message<?> outputMessage = outputMessage(message, retrievedMessage, headers);
+        if (isDirectChannel(channel)) {
+            beforeHandle(outputMessage, channel, null);
+        }
+        return outputMessage;
+    }
+
+    private Object parseSpanContext(MessageHeaderAccessor headers) {
+        Object spanContext = null;
+        // adapter for rocketmq
+        if (headers.getHeader(ORIGINAL_ROCKETMQ_MESSAGE_KEY) instanceof MessageClientExt) {
+            MessageClientExt msg = (MessageClientExt) headers
+                .getHeader(ORIGINAL_ROCKETMQ_MESSAGE_KEY);
+            Map<String, String> properties = msg.getProperties();
+            if (properties.containsKey(SPAN_CONTEXT_KEY)) {
+                spanContext = properties.get(SPAN_CONTEXT_KEY);
+            }
+        }
+        return spanContext;
+    }
+
+    @Override
+    public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent,
+                                    Exception ex) {
+        if (emptyMessage(message)) {
+            return;
+        }
+        if (isDirectChannel(channel)) {
+            afterMessageHandled(message, channel, null, ex);
+        }
+        finishSpan(ex, message, channel);
+    }
+
+    @Override
+    public Message<?> beforeHandle(Message<?> message, MessageChannel channel,
+                                   MessageHandler handler) {
+        if (emptyMessage(message)) {
+            return message;
+        }
+        MessageHeaderAccessor headers = mutableHeaderAccessor(message);
+        if (message instanceof ErrorMessage) {
+            return new ErrorMessage((Throwable) message.getPayload(), headers.getMessageHeaders());
+        }
+        headers.setImmutable();
+        return new GenericMessage<>(message.getPayload(), headers.getMessageHeaders());
+    }
+
+    @Override
+    public void afterMessageHandled(Message<?> message, MessageChannel channel,
+                                    MessageHandler handler, Exception ex) {
+        if (emptyMessage(message)) {
+            return;
+        }
+        finishSpan(ex, message, channel);
+    }
+
+    private void appendTags(Message<?> message, MessageChannel channel,
+                            SofaTracerSpan sofaTracerSpan) {
+
+        Message<?> retrievedMessage = getMessage(message);
+        MessageHeaderAccessor headers = mutableHeaderAccessor(retrievedMessage);
+        String messageId = message.getHeaders().getId().toString();
+        if (headers.getHeader(ORIGINAL_ROCKETMQ_MESSAGE_KEY) instanceof MessageClientExt) {
+            MessageClientExt msg = (MessageClientExt) headers
+                .getHeader(ORIGINAL_ROCKETMQ_MESSAGE_KEY);
+            messageId = msg.getMsgId();
+            String topic = msg.getTopic();
+            sofaTracerSpan.setTag(CommonSpanTags.MSG_TOPIC, topic);
+        }
+        String channelName = channelName(channel);
+        sofaTracerSpan.setTag(CommonSpanTags.MSG_ID, messageId);
+        sofaTracerSpan.setTag(CommonSpanTags.MSG_CHANNEL, channelName);
+        sofaTracerSpan.setTag(CommonSpanTags.REMOTE_APP, REMOTE_SERVICE_NAME);
+        sofaTracerSpan.setTag(CommonSpanTags.LOCAL_APP, applicationName);
+    }
+
+    private String channelName(MessageChannel channel) {
+        String name = null;
+        if (this.integrationObjectSupportPresent) {
+            if (channel instanceof IntegrationObjectSupport) {
+                name = ((IntegrationObjectSupport) channel).getComponentName();
+            }
+            if (name == null && channel instanceof AbstractMessageChannel) {
+                name = ((AbstractMessageChannel) channel).getFullChannelName();
+            }
+        }
+        if (name == null) {
+            name = channel.toString();
+        }
+        return name;
+    }
+
+    private void finishSpan(Exception error, Message<?> message, MessageChannel channel) {
+        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+        SofaTracerSpan currentSpan = sofaTraceContext.pop();
+        if (currentSpan == null) {
+            return;
+        }
+        appendTags(message, channel, currentSpan);
+        String resultCode = SofaTracerConstant.RESULT_CODE_SUCCESS;
+        if (error != null) {
+            String exMessage = error.getMessage();
+            if (exMessage == null) {
+                exMessage = error.getClass().getSimpleName();
+            }
+            resultCode = SofaTracerConstant.RESULT_CODE_ERROR;
+            currentSpan.setTag(Tags.ERROR.getKey(), exMessage);
+        }
+        currentSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
+        currentSpan.finish();
+        // 恢复上下文
+        if (currentSpan.getParentSofaTracerSpan() != null) {
+            sofaTraceContext.push(currentSpan.getParentSofaTracerSpan());
+        }
+    }
+
     private boolean emptyMessage(Message<?> message) {
         return message == null;
     }
@@ -138,144 +274,4 @@ public class SofaTracerChannelInterceptor implements ChannelInterceptor, Executo
     private boolean isStreamSpecialDirectChannel(Class<?> targetClass) {
         return this.directWithAttributesChannelClass.isAssignableFrom(targetClass);
     }
-
-    @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        if (emptyMessage(message)) {
-            return message;
-        }
-        Message<?> retrievedMessage = getMessage(message);
-        MessageHeaderAccessor headers = mutableHeaderAccessor(retrievedMessage);
-        Object spanContextSerialize = parseSpanContext(headers);
-        SofaTracerSpan sofaTracerSpan;
-        // header 里面有，说明这里是接受端
-        if (spanContextSerialize instanceof String) {
-            SofaTracerSpanContext spanContext = SofaTracerSpanContext
-                .deserializeFromString(spanContextSerialize.toString());
-            sofaTracerSpan = messageSubTracer.serverReceive(spanContext);
-            sofaTracerSpan.setOperationName("mq-message-receive");
-        } else {
-            // header 里面没有，说明这里是发起端
-            sofaTracerSpan = messagePubTracer.clientSend("mq-message-send");
-        }
-        appendTags(message, channel, sofaTracerSpan);
-        // 塞回到 headers 中去
-        headers.setHeader(SPAN_CONTEXT_KEY, sofaTracerSpan.getSofaTracerSpanContext()
-            .serializeSpanContext());
-        Message<?> outputMessage = outputMessage(message, retrievedMessage, headers);
-        if (isDirectChannel(channel)) {
-            beforeHandle(outputMessage, channel, null);
-        }
-        return outputMessage;
-    }
-
-    private Object parseSpanContext(MessageHeaderAccessor headers) {
-        Object spanContext = null;
-        // adapter for rocketmq
-        if (headers.getHeader(ORIGINAL_ROCKETMQ_MESSAGE_KEY) instanceof MessageClientExt) {
-            MessageClientExt msg = (MessageClientExt) headers
-                .getHeader(ORIGINAL_ROCKETMQ_MESSAGE_KEY);
-            Map<String, String> properties = msg.getProperties();
-            if (properties.containsKey(SPAN_CONTEXT_KEY)) {
-                spanContext = properties.get(SPAN_CONTEXT_KEY);
-            }
-        }
-        return spanContext;
-    }
-
-    private void appendTags(Message<?> message, MessageChannel channel,
-                            SofaTracerSpan sofaTracerSpan) {
-
-        Message<?> retrievedMessage = getMessage(message);
-        MessageHeaderAccessor headers = mutableHeaderAccessor(retrievedMessage);
-        String messageId = message.getHeaders().getId().toString();
-        if (headers.getHeader(ORIGINAL_ROCKETMQ_MESSAGE_KEY) instanceof MessageClientExt) {
-            MessageClientExt msg = (MessageClientExt) headers
-                .getHeader(ORIGINAL_ROCKETMQ_MESSAGE_KEY);
-            messageId = msg.getMsgId();
-            String topic = msg.getTopic();
-            sofaTracerSpan.setTag("topic", topic);
-        }
-        String channelName = channelName(channel);
-        sofaTracerSpan.setTag("channelName", channelName);
-        sofaTracerSpan.setTag(CommonSpanTags.REMOTE_APP, REMOTE_SERVICE_NAME);
-        sofaTracerSpan.setTag(CommonSpanTags.LOCAL_APP, applicationName);
-        sofaTracerSpan.setTag("msgId", messageId);
-    }
-
-    @Override
-    public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent,
-                                    Exception ex) {
-        if (emptyMessage(message)) {
-            return;
-        }
-        if (isDirectChannel(channel)) {
-            afterMessageHandled(message, channel, null, ex);
-        }
-        finishSpan(ex, message, channel);
-    }
-
-    @Override
-    public Message<?> beforeHandle(Message<?> message, MessageChannel channel,
-                                   MessageHandler handler) {
-        if (emptyMessage(message)) {
-            return message;
-        }
-        MessageHeaderAccessor headers = mutableHeaderAccessor(message);
-        if (message instanceof ErrorMessage) {
-            return new ErrorMessage((Throwable) message.getPayload(), headers.getMessageHeaders());
-        }
-        headers.setImmutable();
-        return new GenericMessage<>(message.getPayload(), headers.getMessageHeaders());
-    }
-
-    @Override
-    public void afterMessageHandled(Message<?> message, MessageChannel channel,
-                                    MessageHandler handler, Exception ex) {
-        if (emptyMessage(message)) {
-            return;
-        }
-        finishSpan(ex, message, channel);
-    }
-
-    private String channelName(MessageChannel channel) {
-        String name = null;
-        if (this.integrationObjectSupportPresent) {
-            if (channel instanceof IntegrationObjectSupport) {
-                name = ((IntegrationObjectSupport) channel).getComponentName();
-            }
-            if (name == null && channel instanceof AbstractMessageChannel) {
-                name = ((AbstractMessageChannel) channel).getFullChannelName();
-            }
-        }
-        if (name == null) {
-            name = channel.toString();
-        }
-        return name;
-    }
-
-    private void finishSpan(Exception error, Message<?> message, MessageChannel channel) {
-        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        SofaTracerSpan currentSpan = sofaTraceContext.pop();
-        if (currentSpan == null) {
-            return;
-        }
-        appendTags(message, channel, currentSpan);
-        String resultCode = SofaTracerConstant.RESULT_CODE_SUCCESS;
-        if (error != null) {
-            String exMessage = error.getMessage();
-            if (exMessage == null) {
-                exMessage = error.getClass().getSimpleName();
-            }
-            resultCode = SofaTracerConstant.RESULT_CODE_ERROR;
-            currentSpan.setTag(Tags.ERROR.getKey(), exMessage);
-        }
-        currentSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
-        currentSpan.finish();
-        // 恢复上下文
-        if (currentSpan.getParentSofaTracerSpan() != null) {
-            sofaTraceContext.push(currentSpan.getParentSofaTracerSpan());
-        }
-    }
-
 }
