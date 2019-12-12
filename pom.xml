@@ -28,6 +28,7 @@
         <module>sofa-tracer-plugins/sofa-tracer-flexible-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-dubbo-2.6.x-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-springmessage-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-rocketmq-plugin</module>
         <module>tracer-all</module>
         <module>tracer-sofa-boot-starter</module>
         <module>tracer-test/core-test</module>
@@ -140,6 +141,11 @@
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-springmessage-plugin</artifactId>
+                <version>${sofa.tracer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-rocketmq-plugin</artifactId>
                 <version>${sofa.tracer.version}</version>
             </dependency>
             <dependency>
