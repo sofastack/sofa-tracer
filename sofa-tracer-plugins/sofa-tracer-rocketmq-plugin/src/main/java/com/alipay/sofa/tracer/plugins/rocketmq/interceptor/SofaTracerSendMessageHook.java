@@ -21,7 +21,7 @@ import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.sofa.tracer.plugins.rocketmq.tracers.RocketMQSendTracer;
-import io.opentracing.tag.Tags;
+
 import org.apache.rocketmq.client.hook.SendMessageContext;
 import org.apache.rocketmq.client.hook.SendMessageHook;
 import org.apache.rocketmq.client.producer.SendResult;
@@ -32,15 +32,17 @@ import org.apache.rocketmq.common.message.MessageType;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.opentracing.tag.Tags;
+
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/12/12 8:22 PM
  * @since:
  **/
 public class SofaTracerSendMessageHook implements SendMessageHook {
 
-    private final String                       appName;
+    private final String                                   appName;
 
-    private static Map<String, SofaTracerSpan> TracerSpanMap = new ConcurrentHashMap<String, SofaTracerSpan>();
+    private static Map<SendMessageContext, SofaTracerSpan> TracerSpanMap = new ConcurrentHashMap<SendMessageContext, SofaTracerSpan>();
 
     public SofaTracerSendMessageHook(String appName) {
         this.appName = appName;
@@ -58,13 +60,14 @@ public class SofaTracerSendMessageHook implements SendMessageHook {
     public void sendMessageBefore(SendMessageContext context) {
         SofaTracerSpan span = rocketMQSendTracer.clientSend("mq-message-send");
         // put spanContext to message
-        context.setMqTraceContext(span.getSofaTracerSpanContext().serializeSpanContext());
+        context.getMessage().putUserProperty("SOFA_TRACER_CONTEXT",
+            span.getSofaTracerSpanContext().serializeSpanContext());
         SofaTracerSpan current = SofaTraceContextHolder.getSofaTraceContext().pop();
         // reset parent span
         if (current.getParentSofaTracerSpan() != null) {
             SofaTraceContextHolder.getSofaTraceContext().push(current.getParentSofaTracerSpan());
         }
-        TracerSpanMap.put(context.getMessage().getTransactionId(), current);
+        TracerSpanMap.put(context, current);
     }
 
     private void appendTags(SendMessageContext context, SofaTracerSpan span) {
@@ -76,8 +79,8 @@ public class SofaTracerSendMessageHook implements SendMessageHook {
         span.setTag("bornHost", context.getBornHost());
         span.setTag("brokerAddr", context.getBrokerAddr());
         span.setTag("producerGroup", context.getProducerGroup());
-        span.setTag("topic", message.getTopic());
-        span.setTag("msgId", sendResult.getMsgId());
+        span.setTag(CommonSpanTags.MSG_TOPIC, message.getTopic());
+        span.setTag(CommonSpanTags.MSG_ID, sendResult.getMsgId());
         span.setTag("status", sendResult.getSendStatus().name());
         span.setTag("broker", context.getMq().getBrokerName());
         if (context.getException() != null) {
@@ -87,8 +90,7 @@ public class SofaTracerSendMessageHook implements SendMessageHook {
 
     @Override
     public void sendMessageAfter(SendMessageContext context) {
-        SofaTracerSpan sofaTracerSpan = TracerSpanMap.remove(context.getMessage()
-            .getTransactionId());
+        SofaTracerSpan sofaTracerSpan = TracerSpanMap.remove(context);
         if (sofaTracerSpan == null) {
             return;
         }

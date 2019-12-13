@@ -16,18 +16,17 @@
  */
 package com.alipay.sofa.tracer.plugins.rocketmq.interceptor;
 
+import org.apache.rocketmq.client.hook.ConsumeMessageContext;
+import org.apache.rocketmq.client.hook.ConsumeMessageHook;
+import org.apache.rocketmq.common.message.MessageExt;
+import org.apache.rocketmq.common.message.MessageQueue;
+
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.sofa.tracer.plugins.rocketmq.tracers.RocketMQConsumeTracer;
-import org.apache.rocketmq.client.hook.ConsumeMessageContext;
-import org.apache.rocketmq.client.hook.ConsumeMessageHook;
-import org.apache.rocketmq.common.message.MessageExt;
-import org.apache.rocketmq.common.message.MessageQueue;
-
-import java.util.List;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/12/12 8:22 PM
@@ -56,46 +55,38 @@ public class SofaTracerConsumeMessageHook implements ConsumeMessageHook {
 
     @Override
     public void consumeMessageAfter(ConsumeMessageContext context) {
-        Object mqTraceContext = context.getMqTraceContext();
-        if (!(mqTraceContext instanceof String)) {
-            return;
-        }
-        try {
-            SofaTracerSpanContext spanContext = SofaTracerSpanContext
-                .deserializeFromString(mqTraceContext.toString());
-            SofaTracerSpan span = rocketMQConsumeTracer.serverReceive(spanContext);
-            span.setOperationName("mq-message-receive");
-            appendTags(context, span);
+        for (MessageExt msg : context.getMsgList()) {
+            String sContext = msg.getUserProperty("SOFA_TRACER_CONTEXT");
+            if (sContext != null) {
+                try {
+                    SofaTracerSpanContext spanContext = SofaTracerSpanContext
+                        .deserializeFromString(sContext);
+                    SofaTracerSpan span = rocketMQConsumeTracer.serverReceive(spanContext);
+                    span.setOperationName("mq-message-receive");
+                    appendTags(context, msg, span);
 
-            String resultCode = SofaTracerConstant.RESULT_CODE_SUCCESS;
-            if (!context.isSuccess()) {
-                resultCode = SofaTracerConstant.RESULT_CODE_ERROR;
+                    String resultCode = SofaTracerConstant.RESULT_CODE_SUCCESS;
+                    if (!context.isSuccess()) {
+                        resultCode = SofaTracerConstant.RESULT_CODE_ERROR;
+                    }
+                    rocketMQConsumeTracer.serverSend(resultCode);
+                } catch (Throwable t) {
+                    SelfLog.error("Error to log consume side.", t);
+                }
             }
-            rocketMQConsumeTracer.serverSend(resultCode);
-        } catch (Throwable t) {
-            SelfLog.error("Error to log consume side.", t);
         }
     }
 
-    private void appendTags(ConsumeMessageContext context, SofaTracerSpan span) {
-        span.setTag(CommonSpanTags.LOCAL_APP,appName);
+    private void appendTags(ConsumeMessageContext context, MessageExt msg, SofaTracerSpan span) {
+        span.setTag(CommonSpanTags.LOCAL_APP, appName);
         String consumerGroup = context.getConsumerGroup();
         MessageQueue mq = context.getMq();
         String topic = mq.getTopic();
         String brokerName = mq.getBrokerName();
-        span.setTag("consumerGroup",consumerGroup);
-        span.setTag(CommonSpanTags.MSG_TOPIC,topic);
-        span.setTag("broker",brokerName);
-        List<MessageExt> msgList = context.getMsgList();
-        final StringBuilder msgIdList = new StringBuilder();
-        if (msgList.size() > 0){
-            msgList.forEach(messageExt -> {
-                msgIdList.append(messageExt.getMsgId()).append(";");
-            });
-        }
-        if (msgIdList.toString().endsWith(";")){
-            span.setTag(CommonSpanTags.MSG_ID,msgIdList.toString());
-        }
-        span.setTag("status",context.getStatus());
+        span.setTag("consumerGroup", consumerGroup);
+        span.setTag(CommonSpanTags.MSG_TOPIC, topic);
+        span.setTag("broker", brokerName);
+        span.setTag(CommonSpanTags.MSG_ID, msg.getMsgId());
+        span.setTag("status", context.getStatus());
     }
 }
