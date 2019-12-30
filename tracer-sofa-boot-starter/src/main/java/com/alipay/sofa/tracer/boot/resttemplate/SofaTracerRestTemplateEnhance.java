@@ -16,9 +16,9 @@
  */
 package com.alipay.sofa.tracer.boot.resttemplate;
 
+import com.alipay.common.tracer.core.tracer.AbstractTracer;
 import com.sofa.alipay.tracer.plugins.rest.SofaTracerRestTemplateBuilder;
 import com.sofa.alipay.tracer.plugins.rest.interceptor.RestTemplateInterceptor;
-import org.springframework.boot.web.client.RestTemplateCustomizer;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,19 +26,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * CustomRestTemplateCustomizer
- *
- * @version 1.0
- * @author: guolei.sgl 18/11/19 PM 11:07
- * @since: v2.3.0
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/9/12 12:02 AM
+ * @since:
  **/
-public class CustomRestTemplateCustomizer implements RestTemplateCustomizer {
-    @Override
-    public void customize(RestTemplate restTemplate) {
-        List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
-        RestTemplateInterceptor restTemplateInterceptor = new RestTemplateInterceptor(
-            SofaTracerRestTemplateBuilder.getRestTemplateTracer());
-        interceptors.add(restTemplateInterceptor);
+public class SofaTracerRestTemplateEnhance {
+
+    private final RestTemplateInterceptor restTemplateInterceptor;
+
+    public SofaTracerRestTemplateEnhance() {
+        AbstractTracer restTemplateTracer = SofaTracerRestTemplateBuilder.getRestTemplateTracer();
+        this.restTemplateInterceptor = new RestTemplateInterceptor(restTemplateTracer);
+    }
+
+    public void enhanceRestTemplateWithSofaTracer(RestTemplate restTemplate) {
+        // check interceptor
+        if (checkRestTemplateInterceptor(restTemplate)) {
+            return;
+        }
+        List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>(
+            restTemplate.getInterceptors());
+        interceptors.add(0, this.restTemplateInterceptor);
         restTemplate.setInterceptors(interceptors);
+    }
+
+    private boolean checkRestTemplateInterceptor(RestTemplate restTemplate) {
+        for (ClientHttpRequestInterceptor interceptor : restTemplate.getInterceptors()) {
+            if (interceptor instanceof RestTemplateInterceptor) {
+                return true;
+            }
+        }
+        return false;
     }
 }

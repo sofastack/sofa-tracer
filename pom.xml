@@ -32,6 +32,7 @@
         <module>tracer-test/log4j2-test</module>
         <module>tracer-test/log4j-test</module>
         <module>sofa-tracer-plugins/sofa-tracer-dubbo-2.6.x-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-spring-cloud-plugin</module>
     </modules>
 
     <properties>
@@ -139,6 +140,12 @@
 
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-spring-cloud-plugin</artifactId>
+                <version>${sofa.tracer.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
                 <artifactId>tracer-all</artifactId>
                 <version>${sofa.tracer.version}</version>
             </dependency>
@@ -167,6 +174,13 @@
                 <groupId>io.opentracing</groupId>
                 <artifactId>opentracing-util</artifactId>
                 <version>${opentracing.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-openfeign</artifactId>
+                <version>1.4.7.RELEASE</version>
+                <scope>provided</scope>
             </dependency>
 
             <!-- 对外部框架的一些插件使用 -->
