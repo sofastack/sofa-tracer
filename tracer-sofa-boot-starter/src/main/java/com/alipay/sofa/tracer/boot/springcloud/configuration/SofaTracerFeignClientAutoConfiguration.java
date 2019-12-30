@@ -38,4 +38,9 @@ public class SofaTracerFeignClientAutoConfiguration {
     public SofaTracerFeignContextBeanPostProcessor feignContextBeanPostProcessor(BeanFactory beanFactory) {
         return new SofaTracerFeignContextBeanPostProcessor(beanFactory);
     }
+
+    @Bean
+    public FeignTracerRequestInterceptor feignTracerRequestInterceptor() {
+        return new FeignTracerRequestInterceptor();
+    }
 }
