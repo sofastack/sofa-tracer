@@ -105,6 +105,10 @@ public class SofaTracerConfiguration {
      * app name
      */
     public static final String                     TRACER_APPNAME_KEY                           = "spring.application.name";
+    /**
+     * jdbc url
+     */
+    public static final String                     TRACER_JDBC_URL_KEY                          = "spring.datasource.url";
 
     private static Map<String, Object>             properties                                   = new ConcurrentHashMap<String, Object>();
 
