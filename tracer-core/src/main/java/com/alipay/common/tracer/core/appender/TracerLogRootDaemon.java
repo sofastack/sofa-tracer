@@ -16,17 +16,17 @@
  */
 package com.alipay.common.tracer.core.appender;
 
+import java.io.File;
+import java.nio.charset.Charset;
+
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.appender.self.TracerDaemon;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 
-import java.io.File;
-import java.nio.charset.Charset;
-
 /**
  * TracerLogRootDaemon
- *
+ * <p>
  * Not obtained from the configuration project, obtained directly from the system properties
  *
  * @author yangguanchao
@@ -37,12 +37,12 @@ public class TracerLogRootDaemon {
     /**
      * Whether to add pid to log path
      */
-    public static final String  TRACER_APPEND_PID_TO_LOG_PATH_KEY = "tracer_append_pid_to_log_path";
+    public static final String TRACER_APPEND_PID_TO_LOG_PATH_KEY = "tracer_append_pid_to_log_path";
 
     /**
      * Log directory
      */
-    public static String        LOG_FILE_DIR;
+    public static       String  LOG_FILE_DIR;
     /**
      * The encoding is determined by LANG or -Dfile.encoding,
      * so if the system determines the log encoding based on the system encoding,
@@ -51,20 +51,32 @@ public class TracerLogRootDaemon {
      * there is LANG=zh_CN.GB18030 in deploy/bin/templates/jbossctl.sh,
      * so no matter what value LANG is set in the environment variable, it will be overwritten at startup.
      */
-    static public final Charset DEFAULT_CHARSET                   = Charset.defaultCharset();
+    static public final Charset DEFAULT_CHARSET = Charset.defaultCharset();
 
     static {
         String loggingRoot = System.getProperty("loggingRoot");
         if (StringUtils.isBlank(loggingRoot)) {
+            loggingRoot = System.getProperty("com.alipay.sofa.tracer.logging.path");
+        }
+        if (StringUtils.isBlank(loggingRoot)) {
+            loggingRoot = System.getenv("com.alipay.sofa.tracer.logging.path");
+        }
+        // linux 下设置一个带有 '.' 的环境变量比较麻烦, 所以我们也支持用下划线风格
+        if (StringUtils.isBlank(loggingRoot)) {
+            loggingRoot = System.getProperty("com_alipay_sofa_tracer_logging_path");
+        }
+        if (StringUtils.isBlank(loggingRoot)) {
+            loggingRoot = System.getenv("com_alipay_sofa_tracer_logging_path");
+        }
+        if (StringUtils.isBlank(loggingRoot)) {
             loggingRoot = System.getProperty("logging.path");
+        }
+        if (StringUtils.isBlank(loggingRoot)) {
+            loggingRoot = System.getProperty("user.home") + File.separator + "logs";
         }
 
         String appendPidToLogPathString = System.getProperty(TRACER_APPEND_PID_TO_LOG_PATH_KEY);
         boolean appendPidToLogPath = "true".equalsIgnoreCase(appendPidToLogPathString);
-
-        if (StringUtils.isBlank(loggingRoot)) {
-            loggingRoot = System.getProperty("user.home") + File.separator + "logs";
-        }
 
         String tempLogFileDir = loggingRoot + File.separator + "tracelog";
 
@@ -76,6 +88,7 @@ public class TracerLogRootDaemon {
 
         try {
             TracerDaemon.start();
+            SelfLog.info("LOG_FILE_DIR is " + LOG_FILE_DIR);
         } catch (Throwable e) {
             SelfLog.error("Failed to start Tracer Daemon Thread", e);
         }
