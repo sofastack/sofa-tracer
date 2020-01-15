@@ -16,14 +16,19 @@
  */
 package com.alipay.sofa.tracer.boot.springcloud.configuration;
 
+import com.alipay.sofa.tracer.boot.springcloud.configuration.hystrix.SofaTracerHystrixConcurrencyStrategy;
+import com.alipay.sofa.tracer.boot.springcloud.configuration.hystrix.SofaTracerHystrixFeignBuilder;
 import feign.Client;
+import feign.Feign;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/13 6:04 PM
@@ -37,5 +42,24 @@ public class SofaTracerFeignClientAutoConfiguration {
     @Bean
     public SofaTracerFeignContextBeanPostProcessor feignContextBeanPostProcessor(BeanFactory beanFactory) {
         return new SofaTracerFeignContextBeanPostProcessor(beanFactory);
+    }
+
+    @Bean
+    public FeignTracerRequestInterceptor feignTracerRequestInterceptor() {
+        return new FeignTracerRequestInterceptor();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    SofaTracerHystrixConcurrencyStrategy sleuthHystrixConcurrencyStrategy() {
+        return new SofaTracerHystrixConcurrencyStrategy();
+    }
+
+    @Bean
+    @Scope("prototype")
+    @ConditionalOnClass(name = { "com.netflix.hystrix.HystrixCommand", "feign.hystrix.HystrixFeign" })
+    @ConditionalOnProperty(name = "feign.hystrix.enabled", havingValue = "true")
+    Feign.Builder feignHystrixBuilder() {
+        return SofaTracerHystrixFeignBuilder.builder();
     }
 }

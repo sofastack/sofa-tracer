@@ -18,6 +18,7 @@ package com.alipay.sofa.tracer.plugins.springcloud.carriers;
 
 import feign.Request;
 import io.opentracing.propagation.TextMap;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -45,11 +46,14 @@ public class FeignRequestCarrier implements TextMap {
 
     @Override
     public void put(String key, String val) {
-        Collection<String> vals = request.headers().get(key);
-        if (vals == null) {
-            vals = new ArrayList<>();
+        if (request != null) {
+            Collection<String> vals = request.headers().get(key);
+            if (vals == null) {
+                vals = new ArrayList<>();
+            }
+            vals.clear();
+            vals.add(val);
+            request.headers().put(key, vals);
         }
-        vals.add(val);
-        request.headers().put(key, vals);
     }
 }
