@@ -16,15 +16,9 @@
  */
 package com.alipay.sofa.tracer.boot.springmvc;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
-import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
-import com.alipay.sofa.tracer.boot.TestUtil;
-import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
-import com.alipay.sofa.tracer.boot.base.SpringBootWebApplication;
-import com.alipay.sofa.tracer.boot.base.controller.SampleRestController;
-import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcLogEnum;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,8 +29,15 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
-import java.util.List;
-import java.util.Map;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
+import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterManager;
+import com.alipay.sofa.tracer.boot.TestUtil;
+import com.alipay.sofa.tracer.boot.base.AbstractTestBase;
+import com.alipay.sofa.tracer.boot.base.SpringBootWebApplication;
+import com.alipay.sofa.tracer.boot.base.controller.SampleRestController;
+import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcLogEnum;
 
 import static org.junit.Assert.*;
 
@@ -101,7 +102,9 @@ public class SpringMvcFilterJsonOutputTest extends AbstractTestBase {
         //wait for async output
         List<String> statContents = FileUtils
             .readLines(customFileLog(SpringMvcLogEnum.SPRING_MVC_STAT.getDefaultLogName()));
-        assertEquals(2, statContents.size());
+
+        // 在很慢的机器上此处不能保证一定是2条, 但>=2
+        assertTrue(statContents.size() >= 2);
     }
 
     private static <K, V> Map<K, V> parseToMap(String json, Class<K> keyType, Class<V> valueType) {
