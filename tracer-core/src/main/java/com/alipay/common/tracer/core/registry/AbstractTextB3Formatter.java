@@ -44,15 +44,15 @@ public abstract class AbstractTextB3Formatter implements RegistryExtractorInject
     /**
      * "1" implies sampled and is a request to override collection-tier sampling policy.
      */
-    static final String        FLAGS_KEY_HEAD          = "X-B3-Flags";
+    public static final String FLAGS_KEY_HEAD          = "X-B3-Flags";
     /**
      * Baggage items prefix
      */
-    static final String        BAGGAGE_KEY_PREFIX      = "baggage-";
+    public static final String BAGGAGE_KEY_PREFIX      = "baggage-";
     /**
      * System Baggage items prefix
      */
-    static final String        BAGGAGE_SYS_KEY_PREFIX  = "baggage-sys-";
+    public static final String BAGGAGE_SYS_KEY_PREFIX  = "baggage-sys-";
 
     @Override
     public SofaTracerSpanContext extract(TextMap carrier) {
