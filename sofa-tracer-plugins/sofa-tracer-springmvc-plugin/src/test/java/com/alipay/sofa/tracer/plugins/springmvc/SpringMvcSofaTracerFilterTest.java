@@ -115,7 +115,7 @@ public class SpringMvcSofaTracerFilterTest extends AbstractTestBase {
         //wait for async output
         List<String> result = FileUtils.readLines(new File(logDirectoryPath + File.separator
                                                            + "tracer-self.log"));
-        Assert.assertTrue(result.size() == 1);
+        Assert.assertTrue(result.size() == 2);
     }
 
     private void checkFile() {

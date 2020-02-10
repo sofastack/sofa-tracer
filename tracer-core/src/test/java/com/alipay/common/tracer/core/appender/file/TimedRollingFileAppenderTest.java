@@ -50,7 +50,7 @@ public class TimedRollingFileAppenderTest extends AbstractTestBase {
         timedRollingFileAppender.append(content);
 
         // wait to rolling
-        Thread.sleep(1100);
+        Thread.sleep(1500);
 
         timedRollingFileAppender.append(content);
         timedRollingFileAppender.flush();
