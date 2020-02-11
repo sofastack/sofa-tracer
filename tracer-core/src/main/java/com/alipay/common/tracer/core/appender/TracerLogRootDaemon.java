@@ -54,12 +54,12 @@ public class TracerLogRootDaemon {
     static public final Charset DEFAULT_CHARSET                   = Charset.defaultCharset();
 
     static {
-        String loggingRoot = System.getProperty("loggingRoot");
-        if (StringUtils.isBlank(loggingRoot)) {
-            loggingRoot = System.getProperty("SOFA_TRACER_LOGGING_PATH");
-        }
+        String loggingRoot = System.getProperty("SOFA_TRACER_LOGGING_PATH");
         if (StringUtils.isBlank(loggingRoot)) {
             loggingRoot = System.getenv("SOFA_TRACER_LOGGING_PATH");
+        }
+        if (StringUtils.isBlank(loggingRoot)) {
+            loggingRoot = System.getProperty("loggingRoot");
         }
         if (StringUtils.isBlank(loggingRoot)) {
             loggingRoot = System.getProperty("logging.path");
