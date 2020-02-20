@@ -5,7 +5,7 @@
     <parent>
         <artifactId>tracer-all-parent</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>3.0.11</version>
+        <version>3.0.12.JST</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -66,6 +66,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-tracer-okhttp-plugin</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
         </dependency>
@@ -98,7 +103,7 @@
         <dependency>
             <groupId>io.zipkin.reporter2</groupId>
             <artifactId>zipkin-reporter</artifactId>
-            <version>2.7.13</version>
+            <version>2.7.15</version>
             <optional>true</optional>
         </dependency>
         <!-- test -->
