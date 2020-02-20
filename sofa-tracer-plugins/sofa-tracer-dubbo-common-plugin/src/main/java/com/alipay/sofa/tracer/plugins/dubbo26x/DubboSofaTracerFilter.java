@@ -55,7 +55,7 @@ import java.util.concurrent.Future;
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/2/26 2:02 PM
  * @since: 2.3.4
  **/
-@Activate(group = { Constants.PROVIDER, Constants.CONSUMER }, value = "dubboSofaTracerFilter", order = 1)
+@Activate(group = { Constants.PROVIDER, Constants.CONSUMER }, order = 1)
 public class DubboSofaTracerFilter implements Filter {
 
     private String                             appName         = StringUtils.EMPTY_STRING;

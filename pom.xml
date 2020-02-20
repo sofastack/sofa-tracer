@@ -134,7 +134,7 @@
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
-                <artifactId>sofa-tracer-dubbo-plugin</artifactId>
+                <artifactId>sofa-tracer-dubbo-common-plugin</artifactId>
                 <version>${sofa.tracer.version}</version>
             </dependency>
             <dependency>

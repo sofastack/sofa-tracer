@@ -51,7 +51,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/2/26 2:02 PM
  * @since: 2.3.4
  **/
-@Activate(group = { CommonConstants.PROVIDER, CommonConstants.CONSUMER }, value = "dubboSofaTracerFilter", order = 1)
+@Activate(group = { CommonConstants.PROVIDER, CommonConstants.CONSUMER }, order = 1)
 public class DubboSofaTracerFilter implements Filter {
 
     private String                             appName         = StringUtils.EMPTY_STRING;
