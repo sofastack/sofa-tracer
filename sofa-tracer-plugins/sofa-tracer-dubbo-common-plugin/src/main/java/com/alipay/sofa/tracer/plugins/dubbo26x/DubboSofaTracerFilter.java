@@ -44,6 +44,7 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.dubbo.constants.AttachmentKeyConstants;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboConsumerSofaTracer;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboProviderSofaTracer;
+
 import io.opentracing.tag.Tags;
 
 import java.util.HashMap;
@@ -58,17 +59,15 @@ import java.util.concurrent.Future;
 @Activate(group = { Constants.PROVIDER, Constants.CONSUMER }, order = 1)
 public class DubboSofaTracerFilter implements Filter {
 
-    private String                             appName         = StringUtils.EMPTY_STRING;
+    private String                             appName       = StringUtils.EMPTY_STRING;
 
-    private static final String                BLANK           = StringUtils.EMPTY_STRING;
-
-    private static final String                SPAN_INVOKE_KEY = "sofa.current.span.key";
+    private static final String                BLANK         = StringUtils.EMPTY_STRING;
 
     private DubboConsumerSofaTracer            dubboConsumerSofaTracer;
 
     private DubboProviderSofaTracer            dubboProviderSofaTracer;
 
-    private static Map<String, SofaTracerSpan> TracerSpanMap   = new ConcurrentHashMap<>();
+    private static Map<String, SofaTracerSpan> TracerSpanMap = new ConcurrentHashMap<>();
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
@@ -96,6 +95,7 @@ public class DubboSofaTracerFilter implements Filter {
 
     /**
      * rpc client handler
+     *
      * @param rpcContext
      * @param invoker
      * @param invocation
@@ -121,6 +121,8 @@ public class DubboSofaTracerFilter implements Filter {
             .serializeSpanContext();
         //put into attachments
         invocation.getAttachments().put(CommonSpanTags.RPC_TRACE_NAME, serializedSpanContext);
+        // 同时更新rpc上下文里的内容, 防止新版 com.alibaba.dubbo.rpc.protocol.AbstractInvoker.invoke 里又用rpcContext的attachments覆盖invocation的attachments
+        rpcContext.setAttachment(CommonSpanTags.RPC_TRACE_NAME, serializedSpanContext);
 
         boolean isOneWay = false, deferFinish = false;
 
@@ -151,7 +153,7 @@ public class DubboSofaTracerFilter implements Filter {
             // the case on async client invocation
             Future<Object> future = rpcContext.getFuture();
             if (future instanceof FutureAdapter) {
-                deferFinish = ensureSpanFinishes(future, invocation, invoker);
+                deferFinish = ensureSpanFinishes(future, invocation, invoker, sofaTracerSpan);
             }
             return result;
         } catch (RpcException e) {
@@ -177,8 +179,6 @@ public class DubboSofaTracerFilter implements Filter {
                         // Record client send event
                         sofaTracerSpan.log(LogData.CLIENT_SEND_EVENT_VALUE);
                     }
-                    // cache the current span
-                    TracerSpanMap.put(getTracerSpanMapKey(invoker), sofaTracerSpan);
                     if (clientSpan != null && clientSpan.getParentSofaTracerSpan() != null) {
                         //restore parent
                         sofaTraceContext.push(clientSpan.getParentSofaTracerSpan());
@@ -188,12 +188,14 @@ public class DubboSofaTracerFilter implements Filter {
         }
     }
 
-    boolean ensureSpanFinishes(Future<Object> future, Invocation invocation, Invoker<?> invoker) {
+    boolean ensureSpanFinishes(Future<Object> future, Invocation invocation, Invoker<?> invoker,
+                               SofaTracerSpan sofaTracerSpan) {
         boolean deferFinish = false;
         if (future instanceof FutureAdapter) {
             deferFinish = true;
             ResponseFuture original = ((FutureAdapter<Object>) future).getFuture();
-            ResponseFuture wrapped = new AsyncResponseFutureDelegate(invocation, invoker, original);
+            ResponseFuture wrapped = new AsyncResponseFutureDelegate(invocation, invoker, original,
+                sofaTracerSpan);
             // Ensures even if no callback added later, for example when a consumer, we finish the span
             wrapped.setCallback(null);
             RpcContext.getContext().setFuture(new FutureAdapter<>(wrapped));
@@ -203,6 +205,7 @@ public class DubboSofaTracerFilter implements Filter {
 
     /**
      * finish tracer under async
+     *
      * @param result
      * @param sofaTracerSpan
      * @param invocation
@@ -228,6 +231,7 @@ public class DubboSofaTracerFilter implements Filter {
 
     /**
      * handler when exception
+     *
      * @param error
      * @param span
      */
@@ -255,6 +259,7 @@ public class DubboSofaTracerFilter implements Filter {
 
     /**
      * rpc client handler
+     *
      * @param invoker
      * @param invocation
      * @return
@@ -304,6 +309,7 @@ public class DubboSofaTracerFilter implements Filter {
 
     /**
      * dubbo server receive request
+     *
      * @param invocation
      * @return
      */
@@ -312,6 +318,10 @@ public class DubboSofaTracerFilter implements Filter {
         tags.put(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
         String serializeSpanContext = invocation.getAttachments()
             .get(CommonSpanTags.RPC_TRACE_NAME);
+        RpcContext rpcContext = RpcContext.getContext();
+        if (rpcContext != null) {
+            rpcContext.removeAttachment(CommonSpanTags.RPC_TRACE_NAME);
+        }
         SofaTracerSpanContext sofaTracerSpanContext = SofaTracerSpanContext
             .deserializeFromString(serializeSpanContext);
         boolean isCalculateSampler = false;
@@ -342,6 +352,7 @@ public class DubboSofaTracerFilter implements Filter {
 
     /**
      * append tag
+     *
      * @param invocation
      * @param sofaTracerSpan
      * @param result
@@ -388,6 +399,7 @@ public class DubboSofaTracerFilter implements Filter {
 
     /**
      * parse dubbo attachment
+     *
      * @param value
      * @param defaultVal
      * @return
@@ -405,6 +417,7 @@ public class DubboSofaTracerFilter implements Filter {
 
     /**
      * set rpc server span tags
+     *
      * @param invoker
      * @param sofaTracerSpan
      */
@@ -431,6 +444,7 @@ public class DubboSofaTracerFilter implements Filter {
 
     /**
      * set rpc client span tags
+     *
      * @param invoker
      * @param sofaTracerSpan
      */
@@ -459,18 +473,6 @@ public class DubboSofaTracerFilter implements Filter {
         return rpcContext.isConsumerSide() ? Tags.SPAN_KIND_CLIENT : Tags.SPAN_KIND_SERVER;
     }
 
-    private static String getTracerSpanMapKey(Invoker<?> invoker) {
-        return SPAN_INVOKE_KEY + "." + invoker.hashCode();
-    }
-
-    private static SofaTracerSpan getAndClearTracerSpanMap(String spanKey) {
-        // clean TracerSpanMap
-        if (TracerSpanMap.containsKey(spanKey)) {
-            return TracerSpanMap.remove(spanKey);
-        }
-        return null;
-    }
-
     /**
      * ResponseFuture Delegate Class to Resolve ResponseCallBack are covered
      */
@@ -479,12 +481,15 @@ public class DubboSofaTracerFilter implements Filter {
         private final ResponseFuture responseFuture;
         private final Invocation     invocation;
         private final Invoker<?>     invoker;
+        private final SofaTracerSpan sofaTracerSpan;
 
         public AsyncResponseFutureDelegate(Invocation invocation, Invoker<?> invoker,
-                                           ResponseFuture responseFuture) {
+                                           ResponseFuture responseFuture,
+                                           SofaTracerSpan sofaTracerSpan) {
             this.responseFuture = responseFuture;
             this.invocation = invocation;
             this.invoker = invoker;
+            this.sofaTracerSpan = sofaTracerSpan;
         }
 
         @Override
@@ -500,7 +505,7 @@ public class DubboSofaTracerFilter implements Filter {
         @Override
         public void setCallback(ResponseCallback callback) {
             ResponseCallback delegate = TracingResponseCallback.create(callback, invocation,
-                invoker);
+                invoker, sofaTracerSpan);
             responseFuture.setCallback(delegate);
         }
 
@@ -513,42 +518,36 @@ public class DubboSofaTracerFilter implements Filter {
     static class TracingResponseCallback {
 
         static ResponseCallback create(ResponseCallback delegate, Invocation invocation,
-                                       Invoker<?> invoker) {
+                                       Invoker<?> invoker, SofaTracerSpan sofaTracerSpan) {
             if (delegate == null) {
-                return new FinishSpan(invocation, invoker);
+                return new FinishSpan(invocation, invoker, sofaTracerSpan);
             }
-            return new DelegateAndFinishSpan(delegate, invocation, invoker);
+            return new DelegateAndFinishSpan(delegate, invocation, invoker, sofaTracerSpan);
         }
 
         static class FinishSpan implements ResponseCallback {
 
-            final Invocation invocation;
-            final Invoker    invoker;
+            final Invocation     invocation;
+            final Invoker        invoker;
+            final SofaTracerSpan sofaSpan;
 
-            FinishSpan(Invocation invocation, Invoker invoker) {
+            FinishSpan(Invocation invocation, Invoker invoker, SofaTracerSpan sofaSpan) {
                 this.invocation = invocation;
                 this.invoker = invoker;
+                this.sofaSpan = sofaSpan;
             }
 
             @Override
             public void done(Object response) {
-                String spanKey = getTracerSpanMapKey(invoker);
-                // get and clear cache map
-                SofaTracerSpan sofaSpan = getAndClearTracerSpanMap(spanKey);
                 if (response instanceof RpcResult && sofaSpan != null) {
                     // add elapsed time
                     doFinishTracerUnderAsync((RpcResult) response, sofaSpan, invocation);
-                } else {
-                    SelfLog.warn("Dubbo async invoke call back response type is " + response
-                                 + " or span is null, current key is " + spanKey);
                 }
             }
 
             @Override
             public void caught(Throwable throwable) {
-                String spanKey = getTracerSpanMapKey(invoker);
                 // get and clear cache map
-                SofaTracerSpan sofaSpan = getAndClearTracerSpanMap(spanKey);
                 if (sofaSpan != null) {
                     handleError(throwable, sofaSpan);
                 }
@@ -559,8 +558,9 @@ public class DubboSofaTracerFilter implements Filter {
 
             final ResponseCallback origin;
 
-            DelegateAndFinishSpan(ResponseCallback origin, Invocation invocation, Invoker invoker) {
-                super(invocation, invoker);
+            DelegateAndFinishSpan(ResponseCallback origin, Invocation invocation, Invoker invoker,
+                                  SofaTracerSpan sofaSpan) {
+                super(invocation, invoker, sofaSpan);
                 this.origin = origin;
             }
 

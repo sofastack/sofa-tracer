@@ -30,7 +30,10 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.dubbo.constants.AttachmentKeyConstants;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboConsumerSofaTracer;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboProviderSofaTracer;
+
+import io.opentracing.SpanContext;
 import io.opentracing.tag.Tags;
+
 import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.remoting.TimeoutException;
@@ -54,17 +57,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @Activate(group = { CommonConstants.PROVIDER, CommonConstants.CONSUMER }, order = 1)
 public class DubboSofaTracerFilter implements Filter {
 
-    private String                             appName         = StringUtils.EMPTY_STRING;
+    private String                             appName       = StringUtils.EMPTY_STRING;
 
-    private static final String                BLANK           = StringUtils.EMPTY_STRING;
-
-    private static final String                SPAN_INVOKE_KEY = "sofa.current.span.key";
+    private static final String                BLANK         = StringUtils.EMPTY_STRING;
 
     private DubboConsumerSofaTracer            dubboConsumerSofaTracer;
 
     private DubboProviderSofaTracer            dubboProviderSofaTracer;
 
-    private static Map<String, SofaTracerSpan> TracerSpanMap   = new ConcurrentHashMap<String, SofaTracerSpan>();
+    private static Map<String, SofaTracerSpan> TracerSpanMap = new ConcurrentHashMap<String, SofaTracerSpan>();
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
@@ -92,44 +93,46 @@ public class DubboSofaTracerFilter implements Filter {
 
     @Override
     public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
-        String spanKey = getTracerSpanMapKey(invoker);
-        try {
-            // only the asynchronous callback to print
-            boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
-            if (!isAsync) {
-                return result;
+        // 不管是被调用(server) 还是 调出去(client) 都会进入这个方法
+        // 由于目前我们没有支持服务端异步调用, 因此在这个方法里不用处理这种case
+        // http://dubbo.apache.org/zh-cn/docs/user/demos/async-execute-on-provider.html
+        String tracerContextStr = invocation.getAttachment(CommonSpanTags.RPC_TRACE_NAME);
+        if (tracerContextStr == null) {
+            return result;
+        }
+        String spanKey = getTracerSpanMapKey(SofaTracerSpanContext
+            .deserializeFromString(tracerContextStr));
+        SofaTracerSpan sofaTracerSpan = TracerSpanMap.remove(spanKey);
+        // only the asynchronous callback to print
+        boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
+        if (!isAsync) {
+            return result;
+        }
+        if (sofaTracerSpan != null) {
+            // to build tracer instance
+            if (dubboConsumerSofaTracer == null) {
+                this.dubboConsumerSofaTracer = DubboConsumerSofaTracer
+                    .getDubboConsumerSofaTracerSingleton();
             }
-            if (TracerSpanMap.containsKey(spanKey)) {
-                SofaTracerSpan sofaTracerSpan = TracerSpanMap.get(spanKey);
-                // to build tracer instance
-                if (dubboConsumerSofaTracer == null) {
-                    this.dubboConsumerSofaTracer = DubboConsumerSofaTracer
-                        .getDubboConsumerSofaTracerSingleton();
+            String resultCode = SofaTracerConstant.RESULT_CODE_SUCCESS;
+            if (result.hasException()) {
+                if (result.getException() instanceof RpcException) {
+                    resultCode = Integer.toString(((RpcException) result.getException()).getCode());
+                    sofaTracerSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
+                } else {
+                    resultCode = SofaTracerConstant.RESULT_CODE_ERROR;
                 }
-                String resultCode = SofaTracerConstant.RESULT_CODE_SUCCESS;
-                if (result.hasException()) {
-                    if (result.getException() instanceof RpcException) {
-                        resultCode = Integer.toString(((RpcException) result.getException())
-                            .getCode());
-                        sofaTracerSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
-                    } else {
-                        resultCode = SofaTracerConstant.RESULT_CODE_ERROR;
-                    }
-                }
-                // add elapsed time
-                appendElapsedTimeTags(invocation, sofaTracerSpan, result, true);
-                dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, resultCode);
             }
-        } finally {
-            if (TracerSpanMap.containsKey(spanKey)) {
-                TracerSpanMap.remove(spanKey);
-            }
+            // add elapsed time
+            appendElapsedTimeTags(invocation, sofaTracerSpan, result, true);
+            dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, resultCode);
         }
         return result;
     }
 
     /**
      * rpc client handler
+     *
      * @param rpcContext
      * @param invoker
      * @param invocation
@@ -139,7 +142,7 @@ public class DubboSofaTracerFilter implements Filter {
         // to build tracer instance
         if (dubboConsumerSofaTracer == null) {
             this.dubboConsumerSofaTracer = DubboConsumerSofaTracer
-                .getDubboConsumerSofaTracerSingleton();
+                    .getDubboConsumerSofaTracerSingleton();
         }
         // get methodName
         String methodName = rpcContext.getMethodName();
@@ -147,14 +150,15 @@ public class DubboSofaTracerFilter implements Filter {
         String service = invoker.getInterface().getSimpleName();
         // build a dubbo rpc span
         SofaTracerSpan sofaTracerSpan = dubboConsumerSofaTracer.clientSend(service + "#"
-                                                                           + methodName);
+                + methodName);
         // set tags to span
         appendRpcClientSpanTags(invoker, sofaTracerSpan);
         // do serialized and then transparent transmission to the rpc server
         String serializedSpanContext = sofaTracerSpan.getSofaTracerSpanContext()
-            .serializeSpanContext();
+                .serializeSpanContext();
         //put into attachments
-        invocation.getAttachments().put(CommonSpanTags.RPC_TRACE_NAME, serializedSpanContext);
+        // 这里需要放到 RpcContext 里才对, 因为在 com.alibaba.dubbo.rpc.protocol.AbstractInvoker.invoke 里回拿RpcContext的attachments重新覆盖invocation的
+        rpcContext.setAttachment(CommonSpanTags.RPC_TRACE_NAME, serializedSpanContext);
         // check invoke type
         boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
         boolean isOneWay = false;
@@ -182,7 +186,7 @@ public class DubboSofaTracerFilter implements Filter {
                 }
             } else {
                 // add elapsed time
-                appendElapsedTimeTags(invocation, sofaTracerSpan, result,true);
+                appendElapsedTimeTags(invocation, sofaTracerSpan, result, true);
             }
         } catch (RpcException e) {
             exception = e;
@@ -193,7 +197,7 @@ public class DubboSofaTracerFilter implements Filter {
         } finally {
             if (exception != null) {
                 if (exception instanceof RpcException) {
-                    sofaTracerSpan.setTag(Tags.ERROR.getKey(),exception.getMessage());
+                    sofaTracerSpan.setTag(Tags.ERROR.getKey(), exception.getMessage());
                     RpcException rpcException = (RpcException) exception;
                     resultCode = String.valueOf(rpcException.getCode());
                 } else {
@@ -209,17 +213,18 @@ public class DubboSofaTracerFilter implements Filter {
                 if (clientSpan != null) {
                     // Record client send event
                     sofaTracerSpan.log(LogData.CLIENT_SEND_EVENT_VALUE);
+                    // cache the current span
+                    // 别使用invoker作为key, 因为它并不是每次请求都new一个, 而是复用的
+                    TracerSpanMap.put(getTracerSpanMapKey(clientSpan.getSofaTracerSpanContext()), sofaTracerSpan);
                 }
-                // cache the current span
-                TracerSpanMap.put(getTracerSpanMapKey(invoker), sofaTracerSpan);
                 if (clientSpan != null && clientSpan.getParentSofaTracerSpan() != null) {
                     //restore parent
                     sofaTraceContext.push(clientSpan.getParentSofaTracerSpan());
                 }
-                CompletableFuture<Object> future = (CompletableFuture<Object>) RpcContext.getContext().getFuture();
-                future.whenComplete((object, throwable)-> {
+                CompletableFuture<Object> future = (CompletableFuture<Object>) rpcContext.getFuture();
+                future.whenComplete((object, throwable) -> {
                     if (throwable != null && throwable instanceof TimeoutException) {
-                        sofaTracerSpan.setTag(Tags.ERROR.getKey(),throwable.getMessage());
+                        sofaTracerSpan.setTag(Tags.ERROR.getKey(), throwable.getMessage());
                         dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, "03");
                     }
                 });
@@ -230,6 +235,7 @@ public class DubboSofaTracerFilter implements Filter {
 
     /**
      * rpc client handler
+     *
      * @param invoker
      * @param invocation
      * @return
@@ -280,6 +286,7 @@ public class DubboSofaTracerFilter implements Filter {
     private SofaTracerSpan serverReceived(Invocation invocation) {
         Map<String, String> tags = new HashMap<>();
         tags.put(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
+        // 这里也可以从RpcContext取数据, 两者的结果应该是一样的
         String serializeSpanContext = invocation.getAttachments()
             .get(CommonSpanTags.RPC_TRACE_NAME);
         SofaTracerSpanContext sofaTracerSpanContext = SofaTracerSpanContext
@@ -362,6 +369,7 @@ public class DubboSofaTracerFilter implements Filter {
 
     /**
      * set rpc server span tags
+     *
      * @param invoker
      * @param sofaTracerSpan
      */
@@ -411,7 +419,7 @@ public class DubboSofaTracerFilter implements Filter {
         return rpcContext.isConsumerSide() ? Tags.SPAN_KIND_CLIENT : Tags.SPAN_KIND_SERVER;
     }
 
-    private String getTracerSpanMapKey(Invoker<?> invoker) {
-        return SPAN_INVOKE_KEY + "." + invoker.hashCode();
+    private String getTracerSpanMapKey(SofaTracerSpanContext context) {
+        return context.getTraceId() + "/" + context.getSpanId();
     }
 }
