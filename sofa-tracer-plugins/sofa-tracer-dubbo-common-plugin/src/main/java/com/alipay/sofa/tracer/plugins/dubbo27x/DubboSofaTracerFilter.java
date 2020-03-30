@@ -382,8 +382,8 @@ public class DubboSofaTracerFilter implements Filter {
         tagsStr.put(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread().getName());
         String protocol = rpcContext.getUrl().getProtocol();
         tagsStr.put(CommonSpanTags.PROTOCOL, protocol == null ? BLANK : protocol);
-        tagsStr.put(CommonSpanTags.LOCAL_HOST, rpcContext.getRemoteHost());
-        tagsStr.put(CommonSpanTags.LOCAL_PORT, String.valueOf(rpcContext.getRemotePort()));
+        tagsStr.put(CommonSpanTags.LOCAL_HOST, rpcContext.getLocalHost());
+        tagsStr.put(CommonSpanTags.LOCAL_PORT, String.valueOf(rpcContext.getLocalPort()));
     }
 
     private void appendRpcClientSpanTags(Invoker<?> invoker, SofaTracerSpan sofaTracerSpan) {
