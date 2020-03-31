@@ -5,7 +5,7 @@
     <parent>
         <artifactId>tracer-all-parent</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>3.0.11</version>
+        <version>3.0.12</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -21,6 +21,7 @@
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>3.12.1</version>
+            <optional>true</optional>
         </dependency>
         <!-- test dependency -->
         <dependency>
