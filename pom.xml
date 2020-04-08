@@ -145,7 +145,7 @@
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-mongodb-plugin</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
