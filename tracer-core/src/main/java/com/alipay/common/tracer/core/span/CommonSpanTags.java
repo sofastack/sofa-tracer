@@ -88,6 +88,8 @@ public class CommonSpanTags {
      */
     public static final String LOCAL_HOST              = "local.host";
 
+    public static final String PEER_HOST               = "peer.host";
+
     /**
      * LOCAL_PORT records the local port.
      */
