@@ -179,4 +179,8 @@ public class CommonSpanTags {
      */
     public static final String LOAD_TEST               = "load.test";
 
+    public static final String MSG_TOPIC               = "msg.topic";
+    public static final String MSG_ID                  = "msg.id";
+    public static final String MSG_CHANNEL             = "msg.channel";
+
 }

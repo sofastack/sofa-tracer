@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.springcloud.configuration;
+package com.alipay.sofa.tracer.boot.springcloud.processor;
 
 import com.alipay.sofa.tracer.plugins.springcloud.instruments.feign.SofaTracerFeignContext;
 import org.springframework.beans.BeansException;

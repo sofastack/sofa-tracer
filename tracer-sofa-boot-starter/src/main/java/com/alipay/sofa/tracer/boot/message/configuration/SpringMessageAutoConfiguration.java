@@ -14,29 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.springcloud.configuration;
+package com.alipay.sofa.tracer.boot.message.configuration;
 
-import feign.Client;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import com.alipay.sofa.tracer.boot.message.processor.StreamRocketMQTracerBeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.openfeign.FeignAutoConfiguration;
+import org.springframework.cloud.stream.messaging.DirectWithAttributesChannel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.alipay.sofa.tracer.boot.springcloud.processor.SofaTracerFeignContextBeanPostProcessor;
+import org.springframework.integration.channel.AbstractMessageChannel;
+import org.springframework.messaging.support.ChannelInterceptor;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/13 6:04 PM
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/12/4 10:34 PM
  * @since:
  **/
 @Configuration
-@ConditionalOnClass(Client.class)
-@AutoConfigureBefore(FeignAutoConfiguration.class)
-@ConditionalOnProperty(name = "com.alipay.sofa.tracer.feign.enabled", havingValue = "true", matchIfMissing = true)
-public class SofaTracerFeignClientAutoConfiguration {
+@ConditionalOnClass({ AbstractMessageChannel.class, ChannelInterceptor.class,
+                     DirectWithAttributesChannel.class })
+@ConditionalOnProperty(prefix = "com.alipay.sofa.tracer.message", value = "enable", matchIfMissing = true)
+public class SpringMessageAutoConfiguration {
+
     @Bean
-    public SofaTracerFeignContextBeanPostProcessor feignContextBeanPostProcessor(BeanFactory beanFactory) {
-        return new SofaTracerFeignContextBeanPostProcessor(beanFactory);
+    @ConditionalOnMissingBean
+    public StreamRocketMQTracerBeanPostProcessor streamRocketMQTracerBeanPostProcessor() {
+        return new StreamRocketMQTracerBeanPostProcessor();
     }
 }
