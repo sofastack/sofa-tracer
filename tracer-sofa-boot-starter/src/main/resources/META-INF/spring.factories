@@ -6,6 +6,7 @@ com.alipay.sofa.tracer.boot.datasource.configuration.SofaTracerDataSourceAutoCon
 com.alipay.sofa.tracer.boot.springcloud.configuration.SofaTracerFeignClientAutoConfiguration,\
 com.alipay.sofa.tracer.boot.message.configuration.SpringMessageAutoConfiguration,\
 com.alipay.sofa.tracer.boot.flexible.configuration.TracerAnnotationConfiguration,\
+com.alipay.sofa.tracer.boot.mongodb.configuration.SofaTracerMongoAutoConfiguration,\
 com.alipay.sofa.tracer.boot.resttemplate.SofaTracerRestTemplateConfiguration
 org.springframework.context.ApplicationListener=\
   com.alipay.sofa.tracer.boot.listener.SofaTracerConfigurationListener

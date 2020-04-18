@@ -27,6 +27,7 @@
         <module>sofa-tracer-plugins/sofa-tracer-resttmplate-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-flexible-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-dubbo-2.6.x-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-mongodb-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-springmessage-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-rocketmq-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-dubbo-common-plugin</module>
@@ -36,6 +37,7 @@
         <module>tracer-test/logback-test</module>
         <module>tracer-test/log4j2-test</module>
         <module>tracer-test/log4j-test</module>
+        <module>sofa-tracer-plugins/sofa-tracer-dubbo-common-plugin</module>
     </modules>
 
     <properties>
@@ -141,6 +143,11 @@
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-flexible-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-mongodb-plugin</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
