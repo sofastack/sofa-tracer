@@ -37,7 +37,6 @@
         <module>tracer-test/logback-test</module>
         <module>tracer-test/log4j2-test</module>
         <module>tracer-test/log4j-test</module>
-        <module>sofa-tracer-plugins/sofa-tracer-dubbo-common-plugin</module>
     </modules>
 
     <properties>
