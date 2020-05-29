@@ -420,13 +420,14 @@ public class DubboSofaTracerFilter implements Filter {
         String methodName = rpcContext.getMethodName();
         tagsStr.put(CommonSpanTags.METHOD, methodName == null ? BLANK : methodName);
         String app = rpcContext.getUrl().getParameter(Constants.APPLICATION_KEY);
-        tagsStr.put(CommonSpanTags.REMOTE_HOST, rpcContext.getRemoteHost());
         tagsStr.put(CommonSpanTags.LOCAL_APP, app == null ? BLANK : app);
         tagsStr.put(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread().getName());
         String protocol = rpcContext.getUrl().getProtocol();
         tagsStr.put(CommonSpanTags.PROTOCOL, protocol == null ? BLANK : protocol);
-        tagsStr.put(CommonSpanTags.LOCAL_HOST, rpcContext.getRemoteHost());
-        tagsStr.put(CommonSpanTags.LOCAL_PORT, String.valueOf(rpcContext.getRemotePort()));
+        tagsStr.put(CommonSpanTags.REMOTE_HOST, rpcContext.getRemoteHost());
+        tagsStr.put(CommonSpanTags.REMOTE_PORT, String.valueOf(rpcContext.getRemotePort()));
+        tagsStr.put(CommonSpanTags.LOCAL_HOST, rpcContext.getLocalHost());
+        tagsStr.put(CommonSpanTags.LOCAL_PORT, String.valueOf(rpcContext.getLocalPort()));
     }
 
     /**
