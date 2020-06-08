@@ -16,12 +16,10 @@
  */
 package com.alipay.sofa.tracer.boot.springmvc.configuration;
 
-import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.sofa.tracer.boot.configuration.SofaTracerAutoConfiguration;
 import com.alipay.sofa.tracer.boot.springmvc.properties.OpenTracingSpringMvcProperties;
 import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcSofaTracerFilter;
 import com.sofa.alipay.tracer.plugins.rest.SofaTracerRestTemplateBuilder;
-import io.opentracing.Span;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -35,9 +33,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.List;
 
 /**
@@ -85,19 +80,5 @@ public class OpenTracingSpringMvcAutoConfiguration {
     @ConditionalOnMissingBean
     public AsyncRestTemplate asyncRestTemplate() {
         return SofaTracerRestTemplateBuilder.buildAsyncRestTemplate();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public Span span() {
-        return (Span) Proxy.newProxyInstance(Span.class.getClassLoader(), new Class[]{Span.class}, new SpanProxyHandler());
-    }
-
-    class SpanProxyHandler implements InvocationHandler {
-        @Override
-        public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-            Span span = SofaTraceContextHolder.getSofaTraceContext().getCurrentSpan();
-            return method.invoke(span, objects);
-        }
     }
 }

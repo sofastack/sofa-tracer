@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.tracer.boot.configuration;
 
+import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.listener.SpanReportListenerHolder;
 import com.alipay.common.tracer.core.reporter.facade.Reporter;
@@ -24,6 +25,7 @@ import com.alipay.common.tracer.core.samplers.SamplerFactory;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 import com.alipay.sofa.tracer.plugin.flexible.FlexibleTracer;
+import io.opentracing.Span;
 import io.opentracing.Tracer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -31,6 +33,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.List;
 
 /**
@@ -67,5 +72,20 @@ public class SofaTracerAutoConfiguration {
         }
         Tracer tracer = new FlexibleTracer();
         return tracer;
+    }
+
+
+    @Bean
+    @ConditionalOnMissingBean
+    public Span span() {
+        return (Span) Proxy.newProxyInstance(Span.class.getClassLoader(), new Class[]{Span.class}, new SpanProxyHandler());
+    }
+
+    class SpanProxyHandler implements InvocationHandler {
+        @Override
+        public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
+            Span span = SofaTraceContextHolder.getSofaTraceContext().getCurrentSpan();
+            return method.invoke(span, objects);
+        }
     }
 }
