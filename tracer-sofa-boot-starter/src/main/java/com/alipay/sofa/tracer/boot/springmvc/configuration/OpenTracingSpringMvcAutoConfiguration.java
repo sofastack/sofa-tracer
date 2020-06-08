@@ -88,6 +88,7 @@ public class OpenTracingSpringMvcAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public Span span() {
         return (Span) Proxy.newProxyInstance(Span.class.getClassLoader(), new Class[]{Span.class}, new SpanProxyHandler());
     }
