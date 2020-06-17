@@ -65,6 +65,7 @@ SOFATracer 的编译环境的要求为 JDK7 或者 JDK8，需要采用 [Apache M
 * [SOFATracer 示例工程（SOFATracer 集成 SpringCloud）](https://github.com/sofastack-guides/sofa-tracer-guides/blob/master/tracer-sample-with-openfeign)
 * [SOFATracer 示例工程（SOFATracer 集成 Dubbo）](https://github.com/sofastack-guides/sofa-tracer-guides/blob/master/tracer-sample-with-dubbo)
 * [SOFATracer 示例工程（SOFATracer RestTemplate）](https://github.com/sofastack-guides/sofa-tracer-guides/blob/master/tracer-sample-with-resttemplate)
+* [SOFATracer 示例工程（SOFATracer 监听收集摘要日志）](https://github.com/sofastack-guides/sofa-tracer-guides/tree/master/tracer-sample-with-catchbiz)
  
 ## 六、文档
 
