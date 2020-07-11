@@ -33,16 +33,16 @@ import java.util.List;
  */
 public class SmartDataSource extends BaseDataSource {
 
-    private String appName;
+    private String                           appName;
 
-    private String database;
+    private String                           database;
 
-    private String dbType;
+    private String                           dbType;
 
-    private boolean isEnableTrace = Boolean.TRUE;
+    private boolean                          isEnableTrace = Boolean.TRUE;
 
-    private DataSourceClientTracer clientTracer = DataSourceClientTracer
-            .getDataSourceClientTracer();
+    private DataSourceClientTracer           clientTracer  = DataSourceClientTracer
+                                                               .getDataSourceClientTracer();
 
     /**
      * DataSource basic info. Including appName, dbType, dbName, dbEndpoint.
@@ -102,16 +102,16 @@ public class SmartDataSource extends BaseDataSource {
             String upperDbType = dbType.toUpperCase();
             if (!DBType.supportedDbTypes.containsKey(upperDbType)) {
                 throw new IllegalArgumentException("dbType: " + upperDbType
-                        + "not in support list: "
-                        + DBType.supportedDbTypes);
+                                                   + "not in support list: "
+                                                   + DBType.supportedDbTypes);
             }
             traceAnnotations
-                    .add(new KeyValueAnnotation(DataSourceTracerKeys.DATABASE_TYPE, dbType));
+                .add(new KeyValueAnnotation(DataSourceTracerKeys.DATABASE_TYPE, dbType));
             if (StringUtils.isBlank(database)) {
                 throw new IllegalArgumentException("database must not be null or empty");
             }
             traceAnnotations.add(new KeyValueAnnotation(DataSourceTracerKeys.DATABASE_NAME,
-                    database));
+                database));
             if (StringUtils.isBlank(appName)) {
                 throw new IllegalArgumentException("appName must not be null or empty");
             }
@@ -121,7 +121,7 @@ public class SmartDataSource extends BaseDataSource {
             String jdbcUrl = DataSourceUtils.getJdbcUrl(dataSource);
             //multiple virtual IPs point to the same database.
             traceAnnotations.add(new KeyValueAnnotation(DataSourceTracerKeys.DATABASE_ENDPOINT,
-                    getEndpointsStr(DataSourceUtils.getEndpointsFromConnectionURL(jdbcUrl))));
+                getEndpointsStr(DataSourceUtils.getEndpointsFromConnectionURL(jdbcUrl))));
 
             Prop prop = getProp();
             List<Interceptor> interceptors = getInterceptors();
@@ -144,15 +144,14 @@ public class SmartDataSource extends BaseDataSource {
     protected void setupConnectionTracerInterceptor() {
         List<Interceptor> dataSourceInterceptors = getDataSourceInterceptors();
         ConnectionTraceInterceptor connectionTraceInterceptor = new ConnectionTraceInterceptor(
-                traceAnnotations);
+            traceAnnotations);
         if (dataSourceInterceptors != null) {
             dataSourceInterceptors.add(connectionTraceInterceptor);
         } else {
             setDataSourceInterceptors(Collections
-                    .<Interceptor>singletonList(connectionTraceInterceptor));
+                .<Interceptor> singletonList(connectionTraceInterceptor));
         }
     }
-
 
     private String getEndpointsStr(List<Endpoint> endpoints) {
         if (null == endpoints) {
@@ -170,8 +169,7 @@ public class SmartDataSource extends BaseDataSource {
 
         StringBuilder sb = new StringBuilder();
         for (Endpoint endpoint : endpoints) {
-            sb.append(endpoint.getEndpoint())
-                    .append("/");
+            sb.append(endpoint.getEndpoint()).append("/");
         }
         return sb.substring(0, sb.lastIndexOf("/"));
     }
