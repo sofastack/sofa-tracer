@@ -119,6 +119,7 @@ public class SmartDataSource extends BaseDataSource {
 
             DataSource dataSource = getDelegate();
             String jdbcUrl = DataSourceUtils.getJdbcUrl(dataSource);
+            //multiple virtual IPs point to the same database.
             traceAnnotations.add(new KeyValueAnnotation(DataSourceTracerKeys.DATABASE_ENDPOINT,
                     getEndpointsStr(DataSourceUtils.getEndpointsFromConnectionURL(jdbcUrl))));
 
