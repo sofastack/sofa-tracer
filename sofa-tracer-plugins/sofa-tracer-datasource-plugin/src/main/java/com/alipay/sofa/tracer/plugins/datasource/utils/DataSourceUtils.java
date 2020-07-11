@@ -34,18 +34,18 @@ import java.util.List;
  */
 public class DataSourceUtils {
 
-    public static final String DS_DRUID_CLASS      = "com.alibaba.druid.pool.DruidDataSource";
+    public static final String DS_DRUID_CLASS = "com.alibaba.druid.pool.DruidDataSource";
 
-    public static final String DS_DBCP_CLASS       = "org.apache.commons.dbcp.BasicDataSource";
+    public static final String DS_DBCP_CLASS = "org.apache.commons.dbcp.BasicDataSource";
 
-    public static final String DS_C3P0_CLASS       = "com.mchange.v2.c3p0.ComboPooledDataSource";
+    public static final String DS_C3P0_CLASS = "com.mchange.v2.c3p0.ComboPooledDataSource";
 
-    public static final String DS_TOMCAT_CLASS     = "org.apache.tomcat.jdbc.pool.DataSource";
+    public static final String DS_TOMCAT_CLASS = "org.apache.tomcat.jdbc.pool.DataSource";
 
-    public static final String DS_HIKARI_CLASS     = "com.zaxxer.hikari.HikariDataSource";
+    public static final String DS_HIKARI_CLASS = "com.zaxxer.hikari.HikariDataSource";
 
-    public static final String METHOD_GET_URL      = "getUrl";
-    public static final String METHOD_SET_URL      = "setUrl";
+    public static final String METHOD_GET_URL = "getUrl";
+    public static final String METHOD_SET_URL = "setUrl";
 
     public static final String METHOD_GET_JDBC_URL = "getJdbcUrl";
     public static final String METHOD_SET_JDBC_URL = "setJdbcUrl";
@@ -100,7 +100,7 @@ public class DataSourceUtils {
         Method getUrlMethod;
         try {
             if (isDruidDataSource(dataSource) || isDbcpDataSource(dataSource)
-                || isTomcatDataSource(dataSource)) {
+                    || isTomcatDataSource(dataSource)) {
                 getUrlMethod = dataSource.getClass().getMethod(METHOD_GET_URL);
             } else if (isC3p0DataSource(dataSource) || isHikariDataSource(dataSource)) {
                 getUrlMethod = dataSource.getClass().getMethod(METHOD_GET_JDBC_URL);
@@ -123,7 +123,7 @@ public class DataSourceUtils {
         Method setUrlMethod;
         try {
             if (isDruidDataSource(dataSource) || isDbcpDataSource(dataSource)
-                || isTomcatDataSource(dataSource)) {
+                    || isTomcatDataSource(dataSource)) {
                 setUrlMethod = dataSource.getClass().getMethod(METHOD_SET_URL, String.class);
             } else if (isC3p0DataSource(dataSource) || isHikariDataSource(dataSource)) {
                 setUrlMethod = dataSource.getClass().getMethod(METHOD_SET_JDBC_URL, String.class);
@@ -168,19 +168,20 @@ public class DataSourceUtils {
         }
         return clazz.isAssignableFrom(dataSource.getClass());
     }
+
     public static List<Endpoint> getEndpointsFromConnectionURL(final String connectionURL) {
         String currentUri = StringUtils.EMPTY_STRING;
         List<Endpoint> endpoints = null;
-        if(StringUtils.isNotBlank(connectionURL) && connectionURL.startsWith(ORACLE_PREFIX_THIN)) {
+        if (StringUtils.isNotBlank(connectionURL) && connectionURL.startsWith(ORACLE_PREFIX_THIN)) {
             currentUri = connectionURL.substring(ORACLE_PREFIX_THIN.length());
             // parse endpoints by tns name.
             endpoints = parseEndpointByTnsName(currentUri);
-            if(endpoints == null || endpoints.size() == 0 ||
+            if (endpoints == null || endpoints.size() == 0 ||
                     null == endpoints.get(0) ||
                     StringUtils.isBlank(endpoints.get(0).getHost())) {
                 // easy tns or others db url be resolve. it's a single endpoint.
                 Endpoint singleEndpoint = getEndpointFromConnectionURL(connectionURL);
-                if(StringUtils.isBlank(singleEndpoint.getHost()) || 0 == singleEndpoint.getPort()) {
+                if (StringUtils.isBlank(singleEndpoint.getHost()) || 0 == singleEndpoint.getPort()) {
                     throw new IllegalArgumentException("check your connectionURL: " + connectionURL);
                 }
                 endpoints = Collections.singletonList(singleEndpoint);
@@ -232,7 +233,7 @@ public class DataSourceUtils {
         try {
             if (connectionURL.contains("jdbc:oracle:thin:@//")) {
                 int start = "jdbc:oracle:thin:@//".length()
-                            + connectionURL.indexOf("jdbc:oracle:thin:@//");
+                        + connectionURL.indexOf("jdbc:oracle:thin:@//");
                 int hostEnd = connectionURL.indexOf(':', start);
                 int portEnd = connectionURL.indexOf('/', hostEnd + 1);
                 host = connectionURL.substring(start, hostEnd);
@@ -243,7 +244,7 @@ public class DataSourceUtils {
                 }
             } else if (connectionURL.contains("jdbc:oracle:thin:@")) {
                 int start = "jdbc:oracle:thin:@".length()
-                            + connectionURL.indexOf("jdbc:oracle:thin:@");
+                        + connectionURL.indexOf("jdbc:oracle:thin:@");
                 int hostEnd = connectionURL.indexOf(':', start);
                 int portEnd = connectionURL.indexOf(':', hostEnd + 1);
                 host = connectionURL.substring(start, hostEnd);
@@ -311,7 +312,7 @@ public class DataSourceUtils {
             for (String segment : segments) {
                 if (segment.toLowerCase().contains("databasename=")) {
                     int start = segment.toLowerCase().indexOf("databasename=")
-                                + "databasename=".length();
+                            + "databasename=".length();
                     return segment.substring(start).trim();
                 }
             }
@@ -335,12 +336,12 @@ public class DataSourceUtils {
         }
         // tns service name.
         String oracleServiceName = url.substring(start + 1);
-        if(StringUtils.isNotBlank(oracleServiceName) && oracleServiceName.contains("DESCRIPTION")) {
+        if (StringUtils.isNotBlank(oracleServiceName) && oracleServiceName.contains("DESCRIPTION")) {
             final int idxServiceName = url.indexOf("SERVICE_NAME");
             final int startService = url.indexOf('=', idxServiceName) + 1;
             final int endService = url.indexOf(")", startService);
             final String serviceName = url.substring(startService, endService);
-            if(StringUtils.isBlank(serviceName)) {
+            if (StringUtils.isBlank(serviceName)) {
                 throw new IllegalArgumentException("Check your tns service name!");
             }
             return serviceName.trim();
