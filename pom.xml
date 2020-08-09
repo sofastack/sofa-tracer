@@ -30,6 +30,7 @@
         <module>sofa-tracer-plugins/sofa-tracer-mongodb-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-springmessage-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-rocketmq-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-rabbitmq-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-dubbo-common-plugin</module>
         <module>tracer-all</module>
         <module>tracer-sofa-boot-starter</module>
