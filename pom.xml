@@ -162,6 +162,11 @@
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-rabbitmq-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
                 <artifactId>tracer-all</artifactId>
                 <version>${project.version}</version>
             </dependency>

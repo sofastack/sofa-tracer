@@ -19,6 +19,7 @@ package com.sofa.alipay.tracer.plugins.rabbitmq.encoders;
 import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
+import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.tag.Tags;
@@ -36,9 +37,11 @@ public class RabbitMQConsumeDigestJsonEncoder extends AbstractDigestSpanEncoder 
     protected void appendComponentSlot(XStringBuilder xsb, JsonStringBuilder jsb,
                                        SofaTracerSpan span) {
         Map<String, String> tagsWithStr = span.getTagsWithStr();
-        jsb.append("exchange", tagsWithStr.get("exchange"));
-        jsb.append("rountingKey", tagsWithStr.get("rountingKey"));
-        jsb.append("queueName", tagsWithStr.get("queueName"));
+        jsb.append(CommonSpanTags.RABBIT_EXCHANGE, tagsWithStr.get(CommonSpanTags.RABBIT_EXCHANGE));
+        jsb.append(CommonSpanTags.RABBIT_ROUNTING_KEY,
+            tagsWithStr.get(CommonSpanTags.RABBIT_ROUNTING_KEY));
+        jsb.append(CommonSpanTags.RABBIT_QUEUE_NAME,
+            tagsWithStr.get(CommonSpanTags.RABBIT_QUEUE_NAME));
         if (StringUtils.isNotBlank(tagsWithStr.get(Tags.ERROR.getKey()))) {
             jsb.append(Tags.ERROR.getKey(), tagsWithStr.get(Tags.ERROR.getKey()));
         } else {

@@ -70,13 +70,14 @@ public class SofaTracerConsumeInterceptor implements MethodInterceptor, AfterAdv
 
     private void appendRequestSpanTags(SofaTracerSpan tracerSpan,
                                        MessageProperties messageProperties) {
-        // append tags/
+        // append some tags/
         tracerSpan.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread().getName());
         tracerSpan.setTag(CommonSpanTags.LOCAL_APP,
             SofaTracerConfiguration.getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY));
-        tracerSpan.setTag("exchange", messageProperties.getReceivedExchange());
-        tracerSpan.setTag("rountingKey", messageProperties.getReceivedRoutingKey());
-        tracerSpan.setTag("queueName", messageProperties.getConsumerQueue());
+        tracerSpan.setTag(CommonSpanTags.RABBIT_EXCHANGE, messageProperties.getReceivedExchange());
+        tracerSpan.setTag(CommonSpanTags.RABBIT_ROUNTING_KEY,
+            messageProperties.getReceivedRoutingKey());
+        tracerSpan.setTag(CommonSpanTags.RABBIT_QUEUE_NAME, messageProperties.getConsumerQueue());
     }
 
     private SofaTracerSpanContext getSpanContextFromHeaders(Map<String, Object> headers) {

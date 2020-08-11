@@ -42,9 +42,9 @@ public class RabbitMQConsumeStatReporter extends AbstractSofaTracerStatisticRepo
         Map<String, String> tagsWithStr = sofaTracerSpan.getTagsWithStr();
         StatKey statKey = new StatKey();
         String localApp = tagsWithStr.get(CommonSpanTags.LOCAL_APP);
-        String exchange = tagsWithStr.get("exchange");
-        String rountingKey = tagsWithStr.get("rountingKey");
-        String queueName = tagsWithStr.get("queueName");
+        String exchange = tagsWithStr.get(CommonSpanTags.RABBIT_EXCHANGE);
+        String rountingKey = tagsWithStr.get(CommonSpanTags.RABBIT_ROUNTING_KEY);
+        String queueName = tagsWithStr.get(CommonSpanTags.RABBIT_QUEUE_NAME);
         //method name
         statKey.setKey(buildString(new String[] { localApp, exchange, rountingKey, queueName }));
         //success

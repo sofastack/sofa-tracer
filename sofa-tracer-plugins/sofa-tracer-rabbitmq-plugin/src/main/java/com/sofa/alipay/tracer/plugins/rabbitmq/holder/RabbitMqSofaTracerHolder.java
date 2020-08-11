@@ -36,7 +36,6 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.util.Map;
 
 /**
  * RabbitMqSofaTracerHolder.
@@ -45,6 +44,9 @@ import java.util.Map;
  * @since  3.1.0-SNAPSHOT
  */
 public class RabbitMqSofaTracerHolder {
+
+    private final String           rabbitSendPostFix   = "-rabbit-send";
+
     private static final Field     FIELD_REPLY_TIMEOUT = ReflectionUtils.findField(
                                                            RabbitTemplate.class, "replyTimeout");
 
@@ -74,7 +76,7 @@ public class RabbitMqSofaTracerHolder {
                                              ProceedFunction<T> proceedCallback) throws Throwable {
         T resp = null;
         String operationName = Thread.currentThread().getStackTrace()[1].getMethodName();
-        operationName = operationName + "-rabbit-send";
+        operationName = operationName + rabbitSendPostFix;
         String resultCode = StringUtils.EMPTY_STRING;
         Message convertedMessage = convertMessageIfNecessary(message);
         SofaTracerSpan tracerSpan = null;
@@ -108,7 +110,7 @@ public class RabbitMqSofaTracerHolder {
                 currentSpan.setTag(Tags.ERROR.getKey(), t.getMessage());
             }
             if (0 != replyTimeout) {
-                currentSpan.setTag("replyTimeout", replyTimeout);
+                currentSpan.setTag(CommonSpanTags.RABBIT_REPLY_TIME_OUT, replyTimeout);
             }
             rabbitMQSendTracer.clientReceive(resultCode);
         }
@@ -125,12 +127,12 @@ public class RabbitMqSofaTracerHolder {
     private void appendRequestSpanTagsAndInject(SofaTracerSpan tracerSpan, String exchange,
                                                 String routingKey, Message convertedMessage) {
         MessageProperties properties = convertedMessage.getMessageProperties();
-        // append tags
+        // append some tags
         tracerSpan.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread().getName());
         tracerSpan.setTag(CommonSpanTags.LOCAL_APP,
             SofaTracerConfiguration.getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY));
-        tracerSpan.setTag("exchange", exchange);
-        tracerSpan.setTag("rountingKey", routingKey);
+        tracerSpan.setTag(CommonSpanTags.RABBIT_EXCHANGE, exchange);
+        tracerSpan.setTag(CommonSpanTags.RABBIT_ROUNTING_KEY, routingKey);
         // inject
         injectCarrier(tracerSpan, properties);
     }

@@ -42,9 +42,12 @@ public class RabbitMQConsumeStatJsonReporter extends AbstractSofaTracerStatistic
         Map<String, String> tagsWithStr = sofaTracerSpan.getTagsWithStr();
         StatMapKey statKey = new StatMapKey();
         statKey.addKey(CommonSpanTags.LOCAL_APP, tagsWithStr.get(CommonSpanTags.LOCAL_APP));
-        statKey.addKey("exchange", tagsWithStr.get("exchange"));
-        statKey.addKey("rountingKey", tagsWithStr.get("rountingKey"));
-        statKey.addKey("queueName", tagsWithStr.get("queueName"));
+        statKey.addKey(CommonSpanTags.RABBIT_EXCHANGE,
+            tagsWithStr.get(CommonSpanTags.RABBIT_EXCHANGE));
+        statKey.addKey(CommonSpanTags.RABBIT_ROUNTING_KEY,
+            tagsWithStr.get(CommonSpanTags.RABBIT_ROUNTING_KEY));
+        statKey.addKey(CommonSpanTags.RABBIT_QUEUE_NAME,
+            tagsWithStr.get(CommonSpanTags.RABBIT_QUEUE_NAME));
         String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
         boolean success = isMQSimpleSuccess(resultCode);
         statKey.setResult(success ? SofaTracerConstant.STAT_FLAG_SUCCESS

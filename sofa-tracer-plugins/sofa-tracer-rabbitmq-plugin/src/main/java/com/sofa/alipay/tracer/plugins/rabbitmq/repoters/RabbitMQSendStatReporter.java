@@ -42,8 +42,8 @@ public class RabbitMQSendStatReporter extends AbstractSofaTracerStatisticReporte
         Map<String, String> tagsWithStr = sofaTracerSpan.getTagsWithStr();
         StatKey statKey = new StatKey();
         String localApp = tagsWithStr.get(CommonSpanTags.LOCAL_APP);
-        String exchange = tagsWithStr.get("exchange");
-        String rountingKey = tagsWithStr.get("rountingKey");
+        String exchange = tagsWithStr.get(CommonSpanTags.RABBIT_EXCHANGE);
+        String rountingKey = tagsWithStr.get(CommonSpanTags.RABBIT_ROUNTING_KEY);
         //method name
         statKey.setKey(buildString(new String[] { localApp, exchange, rountingKey }));
         //success
