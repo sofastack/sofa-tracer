@@ -4,7 +4,7 @@
     <parent>
         <artifactId>tracer-all-parent</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>3.0.12</version>
+        <version>3.0.13</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

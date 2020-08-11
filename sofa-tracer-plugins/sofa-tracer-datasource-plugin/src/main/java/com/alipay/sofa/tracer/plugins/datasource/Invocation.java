@@ -49,11 +49,7 @@ public class Invocation {
         return args;
     }
 
-    public Object invoke() {
-        try {
-            return method.invoke(target, args);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public Object invoke() throws Exception {
+        return method.invoke(target, args);
     }
 }
