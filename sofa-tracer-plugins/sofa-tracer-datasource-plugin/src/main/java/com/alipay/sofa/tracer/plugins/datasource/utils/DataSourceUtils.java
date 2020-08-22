@@ -22,6 +22,9 @@ import com.alipay.sofa.tracer.plugins.datasource.tracer.Endpoint;
 
 import java.lang.reflect.Method;
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author shusong.yss
@@ -45,6 +48,10 @@ public class DataSourceUtils {
 
     public static final String METHOD_GET_JDBC_URL = "getJdbcUrl";
     public static final String METHOD_SET_JDBC_URL = "setJdbcUrl";
+
+    public static final String ORACLE_PREFIX_THIN  = "jdbc:oracle:thin:";
+
+    public static final int    ORACLE_DEFAULT_PORT = 1521;
 
     public static boolean isDruidDataSource(Object dataSource) {
         return isTargetDataSource(DS_DRUID_CLASS, dataSource);
@@ -162,6 +169,62 @@ public class DataSourceUtils {
         return clazz.isAssignableFrom(dataSource.getClass());
     }
 
+    public static List<Endpoint> getEndpointsFromConnectionURL(final String connectionURL) {
+        String currentUri = StringUtils.EMPTY_STRING;
+        List<Endpoint> endpoints = null;
+        if (StringUtils.isNotBlank(connectionURL) && connectionURL.startsWith(ORACLE_PREFIX_THIN)) {
+            currentUri = connectionURL.substring(ORACLE_PREFIX_THIN.length());
+            // parse endpoints by tns name.
+            endpoints = parseEndpointByTnsName(currentUri);
+            if (endpoints == null || endpoints.size() == 0 || null == endpoints.get(0)
+                || StringUtils.isBlank(endpoints.get(0).getHost())) {
+                // easy tns or others db url be resolve. it's a single endpoint.
+                Endpoint singleEndpoint = getEndpointFromConnectionURL(connectionURL);
+                if (StringUtils.isBlank(singleEndpoint.getHost()) || 0 == singleEndpoint.getPort()) {
+                    throw new IllegalArgumentException("check your connectionURL: " + connectionURL);
+                }
+                endpoints = Collections.singletonList(singleEndpoint);
+            }
+            return endpoints;
+        }
+        return Collections.emptyList();
+    }
+
+    private static List<Endpoint> parseEndpointByTnsName(final String url) {
+        int beginIndex = url.indexOf("DESCRIPTION");
+        if (beginIndex == -1) {
+            return null;
+        }
+        //multiple virtual IPs point to the same database.
+        List<Endpoint> endpoints = new ArrayList<Endpoint>();
+        Endpoint currEndpoint = null;
+        do {
+            int hostStartIndex = url.indexOf("HOST", beginIndex);
+            if (hostStartIndex == -1) {
+                break;
+            }
+            int equalStartIndex = url.indexOf("=", hostStartIndex);
+            int hostEndIndex = url.indexOf(")", hostStartIndex);
+            String host = url.substring(equalStartIndex + 1, hostEndIndex);
+
+            int port = ORACLE_DEFAULT_PORT;
+            int portStartIndex = url.indexOf("PORT", hostEndIndex);
+            int portEndIndex = url.length();
+            if (portStartIndex != -1) {
+                int portEqualStartIndex = url.indexOf("=", portStartIndex);
+                portEndIndex = url.indexOf(")", portEqualStartIndex);
+                port = Integer
+                    .parseInt(url.substring(portEqualStartIndex + 1, portEndIndex).trim());
+            }
+            currEndpoint = new Endpoint();
+            currEndpoint.setHost(host.trim());
+            currEndpoint.setPort(port);
+            endpoints.add(currEndpoint);
+            beginIndex = portEndIndex;
+        } while (true);
+        return endpoints;
+    }
+
     // TODO only support mysql, oracle, h2 and sqlServer for now
     public static Endpoint getEndpointFromConnectionURL(final String connectionURL) {
         Endpoint endpoint = new Endpoint();
@@ -271,6 +334,19 @@ public class DataSourceUtils {
         if (end != -1) {
             return url.substring(start + 1, end);
         }
+        // tns service name.
+        String oracleServiceName = url.substring(start + 1);
+        if (StringUtils.isNotBlank(oracleServiceName) && oracleServiceName.contains("DESCRIPTION")) {
+            final int idxServiceName = url.indexOf("SERVICE_NAME");
+            final int startService = url.indexOf('=', idxServiceName) + 1;
+            final int endService = url.indexOf(")", startService);
+            final String serviceName = url.substring(startService, endService);
+            if (StringUtils.isBlank(serviceName)) {
+                throw new IllegalArgumentException("Check your tns service name!");
+            }
+            return serviceName.trim();
+        }
+        //others
         return url.substring(start + 1);
     }
 }
