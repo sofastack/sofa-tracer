@@ -41,6 +41,7 @@ public class SpringMvcStatReporter extends AbstractSofaTracerStatisticReporter {
     @Override
     public void doReportStat(SofaTracerSpan sofaTracerSpan) {
         Map<String, String> tagsWithStr = sofaTracerSpan.getTagsWithStr();
+        Map<String, Boolean> tagsWithBool = sofaTracerSpan.getTagsWithBool();
         StatKey statKey = new StatKey();
         statKey
             .setKey(buildString(new String[] { tagsWithStr.get(CommonSpanTags.LOCAL_APP),
@@ -51,6 +52,8 @@ public class SpringMvcStatReporter extends AbstractSofaTracerStatisticReporter {
             .isHttpOrMvcSuccess(resultCode));
         statKey.setResult(success ? SofaTracerConstant.DIGEST_FLAG_SUCCESS
             : SofaTracerConstant.DIGEST_FLAG_FAILS);
+        // no need to know the error.  ignore error flag and error msg.
+
         statKey.setEnd(buildString(new String[] { TracerUtils.getLoadTestMark(sofaTracerSpan) }));
         //pressure mark
         statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));

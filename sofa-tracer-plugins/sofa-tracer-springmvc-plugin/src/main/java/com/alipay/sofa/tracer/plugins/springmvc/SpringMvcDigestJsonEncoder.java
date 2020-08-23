@@ -38,6 +38,7 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
 
         Map<String, String> tagWithStr = span.getTagsWithStr();
         Map<String, Number> tagWithNum = span.getTagsWithNumber();
+        Map<String, Boolean> tagWithBoolean = span.getTagsWithBool();
         //Request URL
         jsb.append(CommonSpanTags.REQUEST_URL, tagWithStr.get(CommonSpanTags.REQUEST_URL));
         //Request method
@@ -48,5 +49,11 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
         Number responseSize = tagWithNum.get(CommonSpanTags.RESP_SIZE);
         //Response Body Size，(byte)
         jsb.append(CommonSpanTags.RESP_SIZE, (responseSize == null ? 0L : responseSize.longValue()));
+        //error flag and error msg.
+        Boolean error = tagWithBoolean.get(CommonSpanTags.ERROR);
+        if (null != error && error == Boolean.TRUE) {
+            jsb.append(CommonSpanTags.ERROR, error);
+            jsb.append(CommonSpanTags.ERROR_MESSAGE, tagWithStr.get(CommonSpanTags.ERROR_MESSAGE));
+        }
     }
 }

@@ -86,6 +86,10 @@ public class SpringMvcSofaTracerFilter implements Filter {
             responseSize = responseWrapper.getContentLength();
         } catch (Throwable t) {
             httpStatus = 500;
+            springMvcSpan.setTag(CommonSpanTags.ERROR, Boolean.TRUE);
+            // t may be is null, when some times.
+            springMvcSpan.setTag(CommonSpanTags.ERROR_MESSAGE, null != t ? t.getMessage()
+                : CommonSpanTags.ERROR_MESSAGE);
             throw new RuntimeException(t);
         } finally {
             if (springMvcSpan != null) {

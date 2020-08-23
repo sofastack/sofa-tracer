@@ -59,7 +59,6 @@ public class SpringMvcSofaTracerFilterTest extends AbstractTestBase {
             public void destroy() {
             }
         };
-
         try {
             filter.doFilter(request, response, mockFilterChain);
         } catch (Exception e) {
@@ -68,12 +67,14 @@ public class SpringMvcSofaTracerFilterTest extends AbstractTestBase {
         }
         Thread.sleep(500);
         //wait for async output
-        File file = new File(logDirectoryPath + File.separator + "tracer-self.log");
+        File file = new File(logDirectoryPath + File.separator + "tracer-self-test.log");
         if (file.exists()) {
             List<String> result = FileUtils.readLines(new File(logDirectoryPath + File.separator
-                                                               + "tracer-self.log"));
+                                                               + "tracer-self-test.log"));
             Assert.assertTrue(result.size() == 1);
         }
+        // check ./cpverage-report/xxx file.
+
         Assert.assertTrue(!file.exists());
     }
 
