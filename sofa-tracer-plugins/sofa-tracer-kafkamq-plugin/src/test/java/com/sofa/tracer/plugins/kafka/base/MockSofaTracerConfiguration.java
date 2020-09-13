@@ -45,17 +45,16 @@ public class MockSofaTracerConfiguration {
         return MockSofaTracer.getMockSofaTracer();
     }
 
-
     @Bean
     public ConsumerFactory<Integer, String> consumerFactory() {
         final Map<String, Object> consumerProps = new HashMap<>();
-//                KafkaTestUtils
-//                .consumerProps("sampleRawConsumer", "false", embeddedKafka.getEmbeddedKafka());
-//        consumerProps.put("auto.offset.reset", "earliest");
+        //                KafkaTestUtils
+        //                .consumerProps("sampleRawConsumer", "false", embeddedKafka.getEmbeddedKafka());
+        //        consumerProps.put("auto.offset.reset", "earliest");
 
-        return new SofaTracerKafkaConsumerFactory<>(new DefaultKafkaConsumerFactory<>(consumerProps));
+        return new SofaTracerKafkaConsumerFactory<>(
+            new DefaultKafkaConsumerFactory<>(consumerProps));
     }
-
 
     @Bean
     public ProducerFactory<Integer, String> producerFactory() {

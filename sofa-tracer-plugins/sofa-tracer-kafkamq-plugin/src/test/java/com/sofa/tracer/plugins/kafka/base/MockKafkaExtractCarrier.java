@@ -16,13 +16,11 @@
  */
 package com.sofa.tracer.plugins.kafka.base;
 
-
 import com.sofa.alipay.tracer.plugins.kafkamq.carrier.KafkaMqExtractCarrier;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.junit.Test;
 import org.springframework.util.Assert;
-
 
 import java.util.Map;
 
@@ -57,6 +55,5 @@ public class MockKafkaExtractCarrier {
 
         extractCarrier.put("testSofaTracerKey", "testSofaTracerValue");
     }
-
 
 }

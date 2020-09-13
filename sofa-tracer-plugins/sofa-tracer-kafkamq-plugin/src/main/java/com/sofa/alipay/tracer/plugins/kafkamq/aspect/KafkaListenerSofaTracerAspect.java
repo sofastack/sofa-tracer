@@ -33,7 +33,6 @@ public class KafkaListenerSofaTracerAspect {
 
     private KafkaMQConsumeTracer consumeTracer;
 
-
     @Around("@annotation(org.springframework.kafka.annotation.KafkaListener)")
     public void aroundKafkaConsumeAdvice(ProceedingJoinPoint joinPoint) throws Throwable {
         //start aop.

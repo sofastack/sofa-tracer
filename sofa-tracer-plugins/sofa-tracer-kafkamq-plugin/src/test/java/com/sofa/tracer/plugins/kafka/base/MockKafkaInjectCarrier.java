@@ -21,7 +21,6 @@ import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.junit.Test;
 
-
 /**
  * @author chenchen6  2020/9/12 16:28
  * @since 3.1.0-SNAPSHOT
