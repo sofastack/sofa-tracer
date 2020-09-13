@@ -16,8 +16,14 @@
  */
 package com.sofa.alipay.tracer.plugins.kafkamq.repoters;
 
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
+import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
+import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.TracerUtils;
+
+import java.util.Map;
 
 /**
  * KafkaMQSendStatReporter.
@@ -27,12 +33,34 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
  */
 public class KafkaMQSendStatReporter extends AbstractSofaTracerStatisticReporter {
 
-    public KafkaMQSendStatReporter(String statTracerName, String rollingPolicy, String logReserveConfig) {
+    public KafkaMQSendStatReporter(String statTracerName, String rollingPolicy,
+                                   String logReserveConfig) {
         super(statTracerName, rollingPolicy, logReserveConfig);
     }
 
     @Override
     public void doReportStat(SofaTracerSpan sofaTracerSpan) {
-
+        Map<String, String> tagsWithStr = sofaTracerSpan.getTagsWithStr();
+        Map<String, Number> tagsWithNumber = sofaTracerSpan.getTagsWithNumber();
+        StatKey statKey = new StatKey();
+        String localApp = tagsWithStr.get(CommonSpanTags.LOCAL_APP);
+        String topic = tagsWithStr.get(CommonSpanTags.KAFKA_TOPIC);
+        String partition = String.valueOf(tagsWithNumber.get(CommonSpanTags.KAFKA_PARTITION));
+        //build some tags.
+        statKey.setKey(buildString(new String[] { localApp, topic, partition }));
+        //result code
+        String resultCode = tagsWithStr.get(CommonSpanTags.RESULT_CODE);
+        boolean success = isMQSimpleSuccess(resultCode);
+        statKey.setResult(success ? SofaTracerConstant.STAT_FLAG_SUCCESS
+            : SofaTracerConstant.STAT_FLAG_FAILS);
+        statKey.setEnd(buildString(new String[] { TracerUtils.getLoadTestMark(sofaTracerSpan) }));
+        //pressure mark
+        statKey.setLoadTest(TracerUtils.isLoadTest(sofaTracerSpan));
+        //value the count and duration
+        long duration = sofaTracerSpan.getEndTime() - sofaTracerSpan.getStartTime();
+        long[] values = new long[] { 1, duration };
+        //reserve
+        this.addStat(statKey, values);
     }
+
 }

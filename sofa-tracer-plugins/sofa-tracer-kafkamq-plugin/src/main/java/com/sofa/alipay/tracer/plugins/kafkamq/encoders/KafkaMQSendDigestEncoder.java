@@ -19,7 +19,10 @@ package com.sofa.alipay.tracer.plugins.kafkamq.encoders;
 import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
+import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+
+import java.util.Map;
 
 /**
  *  KafkaMQSendDigestEncoder.
@@ -31,6 +34,9 @@ public class KafkaMQSendDigestEncoder extends AbstractDigestSpanEncoder {
     @Override
     protected void appendComponentSlot(XStringBuilder xsb, JsonStringBuilder jsb,
                                        SofaTracerSpan span) {
-
+        Map<String, String> tagWithStr = span.getTagsWithStr();
+        Map<String, Number> tagsWithNumber = span.getTagsWithNumber();
+        xsb.append(tagWithStr.get(CommonSpanTags.KAFKA_TOPIC));
+        xsb.append((Integer) tagsWithNumber.get(CommonSpanTags.KAFKA_PARTITION));
     }
 }

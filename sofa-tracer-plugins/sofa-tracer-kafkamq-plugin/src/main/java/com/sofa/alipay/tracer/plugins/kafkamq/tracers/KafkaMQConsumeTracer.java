@@ -25,6 +25,8 @@ import com.alipay.common.tracer.core.tracer.AbstractServerTracer;
 import com.sofa.alipay.tracer.plugins.kafkamq.encoders.KafkaMQConsumeDigestEncoder;
 import com.sofa.alipay.tracer.plugins.kafkamq.encoders.KafkaMQConsumeDigestJsonEncoder;
 import com.sofa.alipay.tracer.plugins.kafkamq.enums.KafkaMqLogEnum;
+import com.sofa.alipay.tracer.plugins.kafkamq.repoters.KafkaMQConsumeStatJsonReporter;
+import com.sofa.alipay.tracer.plugins.kafkamq.repoters.KafkaMQConsumeStatReporter;
 
 /**
  * KafkaMQConsumeTracer.
@@ -77,8 +79,24 @@ public class KafkaMQConsumeTracer extends AbstractServerTracer {
 
     @Override
     protected AbstractSofaTracerStatisticReporter generateServerStatReporter() {
+        KafkaMqLogEnum logEnum = KafkaMqLogEnum.MQ_CONSUME_STAT;
+        String statLog = logEnum.getDefaultLogName();
+        String statRollingPolicy = SofaTracerConfiguration
+            .getRollingPolicy(logEnum.getRollingKey());
+        String statLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(logEnum
+            .getLogNameKey());
+        return getStatJsonReporter(statLog, statRollingPolicy, statLogReserveConfig);
+    }
 
-        // now, ignore.
-        return null;
+    protected AbstractSofaTracerStatisticReporter getStatJsonReporter(String statTracerName,
+                                                                      String statRollingPolicy,
+                                                                      String statLogReserveConfig) {
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new KafkaMQConsumeStatJsonReporter(statTracerName, statRollingPolicy,
+                statLogReserveConfig);
+        } else {
+            return new KafkaMQConsumeStatReporter(statTracerName, statRollingPolicy,
+                statLogReserveConfig);
+        }
     }
 }

@@ -19,7 +19,12 @@ package com.sofa.alipay.tracer.plugins.kafkamq.encoders;
 import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
+import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.tag.Tags;
+
+import java.util.Map;
 
 /**
  * KafkaMQSendDigestJsonEncoder.
@@ -31,6 +36,16 @@ public class KafkaMQSendDigestJsonEncoder extends AbstractDigestSpanEncoder {
     @Override
     protected void appendComponentSlot(XStringBuilder xsb, JsonStringBuilder jsb,
                                        SofaTracerSpan span) {
-
+        Map<String, String> tagsWithStr = span.getTagsWithStr();
+        Map<String, Number> tagsWithNumber = span.getTagsWithNumber();
+        //
+        jsb.append(CommonSpanTags.KAFKA_TOPIC, tagsWithStr.get(CommonSpanTags.KAFKA_TOPIC));
+        jsb.append(CommonSpanTags.KAFKA_PARTITION,
+            tagsWithNumber.get(CommonSpanTags.KAFKA_PARTITION));
+        if (StringUtils.isNotBlank(tagsWithStr.get(Tags.ERROR.getKey()))) {
+            jsb.append(Tags.ERROR.getKey(), tagsWithStr.get(Tags.ERROR.getKey()));
+        } else {
+            jsb.append(Tags.ERROR.getKey(), StringUtils.EMPTY_STRING);
+        }
     }
 }

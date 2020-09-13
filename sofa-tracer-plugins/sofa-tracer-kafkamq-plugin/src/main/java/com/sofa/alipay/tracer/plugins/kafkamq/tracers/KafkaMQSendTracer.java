@@ -25,6 +25,8 @@ import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
 import com.sofa.alipay.tracer.plugins.kafkamq.encoders.KafkaMQSendDigestEncoder;
 import com.sofa.alipay.tracer.plugins.kafkamq.encoders.KafkaMQSendDigestJsonEncoder;
 import com.sofa.alipay.tracer.plugins.kafkamq.enums.KafkaMqLogEnum;
+import com.sofa.alipay.tracer.plugins.kafkamq.repoters.KafkaMQSendStatJsonReporter;
+import com.sofa.alipay.tracer.plugins.kafkamq.repoters.KafkaMQSendStatReporter;
 
 /**
  *  KafkaMQSendTracer.
@@ -38,7 +40,6 @@ public class KafkaMQSendTracer extends AbstractClientTracer {
     public KafkaMQSendTracer() {
         super(ComponentNameConstants.KAFKAMQ_SEND);
     }
-
 
     public static KafkaMQSendTracer getKafkaMQSendTracerSingleton() {
         if (kafkaMQSendTracer == null) {
@@ -68,7 +69,7 @@ public class KafkaMQSendTracer extends AbstractClientTracer {
 
     @Override
     protected SpanEncoder<SofaTracerSpan> getClientDigestEncoder() {
-        if(SofaTracerConfiguration.isJsonOutput()) {
+        if (SofaTracerConfiguration.isJsonOutput()) {
             return new KafkaMQSendDigestJsonEncoder();
         } else {
             return new KafkaMQSendDigestEncoder();
@@ -77,6 +78,24 @@ public class KafkaMQSendTracer extends AbstractClientTracer {
 
     @Override
     protected AbstractSofaTracerStatisticReporter generateClientStatReporter() {
-        return null;
+        KafkaMqLogEnum logEnum = KafkaMqLogEnum.MQ_SEND_STAT;
+        String statLog = logEnum.getDefaultLogName();
+        String statRollingPolicy = SofaTracerConfiguration
+            .getRollingPolicy(logEnum.getRollingKey());
+        String statLogReserveConfig = SofaTracerConfiguration.getLogReserveConfig(logEnum
+            .getLogNameKey());
+        return getStatJsonReporter(statLog, statRollingPolicy, statLogReserveConfig);
+    }
+
+    protected AbstractSofaTracerStatisticReporter getStatJsonReporter(String statTracerName,
+                                                                      String statRollingPolicy,
+                                                                      String statLogReserveConfig) {
+        if (SofaTracerConfiguration.isJsonOutput()) {
+            return new KafkaMQSendStatJsonReporter(statTracerName, statRollingPolicy,
+                statLogReserveConfig);
+        } else {
+            return new KafkaMQSendStatReporter(statTracerName, statRollingPolicy,
+                statLogReserveConfig);
+        }
     }
 }
