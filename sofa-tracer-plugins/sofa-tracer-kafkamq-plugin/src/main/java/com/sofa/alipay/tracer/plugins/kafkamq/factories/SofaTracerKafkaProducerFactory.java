@@ -23,7 +23,7 @@ import org.springframework.kafka.core.ProducerFactory;
 
 /**
  * SofaTracerKafkaProducerFactory。
- *
+ * @author Malffeev
  * @author chenchen6
  * @since 3.1.0-SNAPSHOT
  */

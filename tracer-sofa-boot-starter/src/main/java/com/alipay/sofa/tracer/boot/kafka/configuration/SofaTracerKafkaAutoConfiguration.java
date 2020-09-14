@@ -50,16 +50,19 @@ import org.springframework.kafka.core.ProducerFactory;
 public class SofaTracerKafkaAutoConfiguration {
 
     @Bean
-    public BeanPostProcessor kafkaConsumerFactoryPostProcessor() {
+    @ConditionalOnMissingBean
+    public KafkaConsumerFactoryPostProcessor kafkaConsumerFactoryPostProcessor() {
         return new KafkaConsumerFactoryPostProcessor();
     }
 
     @Bean
-    public BeanPostProcessor kafkaProducerFactoryPostProcessor() {
+    @ConditionalOnMissingBean
+    public KafkaProducerFactoryPostProcessor kafkaProducerFactoryPostProcessor() {
         return new KafkaProducerFactoryPostProcessor();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public KafkaListenerSofaTracerAspect kafkaListenerSofaTracerAspect() {
         return new KafkaListenerSofaTracerAspect();
     }

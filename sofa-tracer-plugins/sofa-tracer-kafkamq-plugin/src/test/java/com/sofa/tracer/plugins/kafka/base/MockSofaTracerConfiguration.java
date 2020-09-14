@@ -25,12 +25,18 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
-import org.springframework.kafka.core.*;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * MockSofaTracerConfiguration.
+ *
  * @author chenchen6  2020/9/13 21:31
  * @since 3.1.0-SNAPSHOT
  */
@@ -48,10 +54,6 @@ public class MockSofaTracerConfiguration {
     @Bean
     public ConsumerFactory<Integer, String> consumerFactory() {
         final Map<String, Object> consumerProps = new HashMap<>();
-        //                KafkaTestUtils
-        //                .consumerProps("sampleRawConsumer", "false", embeddedKafka.getEmbeddedKafka());
-        //        consumerProps.put("auto.offset.reset", "earliest");
-
         return new SofaTracerKafkaConsumerFactory<>(
             new DefaultKafkaConsumerFactory<>(consumerProps));
     }

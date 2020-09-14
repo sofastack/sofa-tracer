@@ -22,6 +22,8 @@ import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.junit.Test;
 
 /**
+ * copy chenchen6's rabbit mq InjectCarrierMock
+ *
  * @author chenchen6  2020/9/12 16:28
  * @since 3.1.0-SNAPSHOT
  */

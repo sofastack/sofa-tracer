@@ -25,6 +25,8 @@ import org.springframework.util.Assert;
 import java.util.Map;
 
 /**
+ * copy chenchen6's rabbit mq ExtractCarrierMock
+ *
  * @author chenchen6 2020/9/10 23:27
  * @since 3.1.0-SNAPSHOT
  */

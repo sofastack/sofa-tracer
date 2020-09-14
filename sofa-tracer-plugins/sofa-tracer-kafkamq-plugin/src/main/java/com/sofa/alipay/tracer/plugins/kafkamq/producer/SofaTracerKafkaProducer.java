@@ -46,6 +46,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * SofaTracerKafkaProducer.
  *
+ * copy form chenchen6's rabbit mq plugin.
+ *
  * @author chenchen6   2020/8/24 23:05
  *
  */
