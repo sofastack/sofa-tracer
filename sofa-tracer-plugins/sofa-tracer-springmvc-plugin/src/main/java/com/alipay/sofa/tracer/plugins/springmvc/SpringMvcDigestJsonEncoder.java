@@ -21,6 +21,8 @@ import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.tag.Tags;
 
 import java.util.Map;
 
@@ -38,7 +40,6 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
 
         Map<String, String> tagWithStr = span.getTagsWithStr();
         Map<String, Number> tagWithNum = span.getTagsWithNumber();
-        Map<String, Boolean> tagWithBoolean = span.getTagsWithBool();
         //Request URL
         jsb.append(CommonSpanTags.REQUEST_URL, tagWithStr.get(CommonSpanTags.REQUEST_URL));
         //Request method
@@ -50,10 +51,10 @@ public class SpringMvcDigestJsonEncoder extends AbstractDigestSpanEncoder {
         //Response Body Size，(byte)
         jsb.append(CommonSpanTags.RESP_SIZE, (responseSize == null ? 0L : responseSize.longValue()));
         //error flag and error msg.
-        Boolean error = tagWithBoolean.get(CommonSpanTags.ERROR);
-        if (null != error && error == Boolean.TRUE) {
-            jsb.append(CommonSpanTags.ERROR, error);
-            jsb.append(CommonSpanTags.ERROR_MESSAGE, tagWithStr.get(CommonSpanTags.ERROR_MESSAGE));
+        if (StringUtils.isNotBlank(tagWithStr.get(Tags.ERROR.getKey()))) {
+            jsb.append(Tags.ERROR.getKey(), tagWithStr.get(Tags.ERROR.getKey()));
+        } else {
+            jsb.append(Tags.ERROR.getKey(), StringUtils.EMPTY_STRING);
         }
     }
 }

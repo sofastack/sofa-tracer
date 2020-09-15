@@ -70,7 +70,7 @@ public class SpringMvcSofaTracerFilterTest extends AbstractTestBase {
         File file = new File(logDirectoryPath + File.separator + "tracer-self-test.log");
         if (file.exists()) {
             List<String> result = FileUtils.readLines(new File(logDirectoryPath + File.separator
-                                                               + "tracer-self-test.log"));
+                                                               + "tracer-self.log"));
             Assert.assertTrue(result.size() == 1);
         }
         // check ./cpverage-report/xxx file.

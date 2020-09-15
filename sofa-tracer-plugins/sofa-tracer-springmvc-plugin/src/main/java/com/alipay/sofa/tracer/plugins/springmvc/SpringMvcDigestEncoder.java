@@ -22,6 +22,8 @@ import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.tag.Tags;
 
 import java.util.Map;
 
@@ -38,7 +40,6 @@ public class SpringMvcDigestEncoder extends AbstractDigestSpanEncoder {
                                        SofaTracerSpan span) {
         Map<String, String> tagWithStr = span.getTagsWithStr();
         Map<String, Number> tagWithNum = span.getTagsWithNumber();
-        Map<String, Boolean> tagWithBoolean = span.getTagsWithBool();
         //URL
         xsb.append(tagWithStr.get(CommonSpanTags.REQUEST_URL));
         //method
@@ -52,10 +53,7 @@ public class SpringMvcDigestEncoder extends AbstractDigestSpanEncoder {
         //Response Body bytes
         xsb.append((responseSize == null ? 0L : responseSize.longValue()) + SofaTracerConstant.BYTE);
         // error flag and error msg.
-        Boolean error = tagWithBoolean.get(CommonSpanTags.ERROR);
-        if (null != error && error == Boolean.TRUE) {
-            xsb.append(CommonSpanTags.ERROR);
-            xsb.append(CommonSpanTags.ERROR_MESSAGE, tagWithStr.get(CommonSpanTags.ERROR_MESSAGE));
-        }
+        xsb.append(StringUtils.isBlank(tagWithStr.get(Tags.ERROR.getKey())) ? "" : tagWithStr
+                .get(Tags.ERROR.getKey()));
     }
 }

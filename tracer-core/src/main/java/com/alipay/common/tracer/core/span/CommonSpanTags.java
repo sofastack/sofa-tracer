@@ -176,14 +176,4 @@ public class CommonSpanTags {
      * LOAD_TEST is the span's stat log key for load.test
      */
     public static final String LOAD_TEST               = "load.test";
-
-    /**
-     * ERROR is the current span's error when an exception occurs.
-     */
-    public static final String ERROR                   = "error";
-
-    /**
-     * ERROR_MESSAGE is the current span's error.msg when an exception occurs.
-     */
-    public static final String ERROR_MESSAGE           = "error.msg";
 }
