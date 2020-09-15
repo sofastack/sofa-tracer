@@ -54,6 +54,6 @@ public class SpringMvcDigestEncoder extends AbstractDigestSpanEncoder {
         xsb.append((responseSize == null ? 0L : responseSize.longValue()) + SofaTracerConstant.BYTE);
         // error flag and error msg.
         xsb.append(StringUtils.isBlank(tagWithStr.get(Tags.ERROR.getKey())) ? "" : tagWithStr
-                .get(Tags.ERROR.getKey()));
+            .get(Tags.ERROR.getKey()));
     }
 }

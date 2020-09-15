@@ -94,7 +94,7 @@ public class SpringMvcSofaTracerFilter implements Filter {
             errorFlag = Boolean.TRUE;
             throw new RuntimeException(t);
         } finally {
-            if(errorFlag) {
+            if (errorFlag) {
                 springMvcSpan.setTag(Tags.ERROR.getKey(), currThrowable.getMessage());
             }
             if (springMvcSpan != null) {
