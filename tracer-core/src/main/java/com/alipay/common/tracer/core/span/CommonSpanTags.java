@@ -202,4 +202,19 @@ public class CommonSpanTags {
      * RABBIT_REPLY_TIME_OUT records the rabbit reply time out.
      */
     public static final String RABBIT_REPLY_TIME_OUT   = "replyTimeout";
+    /**
+     * KAFKA_TOPIC records the current span's topic.
+     */
+    public static final String KAFKA_TOPIC             = "kafka.topic";
+
+    /**
+     * KAFKA_TOPIC records the current span's partition.
+     */
+    public static final String KAFKA_PARTITION         = "kafka.partition";
+
+    /**
+     * KAFKA_TOPIC records the current span's offset.
+     */
+    public static final String KAFKA_OFFSET            = "kafka.offset";
+
 }
