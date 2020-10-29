@@ -184,6 +184,25 @@ public class CommonSpanTags {
     public static final String MSG_CHANNEL             = "msg.channel";
 
     /**
+     * RABBIT_EXCHANGE records the rabbit exchange.
+     */
+    public static final String RABBIT_EXCHANGE         = "exchange";
+
+    /**
+     * RABBIT_ROUNTING_KEY records the rabbit rounting key.
+     */
+    public static final String RABBIT_ROUNTING_KEY     = "rountingKey";
+
+    /**
+     * RABBIT_QUEUE_NAME records the rabbit queue name.
+     */
+    public static final String RABBIT_QUEUE_NAME       = "queueName";
+
+    /**
+     * RABBIT_REPLY_TIME_OUT records the rabbit reply time out.
+     */
+    public static final String RABBIT_REPLY_TIME_OUT   = "replyTimeout";
+    /**
      * KAFKA_TOPIC records the current span's topic.
      */
     public static final String KAFKA_TOPIC             = "kafka.topic";
