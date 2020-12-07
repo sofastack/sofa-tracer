@@ -367,4 +367,9 @@ public abstract class AbstractSofaTracerStatisticReporter implements SofaTracerS
                && (isHttpOrMvcSuccess(resultCode) || SofaTracerConstant.RESULT_CODE_SUCCESS
                    .equals(resultCode));
     }
+
+    protected boolean isMQSimpleSuccess(String resultCode) {
+        return StringUtils.isNotBlank(resultCode)
+               && SofaTracerConstant.RESULT_CODE_SUCCESS.equals(resultCode);
+    }
 }

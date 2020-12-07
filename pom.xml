@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>tracer-all-parent</artifactId>
-    <version>3.0.9-SNAPSHOT</version>
+    <version>3.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>tracer-all-parent</name>
     <description>Alipay SOFATracer Log Implemented by OpenTracing</description>
@@ -27,6 +27,12 @@
         <module>sofa-tracer-plugins/sofa-tracer-resttmplate-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-flexible-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-dubbo-2.6.x-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-mongodb-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-springmessage-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-rocketmq-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-dubbo-common-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-rabbitmq-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-kafkamq-plugin</module>
         <module>tracer-all</module>
         <module>tracer-sofa-boot-starter</module>
         <module>tracer-test/core-test</module>
@@ -37,7 +43,6 @@
 
     <properties>
         <opentracing.version>0.22.0</opentracing.version>
-        <sofa.tracer.version>3.0.9-SNAPSHOT</sofa.tracer.version>
         <java.compiler.source.version>1.8</java.compiler.source.version>
         <java.compiler.target.version>1.8</java.compiler.target.version>
         <jmh.version>1.9.3</jmh.version>
@@ -89,62 +94,92 @@
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>tracer-core</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>tracer-extensions</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-springmvc-plugin</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-httpclient-plugin</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-okhttp-plugin</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-resttmplate-plugin</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-datasource-plugin</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-zipkin-plugin</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-spring-cloud-plugin</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
-                <artifactId>sofa-tracer-dubbo-plugin</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <artifactId>sofa-tracer-dubbo-common-plugin</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-flexible-plugin</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-mongodb-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-springmessage-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-rocketmq-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-rabbitmq-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-kafkamq-plugin</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>tracer-all</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>tracer-sofa-boot-starter</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <!-- opentracing dependency -->
             <dependency>
@@ -173,6 +208,19 @@
                 <artifactId>spring-cloud-starter-openfeign</artifactId>
                 <version>2.1.0.RELEASE</version>
                 <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-stream</artifactId>
+                <version>2.1.0.RELEASE</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-client</artifactId>
+                <version>4.4.0</version>
             </dependency>
 
             <!-- 对外部框架的一些插件使用 -->

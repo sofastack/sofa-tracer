@@ -117,7 +117,11 @@ public class SofaTracerFeignClient implements Client {
         if (sofaTracerSpan == null) {
             return;
         }
-        sofaTracerSpan.setTag(CommonSpanTags.RESP_SIZE, response.body().length());
+        Integer responseSize = null;
+        if (response.body() != null) {
+            responseSize = response.body().length();
+        }
+        sofaTracerSpan.setTag(CommonSpanTags.RESP_SIZE, responseSize);
         sofaTracerSpan.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread().getName());
         sofaTracerSpan.setTag(CommonSpanTags.RESULT_CODE, response.status());
     }

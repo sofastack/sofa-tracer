@@ -24,6 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.alipay.sofa.tracer.boot.springcloud.processor.SofaTracerFeignContextBeanPostProcessor;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/13 6:04 PM
