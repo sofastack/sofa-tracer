@@ -57,7 +57,7 @@ public class SofaTracerKafkaConsumerFactory<K, V> implements ConsumerFactory<K, 
     public Consumer<K, V> createConsumer(String groupId, String clientIdPrefix,
                                          String clientIdSuffix) {
         return new SofaTracerKafkaConsumer<>(consumerFactory.createConsumer(groupId,
-            clientIdSuffix, clientIdSuffix));
+            clientIdPrefix, clientIdSuffix));
     }
 
     @Override

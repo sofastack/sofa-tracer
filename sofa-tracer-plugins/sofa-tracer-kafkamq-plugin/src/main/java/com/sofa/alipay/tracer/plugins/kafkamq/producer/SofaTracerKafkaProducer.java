@@ -19,6 +19,8 @@ package com.sofa.alipay.tracer.plugins.kafkamq.producer;
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
+import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
+import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
@@ -111,7 +113,8 @@ public class SofaTracerKafkaProducer<K, V> implements Producer<K, V> {
         SofaTracerSpan clientSpan = kafkaMQSendTracer.clientSend("mq" + kafkaSendPostFix);
         appendSpanTagsAndInject(producerRecord, clientSpan);
         // header read only when record is sent second time.
-        return producer.send(producerRecord, new SofaTracerCallback(callback, kafkaMQSendTracer));
+        return producer.send(producerRecord, new SofaTracerCallback(callback, kafkaMQSendTracer,
+            clientSpan));
     }
 
     @Override
@@ -143,6 +146,7 @@ public class SofaTracerKafkaProducer<K, V> implements Producer<K, V> {
                                          SofaTracerSpan clientSpan) {
         appendSpanTags(producerRecord, clientSpan);
         injectCarrier(clientSpan, producerRecord.headers());
+        pushParentTracerSpan2Context(clientSpan);
     }
 
     private void appendSpanTags(ProducerRecord<K, V> producerRecord, SofaTracerSpan clientSpan) {
@@ -162,17 +166,33 @@ public class SofaTracerKafkaProducer<K, V> implements Producer<K, V> {
             new KafkaMqInjectCarrier(properties));
     }
 
+    private void pushParentTracerSpan2Context(SofaTracerSpan tracerSpan) {
+        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+        if (Objects.nonNull(tracerSpan.getParentSofaTracerSpan())) {
+            sofaTraceContext.push(tracerSpan.getParentSofaTracerSpan());
+        }
+    }
+
     /**
      *
      * call back for producer.
      */
     static final class SofaTracerCallback implements Callback {
 
-        final Callback       callback;
+        final Callback         callback;
 
-        final AbstractTracer kafkaSendTracer;
+        final AbstractTracer   kafkaSendTracer;
+
+        private SofaTracerSpan tracerSpan;
 
         public SofaTracerCallback(Callback callback, AbstractTracer kafkaSendTracer) {
+            this.callback = callback;
+            this.kafkaSendTracer = kafkaSendTracer;
+        }
+
+        public SofaTracerCallback(Callback callback, AbstractTracer kafkaSendTracer,
+                                  SofaTracerSpan tracerSpan) {
+            this.tracerSpan = tracerSpan;
             this.callback = callback;
             this.kafkaSendTracer = kafkaSendTracer;
         }
@@ -187,8 +207,9 @@ public class SofaTracerKafkaProducer<K, V> implements Producer<K, V> {
                 callback.onCompletion(metadata, exception);
             }
             //cr.
-            kafkaSendTracer.clientReceive(successFlag ? SofaTracerConstant.RESULT_CODE_SUCCESS
-                : SofaTracerConstant.RESULT_CODE_ERROR);
+            kafkaSendTracer.clientReceiveTagFinish(this.tracerSpan,
+                successFlag ? SofaTracerConstant.RESULT_CODE_SUCCESS
+                    : SofaTracerConstant.RESULT_CODE_ERROR);
         }
     }
 }
