@@ -57,5 +57,5 @@ public class ComponentNameConstants {
 
     public static final String RABBITMQ_SEND     = "rabbitmq-send";
 
-    public static final String REDIS         = "redis";
+    public static final String REDIS             = "redis";
 }

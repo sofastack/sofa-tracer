@@ -172,12 +172,11 @@
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-kafkamq-plugin</artifactId>
                 <version>${project.version}</version>
-                <version>${sofa.tracer.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-redis-plugin</artifactId>
-                <version>${sofa.tracer.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
