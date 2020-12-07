@@ -14,38 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.boot.springcloud.configuration;
+package com.alipay.sofa.tracer.boot.kafka.processor;
 
-import com.alipay.sofa.tracer.plugins.springcloud.instruments.feign.SofaTracerFeignContext;
+import com.sofa.alipay.tracer.plugins.kafkamq.factories.SofaTracerKafkaProducerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.cloud.openfeign.FeignContext;
+import org.springframework.kafka.core.ProducerFactory;
 
 /**
- * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/13 6:08 PM
- * @since:
- **/
-public class SofaTracerFeignContextBeanPostProcessor implements BeanPostProcessor {
-
-    private BeanFactory beanFactory;
-
-    public SofaTracerFeignContextBeanPostProcessor(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
-
+ * KafkaProducerFactoryPostProcessor。
+ *
+ * @author chenchen6   2020/9/3 22:15
+ *
+ */
+public class KafkaProducerFactoryPostProcessor implements BeanPostProcessor {
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName)
                                                                                throws BeansException {
-        if (bean instanceof FeignContext && !(bean instanceof SofaTracerFeignContext)) {
-            return new SofaTracerFeignContext((FeignContext) bean, beanFactory);
-        }
         return bean;
     }
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName)
                                                                               throws BeansException {
+        if (bean instanceof ProducerFactory && !(bean instanceof SofaTracerKafkaProducerFactory)) {
+            return new SofaTracerKafkaProducerFactory((ProducerFactory) bean);
+        }
         return bean;
     }
 }

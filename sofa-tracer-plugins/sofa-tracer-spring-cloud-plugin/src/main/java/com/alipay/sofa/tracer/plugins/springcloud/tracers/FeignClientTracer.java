@@ -18,6 +18,7 @@ package com.alipay.sofa.tracer.plugins.springcloud.tracers;
 
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
@@ -51,7 +52,7 @@ public class FeignClientTracer extends AbstractClientTracer {
     }
 
     protected FeignClientTracer() {
-        super("open-feign");
+        super(ComponentNameConstants.FEIGN_CLIENT);
     }
 
     @Override
