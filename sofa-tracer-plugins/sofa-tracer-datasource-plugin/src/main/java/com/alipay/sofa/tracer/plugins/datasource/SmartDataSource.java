@@ -28,6 +28,7 @@ import java.util.List;
 /**
  * @author shusong.yss
  * @author qilong.zql
+ * @author chenchen
  * @since 2.2.0
  */
 public class SmartDataSource extends BaseDataSource {
@@ -118,9 +119,9 @@ public class SmartDataSource extends BaseDataSource {
 
             DataSource dataSource = getDelegate();
             String jdbcUrl = DataSourceUtils.getJdbcUrl(dataSource);
-            Endpoint endpoint = DataSourceUtils.getEndpointFromConnectionURL(jdbcUrl);
+            //tns or others
             traceAnnotations.add(new KeyValueAnnotation(DataSourceTracerKeys.DATABASE_ENDPOINT,
-                endpoint.getEndpoint()));
+                getEndpointsStr(DataSourceUtils.getEndpointsFromConnectionURL(jdbcUrl))));
 
             Prop prop = getProp();
             List<Interceptor> interceptors = getInterceptors();
@@ -151,4 +152,26 @@ public class SmartDataSource extends BaseDataSource {
                 .<Interceptor> singletonList(connectionTraceInterceptor));
         }
     }
+
+    private String getEndpointsStr(List<Endpoint> endpoints) {
+        if (null == endpoints) {
+            return StringUtils.EMPTY_STRING;
+        }
+
+        int endpointSize = endpoints.size();
+        if (0 == endpointSize) {
+            return StringUtils.EMPTY_STRING;
+        }
+
+        if (1 == endpointSize) {
+            return endpoints.get(0).getEndpoint();
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (Endpoint endpoint : endpoints) {
+            sb.append(endpoint.getEndpoint()).append("/");
+        }
+        return sb.substring(0, sb.lastIndexOf("/"));
+    }
+
 }

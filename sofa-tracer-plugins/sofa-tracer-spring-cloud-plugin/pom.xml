@@ -5,7 +5,7 @@
     <parent>
         <artifactId>tracer-all-parent</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>3.0.8-SNAPSHOT</version>
+        <version>3.1.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -16,6 +16,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.alipay.sofa</groupId>
@@ -25,5 +26,18 @@
             <groupId>com.alipay.sofa</groupId>
             <artifactId>tracer-extensions</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jms</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.integration</groupId>
+            <artifactId>spring-integration-core</artifactId>
+            <optional>true</optional>
+        </dependency>
+
     </dependencies>
 </project>

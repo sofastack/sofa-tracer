@@ -50,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/2/26 2:02 PM
  * @since: 2.3.4
  **/
-@Activate(group = { CommonConstants.PROVIDER, CommonConstants.CONSUMER }, value = "dubboSofaTracerFilter", order = 1)
+@Activate(group = { CommonConstants.PROVIDER, CommonConstants.CONSUMER }, order = 1)
 public class DubboSofaTracerFilter implements Filter {
 
     private String                             appName         = StringUtils.EMPTY_STRING;
@@ -381,8 +381,8 @@ public class DubboSofaTracerFilter implements Filter {
         tagsStr.put(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread().getName());
         String protocol = rpcContext.getUrl().getProtocol();
         tagsStr.put(CommonSpanTags.PROTOCOL, protocol == null ? BLANK : protocol);
-        tagsStr.put(CommonSpanTags.LOCAL_HOST, rpcContext.getRemoteHost());
-        tagsStr.put(CommonSpanTags.LOCAL_PORT, String.valueOf(rpcContext.getRemotePort()));
+        tagsStr.put(CommonSpanTags.LOCAL_HOST, rpcContext.getLocalHost());
+        tagsStr.put(CommonSpanTags.LOCAL_PORT, String.valueOf(rpcContext.getLocalPort()));
     }
 
     private void appendRpcClientSpanTags(Invoker<?> invoker, SofaTracerSpan sofaTracerSpan) {
