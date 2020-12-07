@@ -76,6 +76,15 @@
             <groupId>com.alipay.sofa</groupId>
             <artifactId>sofa-tracer-springmessage-plugin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-tracer-rabbitmq-plugin</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-tracer-kafkamq-plugin</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -108,6 +117,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-client</artifactId>
             <optional>true</optional>
@@ -133,6 +148,12 @@
             <optional>true</optional>
         </dependency>
 
+        <!--spring kafka-->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <optional>true</optional>
+        </dependency>
         <!-- zipkin optional : add manually -->
         <dependency>
             <groupId>io.zipkin.zipkin2</groupId>

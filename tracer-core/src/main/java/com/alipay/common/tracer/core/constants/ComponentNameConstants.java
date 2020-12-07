@@ -45,7 +45,15 @@ public class ComponentNameConstants {
 
     public static final String MSG_SUB           = "message-sub";
 
+    public static final String KAFKAMQ_CONSUMER  = "kafkamq-consume";
+
+    public static final String KAFKAMQ_SEND      = "kafkamq-send";
+
     public static final String ROCKETMQ_CONSUMER = "rocketmq-consume";
 
     public static final String ROCKETMQ_SEND     = "rocketmq-send";
+
+    public static final String RABBITMQ_CONSUMER = "rabbitmq-consume";
+
+    public static final String RABBITMQ_SEND     = "rabbitmq-send";
 }
