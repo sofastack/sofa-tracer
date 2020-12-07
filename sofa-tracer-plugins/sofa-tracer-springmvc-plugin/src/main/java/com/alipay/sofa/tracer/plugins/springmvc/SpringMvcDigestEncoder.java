@@ -22,6 +22,8 @@ import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.tag.Tags;
 
 import java.util.Map;
 
@@ -50,5 +52,8 @@ public class SpringMvcDigestEncoder extends AbstractDigestSpanEncoder {
         Number responseSize = tagWithNum.get(CommonSpanTags.RESP_SIZE);
         //Response Body bytes
         xsb.append((responseSize == null ? 0L : responseSize.longValue()) + SofaTracerConstant.BYTE);
+        // error flag and error msg.
+        xsb.append(StringUtils.isBlank(tagWithStr.get(Tags.ERROR.getKey())) ? "" : tagWithStr
+            .get(Tags.ERROR.getKey()));
     }
 }
