@@ -39,6 +39,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -91,7 +92,7 @@ public class SpringMvcFilterTest {
 
     @Test
     public void testSofaRestGet() throws Exception {
-
+        clearInfoForFile(customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName()));
         File file = customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName());
         if (file.exists()) {
             file.delete();
@@ -142,5 +143,19 @@ public class SpringMvcFilterTest {
         Field propertiesField = SofaTracerConfiguration.class.getDeclaredField("properties");
         propertiesField.setAccessible(true);
         propertiesField.set(null, new ConcurrentHashMap<>());
+    }
+
+    public static void clearInfoForFile(File file) {
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write("");
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
