@@ -91,6 +91,11 @@ public class SpringMvcFilterTest {
 
     @Test
     public void testSofaRestGet() throws Exception {
+
+        File file = customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName());
+        if (file.exists()) {
+            file.delete();
+        }
         assertNotNull(testRestTemplate);
         String restUrl = urlHttpPrefix + "/greeting";
 

@@ -62,8 +62,8 @@ public class SofaTracerFeignClient implements Client {
                 appendRequestSpanTagsAndInject(request, sofaTracerSpan);
             } catch (UnsupportedOperationException e) {
                 // if header is Unmodifiable，renew request
-                request = Request.create(request.httpMethod(), request.url(),
-                        new LinkedHashMap<>(request.headers()), request.requestBody());
+                request = Request.create(request.httpMethod(), request.url(), new LinkedHashMap<>(
+                    request.headers()), request.requestBody());
                 // ignore appendRequestSpanTags,appendRequestSpanTagsAndInject has do it
                 injectCarrier(request, sofaTracerSpan);
             }
