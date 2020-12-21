@@ -35,6 +35,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -59,6 +62,7 @@ public class SpringMvcFilterJsonOutputTest extends AbstractTestBase {
 
     @Test
     public void testSofaRestGet() throws Exception {
+        clearInfoForFile(customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName()));
         String restUrl = urlHttpPrefix + "/greeting";
         int countTimes = 5;
         for (int i = 0; i < countTimes; i++) {
@@ -107,5 +111,19 @@ public class SpringMvcFilterJsonOutputTest extends AbstractTestBase {
     private static <K, V> Map<K, V> parseToMap(String json, Class<K> keyType, Class<V> valueType) {
         return JSON.parseObject(json, new TypeReference<Map<K, V>>(keyType, valueType) {
         });
+    }
+
+    public static void clearInfoForFile(File file) {
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write("");
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
