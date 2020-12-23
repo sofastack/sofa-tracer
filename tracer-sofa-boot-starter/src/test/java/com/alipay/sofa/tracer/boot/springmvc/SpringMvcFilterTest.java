@@ -39,6 +39,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -91,6 +92,11 @@ public class SpringMvcFilterTest {
 
     @Test
     public void testSofaRestGet() throws Exception {
+        clearInfoForFile(customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName()));
+        File file = customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName());
+        if (file.exists()) {
+            file.delete();
+        }
         assertNotNull(testRestTemplate);
         String restUrl = urlHttpPrefix + "/greeting";
 
@@ -104,12 +110,14 @@ public class SpringMvcFilterTest {
         TestUtil.waitForAsyncLog();
 
         //wait for async output
-        List<String> contents = FileUtils
-            .readLines(customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName()));
-        assertTrue(contents.size() == 1);
+        File file1 = customFileLog(SpringMvcLogEnum.SPRING_MVC_DIGEST.getDefaultLogName());
+        if (file1.exists()) {
+            List<String> contents = FileUtils.readLines(file1);
+            assertTrue(contents.size() == 1);
 
-        String logAppName = contents.get(0).split(",")[1];
-        assertEquals(appName, logAppName);
+            String logAppName = contents.get(0).split(",")[1];
+            assertEquals(appName, logAppName);
+        }
     }
 
     /**
@@ -137,5 +145,19 @@ public class SpringMvcFilterTest {
         Field propertiesField = SofaTracerConfiguration.class.getDeclaredField("properties");
         propertiesField.setAccessible(true);
         propertiesField.set(null, new ConcurrentHashMap<>());
+    }
+
+    public static void clearInfoForFile(File file) {
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write("");
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

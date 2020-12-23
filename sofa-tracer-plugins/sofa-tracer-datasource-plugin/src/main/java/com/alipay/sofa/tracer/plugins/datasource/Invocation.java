@@ -49,11 +49,10 @@ public class Invocation {
         return args;
     }
 
-    public Object invoke() {
-        try {
-            return method.invoke(target, args);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public Object invoke() throws Exception {
+        // invoke外部已经处理过异常了, 没必要再包一层 RuntimeException
+        // 包一层会导致 内部抛出的 InvocationTargetException 被包装成 RuntimeException
+        // 导致 Spring 的 SQLExceptionTranslator 无法正确翻译异常信息
+        return method.invoke(target, args);
     }
 }

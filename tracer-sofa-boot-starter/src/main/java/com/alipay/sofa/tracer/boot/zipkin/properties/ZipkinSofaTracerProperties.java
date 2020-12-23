@@ -31,7 +31,10 @@ public class ZipkinSofaTracerProperties {
      * URL of the zipkin query server instance.
      */
     private String  baseUrl = "http://localhost:9411/";
-    private boolean enabled = true;
+    /**
+     * zipkin reporter is disabled by default
+     */
+    private boolean enabled = false;
     /**
      * When enabled, spans are gzipped before sent to the zipkin server
      */

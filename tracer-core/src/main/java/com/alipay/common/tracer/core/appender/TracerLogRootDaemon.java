@@ -16,17 +16,17 @@
  */
 package com.alipay.common.tracer.core.appender;
 
+import java.io.File;
+import java.nio.charset.Charset;
+
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.appender.self.TracerDaemon;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
 
-import java.io.File;
-import java.nio.charset.Charset;
-
 /**
  * TracerLogRootDaemon
- *
+ * <p>
  * Not obtained from the configuration project, obtained directly from the system properties
  *
  * @author yangguanchao
@@ -54,17 +54,22 @@ public class TracerLogRootDaemon {
     static public final Charset DEFAULT_CHARSET                   = Charset.defaultCharset();
 
     static {
-        String loggingRoot = System.getProperty("loggingRoot");
+        String loggingRoot = System.getProperty("SOFA_TRACER_LOGGING_PATH");
+        if (StringUtils.isBlank(loggingRoot)) {
+            loggingRoot = System.getenv("SOFA_TRACER_LOGGING_PATH");
+        }
+        if (StringUtils.isBlank(loggingRoot)) {
+            loggingRoot = System.getProperty("loggingRoot");
+        }
         if (StringUtils.isBlank(loggingRoot)) {
             loggingRoot = System.getProperty("logging.path");
+        }
+        if (StringUtils.isBlank(loggingRoot)) {
+            loggingRoot = System.getProperty("user.home") + File.separator + "logs";
         }
 
         String appendPidToLogPathString = System.getProperty(TRACER_APPEND_PID_TO_LOG_PATH_KEY);
         boolean appendPidToLogPath = "true".equalsIgnoreCase(appendPidToLogPathString);
-
-        if (StringUtils.isBlank(loggingRoot)) {
-            loggingRoot = System.getProperty("user.home") + File.separator + "logs";
-        }
 
         String tempLogFileDir = loggingRoot + File.separator + "tracelog";
 
@@ -76,6 +81,7 @@ public class TracerLogRootDaemon {
 
         try {
             TracerDaemon.start();
+            SelfLog.info("LOG_FILE_DIR is " + LOG_FILE_DIR);
         } catch (Throwable e) {
             SelfLog.error("Failed to start Tracer Daemon Thread", e);
         }

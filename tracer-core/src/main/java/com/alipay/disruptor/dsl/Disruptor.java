@@ -131,7 +131,7 @@ public class Disruptor<T> {
     }
 
     /**
-     * Private constructor helper
+     * Private constructor actionWrapper
      */
     private Disruptor(final RingBuffer<T> ringBuffer, final Executor executor) {
         this.ringBuffer = ringBuffer;

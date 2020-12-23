@@ -88,6 +88,8 @@ public class CommonSpanTags {
      */
     public static final String LOCAL_HOST              = "local.host";
 
+    public static final String PEER_HOST               = "peer.host";
+
     /**
      * LOCAL_PORT records the local port.
      */
@@ -176,5 +178,43 @@ public class CommonSpanTags {
      * LOAD_TEST is the span's stat log key for load.test
      */
     public static final String LOAD_TEST               = "load.test";
+
+    public static final String MSG_TOPIC               = "msg.topic";
+    public static final String MSG_ID                  = "msg.id";
+    public static final String MSG_CHANNEL             = "msg.channel";
+
+    /**
+     * RABBIT_EXCHANGE records the rabbit exchange.
+     */
+    public static final String RABBIT_EXCHANGE         = "exchange";
+
+    /**
+     * RABBIT_ROUNTING_KEY records the rabbit rounting key.
+     */
+    public static final String RABBIT_ROUNTING_KEY     = "rountingKey";
+
+    /**
+     * RABBIT_QUEUE_NAME records the rabbit queue name.
+     */
+    public static final String RABBIT_QUEUE_NAME       = "queueName";
+
+    /**
+     * RABBIT_REPLY_TIME_OUT records the rabbit reply time out.
+     */
+    public static final String RABBIT_REPLY_TIME_OUT   = "replyTimeout";
+    /**
+     * KAFKA_TOPIC records the current span's topic.
+     */
+    public static final String KAFKA_TOPIC             = "kafka.topic";
+
+    /**
+     * KAFKA_TOPIC records the current span's partition.
+     */
+    public static final String KAFKA_PARTITION         = "kafka.partition";
+
+    /**
+     * KAFKA_TOPIC records the current span's offset.
+     */
+    public static final String KAFKA_OFFSET            = "kafka.offset";
 
 }

@@ -24,6 +24,8 @@ import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.tag.Tags;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -59,6 +61,8 @@ public class SpringMvcSofaTracerFilter implements Filter {
         SofaTracerSpan springMvcSpan = null;
         long responseSize = -1;
         int httpStatus = -1;
+        Throwable currThrowable = null;
+        boolean errorFlag = false;
         try {
             HttpServletRequest request = (HttpServletRequest) servletRequest;
             HttpServletResponse response = (HttpServletResponse) servletResponse;
@@ -86,8 +90,15 @@ public class SpringMvcSofaTracerFilter implements Filter {
             responseSize = responseWrapper.getContentLength();
         } catch (Throwable t) {
             httpStatus = 500;
+            errorFlag = true;
+            currThrowable = t;
             throw new RuntimeException(t);
         } finally {
+            if (errorFlag) {
+                //cause throwable maybe is null when throw new RuntimeException();
+                springMvcSpan.setTag(Tags.ERROR.getKey(),
+                    null == currThrowable ? "an error occurred!" : currThrowable.getMessage());
+            }
             if (springMvcSpan != null) {
                 springMvcSpan.setTag(CommonSpanTags.RESP_SIZE, responseSize);
                 //ss
