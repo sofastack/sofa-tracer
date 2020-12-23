@@ -14,46 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.plugins.springmvc;
+package com.sofa.alipay.tracer.plugins.spring.redis.encoder;
 
 import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
-import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.tag.Tags;
 
 import java.util.Map;
 
 /**
- * SpringMvcDigestEncoder
- *
- * @author yangguanchao
- * @since 2018/04/30
- */
-public class SpringMvcDigestEncoder extends AbstractDigestSpanEncoder {
+ * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/19 7:30 PM
+ * @since:
+ **/
+public class RedisDigestJsonEncoder extends AbstractDigestSpanEncoder {
 
     @Override
     protected void appendComponentSlot(XStringBuilder xsb, JsonStringBuilder jsb,
                                        SofaTracerSpan span) {
         Map<String, String> tagWithStr = span.getTagsWithStr();
-        Map<String, Number> tagWithNum = span.getTagsWithNumber();
         //URL
-        xsb.append(tagWithStr.get(CommonSpanTags.REQUEST_URL));
-        //method
-        xsb.append(tagWithStr.get(CommonSpanTags.METHOD));
-        // requestSize
-        Number requestSize = tagWithNum.get(CommonSpanTags.REQ_SIZE);
-        //Request Body bytes
-        xsb.append((requestSize == null ? 0L : requestSize.longValue()) + SofaTracerConstant.BYTE);
-        // responseSize
-        Number responseSize = tagWithNum.get(CommonSpanTags.RESP_SIZE);
-        //Response Body bytes
-        xsb.append((responseSize == null ? 0L : responseSize.longValue()) + SofaTracerConstant.BYTE);
-        // error flag and error msg.
-        xsb.append(StringUtils.isBlank(tagWithStr.get(Tags.ERROR.getKey())) ? "" : tagWithStr
-            .get(Tags.ERROR.getKey()));
+        jsb.append(Tags.DB_TYPE.getKey(), tagWithStr.get(Tags.DB_TYPE.getKey()));
+        jsb.append(CommonSpanTags.METHOD, span.getOperationName());
     }
 }

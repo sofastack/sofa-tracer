@@ -307,7 +307,7 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
 }
 
 /**
- * RollingCalendar is a helper class to DailyRollingFileAppender. Given a periodicity type and the current time, it
+ * RollingCalendar is a actionWrapper class to DailyRollingFileAppender. Given a periodicity type and the current time, it
  * computes the start of the next interval.
  */
 class RollingCalendar extends GregorianCalendar {

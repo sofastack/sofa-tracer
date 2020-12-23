@@ -56,4 +56,9 @@ public class ComponentNameConstants {
     public static final String RABBITMQ_CONSUMER = "rabbitmq-consume";
 
     public static final String RABBITMQ_SEND     = "rabbitmq-send";
+
+    public static final String MONGO_CLIENT      = "mongo-client";
+
+    public static final String REDIS             = "redis";
+
 }

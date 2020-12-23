@@ -18,6 +18,7 @@ package com.alipay.sofa.tracer.plugins.mongodb.tracers;
 
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
@@ -51,7 +52,7 @@ public class MongoClientTracer extends AbstractClientTracer {
     }
 
     protected MongoClientTracer() {
-        super("open-feign");
+        super(ComponentNameConstants.MONGO_CLIENT);
     }
 
     @Override

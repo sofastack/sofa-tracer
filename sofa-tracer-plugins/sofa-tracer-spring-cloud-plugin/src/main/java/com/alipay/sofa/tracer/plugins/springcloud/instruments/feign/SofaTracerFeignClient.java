@@ -29,8 +29,10 @@ import feign.Client;
 import feign.Request;
 import feign.Response;
 import io.opentracing.tag.Tags;
+
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.LinkedHashMap;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/13 10:50 AM
@@ -56,7 +58,15 @@ public class SofaTracerFeignClient implements Client {
         try {
             sofaTracerSpan = feignClientTracer.clientSend(request.method());
             // set tags
-            appendRequestSpanTagsAndInject(request, sofaTracerSpan);
+            try {
+                appendRequestSpanTagsAndInject(request, sofaTracerSpan);
+            } catch (UnsupportedOperationException e) {
+                // if header is Unmodifiable，renew request
+                request = Request.create(request.httpMethod(), request.url(), new LinkedHashMap<>(
+                    request.headers()), request.requestBody());
+                // ignore appendRequestSpanTags,appendRequestSpanTagsAndInject has do it
+                injectCarrier(request, sofaTracerSpan);
+            }
             Response response = delegate.execute(request, options);
             // set result tags
             appendResponseSpanTags(response, sofaTracerSpan);
