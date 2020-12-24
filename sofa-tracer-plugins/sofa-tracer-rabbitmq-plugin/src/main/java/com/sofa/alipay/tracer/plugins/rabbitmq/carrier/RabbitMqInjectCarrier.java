@@ -26,7 +26,7 @@ import java.util.Map;
  *  RabbitMqInjectCarrier.
  *
  * @author  chenchen6  2020/8/22 17:36
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class RabbitMqInjectCarrier implements TextMap {
 

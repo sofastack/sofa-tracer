@@ -30,7 +30,7 @@ import java.util.Map;
  * RabbitMQConsumeDigestJsonEncoder.
  *
  * @author chenchen6  2020/7/23 19:46
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class RabbitMQConsumeDigestJsonEncoder extends AbstractDigestSpanEncoder {
     @Override

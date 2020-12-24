@@ -27,7 +27,7 @@ import java.util.Map;
  *  SofaTracerKafkaConsumerFactory.
  * @author Malafeev
  * @author chenchen6  2020/9/2 22:33
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class SofaTracerKafkaConsumerFactory<K, V> implements ConsumerFactory<K, V> {
 

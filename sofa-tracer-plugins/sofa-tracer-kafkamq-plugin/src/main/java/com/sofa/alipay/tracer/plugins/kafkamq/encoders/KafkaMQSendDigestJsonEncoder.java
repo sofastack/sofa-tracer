@@ -30,7 +30,7 @@ import java.util.Map;
  * KafkaMQSendDigestJsonEncoder.
  *
  * @author chenchen6  2020/8/23 15:12
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class KafkaMQSendDigestJsonEncoder extends AbstractDigestSpanEncoder {
     @Override

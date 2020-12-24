@@ -41,7 +41,7 @@ import java.util.Map;
 /**
  *  RabbitMqSofaTracerHolder.
  * @author chenchen6 2020/8/19 20:44
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class RabbitMqSofaTracerHolder {
     private final String           rabbitSendPostFix   = "-rabbit-send";

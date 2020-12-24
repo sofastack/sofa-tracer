@@ -27,7 +27,7 @@ import java.util.Map;
  * KafkaMqInjectCarrier.
  *
  * @author chenchen6   2020/8/23 09:49
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class KafkaMqInjectCarrier implements TextMap {
 

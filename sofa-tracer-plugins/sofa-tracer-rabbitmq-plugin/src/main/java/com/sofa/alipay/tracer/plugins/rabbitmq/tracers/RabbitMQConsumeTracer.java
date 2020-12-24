@@ -32,7 +32,7 @@ import com.sofa.alipay.tracer.plugins.rabbitmq.repoters.RabbitMQConsumeStatRepor
  * RabbitMQConsumeTracer.
  *
  * @author chenchen6 2020/8/19 20:44
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class RabbitMQConsumeTracer extends AbstractServerTracer {
 

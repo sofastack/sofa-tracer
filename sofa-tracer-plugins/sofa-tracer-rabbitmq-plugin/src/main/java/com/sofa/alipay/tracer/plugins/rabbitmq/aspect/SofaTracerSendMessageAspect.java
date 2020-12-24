@@ -32,7 +32,7 @@ import org.springframework.amqp.support.converter.MessageConverter;
  *  SofaTracerSendMessageAspect.
  *
  * @author chenchen6  2020/8/22 21:46
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 @Aspect
 public class SofaTracerSendMessageAspect {

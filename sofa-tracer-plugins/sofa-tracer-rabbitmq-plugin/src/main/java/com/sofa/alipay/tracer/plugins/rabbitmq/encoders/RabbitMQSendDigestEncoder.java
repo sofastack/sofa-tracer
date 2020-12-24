@@ -30,7 +30,7 @@ import java.util.Map;
  * RabbitMQSendDigestEncoder.
  *
  * @author chenchen6  2020/7/23 21:46
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class RabbitMQSendDigestEncoder extends AbstractDigestSpanEncoder {
     @Override

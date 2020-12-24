@@ -29,7 +29,7 @@ import java.util.Map;
  * KafkaMQConsumeStatJsonReporter.
  *
  * @author chenchen6   2020/8/23 15:44
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class KafkaMQConsumeStatJsonReporter extends AbstractSofaTracerStatisticReporter {
     public KafkaMQConsumeStatJsonReporter(String statTracerName, String rollingPolicy,

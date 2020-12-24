@@ -20,7 +20,7 @@ package com.sofa.alipay.tracer.plugins.kafkamq.enums;
  * KafkaMqLogEnum.
  *
  * @author chenchen6  2020/7/19 20:44
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public enum KafkaMqLogEnum {
 

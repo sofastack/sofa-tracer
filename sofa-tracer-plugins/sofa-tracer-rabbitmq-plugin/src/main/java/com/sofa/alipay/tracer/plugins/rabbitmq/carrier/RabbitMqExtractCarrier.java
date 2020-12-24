@@ -26,7 +26,7 @@ import java.util.Map;
  *  RabbitMqExtractCarrier
  *
  * @author  chenchen6  2020/8/22 17:35
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class RabbitMqExtractCarrier implements TextMap {
     private final Map<String, String> map = new HashMap<>();

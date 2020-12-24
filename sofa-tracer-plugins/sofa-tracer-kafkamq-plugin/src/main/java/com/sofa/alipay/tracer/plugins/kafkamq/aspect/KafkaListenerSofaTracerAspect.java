@@ -26,7 +26,7 @@ import org.aspectj.lang.annotation.Aspect;
  * KafkaListenerSofaTracerAspect。
  *
  * @author chenchen6 2020/9/2 00:20
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 @Aspect
 public class KafkaListenerSofaTracerAspect {
