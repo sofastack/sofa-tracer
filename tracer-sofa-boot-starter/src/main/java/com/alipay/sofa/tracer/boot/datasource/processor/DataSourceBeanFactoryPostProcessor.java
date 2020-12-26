@@ -25,24 +25,40 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.config.*;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.core.env.Environment;
+import org.springframework.core.type.classreading.MethodMetadataReadingVisitor;
 import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 
 import static com.alipay.common.tracer.core.configuration.SofaTracerConfiguration.TRACER_APPNAME_KEY;
+import static com.alipay.common.tracer.core.configuration.SofaTracerConfiguration.TRACER_JDBC_URL_KEY;
 
 /**
  * @author qilong.zql
  * @since 2.2.0
+ *
+ * Add method
+ * {@link com.alipay.sofa.tracer.boot.datasource.processor.DataSourceBeanFactoryPostProcessor#resolveBeanClassName(org.springframework.beans.factory.config.BeanDefinition)}
+ *
+ * Modified the way to get bean class name from beanDefinition
+ * Modified the way to get jdbcUrl. For the beanDefinition scanned by the Java configuration class, use a special way
+ *
+ * For adapt spring-cloud-config-client
+ *
+ * @author XCXCXCXCX
+ * @since 3.0.8
  */
 public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProcessor,
                                                PriorityOrdered, EnvironmentAware {
@@ -59,30 +75,41 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
                 continue;
             }
             BeanDefinition dataSource = getBeanDefinition(beanName, beanFactory);
-            if (DataSourceUtils.isDruidDataSource(dataSource.getBeanClassName())) {
+            String beanClassName = resolveBeanClassName(dataSource);
+            if (DataSourceUtils.isDruidDataSource(beanClassName)) {
                 createDataSourceProxy(beanFactory, beanName, dataSource,
                     DataSourceUtils.getDruidJdbcUrlKey());
-            } else if (DataSourceUtils.isC3p0DataSource(dataSource.getBeanClassName())) {
+            } else if (DataSourceUtils.isC3p0DataSource(beanClassName)) {
                 createDataSourceProxy(beanFactory, beanName, dataSource,
                     DataSourceUtils.getC3p0JdbcUrlKey());
-            } else if (DataSourceUtils.isDbcpDataSource(dataSource.getBeanClassName())) {
+            } else if (DataSourceUtils.isDbcpDataSource(beanClassName)) {
                 createDataSourceProxy(beanFactory, beanName, dataSource,
                     DataSourceUtils.getDbcpJdbcUrlKey());
-            } else if (DataSourceUtils.isTomcatDataSource(dataSource.getBeanClassName())) {
+            } else if (DataSourceUtils.isTomcatDataSource(beanClassName)) {
                 createDataSourceProxy(beanFactory, beanName, dataSource,
                     DataSourceUtils.getTomcatJdbcUrlKey());
-            } else if (DataSourceUtils.isHikariDataSource(dataSource.getBeanClassName())) {
+            } else if (DataSourceUtils.isHikariDataSource(beanClassName)) {
                 createDataSourceProxy(beanFactory, beanName, dataSource,
                     DataSourceUtils.getHikariJdbcUrlKey());
             }
         }
     }
 
+    private String resolveBeanClassName(BeanDefinition dataSource) {
+        String beanClassName = dataSource.getBeanClassName();
+        if (beanClassName != null) {
+            return beanClassName;
+        }
+        Object source = dataSource.getSource();
+        if (source instanceof MethodMetadataReadingVisitor) {
+            return ((MethodMetadataReadingVisitor) source).getReturnTypeName();
+        }
+        return null;
+    }
+
     private Iterable<String> getBeanNames(ListableBeanFactory beanFactory, Class clazzType) {
-        Set<String> names = new HashSet<>();
-        names.addAll(Arrays.asList(BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory,
-            clazzType, true, false)));
-        return names;
+        return new HashSet<>(Arrays.asList(BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
+            beanFactory, clazzType, true, false)));
     }
 
     private BeanDefinition getBeanDefinition(String beanName,
@@ -101,7 +128,7 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
 
     private void createDataSourceProxy(ConfigurableListableBeanFactory beanFactory,
                                        String beanName, BeanDefinition originDataSource,
-                                       String jdbcUrl) {
+                                       String jdbcUrlKey) {
         // re-register origin datasource bean
         BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) beanFactory;
         beanDefinitionRegistry.removeBeanDefinition(beanName);
@@ -116,15 +143,19 @@ public class DataSourceBeanFactoryPostProcessor implements BeanFactoryPostProces
         proxiedBeanDefinition.setInitMethodName("init");
         proxiedBeanDefinition.setDependsOn(transformDatasourceBeanName(beanName));
         MutablePropertyValues originValues = originDataSource.getPropertyValues();
+
         MutablePropertyValues values = new MutablePropertyValues();
         String appName = environment.getProperty(TRACER_APPNAME_KEY);
         Assert.isTrue(!StringUtils.isBlank(appName), TRACER_APPNAME_KEY + " must be configured!");
+        String jdbcUrl = environment.getProperty(TRACER_JDBC_URL_KEY,
+            String.valueOf(originValues.get(jdbcUrlKey)));
+        String dbType = DataSourceUtils.resolveDbTypeFromUrl(unwrapPropertyValue(jdbcUrl));
+        String database = DataSourceUtils.resolveDatabaseFromUrl(unwrapPropertyValue(jdbcUrl));
+
         values.add("appName", appName);
         values.add("delegate", new RuntimeBeanReference(transformDatasourceBeanName(beanName)));
-        values.add("dbType",
-            DataSourceUtils.resolveDbTypeFromUrl(unwrapPropertyValue(originValues.get(jdbcUrl))));
-        values.add("database",
-            DataSourceUtils.resolveDatabaseFromUrl(unwrapPropertyValue(originValues.get(jdbcUrl))));
+        values.add("dbType", dbType);
+        values.add("database", database);
         proxiedBeanDefinition.setPropertyValues(values);
         beanDefinitionRegistry.registerBeanDefinition(beanName, proxiedBeanDefinition);
     }
