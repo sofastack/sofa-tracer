@@ -120,4 +120,6 @@ public class SofaTracerConstant {
      * stat result state for failure
      */
     public static final String  STAT_FLAG_FAILS           = DIGEST_FLAG_FAILS;
+
+    public static final String  SPACE_ID                  = "sofa-tracer";
 }

@@ -25,6 +25,9 @@ import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.type.TracerSystemLogEnum;
 import com.alipay.common.tracer.core.span.CommonLogSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.common.code.LogCode2Description;
+
+import static com.alipay.common.tracer.core.constants.SofaTracerConstant.SPACE_ID;
 
 /**
  * CommonTracerManager
@@ -124,7 +127,7 @@ public class CommonTracerManager {
         }
         String logType = commonLogSpan.getLogType();
         if (StringUtils.isBlank(logType)) {
-            SelfLog.error("Log Type can't be empty when report!");
+            SelfLog.error(LogCode2Description.convert(SPACE_ID, "01-00011"));
             return;
         }
         commonReporterAsyncManager.append(commonLogSpan);

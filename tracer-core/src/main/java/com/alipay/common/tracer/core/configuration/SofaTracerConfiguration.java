@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
 import com.alipay.common.tracer.core.appender.info.StaticInfoLog;
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.common.code.LogCode2Description;
 
 import java.io.InputStream;
 import java.util.Collections;
@@ -27,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.alipay.common.tracer.core.constants.SofaTracerConstant.SPACE_ID;
 
 /**
  *
@@ -214,7 +217,8 @@ public class SofaTracerConfiguration {
             if (result instanceof Map) {
                 return (HashMap<String, String>) properties.get(key);
             } else {
-                SelfLog.error("the value for " + key + " is not the type of map");
+                SelfLog
+                    .error(String.format(LogCode2Description.convert(SPACE_ID, "01-00010"), key));
                 return Collections.emptyMap();
             }
         }
