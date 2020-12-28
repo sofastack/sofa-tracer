@@ -22,12 +22,15 @@ import com.alipay.common.tracer.core.appender.self.TracerDaemon;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
+import com.alipay.sofa.common.code.LogCode2Description;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static com.alipay.common.tracer.core.constants.SofaTracerConstant.SPACE_ID;
 
 /**
  * RollingFileAppender based on Time
@@ -189,8 +192,7 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
                     try {
                         date = dailyRollingSdf.parse(logTime);
                     } catch (ParseException pe) {
-                        SelfLog.error("Unable to get log time of log file " + logFileName
-                                      + ", the reason is " + pe.getMessage());
+                        SelfLog.error(String.format(LogCode2Description.convert(SPACE_ID,"01-00004"),logFileName,pe.getMessage()));
                     }
                 }
 
@@ -228,11 +230,11 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
                 if (success) {
                     SelfLog.info("Deleted log file: " + logFileName);
                 } else {
-                    SelfLog.error("Fail to delete log file: " + logFileName);
+                    SelfLog.error(String.format(LogCode2Description.convert(SPACE_ID,"01-00005"),logFileName));
                 }
             }
         } catch (Throwable e) {
-            SelfLog.error("Failed to clean up log file", e);
+            SelfLog.error(LogCode2Description.convert(SPACE_ID,"01-00006"), e);
         }
     }
 
@@ -240,7 +242,7 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
     public void rollOver() {
         // Compute filename, but only if datePattern is specified
         if (datePattern == null) {
-            SelfLog.error("No Settings for file rolling suffix's model");
+            SelfLog.error(LogCode2Description.convert(SPACE_ID, "01-00007"));
             return;
         }
 
@@ -255,7 +257,7 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
         try {
             bos.close();
         } catch (IOException e) {
-            SelfLog.error("Failed to closing the output stream", e);
+            SelfLog.error(LogCode2Description.convert(SPACE_ID, "01-00008"), e);
         }
 
         File target = new File(scheduledFilename);
@@ -267,7 +269,8 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
         if (result) {
             SelfLog.info(fileName + " -> " + scheduledFilename);
         } else {
-            SelfLog.error("Failed to rename [" + fileName + "] to [" + scheduledFilename + "].");
+            SelfLog.error(String.format(LogCode2Description.convert(SPACE_ID, "01-00009"),
+                fileName, scheduledFilename));
         }
 
         this.setFile(false);

@@ -32,6 +32,7 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.span.SofaTracerSpanReferenceRelationship;
 import com.alipay.common.tracer.core.utils.AssertUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.common.code.LogCode2Description;
 import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
@@ -44,6 +45,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.alipay.common.tracer.core.constants.SofaTracerConstant.SPACE_ID;
 
 /**
  * SofaTracer
@@ -456,7 +459,8 @@ public class SofaTracer implements Tracer {
                 } else if (value instanceof Number) {
                     this.withTag(key, (Number) value);
                 } else {
-                    SelfLog.error("Tracer tags unsupported type [" + value.getClass() + "]");
+                    SelfLog.error(String.format(LogCode2Description.convert(SPACE_ID, "01-00003"),
+                        value.getClass().toString()));
                 }
             }
             return this;
@@ -466,7 +470,7 @@ public class SofaTracer implements Tracer {
             try {
                 sampler = SamplerFactory.getSampler();
             } catch (Exception e) {
-                SelfLog.error("Failed to get tracer sampler strategy;");
+                SelfLog.error(LogCode2Description.convert(SPACE_ID, "01-00002"));
             }
             return new SofaTracer(this.tracerType, this.clientReporter, this.serverReporter,
                 this.sampler, this.tracerTags);
