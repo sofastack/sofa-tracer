@@ -36,9 +36,7 @@ public class SqlUtils {
         if (limitSql != null && limitSql.length() > DIGEST_LOG_SQL_LIMIT) {
             limitSql = limitSql.substring(0, DIGEST_LOG_SQL_LIMIT) + " ...";
         }
-        return escape(
-            escape(escape(limitSql, DEFAULT_SEPARATOR, DEFAULT_SEPARATOR_ESCAPE), DEFAULT_NEW_LINE,
-                EMPTY_STRING), DEFAULT_RETURN, EMPTY_STRING);
+        return escape(escapeWithSpecialCheck(limitSql), DEFAULT_SEPARATOR, DEFAULT_SEPARATOR_ESCAPE);
     }
 
     private static String escape(String str, String oldStr, String newStr) {
@@ -46,5 +44,25 @@ public class SqlUtils {
             return EMPTY_STRING;
         }
         return StringUtils.replace(str, oldStr, newStr);
+    }
+
+    private static String escapeWithSpecialCheck(String str) {
+        if (str == null) {
+            return "";
+        }
+        StringBuilder appender = new StringBuilder();
+        int len = str.length();
+        appender.ensureCapacity(appender.length() + len);
+        for (int i = 0; i < len; i++) {
+            char c = str.charAt(i);
+            if (c == '\n' || c == '\r' || c == '|') {
+                c = ' ';
+            }
+            if (c != ' ' || c == ' ' && appender.length() > 0
+                && appender.charAt(appender.length() - 1) != ' ') {
+                appender.append(c);
+            }
+        }
+        return appender.toString().trim();
     }
 }

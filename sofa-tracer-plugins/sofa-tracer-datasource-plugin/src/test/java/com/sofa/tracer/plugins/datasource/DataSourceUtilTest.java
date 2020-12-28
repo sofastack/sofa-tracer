@@ -17,6 +17,7 @@
 package com.sofa.tracer.plugins.datasource;
 
 import com.alipay.common.tracer.core.utils.ReflectionUtils;
+import com.alipay.sofa.tracer.plugins.datasource.utils.SqlUtils;
 import com.sofa.tracer.plugins.datasource.bean.ConcreteClassService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,5 +38,22 @@ public class DataSourceUtilTest {
         Assert.assertEquals("serviceA", method.invoke(concreteClassService));
         method = ReflectionUtils.findMethod(concreteClassService.getClass(), "serviceB");
         Assert.assertEquals("serviceB", method.invoke(concreteClassService));
+    }
+
+    @Test
+    public void testGetSqlEscaped() {
+        // start with blank and special character
+        String str1 = "  select app1\n" + ",app2\r\n" + " from table where          " + " id = a;";
+        String result = SqlUtils.getSqlEscaped(str1);
+        Assert.assertTrue(!result.contains("\n"));
+        Assert.assertTrue(!result.contains("\r"));
+        Assert.assertTrue(result.equals("select app1 %2Capp2 from table where id = a;"));
+        Assert.assertTrue(!result.startsWith(" "));
+        // normal string
+        String str2 = "select app1 ,app2 from table where id = a;";
+        result = SqlUtils.getSqlEscaped(str2);
+        Assert.assertTrue(!result.contains("\n"));
+        Assert.assertTrue(!result.contains("\r"));
+        Assert.assertTrue(result.equals("select app1 %2Capp2 from table where id = a;"));
     }
 }
