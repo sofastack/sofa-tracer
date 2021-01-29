@@ -27,6 +27,7 @@ import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.common.code.LogCode2Description;
 import com.alipay.sofa.tracer.plugins.dubbo.constants.AttachmentKeyConstants;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboConsumerSofaTracer;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboProviderSofaTracer;
@@ -49,6 +50,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.alipay.common.tracer.core.constants.SofaTracerConstant.SPACE_ID;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/2/26 2:02 PM
@@ -294,8 +297,7 @@ public class DubboSofaTracerFilter implements Filter {
         boolean isCalculateSampler = false;
         boolean isSampled = true;
         if (sofaTracerSpanContext == null) {
-            SelfLog
-                .error("SpanContext created error when server received and root SpanContext created.");
+            SelfLog.error(LogCode2Description.convert(SPACE_ID, "01-00001"));
             sofaTracerSpanContext = SofaTracerSpanContext.rootStart();
             isCalculateSampler = true;
         }

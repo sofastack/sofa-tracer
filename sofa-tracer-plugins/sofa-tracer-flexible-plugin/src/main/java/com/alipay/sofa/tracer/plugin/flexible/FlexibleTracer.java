@@ -34,9 +34,12 @@ import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.common.code.LogCode2Description;
 import io.opentracing.tag.Tags;
 
 import java.util.Map;
+
+import static com.alipay.common.tracer.core.constants.SofaTracerConstant.SPACE_ID;
 
 /**
  * FlexibleTracer for process manual and @Tracer trace
@@ -70,7 +73,7 @@ public class FlexibleTracer extends SofaTracer {
         try {
             return SamplerFactory.getSampler();
         } catch (Exception e) {
-            SelfLog.error("Failed to get tracer sampler strategy;");
+            SelfLog.error(LogCode2Description.convert(SPACE_ID, "01-00002"));
         }
         return null;
     }
@@ -201,7 +204,7 @@ public class FlexibleTracer extends SofaTracer {
             return;
         }
 
-        if (StringUtils.isNotBlank(error)) {
+        if (StringUtils.isBlank(error)) {
             clientSpan.setTag(CommonSpanTags.RESULT_CODE, SofaTracerConstant.RESULT_CODE_SUCCESS);
         } else {
             clientSpan.setTag(CommonSpanTags.RESULT_CODE, SofaTracerConstant.RESULT_CODE_ERROR);

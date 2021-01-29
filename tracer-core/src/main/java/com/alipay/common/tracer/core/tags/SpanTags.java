@@ -18,8 +18,10 @@ package com.alipay.common.tracer.core.tags;
 
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.constants.ComponentNameConstants;
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.sofa.common.code.LogCode2Description;
 import io.opentracing.tag.StringTag;
 
 /**
@@ -58,13 +60,15 @@ public class SpanTags {
 
     private static boolean checkTags(SofaTracerSpan currentSpan) {
         if (currentSpan == null) {
-            SelfLog.error("Current stage has no span exist in SofaTracerContext.");
+            SelfLog.error(LogCode2Description.convert(SofaTracerConstant.SPACE_ID, "01-00013"));
             return false;
         }
         String componentType = currentSpan.getSofaTracer().getTracerType();
         if (!componentType.equalsIgnoreCase(ComponentNameConstants.FLEXIBLE)) {
-            SelfLog.error("Cannot set tag to component. current component is [" + componentType
-                          + "]");
+            SelfLog
+                .error(String.format(
+                    LogCode2Description.convert(SofaTracerConstant.SPACE_ID, "01-00014"),
+                    componentType));
             return false;
         }
         return true;

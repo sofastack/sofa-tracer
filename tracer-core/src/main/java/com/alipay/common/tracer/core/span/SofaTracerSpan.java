@@ -26,6 +26,7 @@ import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.tags.SpanTags;
 import com.alipay.common.tracer.core.utils.AssertUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.common.code.LogCode2Description;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.tag.Tags;
@@ -486,7 +487,9 @@ public class SofaTracerSpan implements Span {
             } else if (value instanceof Number) {
                 this.setTag(key, (Number) value);
             } else {
-                SelfLog.error("Span tags unsupported type [" + value.getClass() + "]");
+                SelfLog.error(String.format(
+                    LogCode2Description.convert(SofaTracerConstant.SPACE_ID, "01-00012"),
+                    value.getClass()));
             }
         }
     }
