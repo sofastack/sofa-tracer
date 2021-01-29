@@ -204,7 +204,7 @@ public class FlexibleTracer extends SofaTracer {
             return;
         }
 
-        if (StringUtils.isNotBlank(error)) {
+        if (StringUtils.isBlank(error)) {
             clientSpan.setTag(CommonSpanTags.RESULT_CODE, SofaTracerConstant.RESULT_CODE_SUCCESS);
         } else {
             clientSpan.setTag(CommonSpanTags.RESULT_CODE, SofaTracerConstant.RESULT_CODE_ERROR);
