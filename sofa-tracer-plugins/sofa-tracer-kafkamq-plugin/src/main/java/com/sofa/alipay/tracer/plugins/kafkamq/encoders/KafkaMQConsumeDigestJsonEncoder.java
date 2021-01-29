@@ -28,7 +28,7 @@ import java.util.Map;
  *  KafkaMQConsumeDigestJsonEncoder.
  *
  * @author chenchen6  2020/8/23 15:33
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class KafkaMQConsumeDigestJsonEncoder extends AbstractDigestSpanEncoder {
     @Override

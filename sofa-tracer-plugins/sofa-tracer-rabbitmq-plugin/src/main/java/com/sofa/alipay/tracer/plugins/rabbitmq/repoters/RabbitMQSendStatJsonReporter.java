@@ -29,7 +29,7 @@ import java.util.Map;
  *  RabbitMQSendStatJsonReporter.
  *
  * @author chenchen6 2020/8/19 20:44
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class RabbitMQSendStatJsonReporter extends AbstractSofaTracerStatisticReporter {
     public RabbitMQSendStatJsonReporter(String statTracerName, String rollingPolicy,

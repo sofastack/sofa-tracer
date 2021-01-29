@@ -32,7 +32,7 @@ import com.sofa.alipay.tracer.plugins.kafkamq.repoters.KafkaMQConsumeStatReporte
  * KafkaMQConsumeTracer.
  *
  * @author chenchen6  2020/8/23 15:17
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class KafkaMQConsumeTracer extends AbstractServerTracer {
 

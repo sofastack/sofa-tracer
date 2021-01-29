@@ -25,7 +25,7 @@ import org.springframework.kafka.core.ProducerFactory;
  * SofaTracerKafkaProducerFactory。
  * @author Malffeev
  * @author chenchen6
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class SofaTracerKafkaProducerFactory<K, V> implements ProducerFactory<K, V>, DisposableBean {
 

@@ -26,7 +26,7 @@ import java.util.Objects;
  *  MockSofaTracerSpringKafkaTest
  *
  * @author chenchen6  2020/9/13 22:22
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class MockSofaTracerSpringKafkaTest {
 

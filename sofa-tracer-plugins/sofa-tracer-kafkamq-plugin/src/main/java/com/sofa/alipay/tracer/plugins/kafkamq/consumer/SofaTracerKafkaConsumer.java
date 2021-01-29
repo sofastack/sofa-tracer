@@ -49,7 +49,7 @@ import java.util.regex.Pattern;
  *  SofaTracerKafkaConsumer。
  *
  * @author chenchen6   2020/8/25 19:06
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class SofaTracerKafkaConsumer<K, V> implements Consumer<K, V> {
 

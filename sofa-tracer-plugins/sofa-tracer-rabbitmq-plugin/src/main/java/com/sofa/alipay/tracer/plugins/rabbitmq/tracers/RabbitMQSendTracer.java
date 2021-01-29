@@ -36,7 +36,7 @@ import com.sofa.alipay.tracer.plugins.rabbitmq.repoters.RabbitMQSendStatReporter
  *  RabbitMQSendTracer.
  *
  * @author chenchen6  2020/7/19 21:07
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class RabbitMQSendTracer extends AbstractClientTracer {
 

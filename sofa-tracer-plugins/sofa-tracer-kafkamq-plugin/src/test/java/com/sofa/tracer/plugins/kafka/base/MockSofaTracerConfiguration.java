@@ -38,7 +38,7 @@ import java.util.Map;
  * MockSofaTracerConfiguration.
  *
  * @author chenchen6  2020/9/13 21:31
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 @EnableKafka
 @Configuration

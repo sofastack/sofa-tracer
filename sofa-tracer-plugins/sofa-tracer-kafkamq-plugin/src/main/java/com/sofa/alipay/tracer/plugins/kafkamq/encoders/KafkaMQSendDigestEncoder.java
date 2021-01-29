@@ -28,7 +28,7 @@ import java.util.Map;
  *  KafkaMQSendDigestEncoder.
  *
  * @author chenchen6   2020/8/23 15:13
- * @since 3.1.0-SNAPSHOT
+ * @since 3.1.0
  */
 public class KafkaMQSendDigestEncoder extends AbstractDigestSpanEncoder {
     @Override
