@@ -176,8 +176,9 @@ public class AsyncCommonDigestAppenderManager {
         } catch (Exception e) {
             SynchronizingSelfLog.error("fail to add event");
             return false;
+        } finally {
+            ringBuffer.publish(sequence);
         }
-        ringBuffer.publish(sequence);
         return true;
     }
 
