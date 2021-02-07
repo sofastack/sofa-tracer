@@ -25,12 +25,13 @@ import java.util.function.Function;
  * @version SofaTracerFunction.java, v 0.1 2021年02月07日 9:56 下午 khotyn
  */
 public class SofaTracerFunction<T, R> implements Function<T, R> {
-    private final Function<T, R> wrappedFunction;
+    private final Function<T, R>         wrappedFunction;
     private final FunctionalAsyncSupport functionalAsyncSupport;
 
     public SofaTracerFunction(Function<T, R> wrappedFunction) {
         this.wrappedFunction = wrappedFunction;
-        this.functionalAsyncSupport = new FunctionalAsyncSupport(SofaTraceContextHolder.getSofaTraceContext());
+        this.functionalAsyncSupport = new FunctionalAsyncSupport(
+            SofaTraceContextHolder.getSofaTraceContext());
     }
 
     @Override

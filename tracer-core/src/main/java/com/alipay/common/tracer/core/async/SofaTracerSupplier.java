@@ -26,11 +26,12 @@ import java.util.function.Supplier;
  */
 public class SofaTracerSupplier<T> implements Supplier<T> {
     private final FunctionalAsyncSupport functionalAsyncSupport;
-    private final Supplier<T> wrappedSupplier;
+    private final Supplier<T>            wrappedSupplier;
 
     public SofaTracerSupplier(Supplier<T> wrappedSupplier) {
         this.wrappedSupplier = wrappedSupplier;
-        functionalAsyncSupport = new FunctionalAsyncSupport(SofaTraceContextHolder.getSofaTraceContext());
+        functionalAsyncSupport = new FunctionalAsyncSupport(
+            SofaTraceContextHolder.getSofaTraceContext());
     }
 
     @Override

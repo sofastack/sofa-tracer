@@ -29,7 +29,7 @@ import java.lang.Runnable;
  * @version $Id: Runnable.java, v 0.1 June 19, 2017 5:54 PM luoguimu123 Exp $
  */
 public class SofaTracerRunnable implements Runnable {
-    private Runnable wrappedRunnable;
+    private Runnable               wrappedRunnable;
     private FunctionalAsyncSupport functionalAsyncSupport;
 
     public SofaTracerRunnable(Runnable wrappedRunnable) {

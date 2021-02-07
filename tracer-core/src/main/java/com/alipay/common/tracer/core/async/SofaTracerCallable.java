@@ -29,7 +29,7 @@ import java.util.concurrent.Callable;
  * @version $Id: Callable.java, v 0.1 June 19, 2017 5:52 PM luoguimu123 Exp $
  */
 public class SofaTracerCallable<T> implements Callable<T> {
-    private Callable<T> wrappedCallable;
+    private Callable<T>            wrappedCallable;
     private FunctionalAsyncSupport functionalAsyncSupport;
 
     public SofaTracerCallable(Callable<T> wrappedCallable) {
