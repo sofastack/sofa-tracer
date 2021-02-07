@@ -17,34 +17,29 @@
 package com.alipay.common.tracer.core.async;
 
 import com.alipay.common.tracer.core.SofaTracer;
-import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
 import com.alipay.common.tracer.core.reporter.facade.Reporter;
-import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import com.alipay.common.tracer.core.tracer.AbstractTracer;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.core.tracertest.encoder.ServerSpanEncoder;
-import io.opentracing.Tracer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Supplier;
 
 /**
  * @author khotyn
  * @version SofaTracerSupplierTest.java, v 0.1 2021年02月07日 2:12 下午 khotyn
  */
 public class SofaTracerSupplierTest {
-    private final String tracerType = "SofaTracerSpanTest";
-    private final String clientLogType = "client-log-test.log";
-    private final String serverLogType = "server-log-test.log";
-    private SofaTracer sofaTracer;
+    private final String   tracerType    = "SofaTracerSpanTest";
+    private final String   clientLogType = "client-log-test.log";
+    private final String   serverLogType = "server-log-test.log";
+    private SofaTracer     sofaTracer;
     private SofaTracerSpan sofaTracerSpan;
 
     @Before
@@ -52,8 +47,8 @@ public class SofaTracerSupplierTest {
         Reporter clientReporter = new DiskReporterImpl(clientLogType, new ClientSpanEncoder());
         Reporter serverReporter = new DiskReporterImpl(serverLogType, new ServerSpanEncoder());
         sofaTracer = new SofaTracer.Builder(tracerType)
-                .withTag("tracer", "SofaTraceContextHolderTest").withClientReporter(clientReporter)
-                .withServerReporter(serverReporter).build();
+            .withTag("tracer", "SofaTraceContextHolderTest").withClientReporter(clientReporter)
+            .withServerReporter(serverReporter).build();
         sofaTracerSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("SofaTracerSpanTest").start();
     }
 

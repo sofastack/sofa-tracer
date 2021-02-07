@@ -28,10 +28,10 @@ import java.util.function.Supplier;
  * @version SofaTracerSupplier.java, v 0.1 2021年02月07日 2:02 下午 khotyn
  */
 public class SofaTracerSupplier<T> implements Supplier<T> {
-    private final long tid = Thread.currentThread().getId();
-    private Supplier<T> wrappedSupplier;
+    private final long       tid = Thread.currentThread().getId();
+    private Supplier<T>      wrappedSupplier;
     private SofaTraceContext traceContext;
-    private SofaTracerSpan currentSpan;
+    private SofaTracerSpan   currentSpan;
 
     public SofaTracerSupplier(Supplier<T> wrappedSupplier) {
         this.initCallable(wrappedSupplier, SofaTraceContextHolder.getSofaTraceContext());
