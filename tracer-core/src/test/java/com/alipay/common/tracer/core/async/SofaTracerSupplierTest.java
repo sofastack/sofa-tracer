@@ -36,20 +36,19 @@ import java.util.concurrent.ExecutionException;
  * @version SofaTracerSupplierTest.java, v 0.1 2021年02月07日 2:12 下午 khotyn
  */
 public class SofaTracerSupplierTest {
-    private final String   tracerType    = "SofaTracerSpanTest";
-    private final String   clientLogType = "client-log-test.log";
-    private final String   serverLogType = "server-log-test.log";
-    private SofaTracer     sofaTracer;
     private SofaTracerSpan sofaTracerSpan;
 
     @Before
     public void setup() {
+        String clientLogType = "client-log-test.log";
         Reporter clientReporter = new DiskReporterImpl(clientLogType, new ClientSpanEncoder());
+        String serverLogType = "server-log-test.log";
         Reporter serverReporter = new DiskReporterImpl(serverLogType, new ServerSpanEncoder());
-        sofaTracer = new SofaTracer.Builder(tracerType)
+        String tracerType = "SofaTracerSpanTest";
+        SofaTracer sofaTracer = new SofaTracer.Builder(tracerType)
             .withTag("tracer", "SofaTraceContextHolderTest").withClientReporter(clientReporter)
             .withServerReporter(serverReporter).build();
-        sofaTracerSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("SofaTracerSpanTest").start();
+        sofaTracerSpan = (SofaTracerSpan) sofaTracer.buildSpan("SofaTracerSpanTest").start();
     }
 
     @Test
