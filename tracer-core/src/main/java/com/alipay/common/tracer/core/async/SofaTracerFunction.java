@@ -16,10 +16,7 @@
  */
 package com.alipay.common.tracer.core.async;
 
-import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
-import com.alipay.common.tracer.core.extensions.SpanExtensionFactory;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
-import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
 import java.util.function.Function;
 
@@ -28,45 +25,21 @@ import java.util.function.Function;
  * @version SofaTracerFunction.java, v 0.1 2021年02月07日 9:56 下午 khotyn
  */
 public class SofaTracerFunction<T, R> implements Function<T, R> {
-    private final long       tid = Thread.currentThread().getId();
-    private Function<T, R>   wrappedFunction;
-    private SofaTraceContext traceContext;
-    private SofaTracerSpan   currentSpan;
+    private final Function<T, R> wrappedFunction;
+    private final FunctionalAsyncSupport functionalAsyncSupport;
 
     public SofaTracerFunction(Function<T, R> wrappedFunction) {
-        this.initFunction(wrappedFunction, SofaTraceContextHolder.getSofaTraceContext());
-    }
-
-    public SofaTracerFunction(Function<T, R> wrappedFunction, SofaTraceContext traceContext) {
-        this.initFunction(wrappedFunction, traceContext);
-    }
-
-    private void initFunction(Function<T, R> wrappedFunction, SofaTraceContext traceContext) {
         this.wrappedFunction = wrappedFunction;
-        this.traceContext = traceContext;
-        if (!traceContext.isEmpty()) {
-            this.currentSpan = traceContext.getCurrentSpan();
-        } else {
-            this.currentSpan = null;
-        }
+        this.functionalAsyncSupport = new FunctionalAsyncSupport(SofaTraceContextHolder.getSofaTraceContext());
     }
 
     @Override
     public R apply(T t) {
-        if (Thread.currentThread().getId() != tid) {
-            if (currentSpan != null) {
-                traceContext.push(currentSpan);
-                SpanExtensionFactory.logStartedSpan(currentSpan);
-            }
-        }
+        functionalAsyncSupport.doBefore();
         try {
             return wrappedFunction.apply(t);
         } finally {
-            if (Thread.currentThread().getId() != tid) {
-                if (currentSpan != null) {
-                    traceContext.pop();
-                }
-            }
+            functionalAsyncSupport.doFinally();
         }
     }
 }

@@ -16,10 +16,7 @@
  */
 package com.alipay.common.tracer.core.async;
 
-import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
-import com.alipay.common.tracer.core.extensions.SpanExtensionFactory;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
-import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
 import java.util.function.Supplier;
 
@@ -28,45 +25,21 @@ import java.util.function.Supplier;
  * @version SofaTracerSupplier.java, v 0.1 2021年02月07日 2:02 下午 khotyn
  */
 public class SofaTracerSupplier<T> implements Supplier<T> {
-    private final long       tid = Thread.currentThread().getId();
-    private Supplier<T>      wrappedSupplier;
-    private SofaTraceContext traceContext;
-    private SofaTracerSpan   currentSpan;
+    private final FunctionalAsyncSupport functionalAsyncSupport;
+    private final Supplier<T> wrappedSupplier;
 
     public SofaTracerSupplier(Supplier<T> wrappedSupplier) {
-        this.initCallable(wrappedSupplier, SofaTraceContextHolder.getSofaTraceContext());
-    }
-
-    public SofaTracerSupplier(Supplier<T> wrappedSupplier, SofaTraceContext traceContext) {
-        this.initCallable(wrappedSupplier, traceContext);
-    }
-
-    private void initCallable(Supplier<T> wrappedSupplier, SofaTraceContext traceContext) {
         this.wrappedSupplier = wrappedSupplier;
-        this.traceContext = traceContext;
-        if (!traceContext.isEmpty()) {
-            this.currentSpan = traceContext.getCurrentSpan();
-        } else {
-            this.currentSpan = null;
-        }
+        functionalAsyncSupport = new FunctionalAsyncSupport(SofaTraceContextHolder.getSofaTraceContext());
     }
 
     @Override
     public T get() {
-        if (Thread.currentThread().getId() != tid) {
-            if (currentSpan != null) {
-                traceContext.push(currentSpan);
-                SpanExtensionFactory.logStartedSpan(currentSpan);
-            }
-        }
+        functionalAsyncSupport.doBefore();
         try {
             return wrappedSupplier.get();
         } finally {
-            if (Thread.currentThread().getId() != tid) {
-                if (currentSpan != null) {
-                    traceContext.pop();
-                }
-            }
+            functionalAsyncSupport.doFinally();
         }
     }
 }

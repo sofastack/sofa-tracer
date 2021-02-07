@@ -17,9 +17,8 @@
 package com.alipay.common.tracer.core.async;
 
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
-import com.alipay.common.tracer.core.extensions.SpanExtensionFactory;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
-import com.alipay.common.tracer.core.span.SofaTracerSpan;
+
 import java.lang.Runnable;
 
 /**
@@ -30,11 +29,8 @@ import java.lang.Runnable;
  * @version $Id: Runnable.java, v 0.1 June 19, 2017 5:54 PM luoguimu123 Exp $
  */
 public class SofaTracerRunnable implements Runnable {
-
-    private long             tid = Thread.currentThread().getId();
-    private Runnable         wrappedRunnable;
-    private SofaTraceContext traceContext;
-    private SofaTracerSpan   currentSpan;
+    private Runnable wrappedRunnable;
+    private FunctionalAsyncSupport functionalAsyncSupport;
 
     public SofaTracerRunnable(Runnable wrappedRunnable) {
         this.initRunnable(wrappedRunnable, SofaTraceContextHolder.getSofaTraceContext());
@@ -46,30 +42,16 @@ public class SofaTracerRunnable implements Runnable {
 
     private void initRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
         this.wrappedRunnable = wrappedRunnable;
-        this.traceContext = traceContext;
-        if (!traceContext.isEmpty()) {
-            this.currentSpan = traceContext.getCurrentSpan();
-        } else {
-            this.currentSpan = null;
-        }
+        this.functionalAsyncSupport = new FunctionalAsyncSupport(traceContext);
     }
 
     @Override
     public void run() {
-        if (Thread.currentThread().getId() != tid) {
-            if (currentSpan != null) {
-                traceContext.push(currentSpan);
-                SpanExtensionFactory.logStartedSpan(currentSpan);
-            }
-        }
+        functionalAsyncSupport.doBefore();
         try {
             wrappedRunnable.run();
         } finally {
-            if (Thread.currentThread().getId() != tid) {
-                if (currentSpan != null) {
-                    traceContext.pop();
-                }
-            }
+            functionalAsyncSupport.doFinally();
         }
     }
 }
