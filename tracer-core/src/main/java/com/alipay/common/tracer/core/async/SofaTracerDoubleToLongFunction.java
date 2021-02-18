@@ -16,40 +16,29 @@
  */
 package com.alipay.common.tracer.core.async;
 
-import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 
-import java.lang.Runnable;
+import java.util.function.DoubleToLongFunction;
 
 /**
- * Runnable that passes Span between threads. The Span name is
- * taken either from the passed value or from the interface.
- *
- * @author luoguimu123
- * @version $Id: Runnable.java, v 0.1 June 19, 2017 5:54 PM luoguimu123 Exp $
+ * @author khotyn
+ * @version SofaTracerDoubleToLongFunction.java, v 0.1 2021年02月18日 11:56 上午 khotyn
  */
-public class SofaTracerRunnable implements Runnable {
-    private Runnable                 wrappedRunnable;
-    protected FunctionalAsyncSupport functionalAsyncSupport;
+public class SofaTracerDoubleToLongFunction implements DoubleToLongFunction {
+    private final FunctionalAsyncSupport functionalAsyncSupport;
+    private final DoubleToLongFunction   wrappedDoubleToLongFunction;
 
-    public SofaTracerRunnable(Runnable wrappedRunnable) {
-        this.initRunnable(wrappedRunnable, SofaTraceContextHolder.getSofaTraceContext());
-    }
-
-    public SofaTracerRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
-        this.initRunnable(wrappedRunnable, traceContext);
-    }
-
-    private void initRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
-        this.wrappedRunnable = wrappedRunnable;
-        this.functionalAsyncSupport = new FunctionalAsyncSupport(traceContext);
+    public SofaTracerDoubleToLongFunction(DoubleToLongFunction wrappedDoubleToLongFunction) {
+        this.wrappedDoubleToLongFunction = wrappedDoubleToLongFunction;
+        functionalAsyncSupport = new FunctionalAsyncSupport(
+            SofaTraceContextHolder.getSofaTraceContext());
     }
 
     @Override
-    public void run() {
+    public long applyAsLong(double value) {
         functionalAsyncSupport.doBefore();
         try {
-            wrappedRunnable.run();
+            return wrappedDoubleToLongFunction.applyAsLong(value);
         } finally {
             functionalAsyncSupport.doFinally();
         }
