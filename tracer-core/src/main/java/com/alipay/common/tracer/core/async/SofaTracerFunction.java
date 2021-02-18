@@ -16,40 +16,29 @@
  */
 package com.alipay.common.tracer.core.async;
 
-import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 
-import java.lang.Runnable;
+import java.util.function.Function;
 
 /**
- * Runnable that passes Span between threads. The Span name is
- * taken either from the passed value or from the interface.
- *
- * @author luoguimu123
- * @version $Id: Runnable.java, v 0.1 June 19, 2017 5:54 PM luoguimu123 Exp $
+ * @author khotyn
+ * @version SofaTracerFunction.java, v 0.1 2021年02月07日 9:56 下午 khotyn
  */
-public class SofaTracerRunnable implements Runnable {
-    private Runnable                 wrappedRunnable;
-    protected FunctionalAsyncSupport functionalAsyncSupport;
+public class SofaTracerFunction<T, R> implements Function<T, R> {
+    private final Function<T, R>         wrappedFunction;
+    private final FunctionalAsyncSupport functionalAsyncSupport;
 
-    public SofaTracerRunnable(Runnable wrappedRunnable) {
-        this.initRunnable(wrappedRunnable, SofaTraceContextHolder.getSofaTraceContext());
-    }
-
-    public SofaTracerRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
-        this.initRunnable(wrappedRunnable, traceContext);
-    }
-
-    private void initRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
-        this.wrappedRunnable = wrappedRunnable;
-        this.functionalAsyncSupport = new FunctionalAsyncSupport(traceContext);
+    public SofaTracerFunction(Function<T, R> wrappedFunction) {
+        this.wrappedFunction = wrappedFunction;
+        this.functionalAsyncSupport = new FunctionalAsyncSupport(
+            SofaTraceContextHolder.getSofaTraceContext());
     }
 
     @Override
-    public void run() {
+    public R apply(T t) {
         functionalAsyncSupport.doBefore();
         try {
-            wrappedRunnable.run();
+            return wrappedFunction.apply(t);
         } finally {
             functionalAsyncSupport.doFinally();
         }
