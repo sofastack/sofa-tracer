@@ -36,31 +36,30 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * @description: [test unit for ConsumerExceptionHandler]
- * @email: <a href="guolei.sgl@antfin.com"></a>
- * @author: guolei.sgl
- * @date: 18/7/27
+ * @author guolei.sgl
+ * @description [test unit for ConsumerExceptionHandler]
+ * @email <a href="guolei.sgl@antfin.com"></a>
+ * @date 18/7/27
  */
 public class ConsumerExceptionHandlerTest extends AbstractTestBase {
 
     private ConsumerExceptionHandler consumerExceptionHandler;
     private SofaTracerSpanEvent      sofaTracerSpanEvent;
     private SofaTracerSpan           sofaTracerSpan;
-    private SofaTracer               sofaTracer;
-    private final String             tracerType    = "SofaTracerSpanTest";
-    private final String             clientLogType = "client-log-test.log";
-    private final String             serverLogType = "server-log-test.log";
 
     @Before
     public void init() {
         consumerExceptionHandler = new ConsumerExceptionHandler();
         sofaTracerSpanEvent = new SofaTracerSpanEvent();
+        String clientLogType = "client-log-test.log";
         Reporter clientReporter = new DiskReporterImpl(clientLogType, new ClientSpanEncoder());
+        String serverLogType = "server-log-test.log";
         Reporter serverReporter = new DiskReporterImpl(serverLogType, new ServerSpanEncoder());
-        sofaTracer = new SofaTracer.Builder(tracerType)
+        String tracerType = "SofaTracerSpanTest";
+        SofaTracer sofaTracer = new SofaTracer.Builder(tracerType)
             .withTag("tracer", "SofaTraceContextHolderTest").withClientReporter(clientReporter)
             .withServerReporter(serverReporter).build();
-        sofaTracerSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("SofaTracerSpanTest").start();
+        sofaTracerSpan = (SofaTracerSpan) sofaTracer.buildSpan("SofaTracerSpanTest").start();
     }
 
     @After
@@ -72,47 +71,59 @@ public class ConsumerExceptionHandlerTest extends AbstractTestBase {
     }
 
     @Test
-    public void handleEventExceptionWithEventNull() throws IOException, InterruptedException {
+    public void handleEventExceptionWithEventNull() {
         consumerExceptionHandler.handleEventException(new Throwable(), 1, null);
-
-        TestUtil.waitForAsyncLog();
-
-        File log = customFileLog("sync.log");
-        List<String> logs = FileUtils.readLines(log);
-        assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                File log = customFileLog("sync.log");
+                List<String> logs = FileUtils.readLines(log);
+                assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 
     @Test
-    public void handleEventExceptionWithEventNotNull() throws IOException, InterruptedException {
+    public void handleEventExceptionWithEventNotNull() {
         sofaTracerSpanEvent.setSofaTracerSpan(sofaTracerSpan);
         consumerExceptionHandler.handleEventException(new Throwable(), 1, sofaTracerSpanEvent);
-
-        TestUtil.waitForAsyncLog();
-
-        File log = customFileLog("sync.log");
-        List<String> logs = FileUtils.readLines(log);
-        assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                File log = customFileLog("sync.log");
+                List<String> logs = FileUtils.readLines(log);
+                assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 
     @Test
-    public void handleOnStartException() throws IOException, InterruptedException {
+    public void handleOnStartException() {
         consumerExceptionHandler.handleOnStartException(new Throwable());
-
-        TestUtil.waitForAsyncLog();
-
-        File log = customFileLog("sync.log");
-        List<String> logs = FileUtils.readLines(log);
-        assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                File log = customFileLog("sync.log");
+                List<String> logs = FileUtils.readLines(log);
+                assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 
     @Test
-    public void handleOnShutdownException() throws IOException, InterruptedException {
+    public void handleOnShutdownException() {
         consumerExceptionHandler.handleOnShutdownException(new Throwable());
-
-        TestUtil.waitForAsyncLog();
-
-        File log = customFileLog("sync.log");
-        List<String> logs = FileUtils.readLines(log);
-        assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                File log = customFileLog("sync.log");
+                List<String> logs = FileUtils.readLines(log);
+                assertTrue(logs.toString(), logs.get(0).contains("[ERROR]"));
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 }

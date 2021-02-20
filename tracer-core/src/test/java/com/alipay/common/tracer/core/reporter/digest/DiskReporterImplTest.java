@@ -31,8 +31,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -51,21 +51,21 @@ import static org.mockito.Mockito.mock;
  */
 public class DiskReporterImplTest extends AbstractTestBase {
 
-    private String            clientLogType             = "client-log-disk-report.log";
+    private final String            clientLogType             = "client-log-disk-report.log";
 
-    private String            expectRollingPolicy       = SofaTracerConfiguration
-                                                            .getRollingPolicy(TracerTestLogEnum.RPC_CLIENT
-                                                                .getRollingKey());
+    private final String            expectRollingPolicy       = SofaTracerConfiguration
+                                                                  .getRollingPolicy(TracerTestLogEnum.RPC_CLIENT
+                                                                      .getRollingKey());
 
-    private String            expectLogReserveConfig    = SofaTracerConfiguration
-                                                            .getLogReserveConfig(TracerTestLogEnum.RPC_CLIENT
-                                                                .getLogReverseKey());
+    private final String            expectLogReserveConfig    = SofaTracerConfiguration
+                                                                  .getLogReserveConfig(TracerTestLogEnum.RPC_CLIENT
+                                                                      .getLogReverseKey());
 
-    private ClientSpanEncoder expectedClientSpanEncoder = new ClientSpanEncoder();
+    private final ClientSpanEncoder expectedClientSpanEncoder = new ClientSpanEncoder();
 
-    private DiskReporterImpl  clientReporter;
+    private DiskReporterImpl        clientReporter;
 
-    private SofaTracerSpan    sofaTracerSpan;
+    private SofaTracerSpan          sofaTracerSpan;
 
     @Before
     public void before() {
@@ -106,7 +106,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
     @Test
     public void testDigestReport() {
         this.clientReporter.digestReport(this.sofaTracerSpan);
-        assertEquals(true, this.clientReporter.getIsDigestFileInited().get());
+        assertTrue(this.clientReporter.getIsDigestFileInited().get());
     }
 
     /**
@@ -156,32 +156,35 @@ public class DiskReporterImplTest extends AbstractTestBase {
         SelfLog.warn("SelfLog init success!!!");
         int nThreads = 30;
         ExecutorService executor = new ThreadPoolExecutor(nThreads, nThreads, 0L,
-            TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+            TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+        CountDownLatch countDownLatch = new CountDownLatch(nThreads);
         for (int i = 0; i < nThreads; i++) {
-            Runnable worker = new WorkerInitThread(this.clientReporter, "" + i);
+            Runnable worker = new WorkerInitThread(this.clientReporter, "" + i, countDownLatch);
             executor.execute(worker);
         }
-        Thread.sleep(3 * 1000);
+        //noinspection ResultOfMethodCallIgnored
+        countDownLatch.await(3, TimeUnit.SECONDS);
         // When there is no control for concurrent initialization, report span will get an error;
         // when the repair method is initialized,other threads need to wait for initialization to complete.
         List<String> contents = FileUtils.readLines(tracerSelfLog());
-        assertTrue("Actual concurrent init file size = " + contents.size(), contents.size() == 1);
+        assertEquals("Actual concurrent init file size = " + contents.size(), 1, contents.size());
     }
 
-    class WorkerInitThread implements Runnable {
+    static class WorkerInitThread implements Runnable {
+        private final DiskReporterImpl reporter;
+        private final String           command;
+        private final CountDownLatch   countDownLatch;
 
-        private DiskReporterImpl reporter;
-
-        private String           command;
-
-        public WorkerInitThread(DiskReporterImpl reporter, String s) {
+        public WorkerInitThread(DiskReporterImpl reporter, String s, CountDownLatch countDownLatch) {
             this.command = s;
             this.reporter = reporter;
+            this.countDownLatch = countDownLatch;
         }
 
         @Override
         public void run() {
             processCommand();
+            countDownLatch.countDown();
         }
 
         private void processCommand() {

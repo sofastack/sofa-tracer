@@ -33,12 +33,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.alipay.common.tracer.core.span.SofaTracerSpan.ARRAY_SEPARATOR;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -50,11 +52,9 @@ import static org.junit.Assert.assertTrue;
  */
 public class CommonSpanEncoderTest extends AbstractTestBase {
 
-    private SofaTracer sofaTracer;
+    private SofaTracer   sofaTracer;
 
-    private String     clientLogType = "clientLog.log";
-
-    private String     appName       = "appName";
+    private final String clientLogType = "clientLog.log";
 
     @Before
     public void setup() throws Exception {
@@ -68,17 +68,18 @@ public class CommonSpanEncoderTest extends AbstractTestBase {
      * Method: encode(SofaTracerSpan span)
      */
     @Test
-    public void testEncode() throws Exception {
+    public void testEncode() {
+        String appName = "appName";
         SofaTracerSpan sofaTracerSpan = (SofaTracerSpan) this.sofaTracer
-            .buildSpan("spanOperationName").withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-            .withTag(SpanTags.CURR_APP_TAG.getKey(), appName).start();
+                .buildSpan("spanOperationName").withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
+                .withTag(SpanTags.CURR_APP_TAG.getKey(), appName).start();
 
         SofaTracerSpanContext sofaTracerSpanContext = sofaTracerSpan.getSofaTracerSpanContext();
         Exception exception = new RuntimeException("CommonSpanEncoderTest");
         String errorType = "timeout_error";
-        String[] errorSources = new String[] { "trade", "rpc" };
+        String[] errorSources = new String[]{"trade", "rpc"};
 
-        Map<String, String> context = new HashMap<String, String>();
+        Map<String, String> context = new HashMap<>();
         context.put("serviceName", "service");
         context.put("methodName", "methodCall");
 
@@ -91,37 +92,40 @@ public class CommonSpanEncoderTest extends AbstractTestBase {
         //Record a client log
         sofaTracerSpan.finish();
 
-        TestUtil.waitForAsyncLog();
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                //Check client logs
+                List<String> clientDigestContents = FileUtils.readLines(new File(logDirectoryPath
+                        + File.separator
+                        + clientLogType));
+                assertEquals(1, clientDigestContents.size());
+                assertTrue(clientDigestContents.get(0).contains(sofaTracerSpanContext.getTraceId()));
 
-        //Check client logs
-        List<String> clientDigestContents = FileUtils.readLines(new File(logDirectoryPath
-                                                                         + File.separator
-                                                                         + clientLogType));
-        assertTrue(clientDigestContents.size() == 1);
-        assertTrue(clientDigestContents.get(0).contains(sofaTracerSpanContext.getTraceId()));
+                //error log
+                List<String> errorContents = FileUtils
+                        .readLines(customFileLog(TracerSystemLogEnum.MIDDLEWARE_ERROR.getDefaultLogName()));
+                //Error stack
+                assertTrue(errorContents.size() > 1);
+                assertTrue(errorContents.get(0).contains(sofaTracerSpanContext.getTraceId()));
+                //remove head
+                String fileContent = errorContents.get(0).substring(errorContents.get(0).indexOf(",") + 1);
+                //remove end
+                fileContent = fileContent.substring(0, fileContent.lastIndexOf(","));
+                //construct result
+                List<String> params = new ArrayList<>();
+                params.add(sofaTracerSpan.getTagsWithStr().get(SpanTags.CURR_APP_TAG.getKey()));
+                params.add(sofaTracerSpanContext.getTraceId());
+                params.add(sofaTracerSpanContext.getSpanId());
+                params.add(Thread.currentThread().getName());
+                params.add(errorType);
+                params.add(StringUtils.arrayToString(errorSources, ARRAY_SEPARATOR, "", ""));
+                params.add(MAP_PREFIX + StringUtils.mapToString(context));
+                params.add(MAP_PREFIX + StringUtils.mapToString(sofaTracerSpanContext.getBizBaggage()));
 
-        //error log
-        List<String> errorContents = FileUtils
-            .readLines(customFileLog(TracerSystemLogEnum.MIDDLEWARE_ERROR.getDefaultLogName()));
-        //Error stack
-        assertTrue(errorContents.size() > 1);
-        assertTrue(errorContents.get(0).contains(sofaTracerSpanContext.getTraceId()));
-        //remove head
-        String fileContent = errorContents.get(0).substring(errorContents.get(0).indexOf(",") + 1);
-        //remove end
-        fileContent = fileContent.substring(0, fileContent.lastIndexOf(","));
-        //construct result
-        List<String> params = new ArrayList<>();
-        params.add(sofaTracerSpan.getTagsWithStr().get(SpanTags.CURR_APP_TAG.getKey()));
-        params.add(sofaTracerSpanContext.getTraceId());
-        params.add(sofaTracerSpanContext.getSpanId());
-        params.add(Thread.currentThread().getName());
-        params.add(errorType);
-        params.add(StringUtils.arrayToString(errorSources, ARRAY_SEPARATOR, "", ""));
-        params.add(MAP_PREFIX + StringUtils.mapToString(context));
-        params.add(MAP_PREFIX + StringUtils.mapToString(sofaTracerSpanContext.getBizBaggage()));
-
-        Assert.assertTrue("Content Checkout error", checkResult(params, fileContent));
+                Assert.assertTrue("Content Checkout error", checkResult(params, fileContent));
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
-
 }

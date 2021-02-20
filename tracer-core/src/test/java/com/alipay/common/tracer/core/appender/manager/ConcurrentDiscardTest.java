@@ -16,6 +16,7 @@
  */
 package com.alipay.common.tracer.core.appender.manager;
 
+import com.alipay.common.tracer.core.TestUtil;
 import com.alipay.common.tracer.core.appender.TraceAppender;
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
@@ -38,7 +39,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
  * @author liangen
  * @version $Id: ConcurrentDiscardTest.java, v 0.1 October 23, 2017 8:22 PM liangen Exp $
  */
@@ -83,32 +83,32 @@ public class ConcurrentDiscardTest {
     }
 
     @Test
-    public void testConcurrentDiscard() throws InterruptedException, IOException {
+    public void testConcurrentDiscard() throws InterruptedException {
         SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.TRACER_ASYNC_APPENDER_ALLOW_DISCARD, "true");
+                SofaTracerConfiguration.TRACER_ASYNC_APPENDER_ALLOW_DISCARD, "true");
         SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.TRACER_ASYNC_APPENDER_IS_OUT_DISCARD_NUMBER, "true");
+                SofaTracerConfiguration.TRACER_ASYNC_APPENDER_IS_OUT_DISCARD_NUMBER, "true");
         SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.TRACER_ASYNC_APPENDER_IS_OUT_DISCARD_ID, "true");
+                SofaTracerConfiguration.TRACER_ASYNC_APPENDER_IS_OUT_DISCARD_ID, "true");
         SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.TRACER_ASYNC_APPENDER_DISCARD_OUT_THRESHOLD, "500");
+                SofaTracerConfiguration.TRACER_ASYNC_APPENDER_DISCARD_OUT_THRESHOLD, "500");
 
         final AsyncCommonDigestAppenderManager asyncCommonDigestAppenderManager = new AsyncCommonDigestAppenderManager(
-            1024);
+                1024);
         asyncCommonDigestAppenderManager.start("ConcurrentDiscardTest");
 
         ClientSpanEncoder encoder = new ClientSpanEncoder();
 
         TraceAppender traceAppender1 = LoadTestAwareAppender
-            .createLoadTestAwareTimedRollingFileAppender(fileName1, "", "");
+                .createLoadTestAwareTimedRollingFileAppender(fileName1, "", "");
         TraceAppender traceAppender2 = LoadTestAwareAppender
-            .createLoadTestAwareTimedRollingFileAppender(fileName2, "", "");
+                .createLoadTestAwareTimedRollingFileAppender(fileName2, "", "");
         TraceAppender traceAppender3 = LoadTestAwareAppender
-            .createLoadTestAwareTimedRollingFileAppender(fileName3, "", "");
+                .createLoadTestAwareTimedRollingFileAppender(fileName3, "", "");
         TraceAppender traceAppender4 = LoadTestAwareAppender
-            .createLoadTestAwareTimedRollingFileAppender(fileName4, "", "");
+                .createLoadTestAwareTimedRollingFileAppender(fileName4, "", "");
         TraceAppender traceAppender5 = LoadTestAwareAppender
-            .createLoadTestAwareTimedRollingFileAppender(fileName5, "", "");
+                .createLoadTestAwareTimedRollingFileAppender(fileName5, "", "");
 
         asyncCommonDigestAppenderManager.addAppender("logType1", traceAppender1, encoder);
         asyncCommonDigestAppenderManager.addAppender("logType2", traceAppender2, encoder);
@@ -120,7 +120,7 @@ public class ConcurrentDiscardTest {
 
         final CountDownLatch countDownLatch = new CountDownLatch(50);
         for (int i = 0; i < 50; i++) {
-            new Thread(()-> {
+            new Thread(() -> {
                 SofaTracerSpan span1 = ManagerTestUtil.createSofaTracerSpan(1);
                 SofaTracerSpan span2 = ManagerTestUtil.createSofaTracerSpan(2);
                 SofaTracerSpan span3 = ManagerTestUtil.createSofaTracerSpan(3);
@@ -153,32 +153,36 @@ public class ConcurrentDiscardTest {
         }
 
         countDownLatch.await();
-        Thread.sleep(3000);
-        SynchronizingSelfLog.flush();
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                SynchronizingSelfLog.flush();
 
-        /**check*/
-        int log1Num = getLineNum(fileName1);
-        int log2Num = getLineNum(fileName2);
-        int log3Num = getLineNum(fileName3);
-        int log4Num = getLineNum(fileName4);
-        int log5Num = getLineNum(fileName5);
-        int allNum = log1Num + log2Num + log3Num + log4Num + log5Num;
+                /*check*/
+                int log1Num = getLineNum(fileName1);
+                int log2Num = getLineNum(fileName2);
+                int log3Num = getLineNum(fileName3);
+                int log4Num = getLineNum(fileName4);
+                int log5Num = getLineNum(fileName5);
+                int allNum = log1Num + log2Num + log3Num + log4Num + log5Num;
 
-        /**Landing log + Lost log = Print log*/
-        SelfLog.info("Landing log：" + allNum);
-        SelfLog.info("Lost log：" + discardNum.get());
-        Assert.assertEquals(25000, allNum + discardNum.get());
-        /** Sync.log lost log data is less than the actual number of lost */
-        int logDiscard = getDiscardNumFromTracerSelfLog();
-        SelfLog.info("Sync.log records the number of lost logs：" + logDiscard);
-        Assert.assertTrue(logDiscard <= discardNum.get());
-        /** Accuracy of the specific lost log data recorded by sync.log: the difference from the true lost number should be less than 500 */
-        int allTraceIdDiscard = traceId1Discard + traceId2Discard + traceId3Discard
-                                + traceId4Discard + traceId5Discard;
-        SelfLog.info("The number of specific lost log data with traceId recorded by sync.log:" + allTraceIdDiscard);
-        Assert.assertTrue((discardNum.get() == allTraceIdDiscard)
-                          || (discardNum.get() - allTraceIdDiscard) < 500);
-
+                /*Landing log + Lost log = Print log*/
+                SelfLog.info("Landing log：" + allNum);
+                SelfLog.info("Lost log：" + discardNum.get());
+                Assert.assertEquals(25000, allNum + discardNum.get());
+                /* Sync.log lost log data is less than the actual number of lost */
+                int logDiscard = getDiscardNumFromTracerSelfLog();
+                SelfLog.info("Sync.log records the number of lost logs：" + logDiscard);
+                Assert.assertTrue(logDiscard <= discardNum.get());
+                /* Accuracy of the specific lost log data recorded by sync.log: the difference from the true lost number should be less than 500 */
+                int allTraceIdDiscard = traceId1Discard + traceId2Discard + traceId3Discard
+                        + traceId4Discard + traceId5Discard;
+                SelfLog.info("The number of specific lost log data with traceId recorded by sync.log:" + allTraceIdDiscard);
+                Assert.assertTrue((discardNum.get() == allTraceIdDiscard)
+                        || (discardNum.get() - allTraceIdDiscard) < 500);
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 3000);
     }
 
     public int getLineNum(String fileName) throws IOException {
