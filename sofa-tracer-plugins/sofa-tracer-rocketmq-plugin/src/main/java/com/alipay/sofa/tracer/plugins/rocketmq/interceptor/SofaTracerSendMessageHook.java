@@ -21,7 +21,7 @@ import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.sofa.tracer.plugins.rocketmq.tracers.RocketMQSendTracer;
-
+import io.opentracing.tag.Tags;
 import org.apache.rocketmq.client.hook.SendMessageContext;
 import org.apache.rocketmq.client.hook.SendMessageHook;
 import org.apache.rocketmq.client.producer.SendResult;
@@ -31,8 +31,6 @@ import org.apache.rocketmq.common.message.MessageType;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import io.opentracing.tag.Tags;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/12/12 8:22 PM

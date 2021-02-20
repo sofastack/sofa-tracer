@@ -19,11 +19,19 @@ package com.alipay.disruptor.dsl;
 import com.alipay.common.tracer.core.appender.manager.ConsumerThreadFactory;
 import com.alipay.common.tracer.core.appender.manager.StringEvent;
 import com.alipay.common.tracer.core.appender.manager.StringEventFactory;
-import com.alipay.disruptor.*;
+import com.alipay.disruptor.BlockingWaitStrategy;
+import com.alipay.disruptor.EventFactory;
+import com.alipay.disruptor.FatalExceptionHandler;
+import com.alipay.disruptor.RingBuffer;
+import com.alipay.disruptor.Sequence;
+import com.alipay.disruptor.SequenceBarrier;
+import com.alipay.disruptor.WorkHandler;
+import com.alipay.disruptor.WorkerPool;
 import com.alipay.disruptor.util.DaemonThreadFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 

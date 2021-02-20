@@ -19,7 +19,6 @@ package com.alipay.sofa.tracer.boot.redis.configuration;
 import com.alipay.sofa.tracer.boot.configuration.SofaTracerAutoConfiguration;
 import com.sofa.alipay.tracer.plugins.spring.redis.SofaTracerRCFBeanPostProcessor;
 import com.sofa.alipay.tracer.plugins.spring.redis.common.RedisActionWrapperHelper;
-
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

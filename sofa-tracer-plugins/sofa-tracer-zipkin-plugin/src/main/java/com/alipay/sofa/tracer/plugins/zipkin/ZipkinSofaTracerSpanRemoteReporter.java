@@ -25,6 +25,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 import zipkin2.Span;
 import zipkin2.reporter.AsyncReporter;
+
 import java.io.Closeable;
 import java.io.Flushable;
 

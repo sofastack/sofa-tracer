@@ -32,40 +32,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.BGREWRITEAOF;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.BGSAVE;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLIENT_LIST;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_ADDSLOTS;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_COUNTKEYSINSLOT;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_DELSLOTS;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_FORGET;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_GETKEYSINSLOT;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_INFO;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_KEYSLOT;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_MASTER_SLAVE_MAP;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_MEET;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_NODES;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_NODE_FOR_KEY;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_NODE_FOR_SLOT;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_REPLICATE;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_SETSLOT;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CLUSTER_SLAVES;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CONFIG_GET;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CONFIG_RESETSTAT;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.CONFIG_SET;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.DBSIZE;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.EXECUTE;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.FLUSHALL;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.FLUSHDB;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.INFO;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.KEYS;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.LASTSAVE;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.PING;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.RANDOMKEY;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.SAVE;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.SCAN;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.SHUTDOWN;
-import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.TIME;
+import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.*;
 
 /**
  * OpenTracing instrumentation of a {@link RedisClusterConnection}.

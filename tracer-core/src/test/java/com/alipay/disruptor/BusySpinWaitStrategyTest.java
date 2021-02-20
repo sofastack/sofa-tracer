@@ -17,6 +17,7 @@
 package com.alipay.disruptor;
 
 import org.junit.Test;
+
 import static com.alipay.disruptor.support.WaitStrategyTestUtil.assertWaitForWithDelayOf;
 
 /**
