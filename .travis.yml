@@ -12,4 +12,4 @@ script:
 - sh ./check_format.sh
 
 after_success:
-- mvn clean test cobertura:cobertura org.eluder.coveralls:coveralls-maven-plugin:report
+- bash <(curl -s https://codecov.io/bash) -t 71dff73a-664a-437b-9c46-8ef93fe7520d

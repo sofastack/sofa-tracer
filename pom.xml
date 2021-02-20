@@ -423,6 +423,7 @@
                         <format>xml</format>
                         <format>html</format>
                     </formats>
+                    <check />
                 </configuration>
             </plugin>
             <plugin>
