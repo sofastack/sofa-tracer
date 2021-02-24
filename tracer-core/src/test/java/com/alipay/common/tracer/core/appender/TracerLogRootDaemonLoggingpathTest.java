@@ -25,11 +25,9 @@ import java.io.File;
 import static junit.framework.TestCase.assertEquals;
 
 /**
- * TracerLogRootDaemon Tester.
- *
- * @author <guanchao.ygc>
- * @version 1.0
- * @since <pre>July 24, 2017</pre>
+ * TracerLogRootDaemonLoggingpathTest
+ * @author guolei.sgl
+ * @since v3.1.1
  */
 public class TracerLogRootDaemonLoggingpathTest {
 
