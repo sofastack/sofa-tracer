@@ -25,10 +25,14 @@ import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.util.DesensitizationHelper;
+
 import io.opentracing.tag.Tags;
 
 import java.io.IOException;
 import java.util.Map;
+
+import static com.alipay.common.tracer.util.DesensitizationHelper.desensitize;
 
 /**
  *
@@ -101,7 +105,7 @@ public abstract class AbstractDigestSpanEncoder implements SpanEncoder<SofaTrace
      * @return String
      */
     protected String baggageSystemSerialized(SofaTracerSpanContext spanContext) {
-        return spanContext.getSysSerializedBaggage();
+        return desensitize(spanContext.getSysSerializedBaggage());
     }
 
     /**
@@ -110,7 +114,7 @@ public abstract class AbstractDigestSpanEncoder implements SpanEncoder<SofaTrace
      * @return
      */
     protected String baggageSerialized(SofaTracerSpanContext spanContext) {
-        return spanContext.getBizSerializedBaggage();
+        return desensitize(spanContext.getBizSerializedBaggage());
     }
 
     /**
