@@ -173,6 +173,14 @@ public class SofaTracerConfiguration {
     }
 
     /**
+     * Remove property by key
+     * @param key
+     */
+    public static void removeProperty(String key) {
+        properties.remove(key);
+    }
+
+    /**
      * get property by key
      *
      * @param key configuration item key

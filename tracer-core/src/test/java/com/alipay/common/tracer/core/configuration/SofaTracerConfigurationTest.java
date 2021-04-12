@@ -25,6 +25,9 @@ import org.junit.Test;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+
+import static org.junit.Assert.*;
 
 /**
  *
@@ -64,34 +67,32 @@ public class SofaTracerConfigurationTest {
 
     @Test
     public void testTracerConfiguration() {
-        Assert.assertEquals(SofaTracerConfiguration.getInteger("nullkey"), null);
+        assertEquals(SofaTracerConfiguration.getInteger("nullkey"), null);
         Integer i = new Integer(1);
-        Assert.assertEquals(SofaTracerConfiguration.getIntegerDefaultIfNull("nullkey", i), i);
-        Assert.assertEquals(SofaTracerConfiguration.getMapEmptyIfNull("nullkey").size(), 0);
-        Assert.assertEquals(SofaTracerConfiguration.getMapEmptyIfNull("testProperty1").size(), 0);
-        Assert.assertEquals(SofaTracerConfiguration.getMapEmptyIfNull("testProperty3").size(), 0);
-        Assert.assertEquals(SofaTracerConfiguration.getProperty("testProperty1"), "test1");
-        Assert.assertEquals(SofaTracerConfiguration.getProperty("testProperty3"), "test3");
+        assertEquals(SofaTracerConfiguration.getIntegerDefaultIfNull("nullkey", i), i);
+        assertEquals(SofaTracerConfiguration.getMapEmptyIfNull("nullkey").size(), 0);
+        assertEquals(SofaTracerConfiguration.getMapEmptyIfNull("testProperty1").size(), 0);
+        assertEquals(SofaTracerConfiguration.getMapEmptyIfNull("testProperty3").size(), 0);
+        assertEquals(SofaTracerConfiguration.getProperty("testProperty1"), "test1");
+        assertEquals(SofaTracerConfiguration.getProperty("testProperty3"), "test3");
 
-        Assert.assertEquals(SofaTracerConfiguration.getProperty("notExist", null), null);
+        assertEquals(SofaTracerConfiguration.getProperty("notExist", null), null);
 
         SofaTracerConfiguration.setProperty("testProperty1", "newkey");
-        Assert.assertEquals(SofaTracerConfiguration.getProperty("testProperty1"), "newkey");
+        assertEquals(SofaTracerConfiguration.getProperty("testProperty1"), "newkey");
 
         SofaTracerConfiguration.setProperty("testProperty3", "newkey");
-        Assert.assertEquals(SofaTracerConfiguration.getProperty("testProperty3"), "newkey");
+        assertEquals(SofaTracerConfiguration.getProperty("testProperty3"), "newkey");
 
-        Assert.assertEquals(SofaTracerConfiguration.getInteger("testIntegerProperty1").intValue(),
-            1);
-        Assert.assertEquals(SofaTracerConfiguration.getInteger("testIntegerProperty2").intValue(),
-            2);
+        assertEquals(SofaTracerConfiguration.getInteger("testIntegerProperty1").intValue(), 1);
+        assertEquals(SofaTracerConfiguration.getInteger("testIntegerProperty2").intValue(), 2);
 
         HashMap<String, String> map = new HashMap<String, String>();
         SofaTracerConfiguration.setProperty("map", map);
-        Assert.assertEquals(SofaTracerConfiguration.getMapEmptyIfNull("map"), map);
+        assertEquals(SofaTracerConfiguration.getMapEmptyIfNull("map"), map);
 
         SofaTracerConfiguration.setProperty("integer1", 1);
-        Assert.assertEquals(SofaTracerConfiguration.getInteger("integer1").intValue(), 1);
+        assertEquals(SofaTracerConfiguration.getInteger("integer1").intValue(), 1);
     }
 
     @Test
@@ -120,4 +121,12 @@ public class SofaTracerConfigurationTest {
 
     }
 
+    @Test
+    public void test_removeProperty() {
+        String uuid = UUID.randomUUID().toString();
+        SofaTracerConfiguration.setProperty(uuid, "test_removeProperty");
+        assertEquals("test_removeProperty", SofaTracerConfiguration.getProperty(uuid));
+        SofaTracerConfiguration.removeProperty(uuid);
+        assertEquals("", SofaTracerConfiguration.getProperty(uuid));
+    }
 }
