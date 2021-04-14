@@ -1,7 +1,7 @@
 ## SOFATracer
 
-[![Build Status](https://github.com/sofastack/sofa-tracer/workflows/build/badge.svg?branch=3.x)](https://github.com/sofastack/sofa-tracer/workflows/build/badge.svg?branch=3.x)
-[![Coverage Status](https://coveralls.io/repos/github/alipay/sofa-tracer/badge.svg?branch=master)](https://coveralls.io/github/alipay/sofa-tracer?branch=master)
+[![Build Status](https://github.com/sofastack/sofa-tracer/workflows/build/badge.svg?branch=master)](https://github.com/sofastack/sofa-tracer/workflows/build/badge.svg?branch=master)
+[![Coverage Status](https://codecov.io/gh/sofastack/sofa-tracer/branch/master/graph/badge.svg)](https://codecov.io/gh/sofastack/sofa-tracer/branch/master)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)
 [![Maven](https://img.shields.io/github/release/alipay/sofa-tracer.svg)](https://github.com/alipay/sofa-tracer/releases)
 

@@ -50,13 +50,28 @@ public class SelfLog {
      * @param e
      */
     public static void error(String log, Throwable e) {
+        logWithException(ERROR_PREFIX, log, e);
+    }
+
+    /**
+     * Warn with exception
+     * @param log
+     * @param e
+     */
+    public static void warn(String log, Throwable e) {
+        logWithException(WARN_PREFIX, log, e);
+    }
+
+    public static void logWithException(String prefix, String log, Throwable e) {
         try {
             String timestamp = Timestamp.currentTime();
             StringWriter sw = new StringWriter(4096);
             PrintWriter pw = new PrintWriter(sw, false);
-            pw.append(timestamp).append(ERROR_PREFIX).append(log).append(StringUtils.NEWLINE);
-            e.printStackTrace(pw);
-            pw.println();
+            pw.append(timestamp).append(prefix).append(log).append(StringUtils.NEWLINE);
+            if (e != null) {
+                e.printStackTrace(pw);
+                pw.println();
+            }
             pw.flush();
             selfLogAppenderManager.append(sw.toString());
         } catch (Throwable t) {
