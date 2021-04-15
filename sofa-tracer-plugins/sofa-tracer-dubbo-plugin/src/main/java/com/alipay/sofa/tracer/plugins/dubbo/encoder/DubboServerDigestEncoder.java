@@ -18,9 +18,6 @@ package com.alipay.sofa.tracer.plugins.dubbo.encoder;
 
 import com.alipay.common.tracer.core.appender.builder.JsonStringBuilder;
 import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
-import com.alipay.common.tracer.core.appender.self.Timestamp;
-import com.alipay.common.tracer.core.constants.SofaTracerConstant;
-import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.middleware.parent.AbstractDigestSpanEncoder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
@@ -28,7 +25,6 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.dubbo.constants.AttachmentKeyConstants;
 import io.opentracing.tag.Tags;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**

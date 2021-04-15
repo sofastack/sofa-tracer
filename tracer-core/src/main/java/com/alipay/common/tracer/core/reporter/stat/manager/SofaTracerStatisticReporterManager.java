@@ -23,7 +23,11 @@ import com.alipay.common.tracer.core.reporter.stat.model.StatValues;
 import com.alipay.common.tracer.core.utils.StringUtils;
 
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**

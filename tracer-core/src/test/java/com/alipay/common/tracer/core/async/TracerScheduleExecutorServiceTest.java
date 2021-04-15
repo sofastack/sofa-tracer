@@ -27,10 +27,14 @@ import com.alipay.common.tracer.core.tracertest.encoder.ServerSpanEncoder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @description: [test for TracerScheduleExecutorService]

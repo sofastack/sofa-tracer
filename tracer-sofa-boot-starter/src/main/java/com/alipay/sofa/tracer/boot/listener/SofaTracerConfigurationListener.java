@@ -16,6 +16,9 @@
  */
 package com.alipay.sofa.tracer.boot.listener;
 
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.Bindable;
@@ -26,10 +29,6 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
-
-import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
-import com.alipay.common.tracer.core.utils.StringUtils;
-import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 import org.springframework.util.ClassUtils;
 
 /**
