@@ -19,7 +19,6 @@ package com.alipay.common.tracer.core.appender.manager;
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
-import java.io.File;
 
 /**
  *

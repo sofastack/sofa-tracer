@@ -17,9 +17,7 @@
 package com.alipay.common.tracer.core.async;
 
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
-import com.alipay.common.tracer.core.extensions.SpanExtensionFactory;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
-import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
 import java.util.concurrent.Callable;
 
@@ -31,11 +29,8 @@ import java.util.concurrent.Callable;
  * @version $Id: Callable.java, v 0.1 June 19, 2017 5:52 PM luoguimu123 Exp $
  */
 public class SofaTracerCallable<T> implements Callable<T> {
-
-    private long             tid = Thread.currentThread().getId();
-    private Callable<T>      wrappedCallable;
-    private SofaTraceContext traceContext;
-    private SofaTracerSpan   currentSpan;
+    private Callable<T>            wrappedCallable;
+    private FunctionalAsyncSupport functionalAsyncSupport;
 
     public SofaTracerCallable(Callable<T> wrappedCallable) {
         this.initCallable(wrappedCallable, SofaTraceContextHolder.getSofaTraceContext());
@@ -47,30 +42,16 @@ public class SofaTracerCallable<T> implements Callable<T> {
 
     private void initCallable(Callable<T> wrappedCallable, SofaTraceContext traceContext) {
         this.wrappedCallable = wrappedCallable;
-        this.traceContext = traceContext;
-        if (!traceContext.isEmpty()) {
-            this.currentSpan = traceContext.getCurrentSpan();
-        } else {
-            this.currentSpan = null;
-        }
+        this.functionalAsyncSupport = new FunctionalAsyncSupport(traceContext);
     }
 
     @Override
     public T call() throws Exception {
-        if (Thread.currentThread().getId() != tid) {
-            if (currentSpan != null) {
-                traceContext.push(currentSpan);
-                SpanExtensionFactory.logStartedSpan(currentSpan);
-            }
-        }
+        functionalAsyncSupport.doBefore();
         try {
             return wrappedCallable.call();
         } finally {
-            if (Thread.currentThread().getId() != tid) {
-                if (currentSpan != null) {
-                    traceContext.pop();
-                }
-            }
+            functionalAsyncSupport.doFinally();
         }
     }
 

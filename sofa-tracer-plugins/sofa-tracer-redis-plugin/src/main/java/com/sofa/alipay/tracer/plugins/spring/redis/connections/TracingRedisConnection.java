@@ -16,8 +16,8 @@
  */
 package com.sofa.alipay.tracer.plugins.spring.redis.connections;
 
-import com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand;
 import com.sofa.alipay.tracer.plugins.spring.redis.common.RedisActionWrapperHelper;
+import com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.geo.Circle;
 import org.springframework.data.geo.Distance;
