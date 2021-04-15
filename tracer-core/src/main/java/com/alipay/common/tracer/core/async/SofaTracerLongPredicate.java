@@ -16,40 +16,29 @@
  */
 package com.alipay.common.tracer.core.async;
 
-import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 
-import java.lang.Runnable;
+import java.util.function.LongPredicate;
 
 /**
- * Runnable that passes Span between threads. The Span name is
- * taken either from the passed value or from the interface.
- *
- * @author luoguimu123
- * @version $Id: Runnable.java, v 0.1 June 19, 2017 5:54 PM luoguimu123 Exp $
+ * @author khotyn
+ * @version v0.1 2021.02.18
  */
-public class SofaTracerRunnable implements Runnable {
-    private Runnable                 wrappedRunnable;
-    protected FunctionalAsyncSupport functionalAsyncSupport;
+public class SofaTracerLongPredicate implements LongPredicate {
+    private final FunctionalAsyncSupport functionalAsyncSupport;
+    private final LongPredicate          wrappedLongPredicate;
 
-    public SofaTracerRunnable(Runnable wrappedRunnable) {
-        this.initRunnable(wrappedRunnable, SofaTraceContextHolder.getSofaTraceContext());
-    }
-
-    public SofaTracerRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
-        this.initRunnable(wrappedRunnable, traceContext);
-    }
-
-    private void initRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
-        this.wrappedRunnable = wrappedRunnable;
-        this.functionalAsyncSupport = new FunctionalAsyncSupport(traceContext);
+    public SofaTracerLongPredicate(LongPredicate wrappedLongPredicate) {
+        this.wrappedLongPredicate = wrappedLongPredicate;
+        functionalAsyncSupport = new FunctionalAsyncSupport(
+            SofaTraceContextHolder.getSofaTraceContext());
     }
 
     @Override
-    public void run() {
+    public boolean test(long value) {
         functionalAsyncSupport.doBefore();
         try {
-            wrappedRunnable.run();
+            return wrappedLongPredicate.test(value);
         } finally {
             functionalAsyncSupport.doFinally();
         }

@@ -16,40 +16,29 @@
  */
 package com.alipay.common.tracer.core.async;
 
-import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 
-import java.lang.Runnable;
+import java.util.function.ToLongBiFunction;
 
 /**
- * Runnable that passes Span between threads. The Span name is
- * taken either from the passed value or from the interface.
- *
- * @author luoguimu123
- * @version $Id: Runnable.java, v 0.1 June 19, 2017 5:54 PM luoguimu123 Exp $
+ * @author khotyn
+ * @version v0.1 2021.02.18
  */
-public class SofaTracerRunnable implements Runnable {
-    private Runnable                 wrappedRunnable;
-    protected FunctionalAsyncSupport functionalAsyncSupport;
+public class SofaTracerToLongBiFunction<T, U> implements ToLongBiFunction<T, U> {
+    private final FunctionalAsyncSupport functionalAsyncSupport;
+    private final ToLongBiFunction<T, U> wrappedToLongBiFunction;
 
-    public SofaTracerRunnable(Runnable wrappedRunnable) {
-        this.initRunnable(wrappedRunnable, SofaTraceContextHolder.getSofaTraceContext());
-    }
-
-    public SofaTracerRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
-        this.initRunnable(wrappedRunnable, traceContext);
-    }
-
-    private void initRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
-        this.wrappedRunnable = wrappedRunnable;
-        this.functionalAsyncSupport = new FunctionalAsyncSupport(traceContext);
+    public SofaTracerToLongBiFunction(ToLongBiFunction<T, U> wrappedToLongBiFunction) {
+        this.wrappedToLongBiFunction = wrappedToLongBiFunction;
+        functionalAsyncSupport = new FunctionalAsyncSupport(
+            SofaTraceContextHolder.getSofaTraceContext());
     }
 
     @Override
-    public void run() {
+    public long applyAsLong(T t, U u) {
         functionalAsyncSupport.doBefore();
         try {
-            wrappedRunnable.run();
+            return wrappedToLongBiFunction.applyAsLong(t, u);
         } finally {
             functionalAsyncSupport.doFinally();
         }

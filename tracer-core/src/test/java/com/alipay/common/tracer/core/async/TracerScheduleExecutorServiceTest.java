@@ -28,7 +28,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -37,82 +36,67 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @description: [test for TracerScheduleExecutorService]
- * @email: <a href="guolei.sgl@antfin.com"></a>
- * @author: guolei.sgl
- * @date: 18/7/30
+ * @author guolei.sgl
+ * @description [test for TracerScheduleExecutorService]
+ * @email <a href="guolei.sgl@antfin.com"></a>
+ * @date 18/7/30
  */
 public class TracerScheduleExecutorServiceTest {
 
-    private static final TimeUnit TIME_UNIT     = TimeUnit.MILLISECONDS;
-    TracerScheduleExecutorService tracerScheduleExecutorService;
-    ScheduledExecutorService      scheduledExecutorService;
-
-    private final String          tracerType    = "SofaTracerSpanTest";
-    private final String          clientLogType = "client-log-test.log";
-    private final String          serverLogType = "server-log-test.log";
-    private SofaTracer            sofaTracer;
-    private SofaTracerSpan        sofaTracerSpan;
+    private static final TimeUnit         TIME_UNIT = TimeUnit.MILLISECONDS;
+    private TracerScheduleExecutorService tracerScheduleExecutorService;
+    private SofaTracerSpan                sofaTracerSpan;
 
     @Before
     public void setUp() {
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        ScheduledExecutorService scheduledExecutorService = Executors
+            .newSingleThreadScheduledExecutor();
         tracerScheduleExecutorService = new TracerScheduleExecutorService(scheduledExecutorService);
+        String clientLogType = "client-log-test.log";
         Reporter clientReporter = new DiskReporterImpl(clientLogType, new ClientSpanEncoder());
+        String serverLogType = "server-log-test.log";
         Reporter serverReporter = new DiskReporterImpl(serverLogType, new ServerSpanEncoder());
-        sofaTracer = new SofaTracer.Builder(tracerType)
+        String tracerType = "SofaTracerSpanTest";
+        SofaTracer sofaTracer = new SofaTracer.Builder(tracerType)
             .withTag("tracer", "SofaTraceContextHolderTest").withClientReporter(clientReporter)
             .withServerReporter(serverReporter).build();
-        sofaTracerSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("SofaTracerSpanTest").start();
+        sofaTracerSpan = (SofaTracerSpan) sofaTracer.buildSpan("SofaTracerSpanTest").start();
     }
 
     @Test
     public void scheduleRunnable() throws InterruptedException {
-        final Map<String, Integer> taskMap = new HashMap<String, Integer>();
+        final Map<String, Integer> taskMap = new HashMap<>();
         taskMap.put("key", 1);
-        SofaTracerRunnable sofaTracerRunnable = new SofaTracerRunnable(new Runnable() {
-            @Override
-            public void run() {
-                taskMap.put("key", taskMap.get("key") + 1);
-            }
-        });
+        SofaTracerRunnable sofaTracerRunnable = new SofaTracerRunnable(() -> taskMap.put("key", taskMap.get("key") + 1));
         tracerScheduleExecutorService.schedule(sofaTracerRunnable, 1000, TIME_UNIT);
         Thread.sleep(1100);
         Integer result = taskMap.get("key");
-        Assert.assertTrue(result == 2);
+        Assert.assertEquals(2, (int) result);
     }
 
     @Test
     public void scheduleRunnable_with_tracerContext() throws Exception {
         SofaTraceContext sofaTraceContext = new SofaTracerThreadLocalTraceContext();
         sofaTraceContext.push(sofaTracerSpan);
-        final Map<String, Integer> taskMap = new HashMap<String, Integer>();
+        final Map<String, Integer> taskMap = new HashMap<>();
         taskMap.put("key", 1);
-        SofaTracerRunnable sofaTracerRunnable = new SofaTracerRunnable(new Runnable() {
-            @Override
-            public void run() {
-                taskMap.put("key", taskMap.get("key") + 1);
-            }
-        }, sofaTraceContext);
+        SofaTracerRunnable sofaTracerRunnable = new SofaTracerRunnable(() -> taskMap.put("key", taskMap.get("key") + 1), sofaTraceContext);
         tracerScheduleExecutorService.schedule(sofaTracerRunnable, 1000, TIME_UNIT);
         Thread.sleep(1100);
         Integer result = taskMap.get("key");
-        Assert.assertTrue(result == 2);
+        Assert.assertEquals(2, (int) result);
         //check currentSpan
-        Field field = sofaTracerRunnable.getClass().getDeclaredField("traceContext");
-        field.setAccessible(true);
-        SofaTraceContext resultSofaTraceContext = (SofaTraceContext) field.get(sofaTracerRunnable);
-        SofaTracerSpan currentSpan = resultSofaTraceContext.getCurrentSpan();
-        Assert.assertTrue(currentSpan.getOperationName().equals("SofaTracerSpanTest"));
+        SofaTracerSpan currentSpan = sofaTracerRunnable.functionalAsyncSupport.traceContext.getCurrentSpan();
+        Assert.assertEquals("SofaTracerSpanTest", currentSpan.getOperationName());
     }
 
     @Test
     public void scheduleCallable() throws Exception {
         final Object testObj = new Object();
-        ScheduledFuture schedule = tracerScheduleExecutorService
-            .schedule(()-> testObj, 1000, TIME_UNIT);
+        ScheduledFuture<Object> schedule = tracerScheduleExecutorService
+                .schedule(() -> testObj, 1000, TIME_UNIT);
         Thread.sleep(1100);
         Object o = schedule.get();
-        Assert.assertTrue(testObj == o);
+        Assert.assertSame(testObj, o);
     }
 }

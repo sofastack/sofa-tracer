@@ -16,40 +16,29 @@
  */
 package com.alipay.common.tracer.core.async;
 
-import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 
-import java.lang.Runnable;
+import java.util.function.Consumer;
 
 /**
- * Runnable that passes Span between threads. The Span name is
- * taken either from the passed value or from the interface.
- *
- * @author luoguimu123
- * @version $Id: Runnable.java, v 0.1 June 19, 2017 5:54 PM luoguimu123 Exp $
+ * @author khotyn
+ * @version SofaTracerConsumer.java, v 0.1 2021年02月07日 10:57 下午 khotyn
  */
-public class SofaTracerRunnable implements Runnable {
-    private Runnable                 wrappedRunnable;
-    protected FunctionalAsyncSupport functionalAsyncSupport;
+public class SofaTracerConsumer<T> implements Consumer<T> {
+    private final Consumer<T>            wrappedConsumer;
+    private final FunctionalAsyncSupport functionalAsyncSupport;
 
-    public SofaTracerRunnable(Runnable wrappedRunnable) {
-        this.initRunnable(wrappedRunnable, SofaTraceContextHolder.getSofaTraceContext());
-    }
-
-    public SofaTracerRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
-        this.initRunnable(wrappedRunnable, traceContext);
-    }
-
-    private void initRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
-        this.wrappedRunnable = wrappedRunnable;
-        this.functionalAsyncSupport = new FunctionalAsyncSupport(traceContext);
+    public SofaTracerConsumer(Consumer<T> wrappedConsumer) {
+        this.wrappedConsumer = wrappedConsumer;
+        this.functionalAsyncSupport = new FunctionalAsyncSupport(
+            SofaTraceContextHolder.getSofaTraceContext());
     }
 
     @Override
-    public void run() {
+    public void accept(T t) {
         functionalAsyncSupport.doBefore();
         try {
-            wrappedRunnable.run();
+            wrappedConsumer.accept(t);
         } finally {
             functionalAsyncSupport.doFinally();
         }
