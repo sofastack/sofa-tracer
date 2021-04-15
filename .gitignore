@@ -14,6 +14,7 @@ bak
 *.iws
 .DS_Store
 nb-configuration.xml
+coverage-report
 logs
 *.log
 pom.xml.versionsBackup

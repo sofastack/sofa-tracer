@@ -64,6 +64,11 @@ public class TracerLogRootDaemon {
         if (StringUtils.isBlank(loggingRoot)) {
             loggingRoot = System.getProperty("logging.path");
         }
+        // adapter to springboot 2.4.x
+        if (StringUtils.isBlank(loggingRoot)) {
+            loggingRoot = System.getProperty("logging.file.path");
+        }
+
         if (StringUtils.isBlank(loggingRoot)) {
             loggingRoot = System.getProperty("user.home") + File.separator + "logs";
         }
