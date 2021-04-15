@@ -22,13 +22,9 @@ import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
-import com.sofa.alipay.tracer.plugins.rabbitmq.encoders.RabbitMQConsumeDigestEncoder;
-import com.sofa.alipay.tracer.plugins.rabbitmq.encoders.RabbitMQConsumeDigestJsonEncoder;
 import com.sofa.alipay.tracer.plugins.rabbitmq.encoders.RabbitMQSendDigestEncoder;
 import com.sofa.alipay.tracer.plugins.rabbitmq.encoders.RabbitMQSendDigestJsonEncoder;
 import com.sofa.alipay.tracer.plugins.rabbitmq.enums.RabbitMqLogEnum;
-import com.sofa.alipay.tracer.plugins.rabbitmq.repoters.RabbitMQConsumeStatJsonReporter;
-import com.sofa.alipay.tracer.plugins.rabbitmq.repoters.RabbitMQConsumeStatReporter;
 import com.sofa.alipay.tracer.plugins.rabbitmq.repoters.RabbitMQSendStatJsonReporter;
 import com.sofa.alipay.tracer.plugins.rabbitmq.repoters.RabbitMQSendStatReporter;
 

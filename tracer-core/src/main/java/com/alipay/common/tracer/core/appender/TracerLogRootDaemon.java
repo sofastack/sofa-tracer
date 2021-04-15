@@ -16,13 +16,13 @@
  */
 package com.alipay.common.tracer.core.appender;
 
-import java.io.File;
-import java.nio.charset.Charset;
-
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.appender.self.TracerDaemon;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
+
+import java.io.File;
+import java.nio.charset.Charset;
 
 /**
  * TracerLogRootDaemon

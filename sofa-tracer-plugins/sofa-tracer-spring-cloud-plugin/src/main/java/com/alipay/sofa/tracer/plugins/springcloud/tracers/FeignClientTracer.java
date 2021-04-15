@@ -23,9 +23,9 @@ import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticRe
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
 import com.alipay.sofa.tracer.plugins.springcloud.encodes.OpenFeignDigestEncoder;
-import com.alipay.sofa.tracer.plugins.springcloud.repoters.OpenFeignStatJsonReporter;
 import com.alipay.sofa.tracer.plugins.springcloud.encodes.OpenFeignDigestJsonEncoder;
 import com.alipay.sofa.tracer.plugins.springcloud.enums.FeignClientLogEnum;
+import com.alipay.sofa.tracer.plugins.springcloud.repoters.OpenFeignStatJsonReporter;
 import com.alipay.sofa.tracer.plugins.springcloud.repoters.OpenFeignStatReporter;
 
 /**

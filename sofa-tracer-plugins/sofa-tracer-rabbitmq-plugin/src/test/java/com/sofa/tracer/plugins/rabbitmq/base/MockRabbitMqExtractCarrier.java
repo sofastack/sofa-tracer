@@ -17,7 +17,7 @@
 package com.sofa.tracer.plugins.rabbitmq.base;
 
 import com.sofa.alipay.tracer.plugins.rabbitmq.carrier.RabbitMqExtractCarrier;
-import org.junit.*;
+import org.junit.Test;
 
 import java.util.Collections;
 import java.util.Iterator;

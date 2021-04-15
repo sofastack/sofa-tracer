@@ -16,9 +16,10 @@
  */
 package com.alipay.sofa.tracer.boot.config;
 
-import java.io.File;
-import java.util.Map;
-
+import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
+import com.alipay.sofa.tracer.boot.base.ConfigurationHolder;
+import com.alipay.sofa.tracer.boot.base.SpringBootWebApplication;
+import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -28,10 +29,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.alipay.common.tracer.core.appender.file.TimedRollingFileAppender;
-import com.alipay.sofa.tracer.boot.base.ConfigurationHolder;
-import com.alipay.sofa.tracer.boot.base.SpringBootWebApplication;
-import com.alipay.sofa.tracer.boot.properties.SofaTracerProperties;
+import java.io.File;
+import java.util.Map;
 
 /**
  * @author qilong.zql

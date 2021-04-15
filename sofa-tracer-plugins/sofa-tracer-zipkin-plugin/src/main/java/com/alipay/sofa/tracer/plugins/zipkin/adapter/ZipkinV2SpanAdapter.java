@@ -21,13 +21,12 @@ import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
-
-import java.net.InetAddress;
-import java.util.Map;
-
 import io.opentracing.tag.Tags;
 import zipkin2.Endpoint;
 import zipkin2.Span;
+
+import java.net.InetAddress;
+import java.util.Map;
 
 /***
  * ZipkinV2SpanAdapter : convent sofaTracer span model to zipkin span model

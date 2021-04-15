@@ -40,7 +40,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -56,12 +59,9 @@ import static org.mockito.Mockito.verify;
 public class SofaTracerTest extends AbstractTestBase {
 
     private final String tracerType           = "TracerTestService";
-
-    private SofaTracer   sofaTracer;
-
     private final String tracerGlobalTagKey   = "tracerkey";
-
     private final String tracerGlobalTagValue = "tracervalue";
+    private SofaTracer   sofaTracer;
 
     @Before
     public void beforeInstance() {

@@ -119,6 +119,26 @@ public class SelfLogTest extends AbstractTestBase {
         }, 500);
     }
 
+    @Test
+    public void testWarnWithExceptionLog() throws Exception {
+        SelfLog.warn("warn", new RuntimeException("warn!!!"));
+
+        TestUtil.waitForAsyncLog();
+
+        List<String> logs = FileUtils.readLines(tracerSelfLog());
+        assertTrue(!logs.isEmpty());
+    }
+
+    @Test
+    public void testWarnWithNullExceptionLog() throws Exception {
+        SelfLog.warn("warn", null);
+
+        TestUtil.waitForAsyncLog();
+
+        List<String> logs = FileUtils.readLines(tracerSelfLog());
+        assertTrue(!logs.isEmpty());
+    }
+
     private static void reflectSelfLog() throws NoSuchFieldException, IllegalAccessException {
         //clear
         Field fieldAsync = SelfLog.class.getDeclaredField("selfLogAppenderManager");

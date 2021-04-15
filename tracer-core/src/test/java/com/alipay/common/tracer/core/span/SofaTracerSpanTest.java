@@ -27,7 +27,10 @@ import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.core.tracertest.encoder.ServerSpanEncoder;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.tag.Tags;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;

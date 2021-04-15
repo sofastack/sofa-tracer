@@ -25,6 +25,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import zipkin2.Span;
+
 import java.util.HashMap;
 import java.util.Map;
 
