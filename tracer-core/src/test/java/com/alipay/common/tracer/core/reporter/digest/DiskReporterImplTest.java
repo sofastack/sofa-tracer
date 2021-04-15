@@ -21,6 +21,7 @@ import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.base.AbstractTestBase;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.reporter.stat.SofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
@@ -28,9 +29,11 @@ import com.alipay.common.tracer.core.tracertest.type.TracerTestLogEnum;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.tag.Tags;
 import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -51,26 +54,26 @@ import static org.mockito.Mockito.mock;
  */
 public class DiskReporterImplTest extends AbstractTestBase {
 
-    private final String            clientLogType             = "client-log-disk-report.log";
+    private final String clientLogType = "client-log-disk-report.log";
 
-    private final String            expectRollingPolicy       = SofaTracerConfiguration
-                                                                  .getRollingPolicy(TracerTestLogEnum.RPC_CLIENT
-                                                                      .getRollingKey());
+    private final String expectRollingPolicy = SofaTracerConfiguration
+            .getRollingPolicy(TracerTestLogEnum.RPC_CLIENT
+                    .getRollingKey());
 
-    private final String            expectLogReserveConfig    = SofaTracerConfiguration
-                                                                  .getLogReserveConfig(TracerTestLogEnum.RPC_CLIENT
-                                                                      .getLogReverseKey());
+    private final String expectLogReserveConfig = SofaTracerConfiguration
+            .getLogReserveConfig(TracerTestLogEnum.RPC_CLIENT
+                    .getLogReverseKey());
 
     private final ClientSpanEncoder expectedClientSpanEncoder = new ClientSpanEncoder();
 
-    private DiskReporterImpl        clientReporter;
+    private DiskReporterImpl clientReporter;
 
-    private SofaTracerSpan          sofaTracerSpan;
+    private SofaTracerSpan sofaTracerSpan;
 
     @Before
     public void before() {
         this.clientReporter = new DiskReporterImpl(clientLogType, expectRollingPolicy,
-            expectLogReserveConfig, expectedClientSpanEncoder);
+                expectLogReserveConfig, expectedClientSpanEncoder);
         this.sofaTracerSpan = mock(SofaTracerSpan.class);
     }
 
@@ -98,6 +101,36 @@ public class DiskReporterImplTest extends AbstractTestBase {
     @Test
     public void testGetStatReporterType() {
         assertTrue(StringUtils.isBlank(this.clientReporter.getStatReporterType()));
+    }
+
+    @Test
+    public void testGetStatReporterTypeNotNull() {
+        AbstractDiskReporter diskReporter = new DiskReporterImpl(clientLogType, expectRollingPolicy,
+                expectLogReserveConfig, expectedClientSpanEncoder, new AbstractSofaTracerStatisticReporter("testTracer", "", "") {
+            @Override
+            public void doReportStat(SofaTracerSpan sofaTracerSpan) {
+
+            }
+        });
+        Assert.assertNotNull(diskReporter.getStatReporterType());
+    }
+
+    @Test
+    public void testStatisticReport() {
+        final String[] str = {""};
+        AbstractDiskReporter diskReporter = new DiskReporterImpl(clientLogType, expectRollingPolicy,
+                expectLogReserveConfig, expectedClientSpanEncoder, new AbstractSofaTracerStatisticReporter("testTracer", "", "") {
+            @Override
+            public void doReportStat(SofaTracerSpan sofaTracerSpan) {
+                str[0] = "hello";
+            }
+        });
+        SofaTracer sofaTracer = mock(SofaTracer.class);
+        SofaTracerSpanContext sofaTracerSpanContext = new SofaTracerSpanContext();
+        SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(sofaTracer, System.currentTimeMillis(),
+                "mock", sofaTracerSpanContext, new HashMap<>());
+        diskReporter.statisticReport(sofaTracerSpan);
+        Assert.assertEquals("hello", str[0]);
     }
 
     /**
@@ -156,7 +189,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
         SelfLog.warn("SelfLog init success!!!");
         int nThreads = 30;
         ExecutorService executor = new ThreadPoolExecutor(nThreads, nThreads, 0L,
-            TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+                TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
         CountDownLatch countDownLatch = new CountDownLatch(nThreads);
         for (int i = 0; i < nThreads; i++) {
             Runnable worker = new WorkerInitThread(this.clientReporter, "" + i, countDownLatch);
@@ -172,8 +205,8 @@ public class DiskReporterImplTest extends AbstractTestBase {
 
     static class WorkerInitThread implements Runnable {
         private final DiskReporterImpl reporter;
-        private final String           command;
-        private final CountDownLatch   countDownLatch;
+        private final String command;
+        private final CountDownLatch countDownLatch;
 
         public WorkerInitThread(DiskReporterImpl reporter, String s, CountDownLatch countDownLatch) {
             this.command = s;
@@ -189,7 +222,7 @@ public class DiskReporterImplTest extends AbstractTestBase {
 
         private void processCommand() {
             SofaTracerSpan span = new SofaTracerSpan(mock(SofaTracer.class),
-                System.currentTimeMillis(), "open", SofaTracerSpanContext.rootStart(), null);
+                    System.currentTimeMillis(), "open", SofaTracerSpanContext.rootStart(), null);
             span.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
             this.reporter.digestReport(span);
         }
