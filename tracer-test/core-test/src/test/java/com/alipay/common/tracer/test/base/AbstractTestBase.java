@@ -32,7 +32,6 @@ import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
-
 import com.alipay.common.tracer.test.core.sofatracer.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.test.core.sofatracer.encoder.ServerSpanEncoder;
 import com.alipay.common.tracer.test.core.sofatracer.type.TracerTestLogEnum;

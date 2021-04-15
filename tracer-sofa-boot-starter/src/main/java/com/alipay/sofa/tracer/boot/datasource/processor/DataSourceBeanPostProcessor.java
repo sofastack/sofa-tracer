@@ -29,7 +29,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
-
 import java.lang.reflect.Method;
 
 import static com.alipay.common.tracer.core.configuration.SofaTracerConfiguration.TRACER_APPNAME_KEY;
