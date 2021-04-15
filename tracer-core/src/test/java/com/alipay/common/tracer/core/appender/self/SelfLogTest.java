@@ -123,20 +123,28 @@ public class SelfLogTest extends AbstractTestBase {
     public void testWarnWithExceptionLog() throws Exception {
         SelfLog.warn("warn", new RuntimeException("warn!!!"));
 
-        TestUtil.waitForAsyncLog();
-
-        List<String> logs = FileUtils.readLines(tracerSelfLog());
-        assertTrue(!logs.isEmpty());
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                List<String> logs = FileUtils.readLines(tracerSelfLog());
+                assertFalse(logs.isEmpty());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 2);
     }
 
     @Test
     public void testWarnWithNullExceptionLog() throws Exception {
         SelfLog.warn("warn", null);
 
-        TestUtil.waitForAsyncLog();
-
-        List<String> logs = FileUtils.readLines(tracerSelfLog());
-        assertTrue(!logs.isEmpty());
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                List<String> logs = FileUtils.readLines(tracerSelfLog());
+                assertFalse(logs.isEmpty());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 2);
     }
 
     private static void reflectSelfLog() throws NoSuchFieldException, IllegalAccessException {
