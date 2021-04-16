@@ -29,10 +29,10 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * @description: [test unit for StringConsumerExceptionHandler]
- * @email: <a href="guolei.sgl@antfin.com"></a>
- * @author: guolei.sgl
- * @date: 18/7/27
+ * @author guolei.sgl
+ * @description [test unit for StringConsumerExceptionHandler]
+ * @email <a href="guolei.sgl@antfin.com"></a>
+ * @date 18/7/27
  */
 public class StringConsumerExceptionHandlerTest extends AbstractTestBase {
 
@@ -56,32 +56,54 @@ public class StringConsumerExceptionHandlerTest extends AbstractTestBase {
     }
 
     @Test
-    public void handleEventExceptionWithEventNull() throws IOException, InterruptedException {
+    public void handleEventExceptionWithEventNull() {
         stringConsumerExceptionHandler.handleEventException(new Throwable(), 2, null);
-        Assert.assertTrue(checkFileContainError());
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                Assert.assertTrue(checkFileContainError());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 
     @Test
-    public void handleEventExceptionWithEventNotNull() throws IOException, InterruptedException {
+    public void handleEventExceptionWithEventNotNull() {
         stringConsumerExceptionHandler.handleEventException(new Throwable(), 2, stringEvent);
-        Assert.assertTrue(checkFileContainError());
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                Assert.assertTrue(checkFileContainError());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 
     @Test
-    public void handleOnStartException() throws IOException, InterruptedException {
+    public void handleOnStartException() {
         stringConsumerExceptionHandler.handleOnStartException(new Throwable());
-        Assert.assertTrue(checkFileContainError());
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                Assert.assertTrue(checkFileContainError());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 
     @Test
-    public void handleOnShutdownException() throws IOException, InterruptedException {
+    public void handleOnShutdownException() {
         stringConsumerExceptionHandler.handleOnShutdownException(new Throwable());
-        Assert.assertTrue(checkFileContainError());
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                Assert.assertTrue(checkFileContainError());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 
-    private boolean checkFileContainError() throws IOException, InterruptedException {
-        TestUtil.waitForAsyncLog();
-
+    private boolean checkFileContainError() throws IOException {
         File log = customFileLog("sync.log");
         List<String> logs = FileUtils.readLines(log);
         return logs.get(0).contains("[ERROR]");

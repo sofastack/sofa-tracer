@@ -61,7 +61,6 @@ public class DiskReporterImpl extends AbstractDiskReporter {
     private SofaTracerStatisticReporter statReporter;
 
     public DiskReporterImpl(String digestLogType, SpanEncoder contextEncoder) {
-
         this(digestLogType, StringUtils.EMPTY_STRING, StringUtils.EMPTY_STRING, contextEncoder,
             null);
     }

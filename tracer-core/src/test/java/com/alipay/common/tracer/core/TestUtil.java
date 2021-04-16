@@ -20,6 +20,8 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 
 /**
  * @author qilong.zql
@@ -28,9 +30,9 @@ import java.util.Map;
 public class TestUtil {
 
     public static boolean compareSlotMap(String a, String b) {
-        Map<String, String> aMap = new HashMap<String, String>();
+        Map<String, String> aMap = new HashMap<>();
         StringUtils.stringToMap(a, aMap);
-        Map<String, String> bMap = new HashMap<String, String>();
+        Map<String, String> bMap = new HashMap<>();
         StringUtils.stringToMap(b, bMap);
         if (aMap.size() != bMap.size()) {
             return false;
@@ -43,9 +45,21 @@ public class TestUtil {
         return true;
     }
 
-    public static void waitForAsyncLog() throws InterruptedException {
-        // wait flush log to file... (500ms is just expected time)
-        Thread.sleep(500);
+    public static void periodicallyAssert(Runnable assertion, long timeout) {
+        for (int i = 0; i < timeout; i++) {
+            try {
+                assertion.run();
+                return;
+            } catch (AssertionError error) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    // Ignore
+                }
+            }
+        }
+
+        assertion.run();
     }
 
 }

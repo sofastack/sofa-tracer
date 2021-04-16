@@ -59,16 +59,12 @@ import static org.mockito.Mockito.verify;
 public class SofaTracerTest extends AbstractTestBase {
 
     private final String tracerType           = "TracerTestService";
-
+    private final String tracerGlobalTagKey   = "tracerkey";
+    private final String tracerGlobalTagValue = "tracervalue";
     private SofaTracer   sofaTracer;
 
-    private final String tracerGlobalTagKey   = "tracerkey";
-
-    private final String tracerGlobalTagValue = "tracervalue";
-
     @Before
-    public void beforeInstance() throws IOException {
-
+    public void beforeInstance() {
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.SAMPLER_STRATEGY_NAME_KEY,
             SofaTracerPercentageBasedSampler.TYPE);
         SofaTracerConfiguration.setProperty(
@@ -105,7 +101,7 @@ public class SofaTracerTest extends AbstractTestBase {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testInjectSpan").start();
         TextMap carrier = new TextMap() {
 
-            Map map = new HashMap();
+            final Map<String, String> map = new HashMap<>();
 
             @Override
             public Iterator<Map.Entry<String, String>> iterator() {
@@ -125,29 +121,32 @@ public class SofaTracerTest extends AbstractTestBase {
             Format.Builtin.TEXT_MAP, carrier);
         assertTrue("Origin Context : " + originContext.toString(),
             StringUtils.isBlank(extractSpanContext.getParentId()));
-        assertTrue("Extract Context : " + extractSpanContext,
-            originContext.equals(extractSpanContext));
+        assertEquals("Extract Context : " + extractSpanContext, originContext, extractSpanContext);
     }
 
     /**
      * Method: reportSpan(SofaTracerSpan span)
      */
     @Test
-    public void testReportSpan() throws Exception {
+    public void testReportSpan() {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testInjectSpan")
-            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         //Report Do not prohibit writing
         span.finish();
 
-        TestUtil.waitForAsyncLog();
-
-        List<String> contents = FileUtils.readLines(customFileLog(TracerTestLogEnum.RPC_CLIENT
-            .getDefaultLogName()));
-        assertTrue(contents.get(0), contents.size() == 1);
-        String contextStr = contents.get(0);
-        //Test print one only put one tag
-        assertTrue(contextStr.contains(Tags.SPAN_KIND.getKey())
-                   && contextStr.contains(Tags.SPAN_KIND_CLIENT));
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                List<String> contents = FileUtils.readLines(customFileLog(TracerTestLogEnum.RPC_CLIENT
+                        .getDefaultLogName()));
+                assertEquals(contents.get(0), 1, contents.size());
+                String contextStr = contents.get(0);
+                //Test print one only put one tag
+                assertTrue(contextStr.contains(Tags.SPAN_KIND.getKey())
+                        && contextStr.contains(Tags.SPAN_KIND_CLIENT));
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 
     /**
@@ -162,7 +161,7 @@ public class SofaTracerTest extends AbstractTestBase {
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         //report
         span.finish();
-        assertTrue(!customFileLog(TracerTestLogEnum.RPC_CLIENT.getDefaultLogName()).exists());
+        assertFalse(customFileLog(TracerTestLogEnum.RPC_CLIENT.getDefaultLogName()).exists());
         // reset
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY, "");
@@ -173,7 +172,7 @@ public class SofaTracerTest extends AbstractTestBase {
         //Close the client digest log
         String clientLogTypeName = TracerTestLogEnum.RPC_CLIENT.getDefaultLogName();
 
-        Map<String, String> prop = new HashMap<String, String>();
+        Map<String, String> prop = new HashMap<>();
         prop.put(clientLogTypeName, "true");
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.DISABLE_DIGEST_LOG_KEY, prop);
         //create
@@ -181,7 +180,7 @@ public class SofaTracerTest extends AbstractTestBase {
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         //report
         span.finish();
-        assertTrue(!customFileLog(clientLogTypeName).exists());
+        assertFalse(customFileLog(clientLogTypeName).exists());
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.DISABLE_DIGEST_LOG_KEY,
             new HashMap<>());
     }
@@ -198,7 +197,7 @@ public class SofaTracerTest extends AbstractTestBase {
         //report
         span.finish();
         String clientLogTypeName = TracerTestLogEnum.RPC_CLIENT.getDefaultLogName();
-        assertTrue(!customFileLog(clientLogTypeName).exists());
+        assertFalse(customFileLog(clientLogTypeName).exists());
     }
 
     @Test
@@ -219,7 +218,7 @@ public class SofaTracerTest extends AbstractTestBase {
     @Test
     public void testGetTracerType() {
         String tracerType = this.sofaTracer.getTracerType();
-        assertTrue(tracerType.equals(this.tracerType));
+        assertEquals(tracerType, this.tracerType);
     }
 
     /**
@@ -227,7 +226,7 @@ public class SofaTracerTest extends AbstractTestBase {
      */
     @Test
     public void testGetSofaTracerDigestReporter() {
-        assertTrue(this.sofaTracer.getClientReporter() != null);
+        assertNotNull(this.sofaTracer.getClientReporter());
     }
 
     /**
@@ -235,11 +234,11 @@ public class SofaTracerTest extends AbstractTestBase {
      */
     @Test
     public void testGetSofaTracerStatisticReporter() {
-        assertTrue(this.sofaTracer.getClientReporter() != null);
+        assertNotNull(this.sofaTracer.getClientReporter());
         assertTrue(this.sofaTracer.getClientReporter() instanceof DiskReporterImpl);
         DiskReporterImpl clientReporter = (DiskReporterImpl) this.sofaTracer.getClientReporter();
         assertTrue(StringUtils.isBlank(clientReporter.getStatReporterType()));
-        assertTrue(clientReporter.getStatReporter() == null);
+        assertNull(clientReporter.getStatReporter());
     }
 
     /**
@@ -248,13 +247,13 @@ public class SofaTracerTest extends AbstractTestBase {
     @Test
     public void testGetTracerTags() {
         Map<String, Object> tags = this.sofaTracer.getTracerTags();
-        assertTrue(tags.keySet().contains(this.tracerGlobalTagKey));
+        assertTrue(tags.containsKey(this.tracerGlobalTagKey));
         for (Map.Entry<String, Object> entry : tags.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
             if (this.tracerGlobalTagKey.equals(key)) {
-                assertTrue("tracer tags : key=" + key + ",value = " + value,
-                    this.tracerGlobalTagValue.equals(value));
+                assertEquals("tracer tags : key=" + key + ",value = " + value,
+                    this.tracerGlobalTagValue, value);
             }
         }
     }
@@ -265,11 +264,11 @@ public class SofaTracerTest extends AbstractTestBase {
     @Test
     public void testAsChildOfParent() {
         //create
-        Map<String, String> bizBaggage = new HashMap<String, String>();
+        Map<String, String> bizBaggage = new HashMap<>();
         bizBaggage.put("biz", "value");
         bizBaggage.put("biz1", "value1");
         bizBaggage.put("biz2", "value2");
-        Map<String, String> sysBaggage = new HashMap<String, String>();
+        Map<String, String> sysBaggage = new HashMap<>();
         sysBaggage.put("sys", "value");
         sysBaggage.put("sys1", "value1");
         sysBaggage.put("sys2", "value2");
@@ -279,8 +278,8 @@ public class SofaTracerTest extends AbstractTestBase {
         spanParent.getSofaTracerSpanContext().addSysBaggage(sysBaggage);
         String parentTraceId = spanParent.getSofaTracerSpanContext().getTraceId();
         SofaTracerSpanContext parentSpanContext = (SofaTracerSpanContext) spanParent.context();
-        assertTrue("\nroot spanId : " + parentSpanContext.getSpanId(), parentSpanContext
-            .getSpanId().equals(SofaTracer.ROOT_SPAN_ID));
+        assertEquals("\nroot spanId : " + parentSpanContext.getSpanId(),
+            parentSpanContext.getSpanId(), SofaTracer.ROOT_SPAN_ID);
         //child
         SofaTracerSpan spanChild = (SofaTracerSpan) this.sofaTracer.buildSpan("spanChild")
             .asChildOf(spanParent).withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
@@ -309,7 +308,7 @@ public class SofaTracerTest extends AbstractTestBase {
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER).start();
         String parentTraceId = spanParent.getSofaTracerSpanContext().getTraceId();
         SofaTracerSpanContext parentSpanContext = (SofaTracerSpanContext) spanParent.context();
-        assertTrue(parentSpanContext.getSpanId().equals(SofaTracer.ROOT_SPAN_ID));
+        assertEquals(parentSpanContext.getSpanId(), SofaTracer.ROOT_SPAN_ID);
         //child
         SofaTracerSpan spanChild = (SofaTracerSpan) this.sofaTracer.buildSpan("spanChild")
             .asChildOf(spanParent).withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
@@ -346,8 +345,8 @@ public class SofaTracerTest extends AbstractTestBase {
         assertTrue("Parent1 --> TraceId : " + p1TraceId + ", spanId : " + p1SpanId,
             SofaTracer.ROOT_SPAN_ID.equals(parentSpanId) && parentSpanId.equals(followSpanId)
                     && followSpanId.equals(p1SpanId));
-        assertFalse(parentTraceID.equals(followTraceId));
-        assertFalse(followTraceId.equals(p1TraceId));
+        assertNotEquals(parentTraceID, followTraceId);
+        assertNotEquals(followTraceId, p1TraceId);
         //child
         SofaTracerSpan childSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("childFollow")
             //parent
@@ -359,11 +358,10 @@ public class SofaTracerTest extends AbstractTestBase {
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         String childTraceid = childSpan.getSofaTracerSpanContext().getTraceId();
         String childSpanId = childSpan.getSofaTracerSpanContext().getSpanId();
-        assertFalse("Child --> TraceId : " + childTraceid + ", spanId :" + childSpanId,
-            p1TraceId.equals(childTraceid));
+        assertNotEquals("Child --> TraceId : " + childTraceid + ", spanId :" + childSpanId,
+            p1TraceId, childTraceid);
         //child context
-        SofaTracerSpanContext sofaTracerSpanContext = childSpan.getSofaTracerSpanContext();
-        assertTrue(childTraceid.equals(parentTraceID));
+        assertEquals(childTraceid, parentTraceID);
         //grandson
         SofaTracerSpan grandsonSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("grandson")
             //parent
@@ -372,14 +370,14 @@ public class SofaTracerTest extends AbstractTestBase {
         String grandsonTraceid = grandsonSpan.getSofaTracerSpanContext().getTraceId();
         String grandsonSpanId = grandsonSpan.getSofaTracerSpanContext().getSpanId();
         //check traceId
-        assertTrue("Grandson --> TraceId : " + grandsonTraceid + ", Grandson spanId :"
-                   + grandsonSpanId, childTraceid.equals(parentTraceID));
-        assertTrue(childTraceid.equals(grandsonTraceid));
+        assertEquals("Grandson --> TraceId : " + grandsonTraceid + ", Grandson spanId :"
+                     + grandsonSpanId, childTraceid, parentTraceID);
+        assertEquals(childTraceid, grandsonTraceid);
         //check spanId
-        assertTrue(grandsonSpan.getSofaTracerSpanContext().getParentId()
-            .equals(childSpan.getSofaTracerSpanContext().getSpanId()));
-        assertTrue(childSpan.getSofaTracerSpanContext().getParentId()
-            .equals(spanParent.getSofaTracerSpanContext().getSpanId()));
+        assertEquals(grandsonSpan.getSofaTracerSpanContext().getParentId(), childSpan
+            .getSofaTracerSpanContext().getSpanId());
+        assertEquals(childSpan.getSofaTracerSpanContext().getParentId(), spanParent
+            .getSofaTracerSpanContext().getSpanId());
     }
 
     /**
@@ -398,7 +396,6 @@ public class SofaTracerTest extends AbstractTestBase {
         spanParent.setBaggageItem(parBagKey, parBagValue);
 
         String parentTraceID = spanParent.getSofaTracerSpanContext().getTraceId();
-        String parentSpanId = spanParent.getSofaTracerSpanContext().getSpanId();
         //follow
         SofaTracerSpan spanFollow1 = (SofaTracerSpan) this.sofaTracer.buildSpan("spanFollow1")
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER).start();
@@ -425,11 +422,11 @@ public class SofaTracerTest extends AbstractTestBase {
             .addReference(References.FOLLOWS_FROM, spanFollow2.context())
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         //check traceId
-        assertTrue("Follow --> TraceId : " + followTraceId2 + ", spanId : " + followSpanId2,
-            parentTraceID.equals(childSpan.getSofaTracerSpanContext().getTraceId()));
+        assertEquals("Follow --> TraceId : " + followTraceId2 + ", spanId : " + followSpanId2,
+            parentTraceID, childSpan.getSofaTracerSpanContext().getTraceId());
         //check spanId
-        assertTrue(childSpan.getSofaTracerSpanContext().getParentId()
-            .equals(spanParent.getSofaTracerSpanContext().getSpanId()));
+        assertEquals(childSpan.getSofaTracerSpanContext().getParentId(), spanParent
+            .getSofaTracerSpanContext().getSpanId());
         //baggage
         assertEquals("Child Baggage : " + childSpan.getSofaTracerSpanContext().getBizBaggage(),
             parBagValue, childSpan.getBaggageItem(parBagKey));
@@ -454,21 +451,21 @@ public class SofaTracerTest extends AbstractTestBase {
 
         Map<String, String> tagsStr = spanParent.getTagsWithStr();
         //string
-        assertTrue("tagsStr : " + tagsStr, tagsStr.keySet().contains("tagkey")
-                                           && tagsStr.values().contains("tagvalue"));
-        assertTrue(tagsStr.keySet().contains("tag1") && tagsStr.values().contains("value"));
+        assertTrue("tagsStr : " + tagsStr,
+            tagsStr.containsKey("tagkey") && tagsStr.containsValue("tagvalue"));
+        assertTrue(tagsStr.containsKey("tag1") && tagsStr.containsValue("value"));
         //bool
         spanParent.setTag("bool", Boolean.TRUE);
         spanParent.setTag("bool1", Boolean.FALSE);
-        assertTrue(spanParent.getTagsWithBool().get("bool").equals(Boolean.TRUE));
-        assertTrue(spanParent.getTagsWithBool().get("bool1").equals(Boolean.FALSE));
+        assertEquals(spanParent.getTagsWithBool().get("bool"), Boolean.TRUE);
+        assertEquals(spanParent.getTagsWithBool().get("bool1"), Boolean.FALSE);
         //number
-        spanParent.setTag("num1", new Integer(10));
+        spanParent.setTag("num1", 10);
         spanParent.setTag("num2", 20);
         spanParent.setTag("num3", 2.22);
-        assertTrue(spanParent.getTagsWithNumber().get("num1").equals(10));
-        assertTrue(spanParent.getTagsWithNumber().get("num2").equals(20));
-        assertTrue(spanParent.getTagsWithNumber().get("num3").equals(2.22));
+        assertEquals(10, spanParent.getTagsWithNumber().get("num1"));
+        assertEquals(20, spanParent.getTagsWithNumber().get("num2"));
+        assertEquals(2.22, spanParent.getTagsWithNumber().get("num3"));
     }
 
     /**
@@ -491,15 +488,15 @@ public class SofaTracerTest extends AbstractTestBase {
      */
     @Test
     public void testWithStatsReporterSofaTracerDigestReporter() {
-        assertTrue(this.sofaTracer.getServerReporter() != null);
+        assertNotNull(this.sofaTracer.getServerReporter());
     }
 
     /**
      * Method: withSampler(Sampler sampler)
      */
     @Test
-    public void testWithSampler() throws Exception {
-        assertTrue(this.sofaTracer.getSampler() != null);
+    public void testWithSampler() {
+        assertNotNull(this.sofaTracer.getSampler());
     }
 
 }
