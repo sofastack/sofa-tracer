@@ -234,6 +234,7 @@ public class SofaTracerSpanContext implements SpanContext {
      * @param deserializeValue deserialize string, format: tcid:0,spid:1
      * @return SofaTracerSpanContext
      */
+
     public static SofaTracerSpanContext deserializeFromString(String deserializeValue) {
         if (StringUtils.isBlank(deserializeValue)) {
             return SofaTracerSpanContext.rootStart();

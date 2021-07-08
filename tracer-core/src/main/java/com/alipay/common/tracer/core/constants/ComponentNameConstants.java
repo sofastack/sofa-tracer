@@ -60,5 +60,13 @@ public class ComponentNameConstants {
     public static final String MONGO_CLIENT      = "mongo-client";
 
     public static final String REDIS             = "redis";
+    // the tracerType of sofaRpc is RPC_TRACER
+    public static final String SOFA_RPC          = "RPC_TRACER";
+    public static final String UNKNOWN           = "UNKNOWN";
+    public static final String H2                = "h2";
+    public static final String MYSQL             = "mysql";
+    public static final String ORACLE            = "oracle";
+    public static final String MONGODB           = "mongodb";
+    public static final String MEMCACHED         = "memcached";
 
 }

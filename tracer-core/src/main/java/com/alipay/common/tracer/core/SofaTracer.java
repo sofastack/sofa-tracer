@@ -341,7 +341,6 @@ public class SofaTracer implements Tracer {
 
         private SofaTracerSpanContext createChildContext() {
             SofaTracerSpanContext preferredReference = preferredReference();
-
             SofaTracerSpanContext sofaTracerSpanContext = new SofaTracerSpanContext(
                 preferredReference.getTraceId(), preferredReference.nextChildContextId(),
                 preferredReference.getSpanId(), preferredReference.isSampled());
