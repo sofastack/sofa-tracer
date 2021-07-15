@@ -14,7 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.plugins.jaeger;
+package com.alipay.sofa.tracer.plugins.jaeger.adapter;
 
-public class JaegerSofaTracerRestTemplateCustomizer {
+import org.springframework.util.Assert;
+
+public class Utils {
+    /**
+     * convert hexSting to long
+     * @param hexString
+     * @return
+     */
+    public static long hexToLong(String hexString) {
+        Assert.hasText(hexString, "Can't convert empty hex string to long");
+        int length = hexString.length();
+        if (length < 1) {
+            throw new IllegalArgumentException("length must be more than zero : " + hexString);
+        }
+        if (length <= 16) {
+            return Long.parseLong(hexString, 16);
+        }
+        throw new IllegalArgumentException("length must  less than 16 :" + hexString);
+    }
 }

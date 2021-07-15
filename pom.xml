@@ -22,6 +22,7 @@
         <module>sofa-tracer-plugins/sofa-tracer-okhttp-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-datasource-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-zipkin-plugin</module>
+        <module>sofa-tracer-plugins/sofa-tracer-jaeger-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-dubbo-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-spring-cloud-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-resttmplate-plugin</module>
@@ -40,7 +41,7 @@
         <module>tracer-test/logback-test</module>
         <module>tracer-test/log4j2-test</module>
         <module>tracer-test/log4j-test</module>
-        <module>sofa-tracer-plugins/sofa-tracer-jaeger-plugin</module>
+
     </modules>
 
     <properties>
@@ -52,6 +53,7 @@
         <main.user.dir>${user.dir}</main.user.dir>
         <maven.staging.plugin>1.6.7</maven.staging.plugin>
         <maven.gpg.pluign>1.5</maven.gpg.pluign>
+        <skipTests>true</skipTests>
     </properties>
 
     <licenses>
@@ -129,6 +131,11 @@
             <dependency>
                 <groupId>com.alipay.sofa</groupId>
                 <artifactId>sofa-tracer-zipkin-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alipay.sofa</groupId>
+                <artifactId>sofa-tracer-jaeger-plugin</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
