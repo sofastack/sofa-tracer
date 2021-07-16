@@ -31,7 +31,7 @@ public class Utils {
             throw new IllegalArgumentException("length must be more than zero : " + hexString);
         }
         if (length <= 16) {
-            return Long.parseLong(hexString, 16);
+            return Long.parseUnsignedLong(hexString, 16);
         }
         throw new IllegalArgumentException("length must  less than 16 :" + hexString);
     }

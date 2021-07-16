@@ -89,22 +89,18 @@ public class JaegerSpanAdapter {
      * @return JaegerSpanContext
      */
     private JaegerSpanContext getJaegerSpanContext(SofaTracerSpanContext sofaTracerSpanContext) {
-        //sofatracer中traceId分成两部分
+
         String sofaTraceId = sofaTracerSpanContext.getTraceId();
-        long traceIdHigh;
-        long traceIdLow;
-        //这种方式取了13位时间戳中的数字，使用时间戳后7位作为开头可能导致最后生成的hex串长度不够16，这是会在前面加0，结果是traceid不一致
-        if (sofaTraceId.length() > 14) {
-            traceIdHigh = Utils.hexToLong(sofaTraceId.substring(0, 14));
-            traceIdLow = Utils.hexToLong(sofaTraceId.substring(14));
-        } else {
-            traceIdHigh = 0L;
-            traceIdLow = Utils.hexToLong(sofaTraceId.substring(0));
-        }
+        //长度不够32位高位补0
+        sofaTraceId = "00000000000000000000000000000000".substring(sofaTraceId.length())
+                      + sofaTraceId;
+        long traceIdHigh = Utils.hexToLong(sofaTraceId.substring(0, 16));
+        long traceIdLow = Utils.hexToLong(sofaTraceId.substring(16));
+
         long spanId = FNV64HashCode(sofaTracerSpanContext.getSpanId());
         long parentId = FNV64HashCode(sofaTracerSpanContext.getParentId());
         //如果设置成1会发送两个span为什么？？
-        byte flag = 0;
+        byte flag = 1;
         return new JaegerSpanContext(traceIdHigh, traceIdLow, spanId, parentId, flag);
     }
 
