@@ -32,8 +32,8 @@ public class JaegerSofaTracerSpanRemoteReporter implements SpanReportListener, C
     private UdpSender         jaegerUdpSender;
     private RemoteReporter    reporter;
 
-    public JaegerSofaTracerSpanRemoteReporter(String host, int port, int maxPacketSize)
-                                                                                       throws TTransportException {
+    public JaegerSofaTracerSpanRemoteReporter(String host, int port, int maxPacketSize) throws TTransportException {
+        //默认使用的compact
         jaegerUdpSender = new UdpSender(host, port, maxPacketSize);
         //还可以设置udp的很多参数
         RemoteReporter.Builder builder = new RemoteReporter.Builder().withSender(jaegerUdpSender);
@@ -46,7 +46,6 @@ public class JaegerSofaTracerSpanRemoteReporter implements SpanReportListener, C
             return;
         }
         JaegerSpan jaegerSpan = adapter.convertToJaegerSpan(sofaTracerSpan, reporter);
-        reporter.report(jaegerSpan);
     }
 
     @Override

@@ -16,7 +16,6 @@
  */
 package com.alipay.sofa.tracer.plugins.jaeger.adapter;
 
-import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
@@ -62,6 +61,10 @@ public class JaegerSpanAdapter {
 
         //设置logs
         jaegerSpan = setLogData(sofaTracerSpan, jaegerSpan);
+
+        //convert baggage
+        jaegerSpan = convertBaggage(sofaTracerSpan, jaegerSpan);
+
         return jaegerSpan;
     }
 
@@ -99,8 +102,8 @@ public class JaegerSpanAdapter {
 
         long spanId = FNV64HashCode(sofaTracerSpanContext.getSpanId());
         long parentId = FNV64HashCode(sofaTracerSpanContext.getParentId());
-        //如果设置成1会发送两个span为什么？？
-        byte flag = 1;
+        //设置为1表示 sampled == true
+        byte flag = sofaTracerSpanContext.isSampled() ? (byte) 1 : (byte) 0;
         return new JaegerSpanContext(traceIdHigh, traceIdLow, spanId, parentId, flag);
     }
 
@@ -125,6 +128,24 @@ public class JaegerSpanAdapter {
         }
 
         return builder;
+    }
+
+    /**
+     * 将sofaTracer 中的 business baggage和 system baggage转换为jaeger中的 baggage
+     * @param sofaTracerSpan
+     * @param jaegerSpan
+     * @return JaegerSpan
+     */
+
+    private JaegerSpan convertBaggage(SofaTracerSpan sofaTracerSpan, JaegerSpan jaegerSpan) {
+
+        Iterable<Map.Entry<String, String>> baggages = sofaTracerSpan.getSofaTracerSpanContext()
+            .baggageItems();
+        for (Map.Entry<String, String> baggage : baggages) {
+            jaegerSpan.setBaggageItem(baggage.getKey(), baggage.getValue());
+        }
+        return jaegerSpan;
+
     }
 
     /**

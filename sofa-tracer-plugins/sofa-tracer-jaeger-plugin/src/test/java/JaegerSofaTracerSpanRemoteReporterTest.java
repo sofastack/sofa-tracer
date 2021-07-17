@@ -50,6 +50,7 @@ public class JaegerSofaTracerSpanRemoteReporterTest {
         sofaTracerSpan.setTag("tagsStrkey", "tagsStrVal");
         sofaTracerSpan.setTag("tagsBooleankey", true);
         sofaTracerSpan.setTag("tagsNumberkey", 2018);
+        sofaTracerSpan.setTag("span.kind", "client");
         sofaTracerSpan.setBaggageItem("baggageKey", "baggageVal");
         sofaTracerSpan.setTag(CommonSpanTags.LOCAL_APP, "SofaTracerSpanTest");
         Map<String, String> logMap = new HashMap<String, String>();
@@ -62,13 +63,13 @@ public class JaegerSofaTracerSpanRemoteReporterTest {
     }
 
     @Test
-    public void testUdpSender() throws TTransportException, SenderException {
+    public void testUdpSender() throws TTransportException {
 
         Sender sender = new UdpSender("127.0.0.1", 6831, 0);
         RemoteReporter.Builder builder = new RemoteReporter.Builder().withSender(sender);
         RemoteReporter reporter = builder.build();
         jaegerSpan = jaegerSpanAdapter.convertToJaegerSpan(sofaTracerSpan, reporter);
-        reporter.report(jaegerSpan);
+        //        reporter.report(jaegerSpan);
     }
 
 }
