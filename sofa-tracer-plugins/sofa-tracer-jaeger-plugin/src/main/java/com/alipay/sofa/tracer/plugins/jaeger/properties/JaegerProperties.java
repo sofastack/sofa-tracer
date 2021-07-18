@@ -24,4 +24,5 @@ public class JaegerProperties {
     public static final String JAEGER_AGENT_FLUSH_INTERVAL_MS_KEY            = "com.alipay.sofa.tracer.jaeger.agent.flushInterval";
     public static final String JAEGER_AGENT_MAX_QUEUE_SIZE_KEY               = "com.alipay.sofa.tracer.jaeger.agent.maxQueueSize";
     public static final String JAEGER_AGENT_CLOSE_ENQUEUE_TIMEOUT_MILLIS_KEY = "com.alipay.sofa.tracer.jaeger.agent.closeEnqueueTimeout";
+    public static final String JAEGER_AGENT_SERVICE_NAME_KEY                 = "spring.application.name";
 }

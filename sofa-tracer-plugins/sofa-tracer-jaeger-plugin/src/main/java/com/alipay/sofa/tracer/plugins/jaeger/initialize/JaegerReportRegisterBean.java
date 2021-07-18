@@ -47,7 +47,8 @@ public class JaegerReportRegisterBean implements InitializingBean {
         int maxPacketSize = Integer.parseInt(SofaTracerConfiguration
             .getProperty(JaegerProperties.JAEGER_AGENT_MAX_PACKET_SIZE_KEY));
         SpanReportListener spanReportListener = new JaegerSofaTracerSpanRemoteReporter(host, port,
-            maxPacketSize);
+            maxPacketSize,
+            SofaTracerConfiguration.getProperty(JaegerProperties.JAEGER_AGENT_SERVICE_NAME_KEY));
         List<SpanReportListener> spanReportListenerList = new ArrayList<SpanReportListener>();
         spanReportListenerList.add(spanReportListener);
         SpanReportListenerHolder.addSpanReportListeners(spanReportListenerList);

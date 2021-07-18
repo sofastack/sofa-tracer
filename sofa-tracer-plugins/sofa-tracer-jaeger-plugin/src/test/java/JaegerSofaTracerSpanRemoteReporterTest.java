@@ -23,6 +23,7 @@ import com.alipay.sofa.tracer.plugins.jaeger.JaegerSofaTracerSpanRemoteReporter;
 import com.alipay.sofa.tracer.plugins.jaeger.adapter.JaegerSpanAdapter;
 import com.alipay.sofa.tracer.plugins.jaeger.properties.JaegerProperties;
 import io.jaegertracing.internal.JaegerSpan;
+import io.jaegertracing.internal.JaegerTracer;
 import io.jaegertracing.internal.reporters.RemoteReporter;
 import io.jaegertracing.spi.Sender;
 import io.jaegertracing.thrift.internal.senders.UdpSender;
@@ -68,16 +69,17 @@ public class JaegerSofaTracerSpanRemoteReporterTest {
     @Test
     public void testSpanReport() throws TTransportException {
 
-        Sender sender = new UdpSender("127.0.0.1", 6831, 0);
-        RemoteReporter reporter = new RemoteReporter.Builder().withSender(sender).build();
-        jaegerSpan = jaegerSpanAdapter.convertAndReport(sofaTracerSpan, reporter);
+        JaegerSofaTracerSpanRemoteReporter remoteReporter = new JaegerSofaTracerSpanRemoteReporter(
+            "127.0.0.1", 6831, 65000, "testService");
+        JaegerTracer jaegerTracer = remoteReporter.getJaegerTracer();
+        jaegerSpan = jaegerSpanAdapter.convertAndReport(sofaTracerSpan, jaegerTracer);
 
     }
 
     @Test
     public void testCommandQueueSetting() throws TTransportException {
         JaegerSofaTracerSpanRemoteReporter reporter = new JaegerSofaTracerSpanRemoteReporter(
-            "127.0.0.1", 6831, 0);
+            "127.0.0.1", 6831, 0, "testService");
         Assert.assertTrue(SofaTracerConfiguration.getIntegerDefaultIfNull(
             JaegerProperties.JAEGER_AGENT_FLUSH_INTERVAL_MS_KEY, 1000) == 200);
         Assert.assertTrue(SofaTracerConfiguration.getIntegerDefaultIfNull(

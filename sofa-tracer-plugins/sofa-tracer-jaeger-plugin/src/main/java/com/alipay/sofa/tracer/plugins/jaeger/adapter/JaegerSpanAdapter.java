@@ -17,11 +17,10 @@
 package com.alipay.sofa.tracer.plugins.jaeger.adapter;
 
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
-import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.span.SofaTracerSpanReferenceRelationship;
 import io.jaegertracing.internal.*;
-import io.jaegertracing.internal.reporters.RemoteReporter;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -34,21 +33,18 @@ import java.util.Map;
 
 public class JaegerSpanAdapter {
 
-    public JaegerSpan convertAndReport(SofaTracerSpan sofaTracerSpan, RemoteReporter reporter) {
+    public JaegerSpan convertAndReport(SofaTracerSpan sofaTracerSpan, JaegerTracer jaegerTracer) {
         final boolean computeDurationViaNanoTicks = false;
         final long startTimeNanoTicks = 0L;
         SofaTracerSpanContext context = sofaTracerSpan.getSofaTracerSpanContext();
         String operationName = sofaTracerSpan.getOperationName();
         long startTimeMicroseconds = sofaTracerSpan.getStartTime() * 1000;
 
-        //创建JaegerSpan需要传入的Map<String,Object> tags
+        //construct tags in JaegerSpan
         Map<String, Object> tags = new LinkedHashMap<>();
         tags.putAll(sofaTracerSpan.getTagsWithStr());
         tags.putAll(sofaTracerSpan.getTagsWithBool());
         tags.putAll(sofaTracerSpan.getTagsWithNumber());
-
-        // JaegerTracer
-        JaegerTracer jaegerTracer = getJaegerTracer(sofaTracerSpan, reporter);
 
         //jaegerSpanContext
         JaegerSpanContext jaegerSpanContext = getJaegerSpanContext(context);
@@ -73,62 +69,28 @@ public class JaegerSpanAdapter {
     }
 
     /**
-     * create JaegerTracer Object
-     * @param sofaTracerSpan
-     * @param reporter
-     * @return JaegerTracer
-     */
-    private JaegerTracer getJaegerTracer(SofaTracerSpan sofaTracerSpan, RemoteReporter reporter) {
-        String serviceName = sofaTracerSpan.getTagsWithStr().get(CommonSpanTags.LOCAL_APP);
-        serviceName = JaegerTracer.Builder.checkValidServiceName(serviceName);
-        JaegerTracer.Builder jaegerBuilder = new JaegerTracer.Builder(serviceName)
-            .withReporter(reporter);
-        //add tags
-        jaegerBuilder = addJaegerTracerTags(jaegerBuilder, sofaTracerSpan);
-        //把sofa的traceid转换成jaeger的traceid，如果单独使用一个long无法转换
-        jaegerBuilder.withTraceId128Bit();
-        return jaegerBuilder.build();
-    }
-
-    /**
-     * 转换SpanContext
+     * convert SpanContext
      * @param sofaTracerSpanContext
      * @return JaegerSpanContext
      */
     private JaegerSpanContext getJaegerSpanContext(SofaTracerSpanContext sofaTracerSpanContext) {
 
         String sofaTraceId = sofaTracerSpanContext.getTraceId();
-        //长度不够32位高位补0
+        //when length is less than 32 add 0 to the font
         sofaTraceId = "00000000000000000000000000000000".substring(sofaTraceId.length())
                       + sofaTraceId;
-        long traceIdHigh = Utils.hexToLong(sofaTraceId.substring(0, 16));
-        long traceIdLow = Utils.hexToLong(sofaTraceId.substring(16));
+        long traceIdHigh = hexToLong(sofaTraceId.substring(0, 16));
+        long traceIdLow = hexToLong(sofaTraceId.substring(16));
 
         long spanId = FNV64HashCode(sofaTracerSpanContext.getSpanId());
         long parentId = FNV64HashCode(sofaTracerSpanContext.getParentId());
-        //设置为1表示 sampled == true
+        //when flag == 1 it means sampled
         byte flag = sofaTracerSpanContext.isSampled() ? (byte) 1 : (byte) 0;
         return new JaegerSpanContext(traceIdHigh, traceIdLow, spanId, parentId, flag);
     }
 
     /**
-     * 设置UI中process的tag
-     * @param builder
-     * @param span
-     * @return JaegerTracer.Builder
-     */
-
-    private JaegerTracer.Builder addJaegerTracerTags(JaegerTracer.Builder builder,
-                                                     SofaTracerSpan span) {
-
-        if (span.getTagsWithStr().containsKey("ip")) {
-            builder.withTag("ip", span.getTagsWithStr().get("ip"));
-        }
-        return builder;
-    }
-
-    /**
-     * 将sofaTracer 中的 business baggage和 system baggage转换为jaeger中的 baggage
+     * convert  businessBaggage and  systemBaggage in sofaTracer to the baggage  in jaeger
      * @param sofaTracerSpan
      * @param jaegerSpan
      * @return JaegerSpan
@@ -146,7 +108,7 @@ public class JaegerSpanAdapter {
     }
 
     /**
-     * 转化logdata
+     * convert logdata
      */
     private JaegerSpan setLogData(SofaTracerSpan span, JaegerSpan jaegerSpan) {
         List<com.alipay.common.tracer.core.span.LogData> sofaLogDatas = span.getLogs();
@@ -158,9 +120,46 @@ public class JaegerSpanAdapter {
     }
 
     /**
-     * 把字符串转换成long
-     * @param data
-     * @return long
+     * convert Reference
+     * @param sofaTracerSpan
+     * @return List<Reference>
+     */
+    private List<Reference> getJaegerReference(SofaTracerSpan sofaTracerSpan) {
+        List<Reference> jaegerReferences = new ArrayList<>();
+        List<SofaTracerSpanReferenceRelationship> sofaReferences = sofaTracerSpan
+            .getSpanReferences();
+        for (SofaTracerSpanReferenceRelationship sofaReference : sofaReferences) {
+            // Type are constants in opentracing , but spanContext needs to  convert
+            JaegerSpanContext jaegerSpanContext = getJaegerSpanContext(sofaReference
+                .getSofaTracerSpanContext());
+            Reference jaegerReference = new Reference(jaegerSpanContext,
+                sofaReference.getReferenceType());
+            jaegerReferences.add(jaegerReference);
+        }
+        return jaegerReferences;
+    }
+
+    /**
+     * convert hexSting to long
+     * @param hexString
+     * @return converted long number
+     */
+    public long hexToLong(String hexString) {
+        Assert.hasText(hexString, "Can't convert empty hex string to long");
+        int length = hexString.length();
+        if (length < 1) {
+            throw new IllegalArgumentException("length must be more than zero : " + hexString);
+        }
+        if (length <= 16) {
+            return Long.parseUnsignedLong(hexString, 16);
+        }
+        throw new IllegalArgumentException("length must  less than 16 :" + hexString);
+    }
+
+    /**
+     * convert string to long
+     * @param data origin string
+     * @return long converted long
      */
     private static long FNV64HashCode(String data) {
         long hash = 0xcbf29ce484222325L;
@@ -170,26 +169,6 @@ public class JaegerSpanAdapter {
             hash *= 0x100000001b3L;
         }
         return hash;
-    }
-
-    /**
-     * 转换Reference
-     * @param sofaTracerSpan
-     * @return List<Reference>
-     */
-    private List<Reference> getJaegerReference(SofaTracerSpan sofaTracerSpan) {
-        List<Reference> jaegerReferences = new ArrayList<>();
-        List<SofaTracerSpanReferenceRelationship> sofaReferences = sofaTracerSpan
-            .getSpanReferences();
-        for (SofaTracerSpanReferenceRelationship sofaReference : sofaReferences) {
-            // type 都是使用的opentracing中的常量，但是spancontext这两者需要互相转换
-            JaegerSpanContext jaegerSpanContext = getJaegerSpanContext(sofaReference
-                .getSofaTracerSpanContext());
-            Reference jaegerReference = new Reference(jaegerSpanContext,
-                sofaReference.getReferenceType());
-            jaegerReferences.add(jaegerReference);
-        }
-        return jaegerReferences;
     }
 
 }

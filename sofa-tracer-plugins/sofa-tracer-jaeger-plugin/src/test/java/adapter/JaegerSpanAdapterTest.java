@@ -20,8 +20,10 @@ import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.sofa.tracer.plugins.jaeger.JaegerSofaTracerSpanRemoteReporter;
 import com.alipay.sofa.tracer.plugins.jaeger.adapter.JaegerSpanAdapter;
 import io.jaegertracing.internal.JaegerSpan;
+import io.jaegertracing.internal.JaegerTracer;
 import io.jaegertracing.internal.reporters.RemoteReporter;
 import io.jaegertracing.spi.Sender;
 import io.jaegertracing.thrift.internal.senders.UdpSender;
@@ -63,10 +65,11 @@ public class JaegerSpanAdapterTest {
 
     @Test
     public void testConvertToJaegerSpan() throws TTransportException {
-        Sender sender = new UdpSender("127.0.0.1", 6831, 0);
-        RemoteReporter.Builder builder = new RemoteReporter.Builder().withSender(sender);
-        RemoteReporter reporter = builder.build();
-        JaegerSpan span = jaegerSpanAdapter.convertAndReport(sofaTracerSpan, reporter);
+
+        JaegerSofaTracerSpanRemoteReporter remoteReporter = new JaegerSofaTracerSpanRemoteReporter(
+            "127.0.0.1", 6831, 65000, "testService");
+        JaegerTracer jaegerTracer = remoteReporter.getJaegerTracer();
+        JaegerSpan span = jaegerSpanAdapter.convertAndReport(sofaTracerSpan, jaegerTracer);
         Assert.assertTrue(span != null);
         Assert.assertTrue(span.getOperationName().equalsIgnoreCase(
             sofaTracerSpan.getOperationName()));

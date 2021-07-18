@@ -21,6 +21,8 @@ import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.sofa.tracer.plugins.jaeger.adapter.JaegerSpanAdapter;
 import com.alipay.sofa.tracer.plugins.jaeger.properties.JaegerProperties;
+import com.alipay.sofa.tracer.plugins.jaeger.utils.NetUtils;
+import io.jaegertracing.internal.JaegerTracer;
 import io.jaegertracing.internal.reporters.RemoteReporter;
 import io.jaegertracing.thrift.internal.senders.UdpSender;
 import org.apache.thrift.transport.TTransportException;
@@ -31,26 +33,30 @@ public class JaegerSofaTracerSpanRemoteReporter implements SpanReportListener, C
     private JaegerSpanAdapter adapter = new JaegerSpanAdapter();
     private UdpSender         jaegerUdpSender;
     private RemoteReporter    reporter;
+    private JaegerTracer      jaegerTracer;
 
-    public JaegerSofaTracerSpanRemoteReporter(String host, int port, int maxPacketSize)
-                                                                                       throws TTransportException {
-        //默认使用的compact
+    public JaegerSofaTracerSpanRemoteReporter(String host, int port, int maxPacketSize,
+                                              String serviceName) throws TTransportException {
+        //user compact thrift protocol by default
         jaegerUdpSender = new UdpSender(host, port, maxPacketSize);
 
-        //使用配置文件 sofa.tracer.properties来配置jaeger 中的command queue
-        //向command queue中写入FlushCommand的间隔时间
+        //Use the configuration file named sofa.tracer.properties to configure the command queue in jaeger
+        //The interval of writing FlushCommand to the command queue
         Integer flushInterval = SofaTracerConfiguration.getIntegerDefaultIfNull(
             JaegerProperties.JAEGER_AGENT_FLUSH_INTERVAL_MS_KEY, 1000);
-        //command queue的大小，过大浪费空间，过小会导致span丢失
+        // size of the command queue is too large will waste space, and too small will cause the span to be lost
         Integer maxQueueSize = SofaTracerConfiguration.getIntegerDefaultIfNull(
             JaegerProperties.JAEGER_AGENT_MAX_QUEUE_SIZE_KEY, 100);
-        //写入CloseCommand的超时时间
+        //Timeout for writing CloseCommand
         Integer closeEnqueueTimeout = SofaTracerConfiguration.getIntegerDefaultIfNull(
             JaegerProperties.JAEGER_AGENT_CLOSE_ENQUEUE_TIMEOUT_MILLIS_KEY, 1000);
 
         reporter = new RemoteReporter.Builder().withSender(jaegerUdpSender)
             .withFlushInterval(flushInterval).withMaxQueueSize(maxQueueSize)
             .withCloseEnqueueTimeout(closeEnqueueTimeout).build();
+
+        jaegerTracer = new JaegerTracer.Builder(serviceName).withReporter(reporter)
+            .withTraceId128Bit().withTag("ip", NetUtils.getLocalIpv4()).build();
 
     }
 
@@ -59,8 +65,8 @@ public class JaegerSofaTracerSpanRemoteReporter implements SpanReportListener, C
         if (sofaTracerSpan == null || !sofaTracerSpan.getSofaTracerSpanContext().isSampled()) {
             return;
         }
-        //转换过程中创建的SofaTracer中包含的reporter会自动上传转换好的jaegerSpan
-        adapter.convertAndReport(sofaTracerSpan, reporter);
+        // the sender in jaegerTracer will send the input sofaTracerSpan according to the setting
+        adapter.convertAndReport(sofaTracerSpan, jaegerTracer);
     }
 
     @Override
@@ -70,6 +76,10 @@ public class JaegerSofaTracerSpanRemoteReporter implements SpanReportListener, C
 
     public RemoteReporter getReporter() {
         return this.reporter;
+    }
+
+    public JaegerTracer getJaegerTracer() {
+        return this.jaegerTracer;
     }
 
 }
