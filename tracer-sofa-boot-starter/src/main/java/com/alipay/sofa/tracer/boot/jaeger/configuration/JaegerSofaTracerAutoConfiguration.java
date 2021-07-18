@@ -29,6 +29,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * report Zipkin v2 JSON format span to the jaeger collector
+ */
+
 @Configuration
 @EnableConfigurationProperties(JaegerSofaTracerProperties.class)
 @ConditionalOnProperty(value = "com.alipay.sofa.tracer.jaeger.enabled", matchIfMissing = false)

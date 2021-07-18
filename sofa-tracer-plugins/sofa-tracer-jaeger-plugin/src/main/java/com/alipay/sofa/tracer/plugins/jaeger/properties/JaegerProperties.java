@@ -17,8 +17,11 @@
 package com.alipay.sofa.tracer.plugins.jaeger.properties;
 
 public class JaegerProperties {
-    public static final String JAEGER_AGENT_IS_ENABLED_KEY      = "com.alipay.sofa.tracer.jaeger.agent.enabled";
-    public static final String JAEGER_AGENT_HOST_KEY            = "com.alipay.sofa.tracer.jaeger.agent.host";
-    public static final String JAEGER_AGENT_PORT_KEY            = "com.alipay.sofa.tracer.jaeger.agent.port";
-    public static final String JAEGER_AGENT_MAX_PACKET_SIZE_KEY = "com.alipay.sofa.tracer.jaeger.agent.maxPacketSize";
+    public static final String JAEGER_AGENT_IS_ENABLED_KEY                   = "com.alipay.sofa.tracer.jaeger.agent.enabled";
+    public static final String JAEGER_AGENT_HOST_KEY                         = "com.alipay.sofa.tracer.jaeger.agent.host";
+    public static final String JAEGER_AGENT_PORT_KEY                         = "com.alipay.sofa.tracer.jaeger.agent.port";
+    public static final String JAEGER_AGENT_MAX_PACKET_SIZE_KEY              = "com.alipay.sofa.tracer.jaeger.agent.maxPacketSize";
+    public static final String JAEGER_AGENT_FLUSH_INTERVAL_MS_KEY            = "com.alipay.sofa.tracer.jaeger.agent.flushInterval";
+    public static final String JAEGER_AGENT_MAX_QUEUE_SIZE_KEY               = "com.alipay.sofa.tracer.jaeger.agent.maxQueueSize";
+    public static final String JAEGER_AGENT_CLOSE_ENQUEUE_TIMEOUT_MILLIS_KEY = "com.alipay.sofa.tracer.jaeger.agent.closeEnqueueTimeout";
 }

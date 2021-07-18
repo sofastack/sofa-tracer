@@ -66,7 +66,7 @@ public class JaegerSpanAdapterTest {
         Sender sender = new UdpSender("127.0.0.1", 6831, 0);
         RemoteReporter.Builder builder = new RemoteReporter.Builder().withSender(sender);
         RemoteReporter reporter = builder.build();
-        JaegerSpan span = jaegerSpanAdapter.convertToJaegerSpan(sofaTracerSpan, reporter);
+        JaegerSpan span = jaegerSpanAdapter.convertAndReport(sofaTracerSpan, reporter);
         Assert.assertTrue(span != null);
         Assert.assertTrue(span.getOperationName().equalsIgnoreCase(
             sofaTracerSpan.getOperationName()));

@@ -30,10 +30,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * report jaeger.thrift data to the jaeger agent
+ */
 @Configuration
 @EnableConfigurationProperties(JaegerAgentSofaTracerProperties.class)
 @ConditionalOnProperty(value = "com.alipay.sofa.tracer.jaeger.agent.enabled", matchIfMissing = false)
-//@ConditionalOnClass({ JaegerSpan.class, JaegerTracer.class, JaegerSpanContext.class })
+@ConditionalOnClass({ JaegerSpan.class, JaegerTracer.class, JaegerSpanContext.class })
 public class JaegerAgentSofaTracerAutoConfiguration {
     @Autowired
     private JaegerAgentSofaTracerProperties jaegerAgentProperties;

@@ -20,11 +20,23 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("com.alipay.sofa.tracer.jaeger.agent")
 public class JaegerAgentSofaTracerProperties {
-
+    /**
+     * the address of agent
+     */
     private String  host          = "127.0.0.1";
+    /**
+     * whether report span to jaeger agent
+     */
     private boolean enabled       = false;
+    /**
+     * jaeger agent port to accept jaeger.thrift
+     */
     private int     port          = 6831;
-    private int     maxPacketSize = 0;
+    /**
+     * the max byte of the packet
+     * In UDP over IPv4, the limit is 65,507 bytes
+     */
+    private int     maxPacketSize = 65000;
 
     public String getHost() {
         return this.host;

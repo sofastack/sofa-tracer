@@ -21,15 +21,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("com.alipay.sofa.tracer.jaeger")
 public class JaegerSofaTracerProperties {
     /**
-     * URL of the zipkin query server instance.
+     * URL of the jaeger collector.
      */
     private String  baseUrl = "http://localhost:9411/";
     /**
-     * zipkin reporter is disabled by default
+     * jaeger reporter is disabled by default
      */
     private boolean enabled = false;
     /**
-     * When enabled, spans are gzipped before sent to the zipkin server
+     * When enabled, spans are gzipped before sent to the jaeger server
      */
     private boolean gzipped = false;
 

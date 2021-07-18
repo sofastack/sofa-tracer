@@ -28,9 +28,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * convert sofaTracerSpan to JaegerSpan and use UdpSender to send jaegerSpan to the jaeger agent
+ */
+
 public class JaegerSpanAdapter {
 
-    public JaegerSpan convertToJaegerSpan(SofaTracerSpan sofaTracerSpan, RemoteReporter reporter) {
+    public JaegerSpan convertAndReport(SofaTracerSpan sofaTracerSpan, RemoteReporter reporter) {
         final boolean computeDurationViaNanoTicks = false;
         final long startTimeNanoTicks = 0L;
         SofaTracerSpanContext context = sofaTracerSpan.getSofaTracerSpanContext();
@@ -56,10 +60,10 @@ public class JaegerSpanAdapter {
             jaegerSpanContext, startTimeMicroseconds, startTimeNanoTicks,
             computeDurationViaNanoTicks, tags, references);
 
-        //设置durationMicroseconds
+        //set durationMicroseconds
         jaegerSpan.finish(sofaTracerSpan.getEndTime() * 1000);
 
-        //设置logs
+        //set logs
         jaegerSpan = setLogData(sofaTracerSpan, jaegerSpan);
 
         //convert baggage
@@ -69,7 +73,7 @@ public class JaegerSpanAdapter {
     }
 
     /**
-     * 创建JaegerTracer对象
+     * create JaegerTracer Object
      * @param sofaTracerSpan
      * @param reporter
      * @return JaegerTracer
@@ -108,7 +112,7 @@ public class JaegerSpanAdapter {
     }
 
     /**
-     * 转换tags
+     * 设置UI中process的tag
      * @param builder
      * @param span
      * @return JaegerTracer.Builder
@@ -117,16 +121,9 @@ public class JaegerSpanAdapter {
     private JaegerTracer.Builder addJaegerTracerTags(JaegerTracer.Builder builder,
                                                      SofaTracerSpan span) {
 
-        for (Map.Entry<String, String> e : span.getTagsWithStr().entrySet()) {
-            builder.withTag(e.getKey(), e.getValue());
+        if (span.getTagsWithStr().containsKey("ip")) {
+            builder.withTag("ip", span.getTagsWithStr().get("ip"));
         }
-        for (Map.Entry<String, Number> e : span.getTagsWithNumber().entrySet()) {
-            builder.withTag(e.getKey(), e.getValue());
-        }
-        for (Map.Entry<String, Boolean> e : span.getTagsWithBool().entrySet()) {
-            builder.withTag(e.getKey(), e.getValue());
-        }
-
         return builder;
     }
 
@@ -149,7 +146,7 @@ public class JaegerSpanAdapter {
     }
 
     /**
-     * 转化logdata，zipkin里面使用annotation来表示
+     * 转化logdata
      */
     private JaegerSpan setLogData(SofaTracerSpan span, JaegerSpan jaegerSpan) {
         List<com.alipay.common.tracer.core.span.LogData> sofaLogDatas = span.getLogs();

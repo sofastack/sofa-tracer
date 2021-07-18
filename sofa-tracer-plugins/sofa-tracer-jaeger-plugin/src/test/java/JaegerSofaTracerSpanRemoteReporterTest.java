@@ -15,16 +15,19 @@
  * limitations under the License.
  */
 import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.sofa.tracer.plugins.jaeger.JaegerSofaTracerSpanRemoteReporter;
 import com.alipay.sofa.tracer.plugins.jaeger.adapter.JaegerSpanAdapter;
+import com.alipay.sofa.tracer.plugins.jaeger.properties.JaegerProperties;
 import io.jaegertracing.internal.JaegerSpan;
-import io.jaegertracing.internal.exceptions.SenderException;
 import io.jaegertracing.internal.reporters.RemoteReporter;
 import io.jaegertracing.spi.Sender;
 import io.jaegertracing.thrift.internal.senders.UdpSender;
 import org.apache.thrift.transport.TTransportException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -63,13 +66,24 @@ public class JaegerSofaTracerSpanRemoteReporterTest {
     }
 
     @Test
-    public void testUdpSender() throws TTransportException {
+    public void testSpanReport() throws TTransportException {
 
         Sender sender = new UdpSender("127.0.0.1", 6831, 0);
-        RemoteReporter.Builder builder = new RemoteReporter.Builder().withSender(sender);
-        RemoteReporter reporter = builder.build();
-        jaegerSpan = jaegerSpanAdapter.convertToJaegerSpan(sofaTracerSpan, reporter);
-        //        reporter.report(jaegerSpan);
+        RemoteReporter reporter = new RemoteReporter.Builder().withSender(sender).build();
+        jaegerSpan = jaegerSpanAdapter.convertAndReport(sofaTracerSpan, reporter);
+
+    }
+
+    @Test
+    public void testCommandQueueSetting() throws TTransportException {
+        JaegerSofaTracerSpanRemoteReporter reporter = new JaegerSofaTracerSpanRemoteReporter(
+            "127.0.0.1", 6831, 0);
+        Assert.assertTrue(SofaTracerConfiguration.getIntegerDefaultIfNull(
+            JaegerProperties.JAEGER_AGENT_FLUSH_INTERVAL_MS_KEY, 1000) == 200);
+        Assert.assertTrue(SofaTracerConfiguration.getIntegerDefaultIfNull(
+            JaegerProperties.JAEGER_AGENT_MAX_QUEUE_SIZE_KEY, 100) == 200);
+        Assert.assertTrue(SofaTracerConfiguration.getIntegerDefaultIfNull(
+            JaegerProperties.JAEGER_AGENT_CLOSE_ENQUEUE_TIMEOUT_MILLIS_KEY, 1000) == 2000);
     }
 
 }

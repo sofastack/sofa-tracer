@@ -183,6 +183,13 @@
             <version>2.7.15</version>
             <optional>true</optional>
         </dependency>
+        <!-- Jaeger optional : add manually -->
+        <dependency>
+            <groupId>io.jaegertracing</groupId>
+            <artifactId>jaeger-client</artifactId>
+            <version>1.6.0</version>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.data</groupId>
