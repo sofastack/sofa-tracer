@@ -56,7 +56,7 @@ public class JaegerSpanAdapter {
             jaegerSpanContext, startTimeMicroseconds, startTimeNanoTicks,
             computeDurationViaNanoTicks, tags, references);
 
-        //set durationMicroseconds
+        //set durationMicroseconds, if the span is sampled will add AppendCommand to CommandQueue
         jaegerSpan.finish(sofaTracerSpan.getEndTime() * 1000);
 
         //set logs

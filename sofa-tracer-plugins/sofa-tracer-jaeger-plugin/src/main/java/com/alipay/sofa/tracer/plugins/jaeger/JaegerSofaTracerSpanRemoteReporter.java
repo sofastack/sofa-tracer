@@ -71,7 +71,8 @@ public class JaegerSofaTracerSpanRemoteReporter implements SpanReportListener, C
 
     @Override
     public void close() throws IOException {
-        this.reporter.close();
+        //close jaegerTracer and it will close reporter internal
+        this.jaegerTracer.close();
     }
 
     public RemoteReporter getReporter() {
