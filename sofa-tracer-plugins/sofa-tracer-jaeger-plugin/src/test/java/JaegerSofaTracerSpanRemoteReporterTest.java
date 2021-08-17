@@ -22,11 +22,7 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.sofa.tracer.plugins.jaeger.JaegerSofaTracerSpanRemoteReporter;
 import com.alipay.sofa.tracer.plugins.jaeger.adapter.JaegerSpanAdapter;
 import com.alipay.sofa.tracer.plugins.jaeger.properties.JaegerProperties;
-import io.jaegertracing.internal.JaegerSpan;
 import io.jaegertracing.internal.JaegerTracer;
-import io.jaegertracing.internal.reporters.RemoteReporter;
-import io.jaegertracing.spi.Sender;
-import io.jaegertracing.thrift.internal.senders.UdpSender;
 import org.apache.thrift.transport.TTransportException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,6 +31,10 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * JaegerSofaTracerSpanRemoteReporterTest
+ * @author: zhaochen
+ */
 public class JaegerSofaTracerSpanRemoteReporterTest {
     private JaegerSpanAdapter jaegerSpanAdapter = new JaegerSpanAdapter();
 
@@ -43,8 +43,6 @@ public class JaegerSofaTracerSpanRemoteReporterTest {
     private SofaTracer        sofaTracer;
 
     private SofaTracerSpan    sofaTracerSpan;
-
-    private JaegerSpan        jaegerSpan;
 
     @Before
     public void init() throws InterruptedException {
@@ -67,25 +65,34 @@ public class JaegerSofaTracerSpanRemoteReporterTest {
     }
 
     @Test
-    public void testSpanReport() throws TTransportException {
+    public void testAgentSpanReport() throws TTransportException {
 
         JaegerSofaTracerSpanRemoteReporter remoteReporter = new JaegerSofaTracerSpanRemoteReporter(
-            "127.0.0.1", 6831, 65000, "testService");
+            "127.0.0.1", 6831, 65000, "testService", 1000, 10000, 1000);
         JaegerTracer jaegerTracer = remoteReporter.getJaegerTracer();
-        jaegerSpan = jaegerSpanAdapter.convertAndReport(sofaTracerSpan, jaegerTracer);
+        jaegerSpanAdapter.convertAndReport(sofaTracerSpan, jaegerTracer);
 
+    }
+
+    @Test
+    public void testCollectorSpanReport() throws TTransportException {
+
+        JaegerSofaTracerSpanRemoteReporter remoteReporter = new JaegerSofaTracerSpanRemoteReporter(
+            "http://localhost:14268/", 2 * 1024 * 1024, "testService", 1000, 10000, 1000);
+        JaegerTracer jaegerTracer = remoteReporter.getJaegerTracer();
+        jaegerSpanAdapter.convertAndReport(sofaTracerSpan, jaegerTracer);
     }
 
     @Test
     public void testCommandQueueSetting() throws TTransportException {
         JaegerSofaTracerSpanRemoteReporter reporter = new JaegerSofaTracerSpanRemoteReporter(
-            "127.0.0.1", 6831, 0, "testService");
+            "127.0.0.1", 6831, 0, "testService", 1000, 10000, 1000);
         Assert.assertTrue(SofaTracerConfiguration.getIntegerDefaultIfNull(
-            JaegerProperties.JAEGER_AGENT_FLUSH_INTERVAL_MS_KEY, 1000) == 200);
+            JaegerProperties.JAEGER_FLUSH_INTERVAL_MS_KEY, 1000) == 200);
         Assert.assertTrue(SofaTracerConfiguration.getIntegerDefaultIfNull(
-            JaegerProperties.JAEGER_AGENT_MAX_QUEUE_SIZE_KEY, 100) == 200);
+            JaegerProperties.JAEGER_MAX_QUEUE_SIZE_KEY, 10000) == 200);
         Assert.assertTrue(SofaTracerConfiguration.getIntegerDefaultIfNull(
-            JaegerProperties.JAEGER_AGENT_CLOSE_ENQUEUE_TIMEOUT_MILLIS_KEY, 1000) == 2000);
+            JaegerProperties.JAEGER_CLOSE_ENQUEUE_TIMEOUT_MILLIS_KEY, 1000) == 2000);
     }
 
 }

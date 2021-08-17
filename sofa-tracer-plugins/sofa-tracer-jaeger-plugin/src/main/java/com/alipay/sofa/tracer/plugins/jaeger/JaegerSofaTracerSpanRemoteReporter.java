@@ -16,48 +16,64 @@
  */
 package com.alipay.sofa.tracer.plugins.jaeger;
 
-import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.listener.SpanReportListener;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.sofa.tracer.plugins.jaeger.adapter.JaegerSpanAdapter;
-import com.alipay.sofa.tracer.plugins.jaeger.properties.JaegerProperties;
-import com.alipay.sofa.tracer.plugins.jaeger.utils.NetUtils;
+import com.alipay.common.tracer.core.utils.NetUtils;
 import io.jaegertracing.internal.JaegerTracer;
 import io.jaegertracing.internal.reporters.RemoteReporter;
+import io.jaegertracing.thrift.internal.senders.HttpSender;
+import io.jaegertracing.thrift.internal.senders.ThriftSender;
 import io.jaegertracing.thrift.internal.senders.UdpSender;
+import okhttp3.OkHttpClient;
 import org.apache.thrift.transport.TTransportException;
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * JaegerSofaTracerSpanRemoteReporter
+ * @author: zhaochen
+ */
 public class JaegerSofaTracerSpanRemoteReporter implements SpanReportListener, Closeable {
-    private JaegerSpanAdapter adapter = new JaegerSpanAdapter();
-    private UdpSender         jaegerUdpSender;
+    private JaegerSpanAdapter adapter                     = new JaegerSpanAdapter();
+    private ThriftSender      sender;
     private RemoteReporter    reporter;
     private JaegerTracer      jaegerTracer;
+    private static final int  OKHTTP_MAX_REQUESTS         = 64;
+    private static final Long OKHTTP_READ_TIMEOUT_SECONDS = 60L;
 
     public JaegerSofaTracerSpanRemoteReporter(String host, int port, int maxPacketSize,
-                                              String serviceName) throws TTransportException {
-        //user compact thrift protocol by default
-        jaegerUdpSender = new UdpSender(host, port, maxPacketSize);
+                                              String serviceName, int flushInterval,
+                                              int maxQueueSize, int closeEnqueueTimeout)
+                                                                                        throws TTransportException {
+        //use UdpSender to send to the jaeger Agent
+        sender = new UdpSender(host, port, maxPacketSize);
+        buildTracer(serviceName, flushInterval, maxQueueSize, closeEnqueueTimeout);
+    }
 
-        //Use the configuration file named sofa.tracer.properties to configure the command queue in jaeger
-        //The interval of writing FlushCommand to the command queue
-        Integer flushInterval = SofaTracerConfiguration.getIntegerDefaultIfNull(
-            JaegerProperties.JAEGER_AGENT_FLUSH_INTERVAL_MS_KEY, 1000);
-        // size of the command queue is too large will waste space, and too small will cause the span to be lost
-        Integer maxQueueSize = SofaTracerConfiguration.getIntegerDefaultIfNull(
-            JaegerProperties.JAEGER_AGENT_MAX_QUEUE_SIZE_KEY, 100);
-        //Timeout for writing CloseCommand
-        Integer closeEnqueueTimeout = SofaTracerConfiguration.getIntegerDefaultIfNull(
-            JaegerProperties.JAEGER_AGENT_CLOSE_ENQUEUE_TIMEOUT_MILLIS_KEY, 1000);
+    public JaegerSofaTracerSpanRemoteReporter(String baseUrl, int maxPacketSizeBytes,
+                                              String serviceName, int flushInterval,
+                                              int maxQueueSize, int closeEnqueueTimeout)
+                                                                                        throws TTransportException {
+        String url = baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "api/traces";
+        OkHttpClient client = new OkHttpClient.Builder().readTimeout(OKHTTP_READ_TIMEOUT_SECONDS,
+            TimeUnit.SECONDS).build();
+        client.dispatcher().setMaxRequests(OKHTTP_MAX_REQUESTS);
+        client.dispatcher().setMaxRequestsPerHost(OKHTTP_MAX_REQUESTS);
+        //use Http sender to send to Jaeger collector directly
+        sender = new HttpSender.Builder(url).withMaxPacketSize(maxPacketSizeBytes)
+            .withClient(client).build();
+        buildTracer(serviceName, flushInterval, maxQueueSize, closeEnqueueTimeout);
+    }
 
-        reporter = new RemoteReporter.Builder().withSender(jaegerUdpSender)
-            .withFlushInterval(flushInterval).withMaxQueueSize(maxQueueSize)
-            .withCloseEnqueueTimeout(closeEnqueueTimeout).build();
+    private void buildTracer(String serviceName, int flushInterval, int maxQueueSize,
+                             int closeEnqueueTimeout) {
+        reporter = new RemoteReporter.Builder().withSender(sender).withFlushInterval(flushInterval)
+            .withMaxQueueSize(maxQueueSize).withCloseEnqueueTimeout(closeEnqueueTimeout).build();
 
         jaegerTracer = new JaegerTracer.Builder(serviceName).withReporter(reporter)
             .withTraceId128Bit().withTag("ip", NetUtils.getLocalIpv4()).build();
-
     }
 
     @Override

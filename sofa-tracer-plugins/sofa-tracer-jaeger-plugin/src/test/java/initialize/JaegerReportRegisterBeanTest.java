@@ -23,6 +23,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+/**
+ * JaegerReportRegisterBeanTest
+ * @author: zhaochen
+ */
 public class JaegerReportRegisterBeanTest {
     private ClassPathXmlApplicationContext applicationContext;
 

@@ -16,13 +16,20 @@
  */
 package com.alipay.sofa.tracer.plugins.jaeger.properties;
 
+/**
+ * JaegerProperties
+ * @author: zhaochen
+ */
 public class JaegerProperties {
-    public static final String JAEGER_AGENT_IS_ENABLED_KEY                   = "com.alipay.sofa.tracer.jaeger.agent.enabled";
-    public static final String JAEGER_AGENT_HOST_KEY                         = "com.alipay.sofa.tracer.jaeger.agent.host";
-    public static final String JAEGER_AGENT_PORT_KEY                         = "com.alipay.sofa.tracer.jaeger.agent.port";
-    public static final String JAEGER_AGENT_MAX_PACKET_SIZE_KEY              = "com.alipay.sofa.tracer.jaeger.agent.maxPacketSize";
-    public static final String JAEGER_AGENT_FLUSH_INTERVAL_MS_KEY            = "com.alipay.sofa.tracer.jaeger.agent.flushInterval";
-    public static final String JAEGER_AGENT_MAX_QUEUE_SIZE_KEY               = "com.alipay.sofa.tracer.jaeger.agent.maxQueueSize";
-    public static final String JAEGER_AGENT_CLOSE_ENQUEUE_TIMEOUT_MILLIS_KEY = "com.alipay.sofa.tracer.jaeger.agent.closeEnqueueTimeout";
-    public static final String JAEGER_AGENT_SERVICE_NAME_KEY                 = "spring.application.name";
+    public static final String JAEGER_IS_ENABLED_KEY                   = "com.alipay.sofa.tracer.jaeger.enabled";
+    public static final String JAEGER_COLLECTOR_BASE_URL_KEY           = "com.alipay.sofa.tracer.jaeger.collector.baseUrl";
+    public static final String JAEGER_COLLECTOR_MAX_PACKET_SIZE_KEY    = "com.alipay.sofa.tracer.jaeger.collector.maxPacketSizeBytes";
+    public static final String JAEGER_RECEIVER_KEY                     = "com.alipay.sofa.tracer.jaeger.receiver";
+    public static final String JAEGER_AGENT_HOST_KEY                   = "com.alipay.sofa.tracer.jaeger.agent.host";
+    public static final String JAEGER_AGENT_PORT_KEY                   = "com.alipay.sofa.tracer.jaeger.agent.port";
+    public static final String JAEGER_AGENT_MAX_PACKET_SIZE_KEY        = "com.alipay.sofa.tracer.jaeger.agent.maxPacketSizeBytes";
+    public static final String JAEGER_FLUSH_INTERVAL_MS_KEY            = "com.alipay.sofa.tracer.jaeger.flushInterval";
+    public static final String JAEGER_MAX_QUEUE_SIZE_KEY               = "com.alipay.sofa.tracer.jaeger.maxQueueSize";
+    public static final String JAEGER_CLOSE_ENQUEUE_TIMEOUT_MILLIS_KEY = "com.alipay.sofa.tracer.jaeger.closeEnqueueTimeout";
+    public static final String JAEGER_SERVICE_NAME_KEY                 = "spring.application.name";
 }

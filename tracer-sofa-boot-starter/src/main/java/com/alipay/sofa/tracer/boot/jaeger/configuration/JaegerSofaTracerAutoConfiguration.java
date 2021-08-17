@@ -17,41 +17,54 @@
 package com.alipay.sofa.tracer.boot.jaeger.configuration;
 
 import com.alipay.sofa.tracer.boot.jaeger.properties.JaegerSofaTracerProperties;
-import com.alipay.sofa.tracer.boot.zipkin.properties.ZipkinSofaTracerProperties;
-import com.alipay.sofa.tracer.plugins.zipkin.ZipkinSofaTracerRestTemplateCustomizer;
-import com.alipay.sofa.tracer.plugins.zipkin.ZipkinSofaTracerSpanRemoteReporter;
+import com.alipay.sofa.tracer.plugins.jaeger.JaegerSofaTracerSpanRemoteReporter;
+import io.jaegertracing.internal.JaegerSpan;
+import io.jaegertracing.internal.JaegerSpanContext;
+import io.jaegertracing.internal.JaegerTracer;
+import org.apache.thrift.transport.TTransportException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 
 /**
- * report Zipkin v2 JSON format span to the jaeger collector
+ * JaegerSofaTracerAutoConfiguration
+ * @author: zhaochen
  */
-
 @Configuration
 @EnableConfigurationProperties(JaegerSofaTracerProperties.class)
 @ConditionalOnProperty(value = "com.alipay.sofa.tracer.jaeger.enabled", matchIfMissing = false)
-@ConditionalOnClass({ zipkin2.Span.class, zipkin2.reporter.AsyncReporter.class, RestTemplate.class })
+@ConditionalOnClass({ JaegerSpan.class, JaegerTracer.class, JaegerSpanContext.class })
 public class JaegerSofaTracerAutoConfiguration {
     @Autowired
     private JaegerSofaTracerProperties jaegerProperties;
 
+    @Value("${spring.application.name}")
+    private String                     serviceName;
+
     @Bean
     @ConditionalOnMissingBean
-    public ZipkinSofaTracerRestTemplateCustomizer zipkinSofaTracerRestTemplateCustomizer() {
-        return new ZipkinSofaTracerRestTemplateCustomizer(jaegerProperties.isGzipped());
+    @ConditionalOnProperty(value = "com.alipay.sofa.tracer.jaeger.receiver", havingValue = "collector", matchIfMissing = true)
+    public JaegerSofaTracerSpanRemoteReporter jaegerSofaTracerSpanRemoteReporter()
+                                                                                  throws TTransportException {
+        return new JaegerSofaTracerSpanRemoteReporter(jaegerProperties.getCollectorBaseUrl(),
+            jaegerProperties.getCollectorMaxPacketSizeBytes(), serviceName,
+            jaegerProperties.getFlushIntervalMill(), jaegerProperties.getMaxQueueSize(),
+            jaegerProperties.getCloseEnqueueTimeoutMill());
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ZipkinSofaTracerSpanRemoteReporter zipkinSofaTracerSpanReporter(ZipkinSofaTracerRestTemplateCustomizer zipkinSofaTracerRestTemplateCustomizer) {
-        RestTemplate restTemplate = new RestTemplate();
-        zipkinSofaTracerRestTemplateCustomizer.customize(restTemplate);
-        return new ZipkinSofaTracerSpanRemoteReporter(restTemplate, jaegerProperties.getBaseUrl());
+    @ConditionalOnProperty(value = "com.alipay.sofa.tracer.jaeger.receiver", havingValue = "agent", matchIfMissing = false)
+    public JaegerSofaTracerSpanRemoteReporter jaegerAgentSofaTracerSpanReporter()
+                                                                                 throws TTransportException {
+        return new JaegerSofaTracerSpanRemoteReporter(jaegerProperties.getAgentHost(),
+            jaegerProperties.getAgentPort(), jaegerProperties.getAgentMaxPacketSizeBytes(),
+            serviceName, jaegerProperties.getFlushIntervalMill(),
+            jaegerProperties.getMaxQueueSize(), jaegerProperties.getCloseEnqueueTimeoutMill());
     }
 }

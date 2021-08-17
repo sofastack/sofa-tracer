@@ -16,45 +16,77 @@
  */
 package com.alipay.sofa.tracer.boot.jaeger.properties;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * JaegerSofaTracerProperties
+ * @author: zhaochen
+ */
+@Data
 @ConfigurationProperties("com.alipay.sofa.tracer.jaeger")
 public class JaegerSofaTracerProperties {
+
+    private Agent     agent                   = new Agent();
+    private Collector collector               = new Collector();
+
+    private boolean   enabled                 = false;
     /**
-     * URL of the jaeger collector.
+     * receiver of span, it can be collector or agent
      */
-    private String  baseUrl = "http://localhost:9411/";
+    private String    receiver                = "collector";
+
     /**
-     * jaeger reporter is disabled by default
+     *The interval of writing FlushCommand to the command queue
      */
-    private boolean enabled = false;
+    private int       flushIntervalMill       = 1000;
     /**
-     * When enabled, spans are gzipped before sent to the jaeger server
+     * size of the command queue is too large will waste space, and too small will cause the span to be lost
      */
-    private boolean gzipped = false;
+    private Integer   maxQueueSize            = 10000;
+    /**
+     * Timeout for writing CloseCommand
+     */
+    private Integer   closeEnqueueTimeoutMill = 1000;
 
-    public String getBaseUrl() {
-        return this.baseUrl;
+    public String getCollectorBaseUrl() {
+        return this.collector.getBaseUrl();
     }
 
-    public boolean isEnabled() {
-        return this.enabled;
+    public int getCollectorMaxPacketSizeBytes() {
+        return this.collector.getMaxPacketSizeBytes();
     }
 
-    public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
+    public String getAgentHost() {
+        return this.agent.getHost();
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public int getAgentPort() {
+        return this.agent.getPort();
     }
 
-    public boolean isGzipped() {
-        return gzipped;
+    public int getAgentMaxPacketSizeBytes() {
+        return this.agent.getMaxPacketSizeBytes();
     }
 
-    public void setGzipped(boolean gzipped) {
-        this.gzipped = gzipped;
+    @Data
+    private class Agent {
+        private String host               = "127.0.0.1";
+        private int    port               = 6831;
+        /**
+         * the max byte of the packet
+         * In UDP over IPv4, the limit is 65,507 bytes
+         */
+        private int    maxPacketSizeBytes = 65000;
+    }
+
+    @Data
+    private class Collector {
+        private String baseUrl            = "http://localhost:14268/";
+        /**
+         * the max packet size in default it is 2MB
+         */
+        private int    maxPacketSizeBytes = 2 * 1024 * 1024;
     }
 
 }
