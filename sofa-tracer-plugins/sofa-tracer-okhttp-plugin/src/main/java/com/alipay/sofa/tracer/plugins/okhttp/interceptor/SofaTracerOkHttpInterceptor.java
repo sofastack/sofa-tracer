@@ -22,6 +22,7 @@ import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
+import com.alipay.common.tracer.core.utils.NetUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.okhttp.OkHttpRequestCarrier;
 import okhttp3.Headers;
@@ -29,6 +30,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.List;
 
 /**
@@ -71,6 +73,12 @@ public class SofaTracerOkHttpInterceptor implements okhttp3.Interceptor {
         sofaTracerSpan.setTag(CommonSpanTags.LOCAL_APP, appName == null ? StringUtils.EMPTY_STRING
             : appName);
         sofaTracerSpan.setTag(CommonSpanTags.REQUEST_URL, request.url().toString());
+        InetAddress ipAddress = NetUtils.getIpAddress(request.url().host());
+        String host = ipAddress == null ? request.url().host() : ipAddress.getHostAddress();
+        String port = String.valueOf(request.url().port());
+        sofaTracerSpan.setTag(CommonSpanTags.REMOTE_HOST, host);
+        sofaTracerSpan.setTag(CommonSpanTags.REMOTE_PORT, port);
+        sofaTracerSpan.getSofaTracerSpanContext().setPeer(host + ":" + port);
         //method
         sofaTracerSpan.setTag(CommonSpanTags.METHOD, methodName);
 
@@ -99,4 +107,5 @@ public class SofaTracerOkHttpInterceptor implements okhttp3.Interceptor {
         Request.Builder requestBuilder = request.newBuilder();
         return requestBuilder.headers(headerBuilder.build()).build();
     }
+
 }

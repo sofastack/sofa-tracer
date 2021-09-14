@@ -20,7 +20,9 @@ import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.NetUtils;
 import com.alipay.sofa.tracer.plugins.mongodb.tracers.MongoClientTracer;
+import com.mongodb.ServerAddress;
 import com.mongodb.event.CommandFailedEvent;
 import com.mongodb.event.CommandListener;
 import com.mongodb.event.CommandStartedEvent;
@@ -29,6 +31,7 @@ import io.opentracing.tag.Tags;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -115,11 +118,13 @@ public class SofaTracerCommandListener implements CommandListener {
 
     private void decorate(SofaTracerSpan span, CommandStartedEvent event) {
         String command = event.getCommandName();
+        String host = event.getConnectionDescription().getServerAddress().getHost();
+        InetAddress hostAddress = NetUtils.getIpAddress(host);
         span.setTag(Tags.COMPONENT.getKey(), COMPONENT_NAME);
         span.setTag(Tags.DB_STATEMENT.getKey(), event.getCommand().toString());
         span.setTag(Tags.DB_INSTANCE.getKey(), event.getDatabaseName());
-        span.setTag(Tags.PEER_HOSTNAME.getKey(), event.getConnectionDescription()
-            .getServerAddress().getHost());
+        span.setTag(Tags.PEER_HOSTNAME.getKey(),
+            hostAddress == null ? host : hostAddress.getHostAddress());
         InetSocketAddress address = event.getConnectionDescription().getServerAddress()
             .getSocketAddress();
         if (address != null) {
@@ -127,6 +132,9 @@ public class SofaTracerCommandListener implements CommandListener {
         }
         span.setTag(Tags.PEER_PORT.getKey(), event.getConnectionDescription().getServerAddress()
             .getPort());
+        ServerAddress serverAddress = event.getConnectionDescription().getServerAddress();
+        span.getSofaTracerSpanContext().setPeer(
+            serverAddress.getHost() + ":" + serverAddress.getPort());
         span.setTag(Tags.DB_TYPE.getKey(), "mongodb");
         span.setTag(CommonSpanTags.METHOD, command);
         span.setTag(CommonSpanTags.LOCAL_APP, applicationName);

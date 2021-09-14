@@ -40,6 +40,7 @@ import com.alipay.common.tracer.core.samplers.Sampler;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.NetUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.common.code.LogCode2Description;
 import com.alipay.sofa.tracer.plugins.dubbo.constants.AttachmentKeyConstants;
@@ -47,6 +48,7 @@ import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboConsumerSofaTracer;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboProviderSofaTracer;
 import io.opentracing.tag.Tags;
 
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -119,6 +121,15 @@ public class DubboSofaTracerFilter implements Filter {
                                                                            + methodName);
         // set tags to span
         appendRpcClientSpanTags(invoker, sofaTracerSpan);
+        InetAddress address = NetUtils.getLocalAddress();
+        String local_app = rpcContext.getUrl().getParameter(Constants.APPLICATION_KEY);
+        String instance = local_app + "@" + address.getHostAddress();
+        SofaTracerSpanContext parentSpanContext = sofaTracerSpan.getParentSofaTracerSpan()
+            .getSofaTracerSpanContext();
+        sofaTracerSpan.getSofaTracerSpanContext().setParentParams(parentSpanContext.getService(),
+            parentSpanContext.getServiceInstance(), parentSpanContext.getOperationName());
+        sofaTracerSpan.getSofaTracerSpanContext().setParams(local_app, instance,
+            service + "#" + methodName);
         // do serialized and then transparent transmission to the rpc server
         String serializedSpanContext = sofaTracerSpan.getSofaTracerSpanContext()
             .serializeSpanContext();
@@ -269,6 +280,17 @@ public class DubboSofaTracerFilter implements Filter {
         }
         SofaTracerSpan sofaTracerSpan = serverReceived(invocation);
         appendRpcServerSpanTags(invoker, sofaTracerSpan);
+        RpcContext rpcContext = RpcContext.getContext();
+        String service = invoker.getInterface().getName();
+        String methodName = rpcContext.getMethodName();
+        InetAddress address = NetUtils.getLocalAddress();
+        String local_app = rpcContext.getUrl().getParameter(Constants.APPLICATION_KEY);
+        String instance = local_app + "@" + address.getHostAddress();
+        SofaTracerSpanContext spanContext = sofaTracerSpan.getSofaTracerSpanContext();
+        spanContext.setParentParams(spanContext.getService(), spanContext.getServiceInstance(),
+            spanContext.getOperationName());
+        sofaTracerSpan.getSofaTracerSpanContext().setParams(local_app, instance,
+            service + "#" + methodName);
         Result result;
         Throwable exception = null;
         try {

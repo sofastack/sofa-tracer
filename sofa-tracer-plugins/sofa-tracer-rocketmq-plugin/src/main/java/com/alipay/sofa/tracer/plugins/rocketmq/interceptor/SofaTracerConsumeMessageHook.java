@@ -87,5 +87,10 @@ public class SofaTracerConsumeMessageHook implements ConsumeMessageHook {
         span.setTag("broker", brokerName);
         span.setTag(CommonSpanTags.MSG_ID, msg.getMsgId());
         span.setTag("status", context.getStatus());
+        String[] remote = msg.getStoreHost().toString().split(":");
+        span.setTag(CommonSpanTags.REMOTE_HOST, remote[0].startsWith("/") ? remote[0].substring(1)
+            : remote[0]);
+        span.setTag(CommonSpanTags.REMOTE_PORT, remote[1]);
+        span.getSofaTracerSpanContext().setPeer(remote[0] + ":" + remote[1]);
     }
 }

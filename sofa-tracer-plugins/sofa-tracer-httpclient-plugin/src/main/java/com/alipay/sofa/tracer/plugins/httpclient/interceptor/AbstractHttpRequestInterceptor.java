@@ -17,11 +17,13 @@
 package com.alipay.sofa.tracer.plugins.httpclient.interceptor;
 
 import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
+import com.alipay.common.tracer.core.utils.NetUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.httpclient.HttpClientRequestCarrier;
 import org.apache.http.HttpEntity;
@@ -30,6 +32,10 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.RequestLine;
 import org.apache.http.client.methods.HttpRequestWrapper;
+
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * AbstractHttpRequestInterceptor
@@ -76,8 +82,20 @@ public abstract class AbstractHttpRequestInterceptor {
             HttpRequestWrapper httpRequestWrapper = (HttpRequestWrapper) httpRequest;
             httpClientSpan.setTag(CommonSpanTags.REQUEST_URL, httpRequestWrapper.getOriginal()
                 .getRequestLine().getUri());
+            httpClientSpan.setTag(CommonSpanTags.REMOTE_HOST, httpRequestWrapper.getTarget()
+                .getAddress().getHostAddress());
+            httpClientSpan.setTag(CommonSpanTags.REMOTE_PORT,
+                String.valueOf(httpRequestWrapper.getTarget().getPort()));
+            httpClientSpan.getSofaTracerSpanContext().setPeer(
+                httpRequestWrapper.getTarget().getAddress().getHostAddress() + ":"
+                        + httpRequestWrapper.getTarget().getPort());
         } else {
             httpClientSpan.setTag(CommonSpanTags.REQUEST_URL, requestLine.getUri());
+            String[] remoteHostAndPort = parseRemoteHostAndPort(requestLine.getUri());
+            httpClientSpan.setTag(CommonSpanTags.REMOTE_HOST, remoteHostAndPort[0]);
+            httpClientSpan.setTag(CommonSpanTags.REMOTE_PORT, remoteHostAndPort[1]);
+            httpClientSpan.getSofaTracerSpanContext().setPeer(
+                remoteHostAndPort[0] + ":" + remoteHostAndPort[1]);
         }
         //method
         httpClientSpan.setTag(CommonSpanTags.METHOD, methodName);
@@ -108,5 +126,20 @@ public abstract class AbstractHttpRequestInterceptor {
         SofaTracer sofaTracer = this.httpClientTracer.getSofaTracer();
         sofaTracer.inject(currentSpan.getSofaTracerSpanContext(),
             ExtendFormat.Builtin.B3_HTTP_HEADERS, new HttpClientRequestCarrier(httpRequest));
+    }
+
+    private String[] parseRemoteHostAndPort(String url) {
+        String[] hostWithPort = new String[2];
+        URL requestUrl = null;
+        try {
+            requestUrl = new URL(url);
+        } catch (MalformedURLException e) {
+            SelfLog.error("cannot parse remote host and port. request:" + url, e);
+        }
+        InetAddress hostAddress = NetUtils.getIpAddress(requestUrl.getHost());
+        hostWithPort[0] = requestUrl != null ? (hostAddress == null ? requestUrl.getHost()
+            : hostAddress.getHostAddress()) : "";
+        hostWithPort[1] = String.valueOf(requestUrl != null ? requestUrl.getPort() : -1);
+        return hostWithPort;
     }
 }

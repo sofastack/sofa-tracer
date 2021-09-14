@@ -18,9 +18,11 @@ package com.alipay.sofa.tracer.plugins.skywalking.adapter;
 
 import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
+import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.span.SofaTracerSpanReferenceRelationship;
 import com.alipay.common.tracer.core.utils.NetUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.skywalking.model.Segment;
@@ -32,6 +34,8 @@ import com.alipay.sofa.tracer.plugins.skywalking.model.Log;
 import com.alipay.sofa.tracer.plugins.skywalking.model.RefType;
 import com.alipay.sofa.tracer.plugins.skywalking.utils.ComponentName2ComponentId;
 import com.alipay.sofa.tracer.plugins.skywalking.utils.ComponentName2SpanLayer;
+import io.opentracing.References;
+import io.opentracing.tag.Tags;
 
 import java.net.InetAddress;
 import java.util.LinkedHashMap;
@@ -71,8 +75,13 @@ public class SkywalkingSegmentAdapter {
      * @return segmentId
      */
     private String generateSegmentId(SofaTracerSpan sofaTracerSpan) {
-        return sofaTracerSpan.getSofaTracerSpanContext().getTraceId()
-               + FNV64HashCode(sofaTracerSpan.getSofaTracerSpanContext().getSpanId())
+        String prefix = sofaTracerSpan.getSofaTracerSpanContext().getTraceId()
+                        + FNV64HashCode(sofaTracerSpan.getSofaTracerSpanContext().getSpanId());
+        // when tracerType equals flexible-biz, span kind is always client
+        if (sofaTracerSpan.getSofaTracer().getTracerType().equals(ComponentNameConstants.FLEXIBLE)) {
+            return prefix + SofaTracerConstant.SERVER;
+        }
+        return prefix
                + (sofaTracerSpan.isServer() ? SofaTracerConstant.SERVER : SofaTracerConstant.CLIENT);
     }
 
@@ -100,23 +109,27 @@ public class SkywalkingSegmentAdapter {
 
         //map tracerType in sofaTracer to ComponentId in skyWalking
         span.setComponentId(getComponentId(sofaTracerSpan));
-        span.setError(!isWebHttpClientSuccess(sofaTracerSpan.getTagsWithStr().get(
-            CommonSpanTags.RESULT_CODE)));
-        span.setSkipAnalysis(true);
+        span.setError(sofaTracerSpan.getTagsWithStr().containsKey("error"));
+        span.setSkipAnalysis(false);
         span = convertSpanTags(sofaTracerSpan, span);
         convertSpanLogs(sofaTracerSpan, span);
         // if has patentId then need to add segmentReference
         if (!StringUtils.isBlank(sofaTracerSpan.getSofaTracerSpanContext().getParentId())) {
             span = addSegmentReference(sofaTracerSpan, span);
         }
-        // Dubbo
         String remoteHost = sofaTracerSpan.getTagsWithStr().get(CommonSpanTags.REMOTE_HOST);
         String remotePort = sofaTracerSpan.getTagsWithStr().get(CommonSpanTags.REMOTE_PORT);
         // sofaRpc
         String remoteIp = sofaTracerSpan.getTagsWithStr().get("remote.ip");
-
+        // mongodb
+        String peerHost = sofaTracerSpan.getTagsWithStr().get(Tags.PEER_HOSTNAME.getKey());
+        String peerPort = String.valueOf(sofaTracerSpan.getTagsWithNumber().get(
+            Tags.PEER_PORT.getKey()));
         if (remoteHost != null && remotePort != null) {
             span.setPeer(remoteHost + ":" + remotePort);
+        }
+        if (peerHost != null && peerPort != null) {
+            span.setPeer(peerHost + ":" + peerPort);
         }
         // if the span is formed by sofaRPC, we can only get  ip of the server  to generate networkAddressUsedAtPeer
         if (sofaTracerSpan.getSofaTracer().getTracerType().equals(ComponentNameConstants.SOFA_RPC)
@@ -211,6 +224,7 @@ public class SkywalkingSegmentAdapter {
      * @return span with segment reference in SkyWalking format
      */
     private Span addSegmentReference(SofaTracerSpan sofaTracerSpan, Span swSpan) {
+        SofaTracerSpanContext spanContext = sofaTracerSpan.getSofaTracerSpanContext();
         SegmentReference segmentReference = new SegmentReference();
         //default set to crossProcess
         segmentReference.setRefType(RefType.CrossProcess);
@@ -218,6 +232,10 @@ public class SkywalkingSegmentAdapter {
         segmentReference.setParentTraceSegmentId(getParentSegmentId(sofaTracerSpan));
         //because there is only one span in each segment so parentId is 0
         segmentReference.setParentSpanId(0);
+        segmentReference.setParentService(spanContext.getParentService());
+        segmentReference.setParentServiceInstance(spanContext.getParentServiceInstance());
+        segmentReference.setParentEndpoint(spanContext.getParentOperationName());
+
         String networkAddressUsedAtPeer = getNetworkAddressUsedAtPeer(sofaTracerSpan);
         if (networkAddressUsedAtPeer != null) {
             segmentReference.setNetworkAddressUsedAtPeer(networkAddressUsedAtPeer);
@@ -231,11 +249,20 @@ public class SkywalkingSegmentAdapter {
         if (sofaTracerSpan.getSofaTracer().getTracerType().equals(ComponentNameConstants.SOFA_RPC)) {
             return NetUtils.getLocalIpv4();
         }
-        Map<String, String> strTags = sofaTracerSpan.getTagsWithStr();
-        String host = strTags.get(CommonSpanTags.LOCAL_HOST);
-        String port = strTags.get(CommonSpanTags.LOCAL_PORT);
-        if (host != null && port != null) {
-            return host + ":" + port;
+        String tracerType = sofaTracerSpan.getSofaTracer().getTracerType();
+        if (tracerType.equals(ComponentNameConstants.DUBBO_SERVER)
+            || tracerType.equals(ComponentNameConstants.DUBBO_CLIENT)) {
+            Map<String, String> strTags = sofaTracerSpan.getTagsWithStr();
+            String host = strTags.get(CommonSpanTags.LOCAL_HOST);
+            String port = strTags.get(CommonSpanTags.LOCAL_PORT);
+            if (host != null && port != null) {
+                return host + ":" + port;
+            }
+        }
+        if (sofaTracerSpan.getSpanReferences().size() >= 1) {
+            SofaTracerSpanContext parentSpanContext = preferredReference(sofaTracerSpan
+                .getSpanReferences());
+            return parentSpanContext.getPeer();
         }
         return null;
     }
@@ -264,17 +291,6 @@ public class SkywalkingSegmentAdapter {
 
     }
 
-    private boolean isHttpOrMvcSuccess(String resultCode) {
-        return resultCode.charAt(0) == '1' || resultCode.charAt(0) == '2'
-               || "302".equals(resultCode.trim()) || ("301".equals(resultCode.trim()));
-    }
-
-    private boolean isWebHttpClientSuccess(String resultCode) {
-        return StringUtils.isNotBlank(resultCode)
-               && (isHttpOrMvcSuccess(resultCode) || SofaTracerConstant.RESULT_CODE_SUCCESS
-                   .equals(resultCode));
-    }
-
     /**
      * from http://en.wikipedia.org/wiki/Fowler_Noll_Vo_hash
      *
@@ -290,6 +306,20 @@ public class SkywalkingSegmentAdapter {
             hash *= 0x100000001b3L;
         }
         return hash;
+    }
+
+    private SofaTracerSpanContext preferredReference(List<SofaTracerSpanReferenceRelationship> references) {
+        SofaTracerSpanReferenceRelationship preferredReference = references.get(0);
+        for (SofaTracerSpanReferenceRelationship reference : references) {
+            // childOf takes precedence as a preferred parent
+            String referencedType = reference.getReferenceType();
+            if (References.CHILD_OF.equals(referencedType)
+                && !References.CHILD_OF.equals(preferredReference.getReferenceType())) {
+                preferredReference = reference;
+                break;
+            }
+        }
+        return preferredReference.getSofaTracerSpanContext();
     }
 
 }

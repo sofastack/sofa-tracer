@@ -115,8 +115,8 @@ public class SofaTracerConfigurationListener
         if (!(environment instanceof ConfigurableEnvironment)) {
             return false;
         } else {
-            return !((ConfigurableEnvironment) environment).getPropertySources().contains(
-                "sofaBootstrap")
+            return ((ConfigurableEnvironment) environment).getPropertySources().contains(
+                "bootstrap")
                    && isSpringCloud();
         }
     }

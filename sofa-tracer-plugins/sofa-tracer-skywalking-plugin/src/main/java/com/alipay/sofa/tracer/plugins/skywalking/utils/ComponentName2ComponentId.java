@@ -27,13 +27,13 @@ import java.util.HashMap;
 public class ComponentName2ComponentId {
     public static final HashMap<String, Integer> componentName2IDMap = new HashMap<>();
     static {
-        //componentId in SkyWalking: https://github.com/apache/skywalking/blob/master/oap-server/server-bootstrap/src/main/resources/component-libraries.yml
+        //componentId in SkyWalking: https://github.com/apache/skywalking/blob/master/oap-server/server-starter/src/main/resources/component-libraries.yml
         componentName2IDMap.put(ComponentNameConstants.UNKNOWN, 0);
         componentName2IDMap.put(ComponentNameConstants.H2, 4);
         componentName2IDMap.put(ComponentNameConstants.MYSQL, 5);
         componentName2IDMap.put(ComponentNameConstants.ORACLE, 6);
         componentName2IDMap.put(ComponentNameConstants.REDIS, 7);
-        componentName2IDMap.put(ComponentNameConstants.MONGODB, 9);
+        componentName2IDMap.put(ComponentNameConstants.MONGODB, 42);
         componentName2IDMap.put(ComponentNameConstants.MEMCACHED, 20);
         componentName2IDMap.put(ComponentNameConstants.SOFA_RPC, 43);
         componentName2IDMap.put(ComponentNameConstants.DUBBO_CLIENT, 3);
@@ -45,8 +45,8 @@ public class ComponentName2ComponentId {
         componentName2IDMap.put(ComponentNameConstants.FEIGN_CLIENT, 11);
         componentName2IDMap.put(ComponentNameConstants.KAFKAMQ_CONSUMER, 41);
         componentName2IDMap.put(ComponentNameConstants.KAFKAMQ_SEND, 40);
-        componentName2IDMap.put(ComponentNameConstants.ROCKETMQ_CONSUMER, 39);
-        componentName2IDMap.put(ComponentNameConstants.ROCKETMQ_SEND, 38);
+        componentName2IDMap.put(ComponentNameConstants.ROCKETMQ_CONSUMER, 25);
+        componentName2IDMap.put(ComponentNameConstants.ROCKETMQ_SEND, 25);
         componentName2IDMap.put(ComponentNameConstants.RABBITMQ_CONSUMER, 53);
         componentName2IDMap.put(ComponentNameConstants.RABBITMQ_SEND, 52);
         componentName2IDMap.put(ComponentNameConstants.MONGO_CLIENT, 42);

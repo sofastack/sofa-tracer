@@ -25,6 +25,7 @@ import com.alipay.common.tracer.core.reporter.common.CommonTracerManager;
 import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.tags.SpanTags;
 import com.alipay.common.tracer.core.utils.AssertUtils;
+import com.alipay.common.tracer.core.utils.NetUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.common.code.LogCode2Description;
 import io.opentracing.Span;
@@ -33,6 +34,7 @@ import io.opentracing.tag.Tags;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
