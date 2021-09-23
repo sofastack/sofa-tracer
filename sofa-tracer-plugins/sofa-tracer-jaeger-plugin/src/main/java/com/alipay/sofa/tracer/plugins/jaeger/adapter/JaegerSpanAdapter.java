@@ -57,9 +57,6 @@ public class JaegerSpanAdapter {
         //in sofaTracer error contains the error message while in jaeger error represents whether it's error
         if (strTags.containsKey(Tags.ERROR.getKey())) {
             strTags.put("error.message", strTags.get(Tags.ERROR.getKey()));
-        }
-        String resultCode = strTags.get(CommonSpanTags.RESULT_CODE);
-        if (StringUtils.isNotBlank(resultCode) && !isWebHttpClientSuccess(resultCode)) {
             sofaTracerSpan.getTagsWithBool().put(Tags.ERROR.getKey(), true);
         }
         tags.putAll(strTags);
@@ -186,17 +183,6 @@ public class JaegerSpanAdapter {
             hash *= 0x100000001b3L;
         }
         return hash;
-    }
-
-    private boolean isHttpOrMvcSuccess(String resultCode) {
-        return resultCode.charAt(0) == '1' || resultCode.charAt(0) == '2'
-               || "302".equals(resultCode.trim()) || ("301".equals(resultCode.trim()));
-    }
-
-    private boolean isWebHttpClientSuccess(String resultCode) {
-        return StringUtils.isNotBlank(resultCode)
-               && (isHttpOrMvcSuccess(resultCode) || SofaTracerConstant.RESULT_CODE_SUCCESS
-                   .equals(resultCode));
     }
 
     private String padLeft(String id, int desiredLength) {
