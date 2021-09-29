@@ -74,7 +74,7 @@ public class SpringMvcSofaTracerFilter implements Filter {
             SofaTracerSpanContext spanContext = getSpanContextFromRequest(request);
             // sr
             springMvcSpan = springMvcTracer.serverReceive(spanContext);
-
+            springMvcSpan.getSofaTracerSpanContext().setPeer(spanContext.getPeer());
             if (StringUtils.isBlank(this.appName)) {
                 this.appName = SofaTracerConfiguration
                     .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);

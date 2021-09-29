@@ -17,6 +17,7 @@
 package com.alipay.common.tracer.core;
 
 import com.alipay.common.tracer.core.appender.self.SelfLog;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.constants.ComponentNameConstants;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.generator.TraceIdGenerator;
@@ -31,6 +32,7 @@ import com.alipay.common.tracer.core.samplers.SamplingStatus;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.span.SofaTracerSpanReferenceRelationship;
 import com.alipay.common.tracer.core.utils.AssertUtils;
+import com.alipay.common.tracer.core.utils.NetUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.common.code.LogCode2Description;
 import io.opentracing.References;
@@ -85,6 +87,9 @@ public class SofaTracer implements Tracer {
      * Sampler instance
      */
     private final Sampler             sampler;
+
+    private String                    appName      = StringUtils.EMPTY_STRING;
+    private String                    instance     = StringUtils.EMPTY_STRING;
 
     protected SofaTracer(String tracerType, Reporter clientReporter, Reporter serverReporter,
                          Sampler sampler, Map<String, Object> tracerTags) {
@@ -306,7 +311,15 @@ public class SofaTracer implements Tracer {
             long begin = this.startTime > 0 ? this.startTime : System.currentTimeMillis();
             SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(SofaTracer.this, begin,
                 this.references, this.operationName, sofaTracerSpanContext, this.tags);
-
+            if ((StringUtils.isBlank(SofaTracer.this.appName) || StringUtils
+                .isBlank(SofaTracer.this.instance))) {
+                SofaTracer.this.appName = SofaTracerConfiguration
+                    .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
+                SofaTracer.this.instance = SofaTracer.this.appName + "@"
+                                           + NetUtils.getLocalAddress().getHostAddress();
+            }
+            sofaTracerSpanContext.setParams(SofaTracer.this.appName, SofaTracer.this.instance,
+                this.operationName);
             // calculate isSampled，but do not change parent's sampler behaviour
             boolean isSampled = calculateSampler(sofaTracerSpan);
             sofaTracerSpanContext.setSampled(isSampled);
@@ -341,10 +354,11 @@ public class SofaTracer implements Tracer {
 
         private SofaTracerSpanContext createChildContext() {
             SofaTracerSpanContext preferredReference = preferredReference();
-
             SofaTracerSpanContext sofaTracerSpanContext = new SofaTracerSpanContext(
                 preferredReference.getTraceId(), preferredReference.nextChildContextId(),
                 preferredReference.getSpanId(), preferredReference.isSampled());
+            sofaTracerSpanContext.setParentParams(preferredReference.getService(),
+                preferredReference.getServiceInstance(), preferredReference.getOperationName());
             sofaTracerSpanContext.addBizBaggage(this.createChildBaggage(true));
             sofaTracerSpanContext.addSysBaggage(this.createChildBaggage(false));
             return sofaTracerSpanContext;

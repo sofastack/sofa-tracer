@@ -25,6 +25,7 @@ import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
+import com.alipay.common.tracer.core.utils.NetUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.sofa.alipay.tracer.plugins.rest.RestTemplateRequestCarrier;
 import io.opentracing.tag.Tags;
@@ -35,6 +36,7 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.List;
 
 /**
@@ -126,6 +128,12 @@ public class RestTemplateInterceptor implements ClientHttpRequestInterceptor {
         sofaTracerSpan.setTag(CommonSpanTags.REQUEST_URL, request.getURI().toString());
         //method
         sofaTracerSpan.setTag(CommonSpanTags.METHOD, methodName);
+        InetAddress ipAddress = NetUtils.getIpAddress(request.getURI().getHost());
+        String host = ipAddress == null ? request.getURI().getHost() : ipAddress.getHostAddress();
+        String port = String.valueOf(request.getURI().getPort());
+        sofaTracerSpan.setTag(CommonSpanTags.REMOTE_HOST, host);
+        sofaTracerSpan.setTag(CommonSpanTags.REMOTE_PORT, port);
+        sofaTracerSpan.getSofaTracerSpanContext().setPeer(host + ":" + port);
         HttpHeaders headers = request.getHeaders();
         //reqSize
         if (headers != null && headers.containsKey("Content-Length")) {
@@ -146,4 +154,5 @@ public class RestTemplateInterceptor implements ClientHttpRequestInterceptor {
         sofaTracer.inject(currentSpan.getSofaTracerSpanContext(),
             ExtendFormat.Builtin.B3_HTTP_HEADERS, new RestTemplateRequestCarrier(request));
     }
+
 }

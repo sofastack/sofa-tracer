@@ -57,6 +57,8 @@ public class SofaTracerSendMessageHook implements SendMessageHook {
     @Override
     public void sendMessageBefore(SendMessageContext context) {
         SofaTracerSpan span = rocketMQSendTracer.clientSend("mq-message-send");
+        String[] remote = context.getBrokerAddr().split(":");
+        span.getSofaTracerSpanContext().setPeer(remote[0] + ":" + remote[1]);
         // put spanContext to message
         context.getMessage().putUserProperty("SOFA_TRACER_CONTEXT",
             span.getSofaTracerSpanContext().serializeSpanContext());
@@ -73,9 +75,12 @@ public class SofaTracerSendMessageHook implements SendMessageHook {
         MessageType msgType = context.getMsgType();
         Message message = context.getMessage();
         SendResult sendResult = context.getSendResult();
+        String[] remote = context.getBrokerAddr().split(":");
         span.setTag("msgType", msgType.name());
         span.setTag("bornHost", context.getBornHost());
         span.setTag("brokerAddr", context.getBrokerAddr());
+        span.setTag(CommonSpanTags.REMOTE_HOST, remote[0]);
+        span.setTag(CommonSpanTags.REMOTE_PORT, remote[1]);
         span.setTag("producerGroup", context.getProducerGroup());
         span.setTag(CommonSpanTags.MSG_TOPIC, message.getTopic());
         span.setTag(CommonSpanTags.MSG_ID, sendResult.getMsgId());

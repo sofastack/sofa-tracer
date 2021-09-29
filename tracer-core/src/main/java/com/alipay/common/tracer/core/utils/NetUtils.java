@@ -14,14 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alipay.sofa.tracer.plugins.zipkin.adapter;
+package com.alipay.common.tracer.core.utils;
 
-import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.common.tracer.core.appender.self.SelfLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
 
@@ -30,7 +31,7 @@ import java.util.regex.Pattern;
  *
  * @author <a href=mailto:zhanggeng.zg@antfin.com>GengZhang</a>
  */
-class NetUtils {
+public class NetUtils {
     /**
      * slf4j Logger for this class
      */
@@ -107,6 +108,18 @@ class NetUtils {
     public static String getLocalIpv4() {
         InetAddress address = getLocalAddress();
         return address == null ? null : address.getHostAddress();
+    }
+
+    public static InetAddress getIpAddress(String hostName) {
+        InetAddress address = null;
+        try {
+            address = InetAddress.getByName(hostName);
+        } catch (UnknownHostException e) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("cannot get the IP address of hostName:" + hostName, e);
+            }
+        }
+        return address;
     }
 
     /**
