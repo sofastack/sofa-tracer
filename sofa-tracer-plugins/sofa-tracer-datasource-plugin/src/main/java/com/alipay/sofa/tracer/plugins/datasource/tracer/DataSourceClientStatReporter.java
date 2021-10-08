@@ -44,7 +44,7 @@ public class DataSourceClientStatReporter extends AbstractSofaTracerStatisticRep
                 tagsWithStr.get(DataSourceTracerKeys.DATABASE_NAME),
                 tagsWithStr.get(DataSourceTracerKeys.SQL) }));
         //result
-        String resultCode = SofaTracerConstant.RESULT_CODE_SUCCESS.equals(tagsWithStr
+        String resultCode = SofaTracerConstant.RESULT_SUCCESS.equals(tagsWithStr
             .get(CommonSpanTags.RESULT_CODE)) ? SofaTracerConstant.STAT_FLAG_SUCCESS
             : SofaTracerConstant.STAT_FLAG_FAILS;
         statKey.setResult(resultCode);

@@ -83,6 +83,8 @@ public class SofaTracerConfiguration {
      */
     public static final String                     STAT_LOG_INTERVAL                            = "stat_log_interval";
 
+    public static final String                     FILL_MINUTE_SWITCH                           = "fill_minute_switch";
+
     /***************** Asynchronous queue configuration item  start ***************/
 
     /**
