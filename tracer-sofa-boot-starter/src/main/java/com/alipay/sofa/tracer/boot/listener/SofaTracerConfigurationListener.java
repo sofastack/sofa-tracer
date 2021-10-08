@@ -82,7 +82,7 @@ public class SofaTracerConfigurationListener
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL,
             tempTarget.getStatLogInterval());
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.FILL_MINUTE_SWITCH,
-               String.valueOf(tempTarget.isFillMinuteSwitch()));
+            String.valueOf(tempTarget.isFillMinuteSwitch()));
         //baggage length
         SofaTracerConfiguration.setProperty(
             SofaTracerConfiguration.TRACER_PENETRATE_ATTRIBUTE_MAX_LENGTH,

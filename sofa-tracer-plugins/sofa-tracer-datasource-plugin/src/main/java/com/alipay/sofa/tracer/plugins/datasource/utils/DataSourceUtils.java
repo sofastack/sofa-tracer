@@ -56,8 +56,7 @@ public class DataSourceUtils {
 
     public static final String ORACLE_PREFIX_THIN  = "jdbc:oracle:thin:";
 
-    public static final String POSTGRE_PREFIX_THIN  = "jdbc:postgresql://";
-
+    public static final String POSTGRE_PREFIX_THIN = "jdbc:postgresql://";
 
     public static final int    ORACLE_DEFAULT_PORT = 1521;
 
@@ -182,18 +181,22 @@ public class DataSourceUtils {
         List<Endpoint> endpoints = Collections.emptyList();
         try {
             //首先jdbc:oracle:thin: 特殊解析
-            if (StringUtils.isNotBlank(connectionURL) && connectionURL.startsWith(ORACLE_PREFIX_THIN)) {
+            if (StringUtils.isNotBlank(connectionURL)
+                && connectionURL.startsWith(ORACLE_PREFIX_THIN)) {
 
                 currentUri = connectionURL.substring(ORACLE_PREFIX_THIN.length());
                 // parse endpoints by tns name.
                 endpoints = parseEndpointByTnsName(currentUri);
-            }else if(StringUtils.isNotBlank(connectionURL) && connectionURL.startsWith(POSTGRE_PREFIX_THIN) && connectionURL.contains(",")){
+            } else if (StringUtils.isNotBlank(connectionURL)
+                       && connectionURL.startsWith(POSTGRE_PREFIX_THIN)
+                       && connectionURL.contains(",")) {
                 //pg数据库 读写分离的配资
                 currentUri = connectionURL.substring(POSTGRE_PREFIX_THIN.length());
                 endpoints = parseEndpointByPgMulti(currentUri);
             }
             //普通解析 兜底
-            if (endpoints.size() == 0 || null == endpoints.get(0) || StringUtils.isBlank(endpoints.get(0).getHost())) {
+            if (endpoints.size() == 0 || null == endpoints.get(0)
+                || StringUtils.isBlank(endpoints.get(0).getHost())) {
                 // easy tns or others db url be resolve. it's a single endpoint.
                 Endpoint singleEndpoint = getEndpointFromConnectionURL(connectionURL);
                 if (StringUtils.isBlank(singleEndpoint.getHost()) || 0 == singleEndpoint.getPort()) {
@@ -201,9 +204,9 @@ public class DataSourceUtils {
                 }
                 endpoints = Collections.singletonList(singleEndpoint);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             //链接配置样式多，捕获异常，不影响启动
-            SelfLog.error(LogCode2Description.convert(SPACE_ID, "01-00015"),e);
+            SelfLog.error(LogCode2Description.convert(SPACE_ID, "01-00015"), e);
         }
         return endpoints;
     }
@@ -226,7 +229,6 @@ public class DataSourceUtils {
         }
         return endpoints;
     }
-
 
     private static List<Endpoint> parseEndpointByTnsName(final String url) {
         final String upperCaseUrl = url.toUpperCase();

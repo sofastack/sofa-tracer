@@ -89,10 +89,12 @@ public class SofaTracerStatisticReporterManager {
         //是否补齐分钟
         long initialDelay = 0L;
         //默认关闭
-        if("true".equals(SofaTracerConfiguration.getProperty(SofaTracerConfiguration.FILL_MINUTE_SWITCH))){
+        if ("true".equals(SofaTracerConfiguration
+            .getProperty(SofaTracerConfiguration.FILL_MINUTE_SWITCH))) {
             initialDelay = DateUtils.diffNextMinute(new Date());
         }
-        executor.scheduleAtFixedRate(new StatReporterPrinter(), initialDelay, cycleTime, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(new StatReporterPrinter(), initialDelay, cycleTime * 1000,
+            TimeUnit.MILLISECONDS);
     }
 
     /**

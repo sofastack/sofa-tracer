@@ -69,7 +69,7 @@ public class SofaTracerProperties {
     /***
      * com.alipay.sofa.tracer.fillMinuteSwitch
      */
-    private boolean              fillMinuteSwitch                 = false;
+    private boolean             fillMinuteSwitch                 = false;
 
     /***
      *  com.alipay.sofa.tracer.baggageMaxLength
