@@ -24,6 +24,9 @@ import java.util.Date;
  */
 public class DateUtils {
 
+    /**
+     * 获取离下一分钟的毫秒数
+     */
     public static long diffNextMinute(Date date) {
         long now = date.getTime();
         long nextMinute = (now / (60 * 1000) + 1) * 60 * 1000;
