@@ -61,19 +61,21 @@ public class DataSourceUtilTest {
     }
 
     @Test
-    public void testGetEndpointsFromConnectionURL(){
+    public void testGetEndpointsFromConnectionURL() {
         String mysqlStr = "jdbc:mysql://127.0.0.1:5432";
-        List<Endpoint> mysqlEndpoints =  DataSourceUtils.getEndpointsFromConnectionURL(mysqlStr);
+        List<Endpoint> mysqlEndpoints = DataSourceUtils.getEndpointsFromConnectionURL(mysqlStr);
         Assert.assertTrue(mysqlEndpoints.size() == 1);
-        Assert.assertEquals(mysqlEndpoints.get(0).getHost(),"127.0.0.1");
-        Assert.assertEquals(mysqlEndpoints.get(0).getPort(),5432);
+        Assert.assertEquals(mysqlEndpoints.get(0).getHost(), "127.0.0.1");
+        Assert.assertEquals(mysqlEndpoints.get(0).getPort(), 5432);
 
         String pgStr = "jdbc:postgresql://pgm-b1j86r7w2287y711.pg.rds.ops.cloudtest.jxnxs.com:3433,pgr-b1jyp8yi35bj7267.pg.rds.ops.cloudtest.jxnxs.com:3306/postgres?serverTimezone=GMT%2B8&allowMultiQueries=true";
         List<Endpoint> pgEndpoints = DataSourceUtils.getEndpointsFromConnectionURL(pgStr);
         Assert.assertTrue(pgEndpoints.size() == 2);
-        Assert.assertEquals(pgEndpoints.get(0).getHost(),"pgm-b1j86r7w2287y711.pg.rds.ops.cloudtest.jxnxs.com");
-        Assert.assertEquals(pgEndpoints.get(0).getPort(),3433);
-        Assert.assertEquals(pgEndpoints.get(1).getHost(),"pgr-b1jyp8yi35bj7267.pg.rds.ops.cloudtest.jxnxs.com");
-        Assert.assertEquals(pgEndpoints.get(1).getPort(),3306);
+        Assert.assertEquals(pgEndpoints.get(0).getHost(),
+            "pgm-b1j86r7w2287y711.pg.rds.ops.cloudtest.jxnxs.com");
+        Assert.assertEquals(pgEndpoints.get(0).getPort(), 3433);
+        Assert.assertEquals(pgEndpoints.get(1).getHost(),
+            "pgr-b1jyp8yi35bj7267.pg.rds.ops.cloudtest.jxnxs.com");
+        Assert.assertEquals(pgEndpoints.get(1).getPort(), 3306);
     }
 }
