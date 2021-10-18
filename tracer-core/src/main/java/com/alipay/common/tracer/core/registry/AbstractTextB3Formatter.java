@@ -64,7 +64,7 @@ public abstract class AbstractTextB3Formatter implements RegistryExtractorInject
         String traceId = null;
         String spanId = null;
         String parentId = null;
-        boolean sampled = false;
+        boolean sampled = true;
         boolean isGetSampled = false;
         //sysBaggage
         Map<String, String> sysBaggage = new ConcurrentHashMap<String, String>();

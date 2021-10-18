@@ -274,7 +274,7 @@ public class SofaTracerSpanContextTest {
         SofaTracerSpanContext sofaTracerSpanContext = SofaTracerSpanContext.rootStart();
         assertEquals(SofaTracer.ROOT_SPAN_ID, sofaTracerSpanContext.getSpanId());
         assertTrue(StringUtils.isBlank(sofaTracerSpanContext.getParentId()));
-        assertTrue(!sofaTracerSpanContext.isSampled());
+        assertTrue(sofaTracerSpanContext.isSampled());
     }
 
     /**
