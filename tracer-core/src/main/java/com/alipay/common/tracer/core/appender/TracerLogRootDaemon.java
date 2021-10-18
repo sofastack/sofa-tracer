@@ -16,13 +16,13 @@
  */
 package com.alipay.common.tracer.core.appender;
 
-import java.io.File;
-import java.nio.charset.Charset;
-
 import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.appender.self.TracerDaemon;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
+
+import java.io.File;
+import java.nio.charset.Charset;
 
 /**
  * TracerLogRootDaemon
@@ -64,6 +64,11 @@ public class TracerLogRootDaemon {
         if (StringUtils.isBlank(loggingRoot)) {
             loggingRoot = System.getProperty("logging.path");
         }
+        // adapter to springboot 2.4.x
+        if (StringUtils.isBlank(loggingRoot)) {
+            loggingRoot = System.getProperty("logging.file.path");
+        }
+
         if (StringUtils.isBlank(loggingRoot)) {
             loggingRoot = System.getProperty("user.home") + File.separator + "logs";
         }

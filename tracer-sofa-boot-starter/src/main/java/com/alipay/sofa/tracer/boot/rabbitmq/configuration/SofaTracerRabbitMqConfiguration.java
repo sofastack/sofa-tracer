@@ -18,7 +18,6 @@ package com.alipay.sofa.tracer.boot.rabbitmq.configuration;
 
 import com.alipay.sofa.tracer.boot.rabbitmq.processor.SofaTracerRabbitMqBeanPostProcessor;
 import com.sofa.alipay.tracer.plugins.rabbitmq.aspect.SofaTracerSendMessageAspect;
-import com.sofa.alipay.tracer.plugins.rabbitmq.interceptor.SofaTracerConsumeInterceptor;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;

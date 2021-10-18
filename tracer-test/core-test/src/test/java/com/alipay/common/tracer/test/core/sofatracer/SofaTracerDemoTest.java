@@ -18,13 +18,11 @@ package com.alipay.common.tracer.test.core.sofatracer;
 
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
-
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.test.TestUtil;
 import com.alipay.common.tracer.test.base.AbstractTestBase;
 import com.alipay.common.tracer.test.core.sofatracer.type.TracerTestLogEnum;
 import org.apache.commons.io.FileUtils;
-
 import org.junit.Before;
 import org.junit.Test;
 

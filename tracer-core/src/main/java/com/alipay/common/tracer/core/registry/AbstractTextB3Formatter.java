@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.propagation.TextMap;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -64,7 +65,7 @@ public abstract class AbstractTextB3Formatter implements RegistryExtractorInject
         String traceId = null;
         String spanId = null;
         String parentId = null;
-        boolean sampled = false;
+        boolean sampled = true;
         boolean isGetSampled = false;
         //sysBaggage
         Map<String, String> sysBaggage = new ConcurrentHashMap<String, String>();

@@ -22,6 +22,7 @@ import com.alipay.common.tracer.core.reporter.stat.model.StatMapKey;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.TracerUtils;
+
 import java.util.Map;
 
 /**
@@ -45,7 +46,7 @@ public class DataSourceClientStatJsonReporter extends AbstractSofaTracerStatisti
             tagsWithStr.get(DataSourceTracerKeys.DATABASE_NAME));
         statKey.addKey(DataSourceTracerKeys.SQL, tagsWithStr.get(DataSourceTracerKeys.SQL));
         //result
-        String result = SofaTracerConstant.RESULT_CODE_SUCCESS.equals(tagsWithStr
+        String result = SofaTracerConstant.RESULT_SUCCESS.equals(tagsWithStr
             .get(CommonSpanTags.RESULT_CODE)) ? SofaTracerConstant.STAT_FLAG_SUCCESS
             : SofaTracerConstant.STAT_FLAG_FAILS;
         statKey.setResult(result);

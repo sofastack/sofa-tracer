@@ -1,7 +1,7 @@
 ## SOFATracer
 
-[![Build Status](https://github.com/sofastack/sofa-tracer/workflows/build/badge.svg?branch=3.x)](https://github.com/sofastack/sofa-tracer/workflows/build/badge.svg?branch=3.x)
-[![Coverage Status](https://coveralls.io/repos/github/alipay/sofa-tracer/badge.svg?branch=master)](https://coveralls.io/github/alipay/sofa-tracer?branch=master)
+[![Build Status](https://github.com/sofastack/sofa-tracer/workflows/build/badge.svg?branch=master)](https://github.com/sofastack/sofa-tracer/workflows/build/badge.svg?branch=master)
+[![Coverage Status](https://codecov.io/gh/sofastack/sofa-tracer/branch/master/graph/badge.svg)](https://codecov.io/gh/sofastack/sofa-tracer/branch/master)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)
 [![Maven](https://img.shields.io/github/release/alipay/sofa-tracer.svg)](https://github.com/alipay/sofa-tracer/releases)
 
@@ -43,7 +43,7 @@ SOFATracer 可以将链路跟踪数据远程上报到开源产品 [Zipkin](https
 
 ## 三、快速开始
 
-请查看文档中的[快速开始](http://www.sofastack.tech/sofa-tracer/docs/QuickStart)来了解如何快速上手使用 SOFATracer。
+请查看文档中的[快速开始](https://www.sofastack.tech/projects/sofa-tracer/component-access/)来了解如何快速上手使用 SOFATracer。
 
 ## 四、如何贡献
 

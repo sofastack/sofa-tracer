@@ -27,9 +27,13 @@ import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.core.tracertest.encoder.ServerSpanEncoder;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.tag.Tags;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -46,8 +50,6 @@ import static org.junit.Assert.*;
  */
 public class SofaTracerSpanTest extends AbstractTestBase {
 
-    private final String   tracerType    = "SofaTracerSpanTest";
-
     private final String   clientLogType = "client-log-test.log";
 
     private final String   serverLogType = "server-log-test.log";
@@ -62,6 +64,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
 
         Reporter serverReporter = new DiskReporterImpl(serverLogType, new ServerSpanEncoder());
 
+        String tracerType = "SofaTracerSpanTest";
         sofaTracer = new SofaTracer.Builder(tracerType)
             .withTag("tracer", "SofaTraceContextHolderTest").withClientReporter(clientReporter)
             .withServerReporter(serverReporter).build();
@@ -73,6 +76,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
     public void afterMethod() throws Exception {
         File file = tracerSelfLog();
         if (file.exists()) {
+            //noinspection ResultOfMethodCallIgnored
             file.createNewFile();
         }
 
@@ -110,7 +114,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
         String spanId = "spanId";
         SofaTracerSpanContext sofaTracerSpanContext = new SofaTracerSpanContext(traceId, spanId,
             null);
-        Map<String, String> tags = new HashMap<String, String>();
+        Map<String, String> tags = new HashMap<>();
         tags.put("key", "value");
         SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(this.sofaTracer, startTime,
             "testConstructSpan", sofaTracerSpanContext, tags);
@@ -147,11 +151,10 @@ public class SofaTracerSpanTest extends AbstractTestBase {
 
     @Test
     public void testSetBooleanTag() {
-        Boolean expected = true;
         String key = "tag.key";
 
-        sofaTracerSpan.setTag(key, expected);
-        assertEquals(expected, sofaTracerSpan.getTagsWithBool().get(key));
+        sofaTracerSpan.setTag(key, true);
+        assertEquals(true, sofaTracerSpan.getTagsWithBool().get(key));
     }
 
     @Test
@@ -200,7 +203,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
      * Method: finish()
      */
     @Test
-    public void testFinish() throws Exception {
+    public void testFinish() {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testWithTimestamp")
             .withStartTimestamp(111).start();
         long endTime = System.currentTimeMillis();
@@ -213,7 +216,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
      * Method: close()
      */
     @Test
-    public void testClose() throws Exception {
+    public void testClose() {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testWithTimestamp")
             .withStartTimestamp(111).start();
         //close
@@ -227,29 +230,28 @@ public class SofaTracerSpanTest extends AbstractTestBase {
      * Method: log(String eventType)
      */
     @Test
-    public void testLogEventType() throws Exception {
+    public void testLogEventType() {
         List<String> valueStr = Arrays.asList("value0", "value1", "value2");
         long beginTime = System.currentTimeMillis();
         sofaTracerSpan.log(valueStr.get(0));
         sofaTracerSpan.log(valueStr.get(1));
         sofaTracerSpan.log(valueStr.get(2));
         List<LogData> logDataList = sofaTracerSpan.getLogs();
-        assertTrue(logDataList.size() == 3);
+        assertEquals(3, logDataList.size());
         for (LogData logData : logDataList) {
-            Object value = logData.getFields().get(LogData.EVENT_TYPE_KEY);
+            String value = (String) logData.getFields().get(LogData.EVENT_TYPE_KEY);
             assertTrue(valueStr.contains(value));
             long time = logData.getTime();
             assertTrue(beginTime <= time && time <= System.currentTimeMillis());
         }
         logDataList.clear();
-        assertTrue(logDataList.size() == 0);
     }
 
     /**
      * Method: log(long currentTime, String eventType)
      */
     @Test
-    public void testLogForCurrentTimeEventType() throws Exception {
+    public void testLogForCurrentTimeEventType() {
         List<String> valueStr = Arrays.asList("value0", "value1", "value2");
         SofaTracerSpan sofaTracerSpan1 = (SofaTracerSpan) this.sofaTracer
             .buildSpan("testLogForCurrentTimeEventType").withStartTimestamp(110).start();
@@ -258,31 +260,30 @@ public class SofaTracerSpanTest extends AbstractTestBase {
         sofaTracerSpan1.log(111, valueStr.get(1));
         sofaTracerSpan1.log(111, valueStr.get(2));
         List<LogData> logDataList = sofaTracerSpan1.getLogs();
-        assertTrue(logDataList.size() == 3);
+        assertEquals(3, logDataList.size());
         for (LogData logData : logDataList) {
-            Object value = logData.getFields().get(LogData.EVENT_TYPE_KEY);
+            String value = (String) logData.getFields().get(LogData.EVENT_TYPE_KEY);
             long time = logData.getTime();
             assertTrue(valueStr.contains(value));
-            assertTrue(time == 111);
+            assertEquals(111, time);
         }
         logDataList.clear();
-        assertTrue(logDataList.size() == 0);
     }
 
     /**
      * Method: log(long currentTime, Map<String, ?> map)
      */
     @Test
-    public void testLogForCurrentTimeMap() throws Exception {
+    public void testLogForCurrentTimeMap() {
         SofaTracerSpan testLogForCurrentTimeMapSpan = (SofaTracerSpan) this.sofaTracer
             .buildSpan("testLogForCurrentTimeMap").withStartTimestamp(111).start();
-        Map<String, String> fields = new HashMap<String, String>();
+        Map<String, String> fields = new HashMap<>();
         fields.put("key", "value");
-        Map<String, String> fields1 = new HashMap<String, String>();
+        Map<String, String> fields1 = new HashMap<>();
         fields1.put("key1", "value1");
-        Map<String, String> fields2 = new HashMap<String, String>();
+        Map<String, String> fields2 = new HashMap<>();
         fields2.put("key2", "value2");
-        Map<String, String> fields3 = new HashMap<String, String>();
+        Map<String, String> fields3 = new HashMap<>();
         fields3.put("key3", "value3");
 
         testLogForCurrentTimeMapSpan.log(222, fields);
@@ -290,17 +291,17 @@ public class SofaTracerSpanTest extends AbstractTestBase {
         testLogForCurrentTimeMapSpan.log(222, fields2);
         testLogForCurrentTimeMapSpan.log(222, fields3);
         List<LogData> logDataList = testLogForCurrentTimeMapSpan.getLogs();
-        assertTrue(logDataList.size() == 4);
-        assertTrue(logDataList.get(0).getTime() == 222);
+        assertEquals(4, logDataList.size());
+        assertEquals(222, logDataList.get(0).getTime());
         assertTrue(logDataList.get(0).getFields().containsKey("key")
                    && logDataList.get(0).getFields().containsValue("value"));
-        assertTrue(logDataList.get(1).getTime() == 222);
+        assertEquals(222, logDataList.get(1).getTime());
         assertTrue(logDataList.get(1).getFields().containsKey("key1")
                    && logDataList.get(1).getFields().containsValue("value1"));
-        assertTrue(logDataList.get(2).getTime() == 222);
+        assertEquals(222, logDataList.get(2).getTime());
         assertTrue(logDataList.get(2).getFields().containsKey("key2")
                    && logDataList.get(2).getFields().containsValue("value2"));
-        assertTrue(logDataList.get(3).getTime() == 222);
+        assertEquals(222, logDataList.get(3).getTime());
         assertTrue(logDataList.get(3).getFields().containsKey("key3")
                    && logDataList.get(3).getFields().containsValue("value3"));
 
@@ -310,14 +311,14 @@ public class SofaTracerSpanTest extends AbstractTestBase {
      * Method: log(Map<String, ?> map)
      */
     @Test
-    public void testLogMap() throws Exception {
+    public void testLogMap() {
         SofaTracerSpan testLogMap = (SofaTracerSpan) this.sofaTracer.buildSpan("testLogMap")
             .withStartTimestamp(111).start();
-        Map<String, String> fields = new HashMap<String, String>();
+        Map<String, String> fields = new HashMap<>();
         fields.put("key", "value");
         testLogMap.log(222, fields);
         List<LogData> logDataList = testLogMap.getLogs();
-        assertTrue(logDataList.size() == 1);
+        assertEquals(1, logDataList.size());
         assertTrue(logDataList.get(0).getFields().containsKey("key")
                    && logDataList.get(0).getFields().containsValue("value"));
     }
@@ -326,7 +327,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
      * Method: log(String eventName, Object payload)
      */
     @Test
-    public void testLogForEventNamePayload() throws Exception {
+    public void testLogForEventNamePayload() {
         SofaTracerSpan testLogForEventNamePayloadSpan = (SofaTracerSpan) this.sofaTracer
             .buildSpan("testLogForEventNamePayload").withStartTimestamp(111).start();
         Object payload = new Object();
@@ -334,14 +335,14 @@ public class SofaTracerSpanTest extends AbstractTestBase {
         testLogForEventNamePayloadSpan.log("eventName", payload);
         //
         Object load = testLogForEventNamePayloadSpan.getLogs().get(0).getFields().get("eventName");
-        assertTrue(load == payload);
+        assertSame(load, payload);
     }
 
     /**
      * Method: log(long currentTime, String eventName, Object payload)
      */
     @Test
-    public void testLogForCurrentTimeEventNamePayload() throws Exception {
+    public void testLogForCurrentTimeEventNamePayload() {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer
             .buildSpan("testLogForEventNamePayload").withStartTimestamp(111).start();
         span.log(222, "eventName222", "value222");
@@ -350,7 +351,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
         List<LogData> logDataList = span.getLogs();
         assertEquals(3, logDataList.size());
         assertEquals(222, logDataList.get(0).getTime());
-        assertTrue(logDataList.get(0).getFields().size() == 1);
+        assertEquals(1, logDataList.get(0).getFields().size());
         assertTrue(logDataList.get(0).getFields().containsKey("eventName222")
                    && logDataList.get(0).getFields().containsValue("value222"));
         assertEquals(333, logDataList.get(1).getTime());
@@ -361,7 +362,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
      * Method: getTagsWithStr()
      */
     @Test
-    public void testGetTagsWithStr() throws Exception {
+    public void testGetTagsWithStr() {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testGetTagsWithStr")
             .withStartTimestamp(111).start();
         //str
@@ -374,7 +375,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
      * Method: getTagsWithBool()
      */
     @Test
-    public void testGetTagsWithBool() throws Exception {
+    public void testGetTagsWithBool() {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testGetTagsWithStr")
             .withStartTimestamp(111).start();
         //bool
@@ -387,7 +388,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
      * Method: getTagsWithNumber()
      */
     @Test
-    public void testGetTagsWithNumber() throws Exception {
+    public void testGetTagsWithNumber() {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testGetTagsWithNumber")
             .withStartTimestamp(111).start();
         span.setTag("key", 100);
@@ -402,7 +403,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
      * Method: getLogType()
      */
     @Test
-    public void testGetLogType() throws Exception {
+    public void testGetLogType() {
         //client
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testGetLogTypeClient")
             .withStartTimestamp(111).start();
@@ -412,30 +413,30 @@ public class SofaTracerSpanTest extends AbstractTestBase {
         assertFalse(span.isServer());
         //logtype
         String logType = span.getLogType();
-        assertTrue(clientLogType.equals(logType));
+        assertEquals(clientLogType, logType);
         //server
         SofaTracerSpan serverSpan = (SofaTracerSpan) this.sofaTracer
             .buildSpan("testGetLogTypeServer").withStartTimestamp(111).start();
         serverSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
-        assertTrue(serverLogType.equals(serverSpan.getLogType()));
+        assertEquals(serverLogType, serverSpan.getLogType());
     }
 
     /**
      * Method: setLogType(String logType)
      */
     @Test
-    public void testSetLogType() throws Exception {
+    public void testSetLogType() {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testSetLogType")
             .withStartTimestamp(111).start();
         span.setLogType("client");
-        assertTrue("client".equals(span.getLogType()));
+        assertEquals("client", span.getLogType());
     }
 
     /**
      * Method: getParentSofaTracerSpan()
      */
     @Test
-    public void testGetParentSofaTracerSpan() throws Exception {
+    public void testGetParentSofaTracerSpan() {
         SofaTracerSpan parentSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("parent")
             .withStartTimestamp(111).start();
 
@@ -449,7 +450,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
      * Method: isServer()
      */
     @Test
-    public void testIsServer() throws Exception {
+    public void testIsServer() {
         SofaTracerSpan clientSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("testIsClient")
             .withStartTimestamp(111).start();
         clientSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
@@ -466,7 +467,7 @@ public class SofaTracerSpanTest extends AbstractTestBase {
      * Method: toString()
      */
     @Test
-    public void testToString() throws Exception {
+    public void testToString() {
         String str = sofaTracerSpan.toString();
         assertTrue(str, StringUtils.isNotBlank(str));
     }
@@ -475,40 +476,44 @@ public class SofaTracerSpanTest extends AbstractTestBase {
      * Method: getThisAsParentWhenExceedLayer()
      */
     @Test
-    public void testGetThisAsParentWhenExceedLayer() throws Exception {
+    public void testGetThisAsParentWhenExceedLayer() {
         StringBuilder spanIdBuilder = new StringBuilder("0").append(".");
         int i = 1;
         for (; i < 150; i++) {
             spanIdBuilder.append(i).append(".");
         }
         spanIdBuilder.append(i);
-        Map<String, String> baggage = new HashMap<String, String>();
+        Map<String, String> baggage = new HashMap<>();
         baggage.put("key", "value");
         baggage.put("key1", "value1");
         baggage.put("key2", "value2");
         String traceId = TraceIdGenerator.generate();
         SofaTracerSpanContext sofaTracerSpanContext = new SofaTracerSpanContext(traceId,
-            spanIdBuilder.toString(), "");
+                spanIdBuilder.toString(), "");
         sofaTracerSpanContext.addBizBaggage(baggage);
         SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(this.sofaTracer,
-            System.currentTimeMillis(), "open", sofaTracerSpanContext, null);
+                System.currentTimeMillis(), "open", sofaTracerSpanContext, null);
         //
         SofaTracerSpan thisAsParentSpan = sofaTracerSpan.getThisAsParentWhenExceedLayer();
         assertEquals("\n" + sofaTracerSpanContext, SofaTracer.ROOT_SPAN_ID, thisAsParentSpan
-            .getSofaTracerSpanContext().getSpanId());
+                .getSofaTracerSpanContext().getSpanId());
         assertNotEquals(traceId, thisAsParentSpan.getSofaTracerSpanContext().getTraceId());
         assertEquals(baggage, sofaTracerSpanContext.getBizBaggage());
 
-        TestUtil.waitForAsyncLog();
-
-        Assert.assertTrue(checkSelfLogContainsError());
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                Assert.assertTrue(checkSelfLogContainsError());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 
     @Test
-    public void testTags() throws Exception {
+    public void testTags() {
         SofaTracerSpan sofaTracerSpan = new SofaTracerSpan(this.sofaTracer,
             System.currentTimeMillis(), "open", SofaTracerSpanContext.rootStart(), null);
         sofaTracerSpan.setTag("key", "");
-        assertTrue(sofaTracerSpan.getTagsWithStr().size() == 0);
+        assertEquals(0, sofaTracerSpan.getTagsWithStr().size());
     }
 }

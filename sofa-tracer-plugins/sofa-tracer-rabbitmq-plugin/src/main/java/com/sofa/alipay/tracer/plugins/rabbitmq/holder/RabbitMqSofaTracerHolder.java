@@ -36,7 +36,6 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.util.Map;
 
 /**
  *  RabbitMqSofaTracerHolder.

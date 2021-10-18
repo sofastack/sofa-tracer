@@ -17,13 +17,20 @@
 package com.alipay.common.tracer.core.reporter.stat.manager;
 
 import com.alipay.common.tracer.core.appender.self.SelfLog;
+import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.stat.SofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.reporter.stat.model.StatKey;
 import com.alipay.common.tracer.core.reporter.stat.model.StatValues;
+import com.alipay.common.tracer.core.utils.DateUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 
+import java.util.Date;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -83,7 +90,15 @@ public class SofaTracerStatisticReporterManager {
     }
 
     private void start() {
-        executor.scheduleAtFixedRate(new StatReporterPrinter(), 0, cycleTime, TimeUnit.SECONDS);
+        //是否补齐分钟
+        long initialDelay = 0L;
+        //默认关闭
+        if ("true".equals(SofaTracerConfiguration
+            .getProperty(SofaTracerConfiguration.FILL_MINUTE_SWITCH))) {
+            initialDelay = DateUtils.diffNextMinute(new Date());
+        }
+        executor.scheduleAtFixedRate(new StatReporterPrinter(), initialDelay, cycleTime * 1000,
+            TimeUnit.MILLISECONDS);
     }
 
     /**

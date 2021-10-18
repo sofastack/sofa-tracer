@@ -17,7 +17,6 @@
 package com.alipay.sofa.tracer.plugins.zipkin.adapter;
 
 import com.alipay.common.tracer.core.utils.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -17,7 +17,6 @@
 package com.sofa.alipay.tracer.plugins.spring.redis;
 
 import com.sofa.alipay.tracer.plugins.spring.redis.common.RedisActionWrapperHelper;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

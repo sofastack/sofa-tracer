@@ -26,6 +26,7 @@ import com.mongodb.event.CommandListener;
 import com.mongodb.event.CommandStartedEvent;
 import com.mongodb.event.CommandSucceededEvent;
 import io.opentracing.tag.Tags;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;

@@ -16,7 +16,6 @@
  */
 package com.sofa.alipay.tracer.plugins.rabbitmq.aspect;
 
-import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.sofa.alipay.tracer.plugins.rabbitmq.holder.RabbitMqSofaTracerHolder;
 import com.sofa.alipay.tracer.plugins.rabbitmq.tracers.RabbitMQSendTracer;
 import org.aspectj.lang.ProceedingJoinPoint;

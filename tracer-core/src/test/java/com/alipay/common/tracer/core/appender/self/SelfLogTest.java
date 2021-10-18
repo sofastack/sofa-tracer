@@ -25,10 +25,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 /**
  * SelfLog Tester.
@@ -48,6 +49,7 @@ public class SelfLogTest extends AbstractTestBase {
     public void after() throws Exception {
         File file = tracerSelfLog();
         if (file.exists()) {
+            //noinspection ResultOfMethodCallIgnored
             file.createNewFile();
         }
     }
@@ -56,53 +58,93 @@ public class SelfLogTest extends AbstractTestBase {
      * Method: error(String log, Throwable e)
      */
     @Test
-    public void testErrorForLogE() throws Exception {
+    public void testErrorForLogE() {
         SelfLog.error("Error info", new RuntimeException("RunTimeException"));
-
-        TestUtil.waitForAsyncLog();
-
-        List<String> logs = FileUtils.readLines(tracerSelfLog());
-        assertTrue(!logs.isEmpty());
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                List<String> logs = FileUtils.readLines(tracerSelfLog());
+                assertFalse(logs.isEmpty());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 
     /**
      * out Method: errorWithTraceId(String log, Throwable e)
      */
     @Test
-    public void testErrorWithTraceIdForLogE() throws Exception {
+    public void testErrorWithTraceIdForLogE() {
         SelfLog.errorWithTraceId("error Info ", "traceid");
-
-        TestUtil.waitForAsyncLog();
-
-        List<String> logs = FileUtils.readLines(tracerSelfLog());
-        assertTrue(!logs.isEmpty());
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                List<String> logs = FileUtils.readLines(tracerSelfLog());
+                assertFalse(logs.isEmpty());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 
     /**
      * Method: errorWithTraceId(String log, Throwable e)
      */
     @Test
-    public void testErrorWithTraceIdForLogErrorThrowable() throws Exception {
+    public void testErrorWithTraceIdForLogErrorThrowable() {
         SelfLog.errorWithTraceId("error Info ", new Throwable());
-
-        TestUtil.waitForAsyncLog();
-
-        List<String> logs = FileUtils.readLines(tracerSelfLog());
-        assertTrue(!logs.isEmpty());
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                List<String> logs = FileUtils.readLines(tracerSelfLog());
+                assertFalse(logs.isEmpty());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 
     /**
      * Method: error(String log)
      */
     @Test
-    public void testErrorLog() throws Exception {
+    public void testErrorLog() {
         SelfLog.error("Error info");
         SelfLog.error("Error", new RuntimeException("error"));
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                List<String> logs = FileUtils.readLines(tracerSelfLog());
+                assertFalse(logs.isEmpty());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
+    }
 
-        TestUtil.waitForAsyncLog();
+    @Test
+    public void testWarnWithExceptionLog() throws Exception {
+        SelfLog.warn("warn", new RuntimeException("warn!!!"));
 
-        List<String> logs = FileUtils.readLines(tracerSelfLog());
-        assertTrue(!logs.isEmpty());
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                List<String> logs = FileUtils.readLines(tracerSelfLog());
+                assertFalse(logs.isEmpty());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 2);
+    }
+
+    @Test
+    public void testWarnWithNullExceptionLog() throws Exception {
+        SelfLog.warn("warn", null);
+
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                List<String> logs = FileUtils.readLines(tracerSelfLog());
+                assertFalse(logs.isEmpty());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 2);
     }
 
     private static void reflectSelfLog() throws NoSuchFieldException, IllegalAccessException {
