@@ -195,7 +195,7 @@ public class DataSourceUtils {
                 endpoints = parseEndpointByPgMulti(currentUri);
             }
             //普通解析 兜底
-            if (endpoints.size() == 0 || null == endpoints.get(0)
+            if (endpoints == null || endpoints.size() == 0 || null == endpoints.get(0)
                 || StringUtils.isBlank(endpoints.get(0).getHost())) {
                 // easy tns or others db url be resolve. it's a single endpoint.
                 Endpoint singleEndpoint = getEndpointFromConnectionURL(connectionURL);
