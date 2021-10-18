@@ -16,6 +16,7 @@
  */
 package com.alipay.common.tracer.core.appender.manager;
 
+import com.alipay.common.tracer.core.TestUtil;
 import com.alipay.common.tracer.core.appender.TraceAppender;
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.appender.file.LoadTestAwareAppender;
@@ -35,7 +36,6 @@ import java.io.InputStreamReader;
 import java.util.concurrent.CountDownLatch;
 
 /**
- *
  * @author liangen
  * @version $Id: ConcurrentConsumerCorrectTest.java, v 0.1 October 23, 2017 3:01 PM liangen Exp $
  */
@@ -50,7 +50,6 @@ public class ConcurrentConsumerCorrectTest {
 
     @Before
     public void before() throws Exception {
-
         cleanDir();
     }
 
@@ -60,27 +59,27 @@ public class ConcurrentConsumerCorrectTest {
     }
 
     @Test
-    public void testConcurrentConsumerCorrect() throws InterruptedException, IOException {
-        /** Logs are not allowed to be lost, and log loss is avoided to affect the correctness of the result check. */
+    public void testConcurrentConsumerCorrect() throws InterruptedException {
+        /* Logs are not allowed to be lost, and log loss is avoided to affect the correctness of the result check. */
         SofaTracerConfiguration.setProperty(
-            SofaTracerConfiguration.TRACER_ASYNC_APPENDER_ALLOW_DISCARD, "false");
+                SofaTracerConfiguration.TRACER_ASYNC_APPENDER_ALLOW_DISCARD, "false");
 
         final AsyncCommonDigestAppenderManager asyncCommonDigestAppenderManager = new AsyncCommonDigestAppenderManager(
-            1024);
+                1024);
         asyncCommonDigestAppenderManager.start("ConcurrentConsumerCorrectTest");
 
         ClientSpanEncoder encoder = new ClientSpanEncoder();
 
         TraceAppender traceAppender1 = LoadTestAwareAppender
-            .createLoadTestAwareTimedRollingFileAppender(fileName1, "", "");
+                .createLoadTestAwareTimedRollingFileAppender(fileName1, "", "");
         TraceAppender traceAppender2 = LoadTestAwareAppender
-            .createLoadTestAwareTimedRollingFileAppender(fileName2, "", "");
+                .createLoadTestAwareTimedRollingFileAppender(fileName2, "", "");
         TraceAppender traceAppender3 = LoadTestAwareAppender
-            .createLoadTestAwareTimedRollingFileAppender(fileName3, "", "");
+                .createLoadTestAwareTimedRollingFileAppender(fileName3, "", "");
         TraceAppender traceAppender4 = LoadTestAwareAppender
-            .createLoadTestAwareTimedRollingFileAppender(fileName4, "", "");
+                .createLoadTestAwareTimedRollingFileAppender(fileName4, "", "");
         TraceAppender traceAppender5 = LoadTestAwareAppender
-            .createLoadTestAwareTimedRollingFileAppender(fileName5, "", "");
+                .createLoadTestAwareTimedRollingFileAppender(fileName5, "", "");
 
         asyncCommonDigestAppenderManager.addAppender("logType1", traceAppender1, encoder);
         asyncCommonDigestAppenderManager.addAppender("logType2", traceAppender2, encoder);
@@ -90,7 +89,7 @@ public class ConcurrentConsumerCorrectTest {
 
         final CountDownLatch countDownLatch = new CountDownLatch(30);
         for (int i = 0; i < 20; i++) {
-            new Thread(()->{
+            new Thread(() -> {
                 SofaTracerSpan span1 = ManagerTestUtil.createSofaTracerSpan(1);
                 for (int j = 0; j < 30; j++) {
                     asyncCommonDigestAppenderManager.append(span1);
@@ -121,7 +120,7 @@ public class ConcurrentConsumerCorrectTest {
         }
 
         for (int i = 0; i < 10; i++) {
-            new Thread(()->{
+            new Thread(() -> {
                 SofaTracerSpan span1 = ManagerTestUtil.createSofaTracerSpan(1);
                 SofaTracerSpan span2 = ManagerTestUtil.createSofaTracerSpan(2);
                 SofaTracerSpan span3 = ManagerTestUtil.createSofaTracerSpan(3);
@@ -138,16 +137,19 @@ public class ConcurrentConsumerCorrectTest {
             }).start();
         }
 
-        /** check */
+        /* check */
         countDownLatch.await();
-        Thread.sleep(3000);
-
-        assertFile(fileName1, 1000, "traceID1");
-        assertFile(fileName2, 1200, "traceID2");
-        assertFile(fileName3, 1400, "traceID3");
-        assertFile(fileName4, 1600, "traceID4");
-        assertFile(fileName5, 1800, "traceID5");
-
+        TestUtil.periodicallyAssert(() -> {
+            try {
+                assertFile(fileName1, 1000, "traceID1");
+                assertFile(fileName2, 1200, "traceID2");
+                assertFile(fileName3, 1400, "traceID3");
+                assertFile(fileName4, 1600, "traceID4");
+                assertFile(fileName5, 1800, "traceID5");
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 3000);
     }
 
     public void assertFile(String fileName, int expectedNum, String expectedContent)
@@ -157,7 +159,7 @@ public class ConcurrentConsumerCorrectTest {
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(
             fileNameRoot + fileName)));
 
-        String line = null;
+        String line;
         while ((line = reader.readLine()) != null) {
             Assert.assertTrue(line.contains(expectedContent));
             actualNum++;
@@ -167,7 +169,6 @@ public class ConcurrentConsumerCorrectTest {
     }
 
     private void cleanDir() throws Exception {
-        Thread.sleep(2000);
         File file = new File(System.getProperty("user.home") + File.separator + "logs/tracelog"
                              + File.separator + "append-manager.log");
         if (file.exists()) {

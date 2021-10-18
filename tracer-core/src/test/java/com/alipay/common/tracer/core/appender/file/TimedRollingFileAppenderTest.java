@@ -30,13 +30,12 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- *
  * @author khotyn 4/8/14 3:56 PM
  */
 public class TimedRollingFileAppenderTest extends AbstractTestBase {
-    private static final String                 ROLLING_TEST_FILE_NAME = "rolling-test.log";
-    private TimedRollingFileAppender            timedRollingFileAppender;
-    private PathMatchingResourcePatternResolver resolver               = new PathMatchingResourcePatternResolver();
+    private static final String                       ROLLING_TEST_FILE_NAME = "rolling-test.log";
+    private TimedRollingFileAppender                  timedRollingFileAppender;
+    private final PathMatchingResourcePatternResolver resolver               = new PathMatchingResourcePatternResolver();
 
     @Before
     public void init() {
@@ -58,8 +57,8 @@ public class TimedRollingFileAppenderTest extends AbstractTestBase {
         Resource[] resources = resolver.getResources("file:" + TracerLogRootDaemon.LOG_FILE_DIR
                                                      + File.separator + ROLLING_TEST_FILE_NAME
                                                      + "*");
-        Assert.assertTrue("The number of files is incorrect. The number of files starting with "
-                          + ROLLING_TEST_FILE_NAME + " should be 2", resources.length == 2);
+        Assert.assertEquals("The number of files is incorrect. The number of files starting with "
+                            + ROLLING_TEST_FILE_NAME + " should be 2", 2, resources.length);
 
         for (Resource resource : resources) {
             String c = FileUtils.readFileToString(resource.getFile());

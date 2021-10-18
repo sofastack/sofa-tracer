@@ -90,22 +90,19 @@ public class SofaTracerRunnableTest {
         thread.start();
         Thread.sleep(3 * 1000);
         assertEquals(1, sofaTraceContext.getThreadLocalSpanSize());
-        assertEquals(2, runnableTread.atomicLong.get());
+        assertEquals(2, RunnableTread.atomicLong.get());
         assertNotEquals(Thread.currentThread().getId(), runnableTread.getThreadId());
         assertNotEquals(Thread.currentThread().getName(), runnableTread.getThreadName());
     }
 
     @Test
-    public void samples() throws Exception {
+    public void samples() {
 
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         SofaTracerSpan sofaTracerSpan = mock((SofaTracerSpan.class));
         sofaTraceContext.push(sofaTracerSpan);
-        Thread thread = new Thread(new SofaTracerRunnable(new Runnable() {
-            @Override
-            public void run() {
-                //do something your business code
-            }
+        Thread thread = new Thread(new SofaTracerRunnable(() -> {
+            //do something your business code
         }));
         thread.start();
         assertEquals(1, sofaTraceContext.getThreadLocalSpanSize());

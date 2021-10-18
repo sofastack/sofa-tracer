@@ -25,11 +25,16 @@ import com.alipay.sofa.tracer.plugins.dubbo.impl.DubboServiceImpl;
 import com.alipay.sofa.tracer.plugins.dubbo.service.DubboService;
 import org.apache.commons.io.FileUtils;
 import org.apache.dubbo.common.URL;
-import org.apache.dubbo.config.*;
+import org.apache.dubbo.config.ApplicationConfig;
+import org.apache.dubbo.config.ProtocolConfig;
+import org.apache.dubbo.config.ReferenceConfig;
+import org.apache.dubbo.config.RegistryConfig;
+import org.apache.dubbo.config.ServiceConfig;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.io.File;
 import java.util.List;
 

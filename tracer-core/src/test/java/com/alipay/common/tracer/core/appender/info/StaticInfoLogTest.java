@@ -42,29 +42,34 @@ import static org.junit.Assert.assertTrue;
 public class StaticInfoLogTest extends AbstractTestBase {
 
     @Test
-    public void testLogStaticInfo() throws IOException, InterruptedException, NoSuchFieldException,
-                                   IllegalAccessException {
+    public void testLogStaticInfo() throws NoSuchFieldException,
+            IllegalAccessException {
 
         //record
         reflect();
         StaticInfoLog.logStaticInfo();
 
-        TestUtil.waitForAsyncLog();
+        TestUtil.periodicallyAssert(() -> {
+            try {
 
-        List<String> params = new ArrayList<String>();
-        params.add(TracerUtils.getPID());
-        params.add(TracerUtils.getInetAddress());
-        params.add(TracerUtils.getCurrentZone());
-        params.add(TracerUtils.getDefaultTimeZone());
-        List<String> contents = FileUtils.readLines(customFileLog("static-info.log"));
-        Assert.assertFalse("Static information log has no content", contents.isEmpty());
-        assertTrue(checkResult(params, contents.get(0)));
+                List<String> params = new ArrayList<>();
+                params.add(TracerUtils.getPID());
+                params.add(TracerUtils.getInetAddress());
+                params.add(TracerUtils.getCurrentZone());
+                params.add(TracerUtils.getDefaultTimeZone());
+                List<String> contents = FileUtils.readLines(customFileLog("static-info.log"));
+                Assert.assertFalse("Static information log has no content", contents.isEmpty());
+                assertTrue(checkResult(params, contents.get(0)));
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }, 500);
     }
 
     private static void reflect() throws NoSuchFieldException, IllegalAccessException {
         Field field = StaticInfoLog.class.getDeclaredField("appender");
         field.setAccessible(true);
-        TraceAppender appender = (TraceAppender) field.get(null);
+        TraceAppender appender;
         appender = new TimedRollingFileAppender("static-info.log", true);
         field.set(null, appender);
     }

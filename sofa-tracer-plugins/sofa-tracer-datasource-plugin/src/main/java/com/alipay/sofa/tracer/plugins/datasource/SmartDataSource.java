@@ -17,7 +17,12 @@
 package com.alipay.sofa.tracer.plugins.datasource;
 
 import com.alipay.common.tracer.core.utils.StringUtils;
-import com.alipay.sofa.tracer.plugins.datasource.tracer.*;
+import com.alipay.sofa.tracer.plugins.datasource.tracer.ConnectionTraceInterceptor;
+import com.alipay.sofa.tracer.plugins.datasource.tracer.DataSourceClientTracer;
+import com.alipay.sofa.tracer.plugins.datasource.tracer.DataSourceTracerKeys;
+import com.alipay.sofa.tracer.plugins.datasource.tracer.Endpoint;
+import com.alipay.sofa.tracer.plugins.datasource.tracer.KeyValueAnnotation;
+import com.alipay.sofa.tracer.plugins.datasource.tracer.StatementTracerInterceptor;
 import com.alipay.sofa.tracer.plugins.datasource.utils.DataSourceUtils;
 
 import javax.sql.DataSource;

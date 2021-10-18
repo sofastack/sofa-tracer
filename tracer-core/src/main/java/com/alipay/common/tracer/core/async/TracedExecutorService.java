@@ -22,8 +22,12 @@ import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.*;
-import java.lang.Runnable;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class TracedExecutorService implements ExecutorService {
 
