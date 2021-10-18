@@ -67,6 +67,11 @@ public class SofaTracerProperties {
                                                                      .valueOf(SofaTracerStatisticReporterManager.DEFAULT_CYCLE_SECONDS);
 
     /***
+     * com.alipay.sofa.tracer.fillMinuteSwitch
+     */
+    private boolean             fillMinuteSwitch                 = false;
+
+    /***
      *  com.alipay.sofa.tracer.baggageMaxLength
      */
     private String              baggageMaxLength                 = String
@@ -169,5 +174,23 @@ public class SofaTracerProperties {
 
     public void setJsonOutput(boolean jsonOutput) {
         this.jsonOutput = jsonOutput;
+    }
+
+    /**
+     * Getter method for property <tt>fillMinuteSwitch</tt>.
+     *
+     * @return property value of fillMinuteSwitch
+     */
+    public boolean isFillMinuteSwitch() {
+        return fillMinuteSwitch;
+    }
+
+    /**
+     * Setter method for property <tt>fillMinuteSwitch</tt>.
+     *
+     * @param fillMinuteSwitch value to be assigned to property fillMinuteSwitch
+     */
+    public void setFillMinuteSwitch(boolean fillMinuteSwitch) {
+        this.fillMinuteSwitch = fillMinuteSwitch;
     }
 }

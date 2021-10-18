@@ -87,7 +87,7 @@ public class AbstractServerTracerTest {
         // sofaTracerSpanContext's sampler is false
         SofaTracerSpanContext sofaTracerSpanContext = new SofaTracerSpanContext("123", "0");
         SofaTracerSpan sofaTracerSpan = serverTracer.serverReceive(sofaTracerSpanContext);
-        Assert.assertTrue(!sofaTracerSpan.getSofaTracerSpanContext().isSampled());
+        Assert.assertTrue(sofaTracerSpan.getSofaTracerSpanContext().isSampled());
     }
 
     @Test

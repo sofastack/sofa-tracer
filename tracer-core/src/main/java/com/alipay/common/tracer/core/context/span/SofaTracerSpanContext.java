@@ -63,7 +63,7 @@ public class SofaTracerSpanContext implements SpanContext {
     /**
      * Default will not be sampled
      */
-    private boolean                   isSampled              = false;
+    private boolean                   isSampled              = true;
 
     /**
      * The system transparently transmits data,
@@ -97,17 +97,17 @@ public class SofaTracerSpanContext implements SpanContext {
 
     public SofaTracerSpanContext() {
         //Default will not be sampled
-        this(StringUtils.EMPTY_STRING, StringUtils.EMPTY_STRING, null, false);
+        this(StringUtils.EMPTY_STRING, StringUtils.EMPTY_STRING, null, true);
     }
 
     public SofaTracerSpanContext(String traceId, String spanId) {
         //Default will not be sampled
-        this(traceId, spanId, null, false);
+        this(traceId, spanId, null, true);
     }
 
     public SofaTracerSpanContext(String traceId, String spanId, String parentId) {
         //Default will not be sampled
-        this(traceId, spanId, parentId, false);
+        this(traceId, spanId, parentId, true);
     }
 
     public SofaTracerSpanContext(String traceId, String spanId, String parentId, boolean isSampled) {
@@ -243,7 +243,7 @@ public class SofaTracerSpanContext implements SpanContext {
         String spanId = SofaTracer.ROOT_SPAN_ID;
         String parentId = StringUtils.EMPTY_STRING;
         //sampled default is false
-        boolean sampled = false;
+        boolean sampled = true;
         //sys bizBaggage
         Map<String, String> sysBaggage = new HashMap<String, String>();
         //bizBaggage
@@ -303,7 +303,7 @@ public class SofaTracerSpanContext implements SpanContext {
      * @return root node
      */
     public static SofaTracerSpanContext rootStart() {
-        return rootStart(false);
+        return rootStart(true);
     }
 
     public static SofaTracerSpanContext rootStart(boolean isSampled) {

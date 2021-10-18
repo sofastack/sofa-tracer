@@ -133,7 +133,7 @@ public class SofaTracer implements Tracer {
             return;
         }
         // //sampler is support &  current span is root span
-        if (sampler != null && span.getParentSofaTracerSpan() == null) {
+        if (sampler != null && (span.isClient() && span.getParentSofaTracerSpan() == null)) {
             span.getSofaTracerSpanContext().setSampled(sampler.sample(span).isSampled());
         }
         //invoke listener

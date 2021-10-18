@@ -16,8 +16,10 @@
  */
 package com.alipay.sofa.tracer.plugins.datasource.utils;
 
+import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.utils.AssertUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.common.code.LogCode2Description;
 import com.alipay.sofa.tracer.plugins.datasource.tracer.Endpoint;
 
 import java.lang.reflect.Method;
@@ -25,6 +27,8 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.alipay.common.tracer.core.constants.SofaTracerConstant.SPACE_ID;
 
 /**
  * @author shusong.yss
@@ -51,6 +55,8 @@ public class DataSourceUtils {
     public static final String METHOD_SET_JDBC_URL = "setJdbcUrl";
 
     public static final String ORACLE_PREFIX_THIN  = "jdbc:oracle:thin:";
+
+    public static final String POSTGRE_PREFIX_THIN = "jdbc:postgresql://";
 
     public static final int    ORACLE_DEFAULT_PORT = 1521;
 
@@ -172,11 +178,23 @@ public class DataSourceUtils {
 
     public static List<Endpoint> getEndpointsFromConnectionURL(final String connectionURL) {
         String currentUri = StringUtils.EMPTY_STRING;
-        List<Endpoint> endpoints = null;
-        if (StringUtils.isNotBlank(connectionURL) && connectionURL.startsWith(ORACLE_PREFIX_THIN)) {
-            currentUri = connectionURL.substring(ORACLE_PREFIX_THIN.length());
-            // parse endpoints by tns name.
-            endpoints = parseEndpointByTnsName(currentUri);
+        List<Endpoint> endpoints = Collections.emptyList();
+        try {
+            //首先jdbc:oracle:thin: 特殊解析
+            if (StringUtils.isNotBlank(connectionURL)
+                && connectionURL.startsWith(ORACLE_PREFIX_THIN)) {
+
+                currentUri = connectionURL.substring(ORACLE_PREFIX_THIN.length());
+                // parse endpoints by tns name.
+                endpoints = parseEndpointByTnsName(currentUri);
+            } else if (StringUtils.isNotBlank(connectionURL)
+                       && connectionURL.startsWith(POSTGRE_PREFIX_THIN)
+                       && connectionURL.contains(",")) {
+                //pg数据库 读写分离的配资
+                currentUri = connectionURL.substring(POSTGRE_PREFIX_THIN.length());
+                endpoints = parseEndpointByPgMulti(currentUri);
+            }
+            //普通解析 兜底
             if (endpoints == null || endpoints.size() == 0 || null == endpoints.get(0)
                 || StringUtils.isBlank(endpoints.get(0).getHost())) {
                 // easy tns or others db url be resolve. it's a single endpoint.
@@ -186,9 +204,30 @@ public class DataSourceUtils {
                 }
                 endpoints = Collections.singletonList(singleEndpoint);
             }
-            return endpoints;
+        } catch (Exception e) {
+            //链接配置样式多，捕获异常，不影响启动
+            SelfLog.error(LogCode2Description.convert(SPACE_ID, "01-00015"), e);
         }
-        return Collections.emptyList();
+        return endpoints;
+    }
+
+    private static List<Endpoint> parseEndpointByPgMulti(String currentUri) {
+        List<Endpoint> endpoints = new ArrayList<>();
+        String[] urls = currentUri.split(",");
+        for (String url : urls) {
+            int hostEnd = url.indexOf(":");
+            String host = url.substring(0, hostEnd);
+            int portEnd = url.indexOf('/');
+            if (portEnd == -1) {
+                portEnd = url.length();
+            }
+            Integer port = Integer.parseInt(url.substring(hostEnd + 1, portEnd));
+            Endpoint endpoint = new Endpoint();
+            endpoint.setHost(host);
+            endpoint.setPort(port);
+            endpoints.add(endpoint);
+        }
+        return endpoints;
     }
 
     private static List<Endpoint> parseEndpointByTnsName(final String url) {
