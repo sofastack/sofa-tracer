@@ -181,9 +181,9 @@ public class ZipkinV2SpanAdapter {
             for (Map.Entry<String, ?> entry : fields.entrySet()) {
                 // zipkin has been support default log event depend on span kind & serviceName
                 if (!(entry.getValue().toString().equals(LogData.CLIENT_RECV_EVENT_VALUE)
-                        || entry.getValue().toString().equals(LogData.CLIENT_SEND_EVENT_VALUE)
-                        || entry.getValue().toString().equals(LogData.SERVER_RECV_EVENT_VALUE) || entry
-                        .getValue().toString().equals(LogData.SERVER_SEND_EVENT_VALUE))) {
+                      || entry.getValue().toString().equals(LogData.CLIENT_SEND_EVENT_VALUE)
+                      || entry.getValue().toString().equals(LogData.SERVER_RECV_EVENT_VALUE) || entry
+                    .getValue().toString().equals(LogData.SERVER_SEND_EVENT_VALUE))) {
                     zipkinSpan.addAnnotation(logData.getTime() * 1000, entry.getValue().toString());
                 }
             }
