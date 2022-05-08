@@ -18,10 +18,11 @@ package com.alipay.sofa.tracer.plugins.springcloud.instruments.feign;
 
 import feign.Client;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerProperties;
+import org.springframework.cloud.loadbalancer.support.LoadBalancerClientFactory;
 import org.springframework.cloud.openfeign.FeignContext;
-import org.springframework.cloud.openfeign.ribbon.CachingSpringLoadBalancerFactory;
-import org.springframework.cloud.openfeign.ribbon.LoadBalancerFeignClient;
+import org.springframework.cloud.openfeign.loadbalancer.FeignBlockingLoadBalancerClient;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,12 +66,13 @@ public class SofaTracerFeignContext extends FeignContext {
         }
         if (bean instanceof Client) {
             // LoadBalancerFeignClient Type Wrapper to SofaTracerLoadBalancedFeignClient
-            if (bean instanceof LoadBalancerFeignClient
+            if (bean instanceof FeignBlockingLoadBalancerClient
                 && !(bean instanceof SofaTracerLoadBalancedFeignClient)) {
                 return new SofaTracerLoadBalancedFeignClient(
-                    newSofaTracerFeignClient(((LoadBalancerFeignClient) bean).getDelegate()),
-                    beanFactory.getBean(CachingSpringLoadBalancerFactory.class),
-                    beanFactory.getBean(SpringClientFactory.class));
+                    newSofaTracerFeignClient(((FeignBlockingLoadBalancerClient) bean).getDelegate()),
+                    beanFactory.getBean(LoadBalancerClient.class), beanFactory
+                        .getBean(LoadBalancerProperties.class), beanFactory
+                        .getBean(LoadBalancerClientFactory.class));
             }
             return newSofaTracerFeignClient((Client) bean);
         }

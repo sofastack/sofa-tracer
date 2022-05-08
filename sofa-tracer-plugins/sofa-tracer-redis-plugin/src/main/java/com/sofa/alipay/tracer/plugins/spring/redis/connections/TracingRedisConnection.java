@@ -45,6 +45,16 @@ import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.connection.SortParameters;
 import org.springframework.data.redis.connection.Subscription;
 import org.springframework.data.redis.connection.ValueEncoding;
+import org.springframework.data.redis.connection.stream.ByteRecord;
+import org.springframework.data.redis.connection.stream.Consumer;
+import org.springframework.data.redis.connection.stream.MapRecord;
+import org.springframework.data.redis.connection.stream.PendingMessages;
+import org.springframework.data.redis.connection.stream.PendingMessagesSummary;
+import org.springframework.data.redis.connection.stream.ReadOffset;
+import org.springframework.data.redis.connection.stream.RecordId;
+import org.springframework.data.redis.connection.stream.StreamInfo;
+import org.springframework.data.redis.connection.stream.StreamOffset;
+import org.springframework.data.redis.connection.stream.StreamReadOptions;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.types.Expiration;
@@ -466,6 +476,11 @@ public class TracingRedisConnection implements RedisConnection {
   }
 
     @Override
+    public List<Long> lPos(byte[] key, byte[] element, Integer rank, Integer count) {
+        return actionWrapper.doInScope(RedisCommand.LPOS, key, () -> connection.lPos(key, element, rank, count));
+    }
+
+    @Override
   public Long lPush(byte[] key, byte[]... values) {
     return actionWrapper.doInScope(RedisCommand.LPUSH, key, () -> connection.lPush(key, values));
   }
@@ -813,6 +828,11 @@ public class TracingRedisConnection implements RedisConnection {
   }
 
     @Override
+    public Long zLexCount(byte[] key, Range range) {
+        return actionWrapper.doInScope(RedisCommand.ZLEXCOUNT, key, () -> connection.zLexCount(key, range));
+    }
+
+    @Override
   public Long zCard(byte[] key) {
     return actionWrapper.doInScope(RedisCommand.ZCARD, key, () -> connection.zCard(key));
   }
@@ -896,6 +916,12 @@ public class TracingRedisConnection implements RedisConnection {
     return actionWrapper
         .doInScope(RedisCommand.ZRANGEBYLEX, key, () -> connection.zRangeByLex(key, range, limit));
   }
+
+    @Override
+    public Set<byte[]> zRevRangeByLex(byte[] key, Range range, Limit limit) {
+        return actionWrapper
+                .doInScope(RedisCommand.ZREVRANGEBYLEX, key, () -> connection.zRevRangeByLex(key, range, limit));
+    }
 
     @Override
   public Boolean hSet(byte[] key, byte[] field, byte[] value) {
@@ -1286,4 +1312,120 @@ public class TracingRedisConnection implements RedisConnection {
     actionWrapper.doInScope(RedisCommand.PFMERGE,
         () -> connection.pfMerge(destinationKey, sourceKeys));
   }
+
+    @Override
+    public Long xAck(byte[] key, String group, RecordId... recordIds) {
+        return actionWrapper.doInScope(RedisCommand.XACK, key, () -> connection.xAck(key, group, recordIds));
+    }
+
+    @Override
+    public RecordId xAdd(MapRecord<byte[], byte[], byte[]> record, XAddOptions options) {
+        return actionWrapper.doInScope(RedisCommand.XADD, () -> connection.xAdd(record, options));
+    }
+
+    @Override
+    public List<RecordId> xClaimJustId(byte[] key, String group, String newOwner, XClaimOptions options) {
+        return actionWrapper.doInScope(RedisCommand.XCLAIMJUSTID, key,
+                () -> connection.xClaimJustId(key, group, newOwner, options));
+    }
+
+    @Override
+    public List<ByteRecord> xClaim(byte[] key, String group, String newOwner, XClaimOptions options) {
+        return actionWrapper.doInScope(RedisCommand.XCLAIM, key,
+                () -> connection.xClaim(key, group, newOwner, options));
+    }
+
+    @Override
+    public Long xDel(byte[] key, RecordId... recordIds) {
+        return actionWrapper.doInScope(RedisCommand.XDEL, key, () -> connection.xDel(key, recordIds));
+    }
+
+    @Override
+    public String xGroupCreate(byte[] key, String groupName, ReadOffset readOffset) {
+        return actionWrapper.doInScope(RedisCommand.XGROUPCREATE, key,
+                () -> connection.xGroupCreate(key, groupName, readOffset));
+    }
+
+    @Override
+    public String xGroupCreate(byte[] key, String groupName, ReadOffset readOffset, boolean mkStream) {
+        return actionWrapper.doInScope(RedisCommand.XGROUPCREATE, key,
+                () -> connection.xGroupCreate(key, groupName, readOffset, mkStream));
+    }
+
+    @Override
+    public Boolean xGroupDelConsumer(byte[] key, Consumer consumer) {
+        return actionWrapper.doInScope(RedisCommand.XGROUPDELCONSUMER, key,
+                () -> connection.xGroupDelConsumer(key, consumer));
+    }
+
+    @Override
+    public Boolean xGroupDestroy(byte[] key, String groupName) {
+        return actionWrapper.doInScope(RedisCommand.XGROUPDESTROY, key,
+                () -> connection.xGroupDestroy(key, groupName));
+    }
+
+    @Override
+    public StreamInfo.XInfoStream xInfo(byte[] key) {
+        return actionWrapper.doInScope(RedisCommand.XINFO, key,
+                () -> connection.xInfo(key));
+    }
+
+    @Override
+    public StreamInfo.XInfoGroups xInfoGroups(byte[] key) {
+        return actionWrapper.doInScope(RedisCommand.XINFOGROUPS, key,
+                () -> connection.xInfoGroups(key));
+    }
+
+    @Override
+    public StreamInfo.XInfoConsumers xInfoConsumers(byte[] key, String groupName) {
+        return actionWrapper.doInScope(RedisCommand.XINFOCONSUMERS, key,
+                () -> connection.xInfoConsumers(key, groupName));
+    }
+
+    @Override
+    public Long xLen(byte[] key) {
+        return actionWrapper.doInScope(RedisCommand.XLEN, key, () -> connection.xLen(key));
+    }
+
+    @Override
+    public PendingMessagesSummary xPending(byte[] key, String groupName) {
+        return actionWrapper.doInScope(RedisCommand.XPENDING, key, () -> connection.xPending(key, groupName));
+    }
+
+    @Override
+    public PendingMessages xPending(byte[] key, String groupName, XPendingOptions options) {
+        return actionWrapper.doInScope(RedisCommand.XPENDING, key,
+                () -> connection.xPending(key, groupName, options));
+    }
+
+    @Override
+    public List<ByteRecord> xRange(byte[] key, org.springframework.data.domain.Range<String> range, Limit limit) {
+        return actionWrapper.doInScope(RedisCommand.XRANGE, key,
+                () -> connection.xRange(key, range, limit));
+    }
+
+    @Override
+    public List<ByteRecord> xRead(StreamReadOptions readOptions, StreamOffset<byte[]>... streams) {
+        return actionWrapper.doInScope(RedisCommand.XREAD, () -> connection.xRead(readOptions, streams));
+    }
+
+    @Override
+    public List<ByteRecord> xReadGroup(Consumer consumer, StreamReadOptions readOptions, StreamOffset<byte[]>... streams) {
+        return actionWrapper.doInScope(RedisCommand.XREADGROUP, () -> connection.xReadGroup(consumer, readOptions, streams));
+    }
+
+    @Override
+    public List<ByteRecord> xRevRange(byte[] key, org.springframework.data.domain.Range<String> range, Limit limit) {
+        return actionWrapper.doInScope(RedisCommand.XREVRANGE, key, () -> connection.xRevRange(key, range, limit));
+    }
+
+    @Override
+    public Long xTrim(byte[] key, long count) {
+        return actionWrapper.doInScope(RedisCommand.XTRIM, key, () -> connection.xTrim(key, count));
+    }
+
+    @Override
+    public Long xTrim(byte[] key, long count, boolean approximateTrimming) {
+        return actionWrapper.doInScope(RedisCommand.XTRIM, key, () -> connection.xTrim(key, count, approximateTrimming));
+    }
 }

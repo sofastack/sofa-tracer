@@ -17,19 +17,20 @@
 package com.alipay.sofa.tracer.plugins.springcloud.instruments.feign;
 
 import feign.Client;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.openfeign.ribbon.CachingSpringLoadBalancerFactory;
-import org.springframework.cloud.openfeign.ribbon.LoadBalancerFeignClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerProperties;
+import org.springframework.cloud.loadbalancer.support.LoadBalancerClientFactory;
+import org.springframework.cloud.openfeign.loadbalancer.FeignBlockingLoadBalancerClient;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/13 5:53 PM
  * @since:
  **/
-public class SofaTracerLoadBalancedFeignClient extends LoadBalancerFeignClient {
+public class SofaTracerLoadBalancedFeignClient extends FeignBlockingLoadBalancerClient {
 
-    public SofaTracerLoadBalancedFeignClient(Client client,
-                                             CachingSpringLoadBalancerFactory cachingSpringLoadBalancerFactory,
-                                             SpringClientFactory clientFactory) {
-        super(client, cachingSpringLoadBalancerFactory, clientFactory);
+    public SofaTracerLoadBalancedFeignClient(Client client, LoadBalancerClient loadBalancerClient,
+                                             LoadBalancerProperties properties,
+                                             LoadBalancerClientFactory loadBalancerClientFactory) {
+        super(client, loadBalancerClient, properties, loadBalancerClientFactory);
     }
 }

@@ -18,7 +18,7 @@ package com.alipay.sofa.tracer.boot.base;
 
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
-import com.alipay.sofa.infra.listener.SofaBootstrapRunListener;
+import com.alipay.sofa.boot.listener.SofaBootstrapRunListener;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

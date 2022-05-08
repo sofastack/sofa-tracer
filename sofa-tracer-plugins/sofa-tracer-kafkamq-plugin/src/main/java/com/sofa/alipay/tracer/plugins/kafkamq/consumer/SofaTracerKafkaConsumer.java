@@ -25,6 +25,7 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.sofa.alipay.tracer.plugins.kafkamq.carrier.KafkaMqExtractCarrier;
 import com.sofa.alipay.tracer.plugins.kafkamq.tracers.KafkaMQConsumeTracer;
 import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerGroupMetadata;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -177,6 +178,11 @@ public class SofaTracerKafkaConsumer<K, V> implements Consumer<K, V> {
     }
 
     @Override
+    public void seek(TopicPartition topicPartition, OffsetAndMetadata offsetAndMetadata) {
+        consumer.seek(topicPartition, offsetAndMetadata);
+    }
+
+    @Override
     public void seekToBeginning(Collection<TopicPartition> partitions) {
         consumer.seekToBeginning(partitions);
     }
@@ -204,6 +210,17 @@ public class SofaTracerKafkaConsumer<K, V> implements Consumer<K, V> {
     @Override
     public OffsetAndMetadata committed(TopicPartition partition, Duration timeout) {
         return consumer.committed(partition, timeout);
+    }
+
+    @Override
+    public Map<TopicPartition, OffsetAndMetadata> committed(Set<TopicPartition> set) {
+        return consumer.committed(set);
+    }
+
+    @Override
+    public Map<TopicPartition, OffsetAndMetadata> committed(Set<TopicPartition> set,
+                                                            Duration duration) {
+        return consumer.committed(set, duration);
     }
 
     @Override
@@ -277,6 +294,16 @@ public class SofaTracerKafkaConsumer<K, V> implements Consumer<K, V> {
     public Map<TopicPartition, Long> endOffsets(Collection<TopicPartition> partitions,
                                                 Duration timeout) {
         return consumer.endOffsets(partitions, timeout);
+    }
+
+    @Override
+    public ConsumerGroupMetadata groupMetadata() {
+        return consumer.groupMetadata();
+    }
+
+    @Override
+    public void enforceRebalance() {
+        consumer.enforceRebalance();
     }
 
     @Override
