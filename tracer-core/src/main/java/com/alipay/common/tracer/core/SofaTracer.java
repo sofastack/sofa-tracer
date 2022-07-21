@@ -28,16 +28,16 @@ import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.samplers.Sampler;
 import com.alipay.common.tracer.core.samplers.SamplerFactory;
 import com.alipay.common.tracer.core.samplers.SamplingStatus;
+import com.alipay.common.tracer.core.scope.SofaTracerScope;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.span.SofaTracerSpanReferenceRelationship;
 import com.alipay.common.tracer.core.utils.AssertUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.common.code.LogCode2Description;
-import io.opentracing.References;
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
-import io.opentracing.Tracer;
+import io.opentracing.*;
 import io.opentracing.propagation.Format;
+import io.opentracing.tag.Tag;
+import io.opentracing.util.ThreadLocalScopeManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,6 +55,7 @@ import static com.alipay.common.tracer.core.constants.SofaTracerConstant.SPACE_I
  * @since 2017/06/17
  */
 public class SofaTracer implements Tracer {
+
 
     /**
      * normal root spanId's default value
@@ -86,22 +87,42 @@ public class SofaTracer implements Tracer {
      */
     private final Sampler             sampler;
 
+    private final ScopeManager scopeManager;
+
+
     protected SofaTracer(String tracerType, Reporter clientReporter, Reporter serverReporter,
-                         Sampler sampler, Map<String, Object> tracerTags) {
+                         Sampler sampler, Map<String, Object> tracerTags, ScopeManager scopeManager) {
         this.tracerType = tracerType;
         this.clientReporter = clientReporter;
         this.serverReporter = serverReporter;
         this.sampler = sampler;
+        this.scopeManager = scopeManager;
         if (tracerTags != null && tracerTags.size() > 0) {
             this.tracerTags.putAll(tracerTags);
         }
     }
 
-    protected SofaTracer(String tracerType, Sampler sampler) {
+    protected SofaTracer(String tracerType, Sampler sampler, ScopeManager scopeManager) {
         this.tracerType = tracerType;
         this.clientReporter = null;
         this.serverReporter = null;
         this.sampler = sampler;
+        this.scopeManager = scopeManager;
+    }
+
+    @Override
+    public ScopeManager scopeManager() {
+        return this.scopeManager;
+    }
+
+    @Override
+    public Span activeSpan() {
+        return this.scopeManager.activeSpan();
+    }
+
+    @Override
+    public Scope activateSpan(Span span) {
+        return this.scopeManager.activate(span);
     }
 
     @Override
@@ -156,6 +177,7 @@ public class SofaTracer implements Tracer {
     /**
      * Shuts down the {@link Reporter}  and {@link Sampler}
      */
+    @Override
     public void close() {
         if (this.clientReporter != null) {
             this.clientReporter.close();
@@ -224,6 +246,8 @@ public class SofaTracer implements Tracer {
 
         private final Map<String, Object>                 tags       = new HashMap<>();
 
+        private boolean ignoreActiveSpan = false;
+
         public SofaTracerSpanBuilder(String operationName) {
             this.operationName = operationName;
         }
@@ -269,6 +293,12 @@ public class SofaTracer implements Tracer {
         }
 
         @Override
+        public Tracer.SpanBuilder  ignoreActiveSpan() {
+            this.ignoreActiveSpan = true;
+            return this;
+        }
+
+        @Override
         public Tracer.SpanBuilder withTag(String key, String value) {
             this.tags.put(key, value);
             return this;
@@ -287,6 +317,14 @@ public class SofaTracer implements Tracer {
         }
 
         @Override
+        public <T> Tracer.SpanBuilder withTag(Tag<T> tag, T t) {
+            if(tag != null && tag.getKey() != null){
+                this.tags.put(tag.getKey(), t);
+            }
+            return this;
+        }
+
+        @Override
         public Tracer.SpanBuilder withStartTimestamp(long microseconds) {
             this.startTime = microseconds;
             return this;
@@ -295,6 +333,11 @@ public class SofaTracer implements Tracer {
         @Override
         public Span start() {
             SofaTracerSpanContext sofaTracerSpanContext;
+            //Check if active span  should establish a relationship with the previous span
+            if(this.references.isEmpty() && scopeManager.activeSpan() != null && !this.ignoreActiveSpan){
+                asChildOf(scopeManager.activeSpan());
+            }
+
             if (this.references != null && this.references.size() > 0) {
                 //Parent context exist
                 sofaTracerSpanContext = this.createChildContext();
@@ -404,6 +447,8 @@ public class SofaTracer implements Tracer {
 
         private Sampler             sampler;
 
+        private ScopeManager scopeManager = new ThreadLocalScopeManager();
+
         public Builder(String tracerType) {
             AssertUtils.isTrue(StringUtils.isNotBlank(tracerType), "tracerType must be not empty");
             this.tracerType = tracerType;
@@ -473,7 +518,7 @@ public class SofaTracer implements Tracer {
                 SelfLog.error(LogCode2Description.convert(SPACE_ID, "01-00002"));
             }
             return new SofaTracer(this.tracerType, this.clientReporter, this.serverReporter,
-                this.sampler, this.tracerTags);
+                this.sampler, this.tracerTags, this.scopeManager);
         }
     }
 }

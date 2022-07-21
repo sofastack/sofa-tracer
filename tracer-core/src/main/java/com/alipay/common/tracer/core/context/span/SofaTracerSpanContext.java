@@ -131,6 +131,16 @@ public class SofaTracerSpanContext implements SpanContext {
         return this;
     }
 
+    @Override
+    public String toTraceId() {
+        return this.traceId;
+    }
+
+    @Override
+    public String toSpanId() {
+        return this.spanId;
+    }
+
     /**
      * return both system and business baggage
      * @return Iterable
@@ -146,6 +156,7 @@ public class SofaTracerSpanContext implements SpanContext {
         }
         return allBaggage.entrySet();
     }
+
 
     /**
      * return key information string for SofaTracerSpanContext

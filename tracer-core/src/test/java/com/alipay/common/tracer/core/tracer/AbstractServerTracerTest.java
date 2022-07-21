@@ -91,6 +91,16 @@ public class AbstractServerTracerTest {
     }
 
     @Test
+    public void testDec(){
+        SofaTracerSpanContext sofaTracerSpanContext1 = new SofaTracerSpanContext("123", "0");
+        SofaTracerSpanContext sofaTracerSpanContext2 = new SofaTracerSpanContext("124", "1");
+        System.out.println(sofaTracerSpanContext1.equals(sofaTracerSpanContext2));
+
+    }
+
+
+
+    @Test
     public void generateClientStatReporter() {
         //user super method
         AbstractSofaTracerStatisticReporter abstractSofaTracerStatisticReporter = serverTracer

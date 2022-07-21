@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.utils.ByteArrayUtils;
+import io.opentracing.propagation.Binary;
 import io.opentracing.propagation.Format;
 
 import java.nio.ByteBuffer;
@@ -32,7 +33,7 @@ import java.nio.ByteBuffer;
  * @author yangguanchao
  * @since 2017/06/23
  */
-public class BinaryFormater implements RegistryExtractorInjector<ByteBuffer> {
+public class BinaryFormater implements RegistryExtractorInjector<Binary> {
 
     /**
      * As the keyword key or header identification information of the cross-process transmission field,
@@ -44,53 +45,63 @@ public class BinaryFormater implements RegistryExtractorInjector<ByteBuffer> {
                                                             .getBytes(SofaTracerConstant.DEFAULT_UTF8_CHARSET);
 
     @Override
-    public Format<ByteBuffer> getFormatType() {
+    public Format<Binary> getFormatType() {
         return Format.Builtin.BINARY;
     }
 
     @Override
-    public SofaTracerSpanContext extract(ByteBuffer carrier) {
-        if (carrier == null || carrier.array().length < FORMATER_KEY_HEAD_BYTES.length) {
-            return SofaTracerSpanContext.rootStart();
-        }
-        byte[] carrierDatas = carrier.array();
-        //head
-        byte[] formaterKeyHeadBytes = FORMATER_KEY_HEAD_BYTES;
-        int index = ByteArrayUtils.indexOf(carrierDatas, formaterKeyHeadBytes);
-        if (index < 0) {
-            return SofaTracerSpanContext.rootStart();
-        }
-        try {
-            //(UTF-8)Put the head from 0
-            carrier.position(index + formaterKeyHeadBytes.length);
-            //value byte arrays
-            byte[] contextDataBytes = new byte[carrier.getInt()];
-            carrier.get(contextDataBytes);
-            String spanContextInfos = new String(contextDataBytes,
-                SofaTracerConstant.DEFAULT_UTF8_CHARSET);
-            return SofaTracerSpanContext.deserializeFromString(spanContextInfos);
-        } catch (Exception e) {
-            SelfLog
-                .error(
-                    "com.alipay.common.tracer.core.registry.BinaryFormater.extract Error.Recover by root start",
-                    e);
-            return SofaTracerSpanContext.rootStart();
-        }
+    public SofaTracerSpanContext extract(Binary carrier) {
+        return null;
     }
 
     @Override
-    public void inject(SofaTracerSpanContext spanContext, ByteBuffer carrier) {
-        if (carrier == null || spanContext == null) {
-            return;
-        }
-        //head
-        carrier.put(FORMATER_KEY_HEAD_BYTES);
-        String spanContextInfos = spanContext.serializeSpanContext();
-        byte[] value = spanContextInfos.getBytes(SofaTracerConstant.DEFAULT_UTF8_CHARSET);
-        //length
-        carrier.putInt(value.length);
-        //data
-        carrier.put(value);
+    public void inject(SofaTracerSpanContext spanContext, Binary carrier) {
+
     }
+//
+//    @Override
+//    public SofaTracerSpanContext extract(ByteBuffer carrier) {
+//        if (carrier == null || carrier.array().length < FORMATER_KEY_HEAD_BYTES.length) {
+//            return SofaTracerSpanContext.rootStart();
+//        }
+//        byte[] carrierDatas = carrier.array();
+//        //head
+//        byte[] formaterKeyHeadBytes = FORMATER_KEY_HEAD_BYTES;
+//        int index = ByteArrayUtils.indexOf(carrierDatas, formaterKeyHeadBytes);
+//        if (index < 0) {
+//            return SofaTracerSpanContext.rootStart();
+//        }
+//        try {
+//            //(UTF-8)Put the head from 0
+//            carrier.position(index + formaterKeyHeadBytes.length);
+//            //value byte arrays
+//            byte[] contextDataBytes = new byte[carrier.getInt()];
+//            carrier.get(contextDataBytes);
+//            String spanContextInfos = new String(contextDataBytes,
+//                SofaTracerConstant.DEFAULT_UTF8_CHARSET);
+//            return SofaTracerSpanContext.deserializeFromString(spanContextInfos);
+//        } catch (Exception e) {
+//            SelfLog
+//                .error(
+//                    "com.alipay.common.tracer.core.registry.BinaryFormater.extract Error.Recover by root start",
+//                    e);
+//            return SofaTracerSpanContext.rootStart();
+//        }
+//    }
+//
+//    @Override
+//    public void inject(SofaTracerSpanContext spanContext, ByteBuffer carrier) {
+//        if (carrier == null || spanContext == null) {
+//            return;
+//        }
+//        //head
+//        carrier.put(FORMATER_KEY_HEAD_BYTES);
+//        String spanContextInfos = spanContext.serializeSpanContext();
+//        byte[] value = spanContextInfos.getBytes(SofaTracerConstant.DEFAULT_UTF8_CHARSET);
+//        //length
+//        carrier.putInt(value.length);
+//        //data
+//        carrier.put(value);
+//    }
 
 }

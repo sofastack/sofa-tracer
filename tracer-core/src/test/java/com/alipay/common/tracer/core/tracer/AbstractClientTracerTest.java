@@ -39,6 +39,7 @@ public class AbstractClientTracerTest {
         clientTracer = new TestClientTracer("springmvc");
     }
 
+
     @Test
     public void getServerDigestReporterLogName() {
         String serverDigestReporterLogName = clientTracer.getServerDigestReporterLogName();
