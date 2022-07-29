@@ -23,7 +23,7 @@ import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
-import com.alipay.sofa.tracer.plugins.springcloud.carriers.FeignRequestCarrier;
+import com.alipay.sofa.tracer.plugins.springcloud.carriers.FeignRequestHeadersCarrier;
 import com.alipay.sofa.tracer.plugins.springcloud.tracers.FeignClientTracer;
 import feign.Client;
 import feign.Request;
@@ -32,7 +32,9 @@ import io.opentracing.tag.Tags;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/13 10:50 AM
@@ -56,17 +58,14 @@ public class SofaTracerFeignClient implements Client {
         SofaTracerSpan sofaTracerSpan = null;
         int resultCode = -1;
         try {
-            sofaTracerSpan = feignClientTracer.clientSend(request.method());
-            // set tags
-            try {
-                appendRequestSpanTagsAndInject(request, sofaTracerSpan);
-            } catch (UnsupportedOperationException e) {
-                // if header is Unmodifiable，renew request
-                request = Request.create(request.httpMethod(), request.url(), new LinkedHashMap<>(
-                    request.headers()), request.requestBody());
-                // ignore appendRequestSpanTags,appendRequestSpanTagsAndInject has do it
-                injectCarrier(request, sofaTracerSpan);
-            }
+            sofaTracerSpan = feignClientTracer.clientSend(request.httpMethod().name());
+            // new a headers map
+            LinkedHashMap<String, Collection<String>> headers = new LinkedHashMap<>(
+                request.headers());
+            appendRequestSpanTagsAndInject(request, sofaTracerSpan, headers);
+            // renew request with the headers that have been injected into the carrier
+            request = Request.create(request.httpMethod(), request.url(), headers, request.body(),
+                request.charset());
             Response response = delegate.execute(request, options);
             // set result tags
             appendResponseSpanTags(response, sofaTracerSpan);
@@ -130,12 +129,14 @@ public class SofaTracerFeignClient implements Client {
      * append request tags for current span
      * @param request
      * @param sofaTracerSpan
+     * @param headers
      */
-    private void appendRequestSpanTagsAndInject(Request request, SofaTracerSpan sofaTracerSpan) {
-
+    private void appendRequestSpanTagsAndInject(Request request, SofaTracerSpan sofaTracerSpan,
+                                                LinkedHashMap<String, Collection<String>> headers) {
+        // set tags
         appendRequestSpanTags(request, sofaTracerSpan);
-        //carrier
-        this.injectCarrier(request, sofaTracerSpan);
+        // inject carrier into headers
+        this.injectCarrier(headers, sofaTracerSpan);
     }
 
     private void appendRequestSpanTags(Request request, SofaTracerSpan sofaTracerSpan) {
@@ -146,7 +147,7 @@ public class SofaTracerFeignClient implements Client {
         String appName = SofaTracerConfiguration.getProperty(
             SofaTracerConfiguration.TRACER_APPNAME_KEY, StringUtils.EMPTY_STRING);
         //methodName
-        String methodName = request.method();
+        String methodName = request.httpMethod().name();
         //appName
         sofaTracerSpan.setTag(CommonSpanTags.LOCAL_APP, appName == null ? StringUtils.EMPTY_STRING
             : appName);
@@ -165,11 +166,9 @@ public class SofaTracerFeignClient implements Client {
         }
     }
 
-    private void injectCarrier(Object request, SofaTracerSpan currentSpan) {
-        if (request instanceof Request) {
-            SofaTracer sofaTracer = this.feignClientTracer.getSofaTracer();
-            sofaTracer.inject(currentSpan.getSofaTracerSpanContext(),
-                ExtendFormat.Builtin.B3_HTTP_HEADERS, new FeignRequestCarrier((Request) request));
-        }
+    private void injectCarrier(Map<String, Collection<String>> headers, SofaTracerSpan currentSpan) {
+        SofaTracer sofaTracer = this.feignClientTracer.getSofaTracer();
+        sofaTracer.inject(currentSpan.getSofaTracerSpanContext(),
+            ExtendFormat.Builtin.B3_HTTP_HEADERS, new FeignRequestHeadersCarrier(headers));
     }
 }
