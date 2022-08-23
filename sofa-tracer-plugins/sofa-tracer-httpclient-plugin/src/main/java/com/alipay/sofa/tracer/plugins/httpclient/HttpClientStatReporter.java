@@ -61,4 +61,5 @@ public class HttpClientStatReporter extends AbstractSofaTracerStatisticReporter 
         //reserve
         this.addStat(statKey, values);
     }
+
 }

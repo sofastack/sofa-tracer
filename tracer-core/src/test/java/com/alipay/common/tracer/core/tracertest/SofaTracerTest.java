@@ -331,16 +331,19 @@ public class SofaTracerTest extends AbstractTestBase {
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER).start();
         String parentTraceID = spanParent.getSofaTracerSpanContext().getTraceId();
         String parentSpanId = spanParent.getSofaTracerSpanContext().getSpanId();
+
         //follow
         SofaTracerSpan spanFollow = (SofaTracerSpan) this.sofaTracer.buildSpan("spanFollow")
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER).start();
         String followTraceId = spanFollow.getSofaTracerSpanContext().getTraceId();
         String followSpanId = spanFollow.getSofaTracerSpanContext().getSpanId();
+
         //parent1
         SofaTracerSpan spanParent1 = (SofaTracerSpan) this.sofaTracer.buildSpan("spanParent1")
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER).start();
         String p1TraceId = spanParent1.getSofaTracerSpanContext().getTraceId();
         String p1SpanId = spanParent1.getSofaTracerSpanContext().getSpanId();
+
         //assert
         assertTrue("Parent1 --> TraceId : " + p1TraceId + ", spanId : " + p1SpanId,
             SofaTracer.ROOT_SPAN_ID.equals(parentSpanId) && parentSpanId.equals(followSpanId)
@@ -369,6 +372,7 @@ public class SofaTracerTest extends AbstractTestBase {
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         String grandsonTraceid = grandsonSpan.getSofaTracerSpanContext().getTraceId();
         String grandsonSpanId = grandsonSpan.getSofaTracerSpanContext().getSpanId();
+
         //check traceId
         assertEquals("Grandson --> TraceId : " + grandsonTraceid + ", Grandson spanId :"
                      + grandsonSpanId, childTraceid, parentTraceID);

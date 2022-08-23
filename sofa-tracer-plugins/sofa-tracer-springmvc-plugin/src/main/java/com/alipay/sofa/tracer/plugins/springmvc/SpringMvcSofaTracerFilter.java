@@ -24,6 +24,7 @@ import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.Scope;
 import io.opentracing.tag.Tags;
 
 import javax.servlet.Filter;
@@ -68,16 +69,16 @@ public class SpringMvcSofaTracerFilter implements Filter {
         int httpStatus = -1;
         Throwable currThrowable = null;
         boolean errorFlag = false;
-        try {
-            HttpServletRequest request = (HttpServletRequest) servletRequest;
-            HttpServletResponse response = (HttpServletResponse) servletResponse;
-            SofaTracerSpanContext spanContext = getSpanContextFromRequest(request);
-            // sr
-            springMvcSpan = springMvcTracer.serverReceive(spanContext);
 
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
+        SofaTracerSpanContext spanContext = getSpanContextFromRequest(request);
+        // sr
+        springMvcSpan = springMvcTracer.serverReceive(spanContext);
+        try(Scope scope = this.springMvcTracer.getSofaTracer().activateSpan(springMvcSpan)){
             if (StringUtils.isBlank(this.appName)) {
                 this.appName = SofaTracerConfiguration
-                    .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
+                        .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
             }
             //set service name
             springMvcSpan.setOperationName(request.getRequestURL().toString());
@@ -93,6 +94,8 @@ public class SpringMvcSofaTracerFilter implements Filter {
             //filter end
             httpStatus = responseWrapper.getStatus();
             responseSize = responseWrapper.getContentLength();
+
+
         } catch (Throwable t) {
             httpStatus = 500;
             errorFlag = true;

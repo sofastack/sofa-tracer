@@ -32,6 +32,7 @@ import com.alipay.sofa.tracer.plugins.okhttp.OkHttpLogEnum;
 import com.alipay.sofa.tracer.plugins.okhttp.OkHttpTracer;
 import com.alipay.sofa.tracer.plugins.okhttp.base.client.OkHttpClientInstance;
 import com.alipay.sofa.tracer.plugins.okhttp.base.controller.PostBody;
+import io.opentracing.Scope;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -101,20 +102,36 @@ public class OkHttpTracerNonJsonTest {
         SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         SofaTracerSpan sofaTracerSpan = (SofaTracerSpan) sofaTracer.buildSpan(
             "HttpClientTracer Baggage").start();
-        sofaTracerSpan.setBaggageItem("key1", "baggage1");
-        sofaTracerSpan.setBaggageItem("key2", "baggage2");
-        sofaTraceContext.push(sofaTracerSpan);
 
-        String responseStr = new OkHttpClientInstance().executePost(httpGetUrl,
-            JSON.toJSONString(postBody));
-        PostBody resultPostBody = JSON.parseObject(responseStr, PostBody.class);
-        assertEquals(postBody, resultPostBody);
+        try(Scope scope = sofaTracer.scopeManager().activate(sofaTracerSpan)){
+            sofaTracerSpan.setBaggageItem("key1", "baggage1");
+            sofaTracerSpan.setBaggageItem("key2", "baggage2");
+            String responseStr = new OkHttpClientInstance().executePost(httpGetUrl,
+                    JSON.toJSONString(postBody));
+            PostBody resultPostBody = JSON.parseObject(responseStr, PostBody.class);
+            assertEquals(postBody, resultPostBody);
+            //wait for async output
+            List<String> contents = FileUtils.readLines(customFileLog(OkHttpLogEnum.OK_HTTP_DIGEST
+                    .getDefaultLogName()));
+            Assert.assertTrue(contents.size() > 0);
+            Assert.assertTrue(contents.get(0).split(",")[1].equalsIgnoreCase("test"));
+        }finally {
+            sofaTracerSpan.finish();
+        }
+//        sofaTracerSpan.setBaggageItem("key1", "baggage1");
+//        sofaTracerSpan.setBaggageItem("key2", "baggage2");
+//        sofaTraceContext.push(sofaTracerSpan);
 
-        //wait for async output
-        List<String> contents = FileUtils.readLines(customFileLog(OkHttpLogEnum.OK_HTTP_DIGEST
-            .getDefaultLogName()));
-        Assert.assertTrue(contents.size() > 0);
-        Assert.assertTrue(contents.get(0).split(",")[1].equalsIgnoreCase("test"));
+//        String responseStr = new OkHttpClientInstance().executePost(httpGetUrl,
+//            JSON.toJSONString(postBody));
+//        PostBody resultPostBody = JSON.parseObject(responseStr, PostBody.class);
+//        assertEquals(postBody, resultPostBody);
+//
+//        //wait for async output
+//        List<String> contents = FileUtils.readLines(customFileLog(OkHttpLogEnum.OK_HTTP_DIGEST
+//            .getDefaultLogName()));
+//        Assert.assertTrue(contents.size() > 0);
+//        Assert.assertTrue(contents.get(0).split(",")[1].equalsIgnoreCase("test"));
     }
 
     protected static File customFileLog(String fileName) {

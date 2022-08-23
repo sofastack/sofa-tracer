@@ -30,7 +30,10 @@ import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.sun.org.apache.xerces.internal.impl.xs.models.XSCMBinOp;
+import io.opentracing.Scope;
 import io.opentracing.tag.Tags;
+import io.opentracing.util.ThreadLocalScope;
 
 import java.util.Map;
 
@@ -108,8 +111,7 @@ public abstract class AbstractTracer {
      * @return              a new spam
      */
     public SofaTracerSpan clientSend(String operationName) {
-        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        SofaTracerSpan serverSpan = sofaTraceContext.pop();
+        SofaTracerSpan serverSpan = (SofaTracerSpan) this.sofaTracer.scopeManager().activeSpan();
         SofaTracerSpan clientSpan = null;
         try {
             clientSpan = (SofaTracerSpan) this.sofaTracer.buildSpan(operationName)
@@ -134,12 +136,44 @@ public abstract class AbstractTracer {
                     .getName());
                 // log
                 clientSpan.log(LogData.CLIENT_SEND_EVENT_VALUE);
-                // Put into the thread context
-                sofaTraceContext.push(clientSpan);
             }
         }
         return clientSpan;
     }
+//    public SofaTracerSpan clientSend(String operationName) {
+//        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+//        SofaTracerSpan serverSpan = sofaTraceContext.pop();
+//        SofaTracerSpan clientSpan = null;
+//        try {
+//            clientSpan = (SofaTracerSpan) this.sofaTracer.buildSpan(operationName)
+//                    .asChildOf(serverSpan).start();
+//            // Need to actively cache your own serverSpan, because: asChildOf is concerned about spanContext
+//            clientSpan.setParentSofaTracerSpan(serverSpan);
+//            return clientSpan;
+//        } catch (Throwable throwable) {
+//            SelfLog.errorWithTraceId("Client Send Error And Restart by Root Span", throwable);
+//            SelfLog.flush();
+//            Map<String, String> bizBaggage = null;
+//            Map<String, String> sysBaggage = null;
+//            if (serverSpan != null) {
+//                bizBaggage = serverSpan.getSofaTracerSpanContext().getBizBaggage();
+//                sysBaggage = serverSpan.getSofaTracerSpanContext().getSysBaggage();
+//            }
+//            clientSpan = this.errorRecover(bizBaggage, sysBaggage);
+//        } finally {
+//            if (clientSpan != null) {
+//                clientSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
+//                clientSpan.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread()
+//                        .getName());
+//                // log
+//                clientSpan.log(LogData.CLIENT_SEND_EVENT_VALUE);
+//                // Put into the thread context
+//                sofaTraceContext.push(clientSpan);
+//            }
+//        }
+//        return clientSpan;
+//    }
+
 
     /**
      *
@@ -148,18 +182,30 @@ public abstract class AbstractTracer {
      * @param resultCode resultCode to mark success or fail
      */
     public void clientReceive(String resultCode) {
-        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        SofaTracerSpan clientSpan = sofaTraceContext.pop();
+        SofaTracerSpan clientSpan = (SofaTracerSpan) this.sofaTracer.activeSpan();
         if (clientSpan == null) {
             return;
         }
         // finish and to report
         this.clientReceiveTagFinish(clientSpan, resultCode);
-        // restore parent span
-        if (clientSpan.getParentSofaTracerSpan() != null) {
-            sofaTraceContext.push(clientSpan.getParentSofaTracerSpan());
-        }
+
     }
+
+//    public void clientReceive(String resultCode) {
+//        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+//        SofaTracerSpan clientSpan = sofaTraceContext.pop();
+//        if (clientSpan == null) {
+//            return;
+//        }
+//        // finish and to report
+//        this.clientReceiveTagFinish(clientSpan, resultCode);
+//        // restore parent span
+//        if (clientSpan.getParentSofaTracerSpan() != null) {
+//            sofaTraceContext.push(clientSpan.getParentSofaTracerSpan());
+//        }
+//    }
+
+
 
     /**
      * Span finished and append tags
@@ -173,9 +219,10 @@ public abstract class AbstractTracer {
             // set resultCode
             clientSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
             // finish client span
-            clientSpan.finish();
+            //clientSpan.finish();
         }
     }
+
 
     /**
      * Stage SR , This stage will produce a new span.
@@ -196,11 +243,11 @@ public abstract class AbstractTracer {
      * @param sofaTracerSpanContext The context to restore
      * @return SofaTracerSpan
      */
+
     public SofaTracerSpan serverReceive(SofaTracerSpanContext sofaTracerSpanContext) {
         SofaTracerSpan newSpan = null;
         // pop LogContext
-        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        SofaTracerSpan serverSpan = sofaTraceContext.pop();
+        SofaTracerSpan serverSpan = (SofaTracerSpan) this.sofaTracer.activeSpan();
         try {
             if (serverSpan == null) {
                 newSpan = (SofaTracerSpan) this.sofaTracer.buildSpan(StringUtils.EMPTY_STRING)
@@ -227,12 +274,52 @@ public abstract class AbstractTracer {
                 newSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
                 newSpan
                     .setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread().getName());
-                // push to sofaTraceContext
-                sofaTraceContext.push(newSpan);
             }
         }
         return newSpan;
     }
+
+
+//    public SofaTracerSpan serverReceive(SofaTracerSpanContext sofaTracerSpanContext) {
+//        SofaTracerSpan newSpan = null;
+//        // pop LogContext
+//        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+//        SofaTracerSpan serverSpan = sofaTraceContext.pop();
+//        try {
+//            if (serverSpan == null) {
+//                newSpan = (SofaTracerSpan) this.sofaTracer.buildSpan(StringUtils.EMPTY_STRING)
+//                        .asChildOf(sofaTracerSpanContext).start();
+//            } else {
+//                newSpan = (SofaTracerSpan) this.sofaTracer.buildSpan(StringUtils.EMPTY_STRING)
+//                        .asChildOf(serverSpan).start();
+//            }
+//        } catch (Throwable throwable) {
+//            SelfLog.errorWithTraceId("Middleware server received and restart root span", throwable);
+//            SelfLog.flush();
+//            Map<String, String> bizBaggage = null;
+//            Map<String, String> sysBaggage = null;
+//            if (serverSpan != null) {
+//                bizBaggage = serverSpan.getSofaTracerSpanContext().getBizBaggage();
+//                sysBaggage = serverSpan.getSofaTracerSpanContext().getSysBaggage();
+//            }
+//            newSpan = this.errorRecover(bizBaggage, sysBaggage);
+//        } finally {
+//            if (newSpan != null) {
+//                // log
+//                newSpan.log(LogData.SERVER_RECV_EVENT_VALUE);
+//                // server tags
+//                newSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
+//                newSpan
+//                        .setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread().getName());
+//                // push to sofaTraceContext
+//                sofaTraceContext.push(newSpan);
+//            }
+//        }
+//        return newSpan;
+//    }
+
+
+
 
     /**
      * Stage SS, This stage will end a span
@@ -240,22 +327,38 @@ public abstract class AbstractTracer {
      * @param resultCode
      */
     public void serverSend(String resultCode) {
-        try {
-            SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-            SofaTracerSpan serverSpan = sofaTraceContext.pop();
-            if (serverSpan == null) {
-                return;
-            }
-            // log
-            serverSpan.log(LogData.SERVER_SEND_EVENT_VALUE);
-            // resultCode
-            serverSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
-            serverSpan.finish();
-        } finally {
-            // clear TreadLocalContext
-            this.clearTreadLocalContext();
+        SofaTracerSpan serverSpan = (SofaTracerSpan) this.sofaTracer.activeSpan();
+        if (serverSpan == null) {
+            return;
         }
+        // log
+        serverSpan.log(LogData.SERVER_SEND_EVENT_VALUE);
+        // resultCode
+        serverSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
+        serverSpan.finish();
     }
+
+//    public void serverSend(String resultCode) {
+//        try {
+//            SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+//            SofaTracerSpan serverSpan = sofaTraceContext.pop();
+//            if (serverSpan == null) {
+//                return;
+//            }
+//            // log
+//            serverSpan.log(LogData.SERVER_SEND_EVENT_VALUE);
+//            // resultCode
+//            serverSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
+//            serverSpan.finish();
+//        } finally {
+//            // clear TreadLocalContext
+//            this.clearTreadLocalContext();
+//        }
+//    }
+
+
+
+
 
     protected SofaTracerSpan genSeverSpanInstance(long startTime, String operationName,
                                                   SofaTracerSpanContext sofaTracerSpanContext,

@@ -19,6 +19,7 @@ package com.alipay.common.tracer.core.registry;
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import io.opentracing.propagation.Binary;
 import io.opentracing.propagation.Format;
 import org.junit.After;
 import org.junit.Assert;
@@ -41,7 +42,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class BinaryFormaterTest {
 
-    private RegistryExtractorInjector<ByteBuffer> registryExtractorInjector;
+    private RegistryExtractorInjector<Binary> registryExtractorInjector;
 
     @Before
     public void before() throws Exception {
@@ -77,13 +78,15 @@ public class BinaryFormaterTest {
      */
     @Test
     public void testExtractCarrier() throws Exception {
-        ByteBuffer carrierNull = null;
+        //ByteBuffer carrierNull = null;
+        BinaryCarrierTest carrierNull = new BinaryCarrierTest();
         SofaTracerSpanContext extractContext = this.registryExtractorInjector.extract(carrierNull);
         assertTrue(extractContext.toString(),
             extractContext.getSpanId().equals(SofaTracer.ROOT_SPAN_ID));
 
         ByteBuffer carrier = ByteBuffer.allocate(4);
-        SofaTracerSpanContext extractContextAllo = this.registryExtractorInjector.extract(carrier);
+        BinaryCarrierTest bct = new BinaryCarrierTest(carrier);
+        SofaTracerSpanContext extractContextAllo = this.registryExtractorInjector.extract(bct);
         assertEquals(extractContextAllo.toString(), SofaTracer.ROOT_SPAN_ID,
             extractContextAllo.getSpanId());
     }
@@ -105,9 +108,10 @@ public class BinaryFormaterTest {
         //inject
         //200 bytes
         ByteBuffer carrier = ByteBuffer.allocate(400);
-        this.registryExtractorInjector.inject(spanContext, carrier);
+        BinaryCarrierTest bct = new BinaryCarrierTest(carrier);
+        this.registryExtractorInjector.inject(spanContext, bct);
         //extract
-        SofaTracerSpanContext extractContext = this.registryExtractorInjector.extract(carrier);
+        SofaTracerSpanContext extractContext = this.registryExtractorInjector.extract(bct);
         //traceid spanId sampled
         extractContext.equals(spanContext);
         assertTrue("Extract baggage : " + extractContext.getBizBaggage(),
@@ -137,13 +141,14 @@ public class BinaryFormaterTest {
         //inject
         //200 bytes
         ByteBuffer carrier = ByteBuffer.allocate(400);
+        BinaryCarrierTest bct = new BinaryCarrierTest(carrier);
         //Put some data in advance to test
         String header = "index_=testSOFATracerInject";
         byte[] headerBytes = header.getBytes(SofaTracerConstant.DEFAULT_UTF8_CHARSET);
         carrier.put(headerBytes);
-        this.registryExtractorInjector.inject(spanContext, carrier);
+        this.registryExtractorInjector.inject(spanContext, bct);
         //extract
-        SofaTracerSpanContext extractContext = this.registryExtractorInjector.extract(carrier);
+        SofaTracerSpanContext extractContext = this.registryExtractorInjector.extract(bct);
         //traceid spanId sampled
         extractContext.equals(spanContext);
         assertTrue("Extract baggage : " + extractContext.getBizBaggage(),
@@ -170,11 +175,12 @@ public class BinaryFormaterTest {
         //inject
         //200 bytes
         ByteBuffer carrier = ByteBuffer.allocateDirect(200);
-        this.registryExtractorInjector.inject(spanContext, carrier);
+        BinaryCarrierTest bct = new BinaryCarrierTest(carrier);
+        this.registryExtractorInjector.inject(spanContext, bct);
         //extract
         boolean isException = false;
         try {
-            this.registryExtractorInjector.extract(carrier);
+            this.registryExtractorInjector.extract(bct);
         } catch (UnsupportedOperationException exception) {
             isException = true;
         }

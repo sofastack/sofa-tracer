@@ -21,6 +21,7 @@ import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,6 +96,10 @@ public class AbstractServerTracerTest {
         SofaTracerSpanContext sofaTracerSpanContext1 = new SofaTracerSpanContext("123", "0");
         SofaTracerSpanContext sofaTracerSpanContext2 = new SofaTracerSpanContext("124", "1");
         System.out.println(sofaTracerSpanContext1.equals(sofaTracerSpanContext2));
+    }
+
+    @Test
+    public void simulateClientCommunicationServer(){
 
     }
 

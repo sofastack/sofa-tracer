@@ -334,6 +334,8 @@ public class SofaTracer implements Tracer {
         public Span start() {
             SofaTracerSpanContext sofaTracerSpanContext;
             //Check if active span  should establish a relationship with the previous span
+            //Artificially specify the relationship between the currently constructed span and the currently active span
+            //If not specified, defaults to asChldOf
             if(this.references.isEmpty() && scopeManager.activeSpan() != null && !this.ignoreActiveSpan){
                 asChildOf(scopeManager.activeSpan());
             }

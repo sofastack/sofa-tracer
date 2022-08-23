@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
+import io.opentracing.Scope;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -58,16 +59,19 @@ public class SofaTracerAsyncHttpInterceptor extends AbstractHttpRequestIntercept
         super.appendHttpClientRequestSpanTags(httpRequest, httpClientSpan);
         //async handle
         httpContext.setAttribute(CURRENT_ASYNC_HTTP_SPAN_KEY, httpClientSpan);
-        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        //client span
-        if (httpClientSpan.getParentSofaTracerSpan() != null) {
-            //restore parent
-            sofaTraceContext.push(httpClientSpan.getParentSofaTracerSpan());
-        } else {
-            //pop async span
-            sofaTraceContext.pop();
-        }
+//        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+//        //client span
+//        if (httpClientSpan.getParentSofaTracerSpan() != null) {
+//            //restore parent
+//            sofaTraceContext.push(httpClientSpan.getParentSofaTracerSpan());
+//        } else {
+//            //pop async span
+//            sofaTraceContext.pop();
+//        }
     }
+
+
+
 
     @Override
     public void process(HttpResponse httpResponse, HttpContext httpContext) throws HttpException,

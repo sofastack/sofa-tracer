@@ -24,6 +24,7 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.okhttp.OkHttpRequestCarrier;
+import io.opentracing.Scope;
 import okhttp3.Headers;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -53,9 +54,16 @@ public class SofaTracerOkHttpInterceptor implements okhttp3.Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
+        Response response = null;
+        SofaTracer sofaTracer = okHttpTracer.getSofaTracer();
         SofaTracerSpan sofaTracerSpan = okHttpTracer.clientSend(request.method());
-        Response response = chain.proceed(appendOkHttpRequestSpanTags(request, sofaTracerSpan));
-        okHttpTracer.clientReceive(String.valueOf(response.code()));
+        try(Scope scope = sofaTracer.scopeManager().activate(sofaTracerSpan)){
+            response = chain.proceed(appendOkHttpRequestSpanTags(request, sofaTracerSpan));
+            okHttpTracer.clientReceive(String.valueOf(response.code()));
+        } finally {
+            sofaTracerSpan.finish();
+        }
+
         return response;
     }
 

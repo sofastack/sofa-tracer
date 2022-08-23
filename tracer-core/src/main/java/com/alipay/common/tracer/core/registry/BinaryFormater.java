@@ -49,51 +49,23 @@ public class BinaryFormater implements RegistryExtractorInjector<Binary> {
         return Format.Builtin.BINARY;
     }
 
-    @Override
-    public SofaTracerSpanContext extract(Binary carrier) {
-        return null;
-    }
 
     @Override
     public void inject(SofaTracerSpanContext spanContext, Binary carrier) {
+        if (carrier == null || spanContext == null) {
+            return;
+        }
 
-    }
+        ByteBuffer buf = carrier.injectionBuffer(64);
+        //head
+        buf.put(FORMATER_KEY_HEAD_BYTES);
+        String spanContextInfos = spanContext.serializeSpanContext();
+        byte[] value = spanContextInfos.getBytes(SofaTracerConstant.DEFAULT_UTF8_CHARSET);
+        //length
+        buf.putInt(value.length);
+        //data
+        buf.put(value);
 //
-//    @Override
-//    public SofaTracerSpanContext extract(ByteBuffer carrier) {
-//        if (carrier == null || carrier.array().length < FORMATER_KEY_HEAD_BYTES.length) {
-//            return SofaTracerSpanContext.rootStart();
-//        }
-//        byte[] carrierDatas = carrier.array();
-//        //head
-//        byte[] formaterKeyHeadBytes = FORMATER_KEY_HEAD_BYTES;
-//        int index = ByteArrayUtils.indexOf(carrierDatas, formaterKeyHeadBytes);
-//        if (index < 0) {
-//            return SofaTracerSpanContext.rootStart();
-//        }
-//        try {
-//            //(UTF-8)Put the head from 0
-//            carrier.position(index + formaterKeyHeadBytes.length);
-//            //value byte arrays
-//            byte[] contextDataBytes = new byte[carrier.getInt()];
-//            carrier.get(contextDataBytes);
-//            String spanContextInfos = new String(contextDataBytes,
-//                SofaTracerConstant.DEFAULT_UTF8_CHARSET);
-//            return SofaTracerSpanContext.deserializeFromString(spanContextInfos);
-//        } catch (Exception e) {
-//            SelfLog
-//                .error(
-//                    "com.alipay.common.tracer.core.registry.BinaryFormater.extract Error.Recover by root start",
-//                    e);
-//            return SofaTracerSpanContext.rootStart();
-//        }
-//    }
-//
-//    @Override
-//    public void inject(SofaTracerSpanContext spanContext, ByteBuffer carrier) {
-//        if (carrier == null || spanContext == null) {
-//            return;
-//        }
 //        //head
 //        carrier.put(FORMATER_KEY_HEAD_BYTES);
 //        String spanContextInfos = spanContext.serializeSpanContext();
@@ -102,6 +74,45 @@ public class BinaryFormater implements RegistryExtractorInjector<Binary> {
 //        carrier.putInt(value.length);
 //        //data
 //        carrier.put(value);
-//    }
+    }
+
+    //new
+    @Override
+    public SofaTracerSpanContext extract(Binary carrier) {
+        if(carrier == null) {
+            return SofaTracerSpanContext.rootStart();
+        }
+        ByteBuffer buf = carrier.extractionBuffer();
+        if (buf == null || buf.array().length < FORMATER_KEY_HEAD_BYTES.length) {
+            return SofaTracerSpanContext.rootStart();
+        }
+        byte[] carrierDatas = buf.array();
+        //head
+        byte[] formaterKeyHeadBytes = FORMATER_KEY_HEAD_BYTES;
+        int index = ByteArrayUtils.indexOf(carrierDatas, formaterKeyHeadBytes);
+        if (index < 0) {
+            return SofaTracerSpanContext.rootStart();
+        }
+        try {
+            //(UTF-8)Put the head from 0
+            buf.position(index + formaterKeyHeadBytes.length);
+            //value byte arrays
+            byte[] contextDataBytes = new byte[buf.getInt()];
+            buf.get(contextDataBytes);
+            String spanContextInfos = new String(contextDataBytes,
+                SofaTracerConstant.DEFAULT_UTF8_CHARSET);
+            return SofaTracerSpanContext.deserializeFromString(spanContextInfos);
+        } catch (Exception e) {
+            SelfLog
+                .error(
+                    "com.alipay.common.tracer.core.registry.BinaryFormater.extract Error.Recover by root start",
+                    e);
+            return SofaTracerSpanContext.rootStart();
+        }
+    }
+
+
+
+
 
 }

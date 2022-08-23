@@ -26,6 +26,7 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.httpclient.base.AbstractTestBase;
 import com.alipay.sofa.tracer.plugins.httpclient.base.client.HttpAsyncClientInstance;
 import com.alipay.sofa.tracer.plugins.httpclient.base.controller.PostBody;
+import io.opentracing.Scope;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -98,26 +99,45 @@ public class AsyncHttpClientTracerTest extends AbstractTestBase {
             "HttpClientTracer Baggage").start();
         sofaTracerParentSpan.setBaggageItem("key1", "baggage1");
         sofaTracerParentSpan.setBaggageItem("key2", "baggage2");
-        sofaTraceContext.push(sofaTracerParentSpan);
-
-        String responseStr = new HttpAsyncClientInstance().executePost(httpUrl,
+        try(Scope scope  = sofaTracer.scopeManager().activate(sofaTracerParentSpan)){
+            String responseStr = new HttpAsyncClientInstance().executePost(httpUrl,
             JSON.toJSONString(postBody));
 
-        PostBody resultPostBody = JSON.parseObject(responseStr, PostBody.class);
-        assertEquals(postBody, resultPostBody);
+            PostBody resultPostBody = JSON.parseObject(responseStr, PostBody.class);
+            assertEquals(postBody, resultPostBody);
 
-        assertEquals(sofaTraceContext.getCurrentSpan(), sofaTracerParentSpan);
-        //wait for async output
-        List<String> contents = FileUtils
+            assertEquals(sofaTracer.activeSpan(), sofaTracerParentSpan);
+            List<String> contents = FileUtils
             .readLines(customFileLog(HttpClientLogEnum.HTTP_CLIENT_DIGEST.getDefaultLogName()));
-        assertTrue(contents.size() == expectedLength);
+            assertTrue(contents.size() == expectedLength);
+              // stat log print cycle: 1s
+            Thread.sleep(1000);
 
-        // stat log print cycle: 1s
-        Thread.sleep(1000);
-
-        //stat log
-        List<String> statContents = FileUtils
-            .readLines(customFileLog(HttpClientLogEnum.HTTP_CLIENT_STAT.getDefaultLogName()));
-        assertTrue(statContents.size() == expectedLength);
+            //stat log
+            List<String> statContents = FileUtils
+                .readLines(customFileLog(HttpClientLogEnum.HTTP_CLIENT_STAT.getDefaultLogName()));
+            assertTrue(statContents.size() == expectedLength);
+        }
+//        sofaTraceContext.push(sofaTracerParentSpan);
+//
+//        String responseStr = new HttpAsyncClientInstance().executePost(httpUrl,
+//            JSON.toJSONString(postBody));
+//
+//        PostBody resultPostBody = JSON.parseObject(responseStr, PostBody.class);
+//        assertEquals(postBody, resultPostBody);
+//
+//        assertEquals(sofaTraceContext.getCurrentSpan(), sofaTracerParentSpan);
+//        //wait for async output
+//        List<String> contents = FileUtils
+//            .readLines(customFileLog(HttpClientLogEnum.HTTP_CLIENT_DIGEST.getDefaultLogName()));
+//        assertTrue(contents.size() == expectedLength);
+//
+//        // stat log print cycle: 1s
+//        Thread.sleep(1000);
+//
+//        //stat log
+//        List<String> statContents = FileUtils
+//            .readLines(customFileLog(HttpClientLogEnum.HTTP_CLIENT_STAT.getDefaultLogName()));
+//        assertTrue(statContents.size() == expectedLength);
     }
 }
