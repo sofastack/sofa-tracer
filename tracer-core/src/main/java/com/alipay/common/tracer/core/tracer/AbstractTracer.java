@@ -101,14 +101,14 @@ public abstract class AbstractTracer {
     protected abstract AbstractSofaTracerStatisticReporter generateServerStatReporter();
 
     /**
-     * Stage CS , This stage will produce a new span
+     * Stage CS , This stage will produc a new span
      * If there is a span in the current sofaTraceContext, it is the parent of the current Span
      *
      * @param operationName as span name
      * @return              a new spam
      */
     public SofaTracerSpan clientSend(String operationName) {
-        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();//把traceContext中的父span弹出
         SofaTracerSpan serverSpan = sofaTraceContext.pop();
         SofaTracerSpan clientSpan = null;
         try {
@@ -196,6 +196,7 @@ public abstract class AbstractTracer {
      * @param sofaTracerSpanContext The context to restore
      * @return SofaTracerSpan
      */
+
     public SofaTracerSpan serverReceive(SofaTracerSpanContext sofaTracerSpanContext) {
         SofaTracerSpan newSpan = null;
         // pop LogContext

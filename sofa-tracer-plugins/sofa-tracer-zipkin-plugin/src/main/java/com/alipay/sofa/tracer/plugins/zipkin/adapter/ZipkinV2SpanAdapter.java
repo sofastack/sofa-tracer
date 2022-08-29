@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.NetUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import io.opentracing.tag.Tags;
 import zipkin2.Endpoint;
