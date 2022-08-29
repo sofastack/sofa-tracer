@@ -53,7 +53,7 @@ public class ZipkinV2SpanAdapter {
         // spanId、parentId、tracerId
         Span.Builder zipkinSpanBuilder = Span.newBuilder();
         SofaTracerSpanContext context = sofaTracerSpan.getSofaTracerSpanContext();
-        zipkinSpanBuilder.traceId(context.getTraceId());
+        zipkinSpanBuilder.traceId(getValidTraceId(context));
         zipkinSpanBuilder.id(spanIdToLong(context.getSpanId()));
         if (StringUtils.isNotBlank(context.getParentId())) {
             zipkinSpanBuilder.parentId(spanIdToLong(context.getParentId()));
@@ -87,12 +87,34 @@ public class ZipkinV2SpanAdapter {
             zipkinSpanBuilder.name(operationName);
         } else {
             zipkinSpanBuilder.name(StringUtils.EMPTY_STRING);
+
+            if (StringUtils.isNotBlank(sofaTracerSpan.getTagsWithStr().get("message.event.code"))) {
+                // set messageTopic:messageEventCode as name
+                String name = sofaTracerSpan.getTagsWithStr().get("message.topic") + ":"
+                              + sofaTracerSpan.getTagsWithStr().get("message.event.code");
+                zipkinSpanBuilder.name(name);
+            } else if (StringUtils.isNotBlank(sofaTracerSpan.getTagsWithStr().get("table.name"))) {
+                // set tableName as name
+                zipkinSpanBuilder.name(sofaTracerSpan.getTagsWithStr().get("table.name"));
+            } else if (StringUtils.isNotBlank(sofaTracerSpan.getTagsWithStr()
+                .get("datasource.name"))) {
+                // set datasourceName as name
+                zipkinSpanBuilder.name(sofaTracerSpan.getTagsWithStr().get("datasource.name"));
+            }
         }
 
         // Annotations
         this.addZipkinAnnotations(zipkinSpanBuilder, sofaTracerSpan);
 
         return zipkinSpanBuilder.build();
+    }
+
+    private String getValidTraceId(SofaTracerSpanContext context) {
+        String traceId = context.getTraceId();
+        if (traceId.endsWith("T")) {
+            traceId = traceId.substring(0, traceId.length() - 1);
+        }
+        return traceId;
     }
 
     public static long spanIdToLong(String spanId) {
