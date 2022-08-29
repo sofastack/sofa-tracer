@@ -69,7 +69,7 @@ public class ZipkinV2SpanAdapterTest {
         Span span = zipkinV2SpanAdapter.convertToZipkinSpan(sofaTracerSpan);
         Assert.assertTrue(span != null);
         Assert.assertTrue(span.name().equalsIgnoreCase(sofaTracerSpan.getOperationName()));
-        Assert.assertTrue(span.tags().size() == 4);
+        Assert.assertTrue(span.tags().size() == 6);
         // zipkin's tracerId will be high position 0
         Assert.assertTrue(span.traceId().contains(
             sofaTracerSpan.getSofaTracerSpanContext().getTraceId()));

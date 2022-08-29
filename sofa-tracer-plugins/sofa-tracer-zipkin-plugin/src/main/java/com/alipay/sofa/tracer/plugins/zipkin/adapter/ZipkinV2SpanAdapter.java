@@ -186,6 +186,10 @@ public class ZipkinV2SpanAdapter {
             zipkinSpan.putTag(e.getKey(), e.getValue().toString());
         }
 
+        SofaTracerSpanContext context = span.getSofaTracerSpanContext();
+        zipkinSpan.putTag("origin.span.id", context.getSpanId());
+        zipkinSpan.putTag("origin.parent.span.id", context.getParentId());
+
         addZipkinTagsWithBaggage(zipkinSpan, span);
     }
 }
