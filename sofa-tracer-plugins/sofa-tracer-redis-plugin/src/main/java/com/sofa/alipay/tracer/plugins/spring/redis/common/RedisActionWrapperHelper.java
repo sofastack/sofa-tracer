@@ -18,6 +18,7 @@ package com.sofa.alipay.tracer.plugins.spring.redis.common;
 
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
+import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
@@ -88,35 +89,56 @@ public class RedisActionWrapperHelper {
 
     public <T> T decorate(Supplier<T> supplier, String operateName) {
         Span span = buildSpan(operateName);
+        Throwable candidateThrowable = null;
         try {
             return supplier.get();
         } catch (Throwable t) {
+            candidateThrowable = t;
             throw t;
         } finally {
-            span.finish();
+            if (candidateThrowable != null) {
+                span.setTag(Tags.ERROR.getKey(), candidateThrowable.getMessage());
+                redisSofaTracer.clientReceive(SofaTracerConstant.RESULT_CODE_ERROR);
+            } else {
+                redisSofaTracer.clientReceive(SofaTracerConstant.RESULT_CODE_SUCCESS);
+            }
         }
     }
 
     public void decorate(Action action, String operateName) {
         Span span = buildSpan(operateName);
+        Throwable candidateThrowable = null;
         try {
             action.execute();
         } catch (Throwable t) {
+            candidateThrowable = t;
             throw t;
         } finally {
-            span.finish();
+            if (candidateThrowable != null) {
+                span.setTag(Tags.ERROR.getKey(), candidateThrowable.getMessage());
+                redisSofaTracer.clientReceive(SofaTracerConstant.RESULT_CODE_ERROR);
+            } else {
+                redisSofaTracer.clientReceive(SofaTracerConstant.RESULT_CODE_SUCCESS);
+            }
         }
     }
 
     public <T extends Exception> void decorateThrowing(ThrowingAction<T> action, String operateName)
                                                                                                     throws T {
         Span span = buildSpan(operateName);
+        Throwable candidateThrowable = null;
         try {
             action.execute();
         } catch (Throwable t) {
+            candidateThrowable = t;
             throw t;
         } finally {
-            span.finish();
+            if (candidateThrowable != null) {
+                span.setTag(Tags.ERROR.getKey(), candidateThrowable.getMessage());
+                redisSofaTracer.clientReceive(SofaTracerConstant.RESULT_CODE_ERROR);
+            } else {
+                redisSofaTracer.clientReceive(SofaTracerConstant.RESULT_CODE_SUCCESS);
+            }
         }
     }
 
@@ -124,12 +146,19 @@ public class RedisActionWrapperHelper {
                                                        String operateName) throws T {
 
         Span span = buildSpan(operateName);
+        Throwable candidateThrowable = null;
         try {
             return supplier.get();
         } catch (Throwable t) {
+            candidateThrowable = t;
             throw t;
         } finally {
-            span.finish();
+            if (candidateThrowable != null) {
+                span.setTag(Tags.ERROR.getKey(), candidateThrowable.getMessage());
+                redisSofaTracer.clientReceive(SofaTracerConstant.RESULT_CODE_ERROR);
+            } else {
+                redisSofaTracer.clientReceive(SofaTracerConstant.RESULT_CODE_SUCCESS);
+            }
         }
     }
 
@@ -142,11 +171,11 @@ public class RedisActionWrapperHelper {
             throw t;
         } finally {
             if (candidateThrowable != null) {
-
+                span.setTag(Tags.ERROR.getKey(), candidateThrowable.getMessage());
+                redisSofaTracer.clientReceive(SofaTracerConstant.RESULT_CODE_ERROR);
             } else {
-
+                redisSofaTracer.clientReceive(SofaTracerConstant.RESULT_CODE_SUCCESS);
             }
-            redisSofaTracer.clientReceiveTagFinish((SofaTracerSpan) span, "00");
         }
     }
 
@@ -160,11 +189,11 @@ public class RedisActionWrapperHelper {
             throw t;
         } finally {
             if (candidateThrowable != null) {
-
+                span.setTag(Tags.ERROR.getKey(), candidateThrowable.getMessage());
+                redisSofaTracer.clientReceive(SofaTracerConstant.RESULT_CODE_ERROR);
             } else {
-
+                redisSofaTracer.clientReceive(SofaTracerConstant.RESULT_CODE_SUCCESS);
             }
-            redisSofaTracer.clientReceive("");
         }
     }
 
