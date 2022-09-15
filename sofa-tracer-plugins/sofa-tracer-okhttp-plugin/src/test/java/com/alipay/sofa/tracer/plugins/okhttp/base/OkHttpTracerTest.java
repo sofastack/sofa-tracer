@@ -27,6 +27,7 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.okhttp.OkHttpTracer;
 import com.alipay.sofa.tracer.plugins.okhttp.base.client.OkHttpClientInstance;
 import com.alipay.sofa.tracer.plugins.okhttp.base.controller.PostBody;
+import io.opentracing.Scope;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -88,17 +89,29 @@ public class OkHttpTracerTest {
         String httpGetUrl = urlHttpPrefix + "/httpclient";
         //baggage
         SofaTracer sofaTracer = OkHttpTracer.getOkHttpTracerSingleton().getSofaTracer();
-        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+        //SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         SofaTracerSpan sofaTracerSpan = (SofaTracerSpan) sofaTracer.buildSpan(
             "HttpClientTracer Baggage").start();
-        sofaTracerSpan.setBaggageItem("key1", "baggage1");
-        sofaTracerSpan.setBaggageItem("key2", "baggage2");
-        sofaTraceContext.push(sofaTracerSpan);
+        try(Scope scope = sofaTracer.scopeManager().activate(sofaTracerSpan)){
+            sofaTracerSpan.setBaggageItem("key1", "baggage1");
+            sofaTracerSpan.setBaggageItem("key2", "baggage2");
+            String responseStr = new OkHttpClientInstance().executePost(httpGetUrl,
+                    JSON.toJSONString(postBody));
+            PostBody resultPostBody = JSON.parseObject(responseStr, PostBody.class);
+            assertEquals(postBody, resultPostBody);
+            assertEquals(sofaTracer.activeSpan(), sofaTracerSpan);
+        }finally {
+            sofaTracerSpan.finish();
+        }
 
-        String responseStr = new OkHttpClientInstance().executePost(httpGetUrl,
-            JSON.toJSONString(postBody));
-        PostBody resultPostBody = JSON.parseObject(responseStr, PostBody.class);
-        assertEquals(postBody, resultPostBody);
+
+
+//        sofaTraceContext.push(sofaTracerSpan);
+//
+//        String responseStr = new OkHttpClientInstance().executePost(httpGetUrl,
+//            JSON.toJSONString(postBody));
+//        PostBody resultPostBody = JSON.parseObject(responseStr, PostBody.class);
+//        assertEquals(postBody, resultPostBody);
     }
 
     private void testOkHttpTracerUnique() {

@@ -19,6 +19,8 @@ package com.alipay.common.tracer.core.context.trace;
 import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import io.opentracing.Scope;
+import io.opentracing.util.ThreadLocalScope;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -66,5 +68,17 @@ public class SofaTracerThreadLocalTraceContextTest {
         sofaTraceContext.clear();
         assertTrue(sofaTraceContext.isEmpty());
     }
+
+
+    //new--test
+    @Test
+    public void testScopePushPop() throws Exception{
+        SofaTracerSpan sofaTracerSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("op").start();
+        try(Scope scope =  this.sofaTracer.scopeManager().activate(sofaTracerSpan)){
+            //assertEquals(sofaTracerSpan.context().toTraceId(), );
+        }
+    }
+
+
 
 }

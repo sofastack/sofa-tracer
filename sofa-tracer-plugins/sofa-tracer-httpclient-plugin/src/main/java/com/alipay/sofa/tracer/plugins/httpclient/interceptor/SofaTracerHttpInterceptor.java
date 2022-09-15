@@ -20,6 +20,7 @@ import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
+import io.opentracing.Scope;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -61,12 +62,16 @@ public class SofaTracerHttpInterceptor extends AbstractHttpRequestInterceptor
     @Override
     public void process(HttpResponse httpResponse, HttpContext httpContext) throws HttpException,
                                                                            IOException {
-        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-        SofaTracerSpan httpClientSpan = sofaTraceContext.getCurrentSpan();
+//        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+//        SofaTracerSpan httpClientSpan = sofaTraceContext.getCurrentSpan();
+        SofaTracerSpan httpClientSpan = (SofaTracerSpan) httpClientTracer.getSofaTracer().activeSpan();
         //tag append
         super.appendHttpClientResponseSpanTags(httpResponse, httpClientSpan);
         //finish
         int statusCode = httpResponse.getStatusLine().getStatusCode();
         httpClientTracer.clientReceive(String.valueOf(statusCode));
     }
+
+
+
 }
