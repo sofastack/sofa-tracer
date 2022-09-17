@@ -16,7 +16,9 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import io.opentracing.Scope;
 
 import java.util.function.BooleanSupplier;
 
@@ -28,19 +30,19 @@ public class SofaTracerBooleanSupplier implements BooleanSupplier {
     private final FunctionalAsyncSupport functionalAsyncSupport;
     private final BooleanSupplier        wrappedBooleanSupplier;
 
-    public SofaTracerBooleanSupplier(BooleanSupplier wrappedBooleanSupplier) {
+    public SofaTracerBooleanSupplier(BooleanSupplier wrappedBooleanSupplier, SofaTracer tracer) {
         this.wrappedBooleanSupplier = wrappedBooleanSupplier;
         functionalAsyncSupport = new FunctionalAsyncSupport(
-            SofaTraceContextHolder.getSofaTraceContext());
+                tracer);
     }
 
     @Override
     public boolean getAsBoolean() {
-        functionalAsyncSupport.doBefore();
+       Scope scope =  functionalAsyncSupport.doBefore();
         try {
             return wrappedBooleanSupplier.getAsBoolean();
         } finally {
-            functionalAsyncSupport.doFinally();
+            functionalAsyncSupport.doFinally(scope);
         }
     }
 }

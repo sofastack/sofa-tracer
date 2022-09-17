@@ -16,8 +16,10 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,18 +31,18 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class TracedExecutorService implements ExecutorService {
+public class TracedExecutorService extends TracedExecutor implements ExecutorService {
 
     protected final ExecutorService  delegate;
-    protected final SofaTraceContext traceContext;
 
-    public TracedExecutorService(ExecutorService delegate) {
-        this(delegate, SofaTraceContextHolder.getSofaTraceContext());
+    public TracedExecutorService(ExecutorService delegate, SofaTracer tracer) {
+        this(delegate, tracer, true);
+
     }
-
-    public TracedExecutorService(ExecutorService delegate, SofaTraceContext traceContext) {
+    public TracedExecutorService(ExecutorService delegate, SofaTracer tracer, boolean traceWithActiveSpanOnly) {
+        super(delegate, tracer, traceWithActiveSpanOnly);
         this.delegate = delegate;
-        this.traceContext = traceContext;
+
     }
 
     @Override
@@ -70,35 +72,87 @@ public class TracedExecutorService implements ExecutorService {
 
     @Override
     public <T> Future<T> submit(Callable<T> task) {
-        return delegate.submit(new SofaTracerCallable<T>(task, traceContext));
+        SofaTracerSpan sofaTracerSpan = createSpan("submit");
+        try{
+            SofaTracerSpan toActivate = sofaTracerSpan != null ? sofaTracerSpan : (SofaTracerSpan) tracer.activeSpan();
+            return delegate.submit(toActivate == null ? task :
+                    new SofaTracerCallable<>(task, tracer));
+        }finally {
+            if(sofaTracerSpan!=null){
+                sofaTracerSpan.finish();
+            }
+        }
     }
 
     @Override
     public <T> Future<T> submit(Runnable task, T result) {
-        return delegate.submit(new SofaTracerRunnable(task, traceContext), result);
+        SofaTracerSpan sofaTracerSpan = createSpan("submit");
+        try{
+            SofaTracerSpan toActivate = sofaTracerSpan != null ? sofaTracerSpan : (SofaTracerSpan) tracer.activeSpan();
+            return delegate.submit(toActivate == null ? task :
+                    new SofaTracerRunnable(task, tracer),result);
+        }finally {
+            if(sofaTracerSpan!=null){
+                sofaTracerSpan.finish();
+            }
+        }
+
     }
 
     @Override
     public Future<?> submit(Runnable task) {
-        return delegate.submit(new SofaTracerRunnable(task, traceContext));
+        SofaTracerSpan sofaTracerSpan = createSpan("submit");
+        try{
+            SofaTracerSpan toActivate = sofaTracerSpan != null ? sofaTracerSpan : (SofaTracerSpan) tracer.activeSpan();
+            return delegate.submit(toActivate == null ? task :
+                    new SofaTracerRunnable(task, tracer));
+        }finally {
+            if(sofaTracerSpan!=null){
+                sofaTracerSpan.finish();
+            }
+        }
     }
 
     @Override
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
                                                                                  throws InterruptedException {
-        return delegate.invokeAll(wrapTracerCallableCollection(tasks));
+        SofaTracerSpan sofaTracerSpan = createSpan("invokeAll");
+        try{
+            SofaTracerSpan toActivate = sofaTracerSpan != null ? sofaTracerSpan : (SofaTracerSpan) tracer.activeSpan();
+            return delegate.invokeAll(wrapTracerCallableCollection(tasks));
+        } finally {
+            if (sofaTracerSpan != null) {
+                sofaTracerSpan.finish();
+            }
+        }
     }
 
     @Override
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout,
                                          TimeUnit unit) throws InterruptedException {
-        return delegate.invokeAll(wrapTracerCallableCollection(tasks), timeout, unit);
+        SofaTracerSpan sofaTracerSpan = createSpan("invokeAll");
+        try{
+            SofaTracerSpan toActivate = sofaTracerSpan != null ? sofaTracerSpan : (SofaTracerSpan) tracer.activeSpan();
+            return delegate.invokeAll(wrapTracerCallableCollection(tasks),timeout, unit);
+        } finally {
+            if (sofaTracerSpan != null) {
+                sofaTracerSpan.finish();
+            }
+        }
     }
 
     @Override
     public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException,
                                                                    ExecutionException {
-        return delegate.invokeAny(wrapTracerCallableCollection(tasks));
+        SofaTracerSpan sofaTracerSpan = createSpan("invokeAny");
+        try{
+            SofaTracerSpan toActivate = sofaTracerSpan != null ? sofaTracerSpan : (SofaTracerSpan) tracer.activeSpan();
+            return delegate.invokeAny(wrapTracerCallableCollection(tasks));
+        } finally {
+            if (sofaTracerSpan != null) {
+                sofaTracerSpan.finish();
+            }
+        }
     }
 
     @Override
@@ -106,19 +160,23 @@ public class TracedExecutorService implements ExecutorService {
                                                                                                 throws InterruptedException,
                                                                                                 ExecutionException,
                                                                                                 TimeoutException {
-        return delegate.invokeAny(wrapTracerCallableCollection(tasks), timeout, unit);
+        SofaTracerSpan sofaTracerSpan = createSpan("invokeAny");
+        try{
+            SofaTracerSpan toActivate = sofaTracerSpan != null ? sofaTracerSpan : (SofaTracerSpan) tracer.activeSpan();
+            return delegate.invokeAny(wrapTracerCallableCollection(tasks),timeout,unit);
+        } finally {
+            if (sofaTracerSpan != null) {
+                sofaTracerSpan.finish();
+            }
+        }
     }
 
-    @Override
-    public void execute(final java.lang.Runnable command) {
-        delegate.execute(new SofaTracerRunnable(command, traceContext));
-    }
 
     private <T> Collection<? extends Callable<T>> wrapTracerCallableCollection(Collection<? extends Callable<T>> originalCollection) {
         Collection<Callable<T>> collection = new ArrayList<java.util.concurrent.Callable<T>>(
             originalCollection.size());
         for (Callable<T> c : originalCollection) {
-            collection.add(new SofaTracerCallable<T>(c, traceContext));
+            collection.add(new SofaTracerCallable<T>(c, tracer));
         }
         return collection;
     }

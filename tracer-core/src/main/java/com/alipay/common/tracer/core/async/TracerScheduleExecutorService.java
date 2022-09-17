@@ -16,8 +16,10 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import com.alipay.common.tracer.core.span.SofaTracerSpan;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,39 +35,74 @@ import java.util.concurrent.TimeUnit;
 public class TracerScheduleExecutorService extends TracedExecutorService implements
                                                                         ScheduledExecutorService {
 
-    public TracerScheduleExecutorService(ScheduledExecutorService delegate) {
-        super(delegate, SofaTraceContextHolder.getSofaTraceContext());
-    }
 
     public TracerScheduleExecutorService(ScheduledExecutorService delegate,
-                                         SofaTraceContext traceContext) {
-        super(delegate, traceContext);
+                                         SofaTracer tracer) {
+        super(delegate, tracer, true);
+    }
+    public TracerScheduleExecutorService(ScheduledExecutorService delegate,
+                                         SofaTracer tracer, boolean flag) {
+        super(delegate, tracer, flag);
     }
 
     @Override
     public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
-        SofaTracerRunnable r = new SofaTracerRunnable(command, this.traceContext);
-        return getScheduledExecutorService().schedule(r, delay, unit);
+        SofaTracerSpan sofaTracerSpan = createSpan("schedule");
+        try{
+            SofaTracerSpan toActivate = sofaTracerSpan != null ? sofaTracerSpan : (SofaTracerSpan) tracer.activeSpan();
+            return getScheduledExecutorService().schedule(tracer.activeSpan() == null ? command :
+                    new SofaTracerRunnable(command, tracer),delay, unit);
+        }finally {
+            if(sofaTracerSpan!=null){
+                sofaTracerSpan.finish();
+            }
+        }
     }
 
     @Override
     public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
-        SofaTracerCallable c = new SofaTracerCallable(callable, this.traceContext);
-        return getScheduledExecutorService().schedule(c, delay, unit);
+        SofaTracerSpan sofaTracerSpan = createSpan("schedule");
+        try{
+            SofaTracerSpan toActivate = sofaTracerSpan != null ? sofaTracerSpan : (SofaTracerSpan) tracer.activeSpan();
+            return getScheduledExecutorService().schedule(tracer.activeSpan() == null ? callable :
+                    new SofaTracerCallable<>(callable, tracer),delay, unit);
+        }finally {
+            if(sofaTracerSpan!=null){
+                sofaTracerSpan.finish();
+            }
+        }
+
     }
 
     @Override
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period,
                                                   TimeUnit unit) {
-        SofaTracerRunnable r = new SofaTracerRunnable(command, this.traceContext);
-        return getScheduledExecutorService().scheduleAtFixedRate(r, initialDelay, period, unit);
+        SofaTracerSpan sofaTracerSpan = createSpan("scheduleAtFixedRate");
+        try{
+            SofaTracerSpan toActivate = tracer.activeSpan() != null ? sofaTracerSpan : (SofaTracerSpan) tracer.activeSpan();
+            return getScheduledExecutorService().scheduleAtFixedRate(toActivate == null ? command :
+                    new SofaTracerRunnable(command, tracer),initialDelay, period,unit);
+        }finally {
+            if(sofaTracerSpan!=null){
+                sofaTracerSpan.finish();
+            }
+        }
     }
 
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay,
                                                      long delay, TimeUnit unit) {
-        SofaTracerRunnable r = new SofaTracerRunnable(command, this.traceContext);
-        return getScheduledExecutorService().scheduleWithFixedDelay(r, initialDelay, delay, unit);
+        SofaTracerSpan sofaTracerSpan = createSpan("scheduleWithFixedDelay");
+        try{
+            SofaTracerSpan toActivate = sofaTracerSpan != null ? sofaTracerSpan : (SofaTracerSpan) tracer.activeSpan();
+            return getScheduledExecutorService().scheduleWithFixedDelay(toActivate == null ? command :
+                    new SofaTracerRunnable(command, tracer),initialDelay, delay,unit);
+        }finally {
+            if(sofaTracerSpan!=null){
+                sofaTracerSpan.finish();
+            }
+        }
+
     }
 
     private ScheduledExecutorService getScheduledExecutorService() {

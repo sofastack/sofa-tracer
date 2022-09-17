@@ -16,8 +16,10 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import io.opentracing.Scope;
 
 import java.lang.Runnable;
 
@@ -32,26 +34,22 @@ public class SofaTracerRunnable implements Runnable {
     private Runnable                 wrappedRunnable;
     protected FunctionalAsyncSupport functionalAsyncSupport;
 
-    public SofaTracerRunnable(Runnable wrappedRunnable) {
-        this.initRunnable(wrappedRunnable, SofaTraceContextHolder.getSofaTraceContext());
+    public SofaTracerRunnable(Runnable wrappedRunnable, SofaTracer tracer) {
+        this.initRunnable(wrappedRunnable, tracer);
     }
 
-    public SofaTracerRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
-        this.initRunnable(wrappedRunnable, traceContext);
-    }
-
-    private void initRunnable(Runnable wrappedRunnable, SofaTraceContext traceContext) {
+    private void initRunnable(Runnable wrappedRunnable, SofaTracer tracer) {
         this.wrappedRunnable = wrappedRunnable;
-        this.functionalAsyncSupport = new FunctionalAsyncSupport(traceContext);
+        this.functionalAsyncSupport = new FunctionalAsyncSupport(tracer);
     }
 
     @Override
     public void run() {
-        functionalAsyncSupport.doBefore();
+       Scope scope =  functionalAsyncSupport.doBefore();
         try {
             wrappedRunnable.run();
         } finally {
-            functionalAsyncSupport.doFinally();
+            functionalAsyncSupport.doFinally(scope);
         }
     }
 }

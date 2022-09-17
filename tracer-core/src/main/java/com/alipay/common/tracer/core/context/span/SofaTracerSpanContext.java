@@ -131,6 +131,16 @@ public class SofaTracerSpanContext implements SpanContext {
         return this;
     }
 
+    @Override
+    public String toTraceId() {
+        return this.traceId;
+    }
+
+    @Override
+    public String toSpanId() {
+        return this.spanId;
+    }
+
     /**
      * return both system and business baggage
      * @return Iterable
@@ -299,7 +309,7 @@ public class SofaTracerSpanContext implements SpanContext {
      * As root start ,it will be return a new sofaTracerSpanContext
      *
      * Note:1.Leave this interface, do not dock the specific tracer implementation, mainly to remedy when an exception occurs in serialization or deserialization
-     *      2.This method cannot be called at will, the correct entry should be {@link SofaTracer.SofaTracerSpanBuilder#createRootSpanContext()}
+     *      2.This method cannot be called at will, the correct entry should be {@link SofaTracer.SofaTracerSpanBuilder# createRootSpanContext()}
      * @return root node
      */
     public static SofaTracerSpanContext rootStart() {

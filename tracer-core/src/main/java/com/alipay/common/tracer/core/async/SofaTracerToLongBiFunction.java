@@ -16,7 +16,9 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import io.opentracing.Scope;
 
 import java.util.function.ToLongBiFunction;
 
@@ -28,19 +30,19 @@ public class SofaTracerToLongBiFunction<T, U> implements ToLongBiFunction<T, U> 
     private final FunctionalAsyncSupport functionalAsyncSupport;
     private final ToLongBiFunction<T, U> wrappedToLongBiFunction;
 
-    public SofaTracerToLongBiFunction(ToLongBiFunction<T, U> wrappedToLongBiFunction) {
+    public SofaTracerToLongBiFunction(ToLongBiFunction<T, U> wrappedToLongBiFunction, SofaTracer tracer) {
         this.wrappedToLongBiFunction = wrappedToLongBiFunction;
         functionalAsyncSupport = new FunctionalAsyncSupport(
-            SofaTraceContextHolder.getSofaTraceContext());
+                tracer);
     }
 
     @Override
     public long applyAsLong(T t, U u) {
-        functionalAsyncSupport.doBefore();
+        Scope scope = functionalAsyncSupport.doBefore();
         try {
             return wrappedToLongBiFunction.applyAsLong(t, u);
         } finally {
-            functionalAsyncSupport.doFinally();
+            functionalAsyncSupport.doFinally(scope);
         }
     }
 }

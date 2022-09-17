@@ -29,6 +29,7 @@ import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.common.code.LogCode2Description;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+import io.opentracing.tag.Tag;
 import io.opentracing.tag.Tags;
 
 import java.io.PrintWriter;
@@ -163,11 +164,12 @@ public class SofaTracerSpan implements Span {
     public void finish(long endTime) {
         this.setEndTime(endTime);
         //Key record:report span
+        this.sofaTracer.addFinishedSpan(this);
         this.sofaTracer.reportSpan(this);
         SpanExtensionFactory.logStoppedSpan(this);
     }
 
-    @Override
+    @Deprecated
     public void close() {
         this.finish();
     }
@@ -209,6 +211,27 @@ public class SofaTracerSpan implements Span {
     }
 
     @Override
+    public <T> Span setTag(Tag<T> tag, T t) {
+        String key = tag.getKey();
+        if(t == null){
+            return this;
+        }
+        if (t instanceof String) {
+            this.setTag(key, (String) t);
+        } else if (t instanceof Boolean) {
+            this.setTag(key, (Boolean) t);
+        } else if (t instanceof Number) {
+            this.setTag(key, (Number) t);
+        } else {
+            SelfLog.error(String.format(
+                    LogCode2Description.convert(SofaTracerConstant.SPACE_ID, "01-00012"),
+                    t.getClass()));
+        }
+
+        return this;
+    }
+
+    @Override
     public Span log(String eventValue) {
         //log with current time
         return log(System.currentTimeMillis(), eventValue);
@@ -242,13 +265,13 @@ public class SofaTracerSpan implements Span {
         return this.log(System.currentTimeMillis(), map);
     }
 
-    @Override
+    @Deprecated
     public Span log(String eventName, /* @Nullable */Object payload) {
         //key:value
         return this.log(System.currentTimeMillis(), eventName, payload);
     }
 
-    @Override
+    @Deprecated
     public Span log(long currentTime, String eventName, /* @Nullable */Object payload) {
         //key:value
         AssertUtils.isTrue(currentTime >= startTime, "current time must greater than start time");

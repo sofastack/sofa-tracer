@@ -16,41 +16,40 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.extensions.SpanExtensionFactory;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import io.opentracing.Scope;
 
 /**
  * @author khotyn
  * @version FunctionalAsyncSupport.java, v 0.1 2021年02月17日 11:02 下午 khotyn
  */
 public class FunctionalAsyncSupport {
-    private final long               tid = Thread.currentThread().getId();
-    protected final SofaTraceContext traceContext;
-    private final SofaTracerSpan     currentSpan;
+    private final long   tid = Thread.currentThread().getId();
+    protected final SofaTracer tracer;
+    private final SofaTracerSpan currentSpan;
 
-    public FunctionalAsyncSupport(SofaTraceContext traceContext) {
-        this.traceContext = traceContext;
-        if (!traceContext.isEmpty()) {
-            this.currentSpan = traceContext.getCurrentSpan();
-        } else {
-            this.currentSpan = null;
-        }
+    public FunctionalAsyncSupport(SofaTracer tracer) {
+        this.tracer = tracer;
+        this.currentSpan = (SofaTracerSpan) tracer.activeSpan();
     }
 
-    public void doBefore() {
+    public Scope doBefore() {
         if (Thread.currentThread().getId() != tid) {
             if (currentSpan != null) {
-                traceContext.push(currentSpan);
                 SpanExtensionFactory.logStartedSpan(currentSpan);
+                return tracer.scopeManager().activate(currentSpan);
             }
         }
+        return null;
     }
 
-    public void doFinally() {
+    public void doFinally(Scope scope) {
         if (Thread.currentThread().getId() != tid) {
-            if (currentSpan != null) {
-                traceContext.pop();
+            if (scope != null) {
+                scope.close();
             }
         }
     }
