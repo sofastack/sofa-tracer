@@ -21,6 +21,7 @@ import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.generator.TraceIdGenerator;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
+import io.opentelemetry.api.baggage.Baggage;
 import io.opentracing.SpanContext;
 
 import java.util.HashMap;
@@ -34,8 +35,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author yangguanchao
  * @since 2017/06/17
  */
-public class SofaTracerSpanContext implements SpanContext {
-
+public class SofaTracerSpanContext implements  SpanContext {
+//    private final io.opentelemetry.api.trace.SpanContext telemetrySpanContext;
+//    private final Baggage telemetryBaggage;
     //spanId separator
     public static final String        RPC_ID_SEPARATOR       = ".";
 

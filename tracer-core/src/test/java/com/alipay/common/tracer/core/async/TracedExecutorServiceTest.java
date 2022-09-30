@@ -183,7 +183,6 @@ public class TracedExecutorServiceTest   extends AbstractAsyncTest{
         countDownLatch = new CountDownLatch(2);
         executorService.invokeAll(Arrays.asList(new TestCallable(), new TestCallable()), 1, TimeUnit.SECONDS);
         scope.close();
-
         countDownLatch.await();
         // assertParentSpan(parentSpan);
         assertEquals(2, tracer.getFinishedSpans().size());

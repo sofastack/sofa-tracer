@@ -24,11 +24,7 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.tracer.plugins.httpclient.HttpClientRequestCarrier;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.RequestLine;
+import org.apache.http.*;
 import org.apache.http.client.methods.HttpRequestWrapper;
 
 /**
@@ -85,8 +81,10 @@ public abstract class AbstractHttpRequestInterceptor {
         if (httpRequest instanceof HttpEntityEnclosingRequest) {
             HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
             HttpEntity httpEntity = httpEntityEnclosingRequest.getEntity();
+
             httpClientSpan.setTag(CommonSpanTags.REQ_SIZE,
                 httpEntity == null ? -1 : httpEntity.getContentLength());
+            long contentL = httpEntity == null ? -1 : httpEntity.getContentLength();
         }
         //carrier
         this.processHttpClientRequestCarrier(httpRequest, httpClientSpan);

@@ -20,8 +20,6 @@ import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
-import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
-import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.samplers.Sampler;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.LogData;
@@ -31,6 +29,7 @@ import com.alipay.sofa.common.code.LogCode2Description;
 import com.alipay.sofa.tracer.plugins.dubbo.constants.AttachmentKeyConstants;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboConsumerSofaTracer;
 import com.alipay.sofa.tracer.plugins.dubbo.tracer.DubboProviderSofaTracer;
+import io.opentracing.Scope;
 import io.opentracing.tag.Tags;
 import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.common.extension.Activate;
@@ -151,6 +150,7 @@ public class DubboSofaTracerFilter implements Filter {
         // build a dubbo rpc span
         SofaTracerSpan sofaTracerSpan = dubboConsumerSofaTracer.clientSend(service + "#"
                                                                            + methodName);
+        Scope scope = this.dubboConsumerSofaTracer.getSofaTracer().activateSpan(sofaTracerSpan);
         // set tags to span
         appendRpcClientSpanTags(invoker, sofaTracerSpan);
         // do serialized and then transparent transmission to the rpc server
@@ -205,20 +205,17 @@ public class DubboSofaTracerFilter implements Filter {
             }
 
             if (!isAsync) {
+                scope.close();
                 dubboConsumerSofaTracer.clientReceive(resultCode);
             } else {
-                SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-                SofaTracerSpan clientSpan = sofaTraceContext.pop();
+                SofaTracerSpan clientSpan = (SofaTracerSpan) this.dubboConsumerSofaTracer.getSofaTracer().activeSpan();
                 if (clientSpan != null) {
                     // Record client send event
                     sofaTracerSpan.log(LogData.CLIENT_SEND_EVENT_VALUE);
                 }
                 // cache the current span
+                scope.close();
                 TracerSpanMap.put(getTracerSpanMapKey(invoker), sofaTracerSpan);
-                if (clientSpan != null && clientSpan.getParentSofaTracerSpan() != null) {
-                    //restore parent
-                    sofaTraceContext.push(clientSpan.getParentSofaTracerSpan());
-                }
                 CompletableFuture<Object> future = (CompletableFuture<Object>) RpcContext.getContext().getFuture();
                 future.whenComplete((object, throwable)-> {
                     if (throwable != null && throwable instanceof TimeoutException) {
@@ -227,6 +224,7 @@ public class DubboSofaTracerFilter implements Filter {
                     }
                 });
             }
+
         }
         return result;
     }
@@ -242,7 +240,9 @@ public class DubboSofaTracerFilter implements Filter {
             this.dubboProviderSofaTracer = DubboProviderSofaTracer
                 .getDubboProviderSofaTracerSingleton();
         }
+
         SofaTracerSpan sofaTracerSpan = serverReceived(invocation);
+        Scope scope = this.dubboProviderSofaTracer.getSofaTracer().activateSpan(sofaTracerSpan);
         appendRpcServerSpanTags(invoker, sofaTracerSpan);
         Result result;
         Throwable exception = null;
@@ -277,6 +277,7 @@ public class DubboSofaTracerFilter implements Filter {
                 }
             }
             dubboProviderSofaTracer.serverSend(resultCode);
+            scope.close();
         }
     }
 
@@ -305,10 +306,8 @@ public class DubboSofaTracerFilter implements Filter {
             }
             sofaTracerSpanContext.setSampled(isSampled);
         }
-        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
         // Record server receive event
         serverSpan.log(LogData.SERVER_RECV_EVENT_VALUE);
-        sofaTraceContext.push(serverSpan);
         return serverSpan;
     }
 

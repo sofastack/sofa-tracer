@@ -89,7 +89,7 @@ public class SofaTracer implements Tracer {
     /**
      * Scope manager
      */
-    private final ScopeManager scopeManager;
+    private final ScopeManager scopeManager   =   new ThreadLocalScopeManager();
 
     /**
      * Record finished spans.
@@ -98,26 +98,26 @@ public class SofaTracer implements Tracer {
 
 
     protected SofaTracer(String tracerType, Reporter clientReporter, Reporter serverReporter,
-                         Sampler sampler, Map<String, Object> tracerTags, ScopeManager scopeManager) {
+                         Sampler sampler, Map<String, Object> tracerTags) {
         this.tracerType = tracerType;
         this.clientReporter = clientReporter;
         this.serverReporter = serverReporter;
         this.sampler = sampler;
-        this.scopeManager = scopeManager;
+
         this.finishedSpans = new ArrayList();
         if (tracerTags != null && tracerTags.size() > 0) {
             this.tracerTags.putAll(tracerTags);
         }
     }
 
-    protected SofaTracer(String tracerType, Sampler sampler, ScopeManager scopeManager) {
+    protected SofaTracer(String tracerType, Sampler sampler) {
         this.tracerType = tracerType;
         this.clientReporter = null;
         this.serverReporter = null;
         this.sampler = sampler;
-        this.scopeManager = scopeManager;
         this.finishedSpans = new ArrayList();
     }
+
 
     public void addFinishedSpan(SofaTracerSpan span) {
         synchronized (this) {
@@ -374,7 +374,6 @@ public class SofaTracer implements Tracer {
             }
 
 
-
             if (this.references != null && this.references.size() > 0) {
                 //Parent context exist
                 sofaTracerSpanContext = this.createChildContext();
@@ -484,7 +483,6 @@ public class SofaTracer implements Tracer {
 
         private Sampler             sampler;
 
-        private ScopeManager scopeManager = new ThreadLocalScopeManager();
 
         public Builder(String tracerType) {
             AssertUtils.isTrue(StringUtils.isNotBlank(tracerType), "tracerType must be not empty");
@@ -555,7 +553,7 @@ public class SofaTracer implements Tracer {
                 SelfLog.error(LogCode2Description.convert(SPACE_ID, "01-00002"));
             }
             return new SofaTracer(this.tracerType, this.clientReporter, this.serverReporter,
-                    this.sampler, this.tracerTags,  this.scopeManager);
+                    this.sampler, this.tracerTags);
         }
     }
 }
