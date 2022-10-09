@@ -16,7 +16,9 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import io.opentracing.Scope;
 
 import java.util.function.IntBinaryOperator;
 
@@ -28,19 +30,19 @@ public class SofaTracerIntBinaryOperator implements IntBinaryOperator {
     private final FunctionalAsyncSupport functionalAsyncSupport;
     private final IntBinaryOperator      wrappedIntBinaryOperator;
 
-    public SofaTracerIntBinaryOperator(IntBinaryOperator wrappedIntBinaryOperator) {
+    public SofaTracerIntBinaryOperator(IntBinaryOperator wrappedIntBinaryOperator, SofaTracer tracer) {
         this.wrappedIntBinaryOperator = wrappedIntBinaryOperator;
         functionalAsyncSupport = new FunctionalAsyncSupport(
-            SofaTraceContextHolder.getSofaTraceContext());
+                tracer);
     }
 
     @Override
     public int applyAsInt(int left, int right) {
-        functionalAsyncSupport.doBefore();
+       Scope scope = functionalAsyncSupport.doBefore();
         try {
             return wrappedIntBinaryOperator.applyAsInt(left, right);
         } finally {
-            functionalAsyncSupport.doFinally();
+            functionalAsyncSupport.doFinally(scope);
         }
     }
 }

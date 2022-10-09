@@ -24,6 +24,7 @@ import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.core.tracertest.encoder.ServerSpanEncoder;
+import io.opentracing.Scope;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +52,8 @@ public class TracerScheduleExecutorServiceTest {
     public void setUp() {
         ScheduledExecutorService scheduledExecutorService = Executors
             .newSingleThreadScheduledExecutor();
-        tracerScheduleExecutorService = new TracerScheduleExecutorService(scheduledExecutorService);
+        SofaTracer tracer  = new SofaTracer.Builder("root").build();
+        tracerScheduleExecutorService = new TracerScheduleExecutorService(scheduledExecutorService, tracer);
         String clientLogType = "client-log-test.log";
         Reporter clientReporter = new DiskReporterImpl(clientLogType, new ClientSpanEncoder());
         String serverLogType = "server-log-test.log";
@@ -65,9 +67,10 @@ public class TracerScheduleExecutorServiceTest {
 
     @Test
     public void scheduleRunnable() throws InterruptedException {
+        SofaTracer tracer  = new SofaTracer.Builder("root").build();
         final Map<String, Integer> taskMap = new HashMap<>();
         taskMap.put("key", 1);
-        SofaTracerRunnable sofaTracerRunnable = new SofaTracerRunnable(() -> taskMap.put("key", taskMap.get("key") + 1));
+        SofaTracerRunnable sofaTracerRunnable = new SofaTracerRunnable(() -> taskMap.put("key", taskMap.get("key") + 1),tracer);
         tracerScheduleExecutorService.schedule(sofaTracerRunnable, 1000, TIME_UNIT);
         Thread.sleep(1100);
         Integer result = taskMap.get("key");
@@ -76,18 +79,19 @@ public class TracerScheduleExecutorServiceTest {
 
     @Test
     public void scheduleRunnable_with_tracerContext() throws Exception {
-        SofaTraceContext sofaTraceContext = new SofaTracerThreadLocalTraceContext();
-        sofaTraceContext.push(sofaTracerSpan);
-        final Map<String, Integer> taskMap = new HashMap<>();
-        taskMap.put("key", 1);
-        SofaTracerRunnable sofaTracerRunnable = new SofaTracerRunnable(() -> taskMap.put("key", taskMap.get("key") + 1), sofaTraceContext);
-        tracerScheduleExecutorService.schedule(sofaTracerRunnable, 1000, TIME_UNIT);
-        Thread.sleep(1100);
-        Integer result = taskMap.get("key");
-        Assert.assertEquals(2, (int) result);
-        //check currentSpan
-        SofaTracerSpan currentSpan = sofaTracerRunnable.functionalAsyncSupport.traceContext.getCurrentSpan();
-        Assert.assertEquals("SofaTracerSpanTest", currentSpan.getOperationName());
+        SofaTracer tracer  = new SofaTracer.Builder("root").build();
+        try(Scope scope = tracer.activateSpan(sofaTracerSpan)){
+            final Map<String, Integer> taskMap = new HashMap<>();
+            taskMap.put("key", 1);
+            SofaTracerRunnable sofaTracerRunnable = new SofaTracerRunnable(() -> taskMap.put("key", taskMap.get("key") + 1), tracer);
+            tracerScheduleExecutorService.schedule(sofaTracerRunnable, 1000, TIME_UNIT);
+            Thread.sleep(1100);
+            Integer result = taskMap.get("key");
+            Assert.assertEquals(2, (int) result);
+            //check currentSpan
+            SofaTracerSpan currentSpan = (SofaTracerSpan) sofaTracerRunnable.functionalAsyncSupport.tracer.activeSpan();
+            Assert.assertEquals("SofaTracerSpanTest", currentSpan.getOperationName());
+        }
     }
 
     @Test

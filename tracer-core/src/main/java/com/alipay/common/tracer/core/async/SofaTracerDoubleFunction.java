@@ -16,7 +16,9 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import io.opentracing.Scope;
 
 import java.util.function.DoubleFunction;
 
@@ -28,19 +30,19 @@ public class SofaTracerDoubleFunction<R> implements DoubleFunction<R> {
     private final DoubleFunction<R>      wrappedDoubleFunction;
     private final FunctionalAsyncSupport functionalAsyncSupport;
 
-    public SofaTracerDoubleFunction(DoubleFunction<R> wrappedDoubleFunction) {
+    public SofaTracerDoubleFunction(DoubleFunction<R> wrappedDoubleFunction, SofaTracer tracer) {
         this.wrappedDoubleFunction = wrappedDoubleFunction;
         this.functionalAsyncSupport = new FunctionalAsyncSupport(
-            SofaTraceContextHolder.getSofaTraceContext());
+                tracer);
     }
 
     @Override
     public R apply(double value) {
-        functionalAsyncSupport.doBefore();
+        Scope scope = functionalAsyncSupport.doBefore();
         try {
             return wrappedDoubleFunction.apply(value);
         } finally {
-            functionalAsyncSupport.doFinally();
+            functionalAsyncSupport.doFinally(scope);
         }
     }
 }

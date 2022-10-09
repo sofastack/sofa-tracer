@@ -17,12 +17,14 @@
 package com.alipay.sofa.tracer.plugins.httpclient;
 
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
-import com.alipay.sofa.tracer.plugins.httpclient.interceptor.SofaTracerAsyncHttpInterceptor;
-import com.alipay.sofa.tracer.plugins.httpclient.interceptor.SofaTracerHttpInterceptor;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.client.RedirectStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.impl.execchain.ClientExecChain;
+
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * SofaTracerHttpClientBuilder
@@ -30,33 +32,23 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
  * @author yangguanchao
  * @since 2018/08/07
  */
-public class SofaTracerHttpClientBuilder {
+public class SofaTracerHttpClientBuilder extends HttpClientBuilder {
+    private static AbstractTracer httpClientTracer;
+    private List<SofaTracerClientSpanDecorator> spanDecorators;
 
-    protected static AbstractTracer httpClientTracer = null;
-
-    public static HttpClientBuilder clientBuilder(HttpClientBuilder clientBuilder) {
-        return clientBuilder(clientBuilder, null, null);
+    public SofaTracerHttpClientBuilder(RedirectStrategy redirectStrategy,
+                                       boolean redirectHandlingDisabled,
+                                       //  AbstractTracer tracer,
+                                       List<SofaTracerClientSpanDecorator> spanDecorators) {
+        this.httpClientTracer = getHttpClientTracer();
+        this.spanDecorators = new ArrayList<>(spanDecorators);
     }
 
-    public static HttpClientBuilder clientBuilder(HttpClientBuilder clientBuilder,
-                                                  String currentApp, String targetApp) {
-        SofaTracerHttpInterceptor interceptor = new SofaTracerHttpInterceptor(
-            getHttpClientTracer(), currentApp, targetApp);
-        return clientBuilder.addInterceptorFirst((HttpRequestInterceptor) interceptor)
-            .addInterceptorFirst((HttpResponseInterceptor) interceptor);
+    public SofaTracerHttpClientBuilder() {
+        this.httpClientTracer = getHttpClientTracer();
+        this.spanDecorators = Collections.<SofaTracerClientSpanDecorator>singletonList(new SofaTracerClientSpanDecorator.StandardTags());
     }
 
-    public static HttpAsyncClientBuilder asyncClientBuilder(HttpAsyncClientBuilder httpAsyncClientBuilder) {
-        return asyncClientBuilder(httpAsyncClientBuilder, null, null);
-    }
-
-    public static HttpAsyncClientBuilder asyncClientBuilder(HttpAsyncClientBuilder httpAsyncClientBuilder,
-                                                            String currentApp, String targetApp) {
-        SofaTracerAsyncHttpInterceptor interceptor = new SofaTracerAsyncHttpInterceptor(
-            getHttpClientTracer(), currentApp, targetApp);
-        return httpAsyncClientBuilder.addInterceptorFirst((HttpRequestInterceptor) interceptor)
-            .addInterceptorFirst((HttpResponseInterceptor) interceptor);
-    }
 
     public static AbstractTracer getHttpClientTracer() {
         if (httpClientTracer == null) {
@@ -69,4 +61,15 @@ public class SofaTracerHttpClientBuilder {
         }
         return httpClientTracer;
     }
+
+    public static void clientBuilder(HttpClientBuilder httpClientBuilder) {
+    }
+
+
+    @Override
+    protected ClientExecChain decorateProtocolExec(final ClientExecChain requestExecutor) {
+        return new SofaTracerClientExec(requestExecutor, httpClientTracer, spanDecorators);
+    }
+
+
 }

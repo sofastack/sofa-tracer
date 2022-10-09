@@ -12,6 +12,29 @@
 
     <artifactId>sofa-tracer-httpclient-plugin</artifactId>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>1.9.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom-alpha</artifactId>
+                <version>1.9.0-alpha</version>
+                <type>pom </type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
+
     <dependencies>
         <dependency>
             <groupId>com.alipay.sofa</groupId>
@@ -32,6 +55,15 @@
             <artifactId>httpasyncclient</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <!-- OpenTelemetry dependency -->
+
+
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-opentracing-shim</artifactId>
+        </dependency>
+
 
         <!-- test dependency -->
         <dependency>

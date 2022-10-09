@@ -16,7 +16,9 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import io.opentracing.Scope;
 
 import java.util.function.LongUnaryOperator;
 
@@ -28,19 +30,19 @@ public class SofaTracerLongUnaryOperator implements LongUnaryOperator {
     private final FunctionalAsyncSupport functionalAsyncSupport;
     private final LongUnaryOperator      wrappedLongUnaryOperator;
 
-    public SofaTracerLongUnaryOperator(LongUnaryOperator wrappedLongUnaryOperator) {
+    public SofaTracerLongUnaryOperator(LongUnaryOperator wrappedLongUnaryOperator, SofaTracer tracer) {
         this.wrappedLongUnaryOperator = wrappedLongUnaryOperator;
         functionalAsyncSupport = new FunctionalAsyncSupport(
-            SofaTraceContextHolder.getSofaTraceContext());
+                tracer);
     }
 
     @Override
     public long applyAsLong(long operand) {
-        functionalAsyncSupport.doBefore();
+       Scope scope =  functionalAsyncSupport.doBefore();
         try {
             return wrappedLongUnaryOperator.applyAsLong(operand);
         } finally {
-            functionalAsyncSupport.doFinally();
+            functionalAsyncSupport.doFinally(scope);
         }
     }
 }

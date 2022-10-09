@@ -16,8 +16,10 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import io.opentracing.Scope;
 
 import java.util.concurrent.Callable;
 
@@ -32,26 +34,23 @@ public class SofaTracerCallable<T> implements Callable<T> {
     private Callable<T>            wrappedCallable;
     private FunctionalAsyncSupport functionalAsyncSupport;
 
-    public SofaTracerCallable(Callable<T> wrappedCallable) {
-        this.initCallable(wrappedCallable, SofaTraceContextHolder.getSofaTraceContext());
+
+    public SofaTracerCallable(Callable<T> wrappedCallable, SofaTracer tracer) {
+        this.initCallable(wrappedCallable, tracer);
     }
 
-    public SofaTracerCallable(Callable<T> wrappedCallable, SofaTraceContext traceContext) {
-        this.initCallable(wrappedCallable, traceContext);
-    }
-
-    private void initCallable(Callable<T> wrappedCallable, SofaTraceContext traceContext) {
+    private void initCallable(Callable<T> wrappedCallable, SofaTracer tracer) {
         this.wrappedCallable = wrappedCallable;
-        this.functionalAsyncSupport = new FunctionalAsyncSupport(traceContext);
+        this.functionalAsyncSupport = new FunctionalAsyncSupport(tracer);
     }
 
     @Override
     public T call() throws Exception {
-        functionalAsyncSupport.doBefore();
+       Scope scope =  functionalAsyncSupport.doBefore();
         try {
             return wrappedCallable.call();
         } finally {
-            functionalAsyncSupport.doFinally();
+            functionalAsyncSupport.doFinally(scope);
         }
     }
 

@@ -124,9 +124,8 @@ public class HttpClientInstance {
         connManager.setDefaultMaxPerRoute(6);
         connManager.setMaxTotal(20);
         connManager.closeIdleConnections(120, TimeUnit.SECONDS);
-        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+        HttpClientBuilder httpClientBuilder = new SofaTracerHttpClientBuilder();
         //SOFATracer
-        SofaTracerHttpClientBuilder.clientBuilder(httpClientBuilder);
         httpClient = httpClientBuilder.setConnectionManager(connManager).disableAutomaticRetries()
             .setUserAgent("CLIENT_VERSION").build();
         return httpClient;

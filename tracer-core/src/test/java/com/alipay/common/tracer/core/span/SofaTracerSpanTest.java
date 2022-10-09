@@ -26,7 +26,9 @@ import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.core.tracertest.encoder.ServerSpanEncoder;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.Span;
 import io.opentracing.tag.Tags;
+import org.apache.commons.logging.Log;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -67,9 +69,14 @@ public class SofaTracerSpanTest extends AbstractTestBase {
         String tracerType = "SofaTracerSpanTest";
         sofaTracer = new SofaTracer.Builder(tracerType)
             .withTag("tracer", "SofaTraceContextHolderTest").withClientReporter(clientReporter)
+
             .withServerReporter(serverReporter).build();
 
-        sofaTracerSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("SofaTracerSpanTest").start();
+        sofaTracerSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("SofaTracerSpanTest")
+                .ignoreActiveSpan()
+                .start();
+
+
     }
 
     @After
@@ -270,6 +277,10 @@ public class SofaTracerSpanTest extends AbstractTestBase {
         logDataList.clear();
     }
 
+
+
+
+
     /**
      * Method: log(long currentTime, Map<String, ?> map)
      */
@@ -306,6 +317,60 @@ public class SofaTracerSpanTest extends AbstractTestBase {
                    && logDataList.get(3).getFields().containsValue("value3"));
 
     }
+
+
+    @Test
+    public void testLForCurrentTimeMap() {
+        SofaTracerSpan testLogForCurrentTimeMapSpan = (SofaTracerSpan) this.sofaTracer
+                .buildSpan("testLogForCurrentTimeMap").withStartTimestamp(111).start();
+        Map<String, Integer> fields = new HashMap<>();
+        fields.put("key", 1);
+        Map<String, Double> fields1 = new HashMap<>();
+        fields1.put("key1", 1.1);
+        Map<String, Boolean> fields2 = new HashMap<>();
+        fields2.put("key2", true);
+        Map<String, String> fields3 = new HashMap<>();
+        fields3.put("key3", "value3");
+
+        testLogForCurrentTimeMapSpan.log(222, fields);
+        testLogForCurrentTimeMapSpan.log(222, fields1);
+        testLogForCurrentTimeMapSpan.log(222, fields2);
+        testLogForCurrentTimeMapSpan.log(222, fields3);
+        List<LogData> logDataList = testLogForCurrentTimeMapSpan.getLogs();
+        for(LogData logData: logDataList){
+            System.out.println(logData.getFields());
+        }
+        assertEquals(4, logDataList.size());
+        assertEquals(222, logDataList.get(0).getTime());
+        assertTrue(logDataList.get(0).getFields().containsKey("key")
+                && logDataList.get(0).getFields().containsValue(1));
+        assertEquals(222, logDataList.get(1).getTime());
+        assertTrue(logDataList.get(1).getFields().containsKey("key1")
+                && logDataList.get(1).getFields().containsValue(1.1));
+        assertEquals(222, logDataList.get(2).getTime());
+        assertTrue(logDataList.get(2).getFields().containsKey("key2")
+                && logDataList.get(2).getFields().containsValue(true));
+        assertEquals(222, logDataList.get(3).getTime());
+        assertTrue(logDataList.get(3).getFields().containsKey("key3")
+                && logDataList.get(3).getFields().containsValue("value3"));
+
+    }
+
+    @Test
+    public void te(){
+
+        SofaTracerSpan sofaTracerSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("123")
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
+                .start();
+        System.out.println(sofaTracerSpan.isClient());
+        System.out.println(sofaTracerSpan.isServer());
+    }
+
+
+
+
+
 
     /**
      * Method: log(Map<String, ?> map)

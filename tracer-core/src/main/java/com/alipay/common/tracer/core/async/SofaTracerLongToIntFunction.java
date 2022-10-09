@@ -16,7 +16,9 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import io.opentracing.Scope;
 
 import java.util.function.LongToIntFunction;
 
@@ -28,19 +30,19 @@ public class SofaTracerLongToIntFunction implements LongToIntFunction {
     private final FunctionalAsyncSupport functionalAsyncSupport;
     private final LongToIntFunction      wrappedLongToIntFunction;
 
-    public SofaTracerLongToIntFunction(LongToIntFunction wrappedLongToIntFunction) {
+    public SofaTracerLongToIntFunction(LongToIntFunction wrappedLongToIntFunction, SofaTracer tracer) {
         this.wrappedLongToIntFunction = wrappedLongToIntFunction;
         functionalAsyncSupport = new FunctionalAsyncSupport(
-            SofaTraceContextHolder.getSofaTraceContext());
+                tracer);
     }
 
     @Override
     public int applyAsInt(long value) {
-        functionalAsyncSupport.doBefore();
+        Scope scope = functionalAsyncSupport.doBefore();
         try {
             return wrappedLongToIntFunction.applyAsInt(value);
         } finally {
-            functionalAsyncSupport.doFinally();
+            functionalAsyncSupport.doFinally(scope);
         }
     }
 }

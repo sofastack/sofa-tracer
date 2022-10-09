@@ -16,7 +16,9 @@
  */
 package com.alipay.common.tracer.core.async;
 
-import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import com.alipay.common.tracer.core.SofaTracer;
+import io.opentracing.Scope;
+
 
 import java.util.function.DoublePredicate;
 
@@ -28,19 +30,19 @@ public class SofaTracerDoublePredicate implements DoublePredicate {
     private final FunctionalAsyncSupport functionalAsyncSupport;
     private final DoublePredicate        wrappedDoublePredicate;
 
-    public SofaTracerDoublePredicate(DoublePredicate wrappedDoublePredicate) {
+    public SofaTracerDoublePredicate(DoublePredicate wrappedDoublePredicate, SofaTracer tracer) {
         this.wrappedDoublePredicate = wrappedDoublePredicate;
         functionalAsyncSupport = new FunctionalAsyncSupport(
-            SofaTraceContextHolder.getSofaTraceContext());
+                tracer);
     }
 
     @Override
     public boolean test(double value) {
-        functionalAsyncSupport.doBefore();
+       Scope scope =  functionalAsyncSupport.doBefore();
         try {
             return wrappedDoublePredicate.test(value);
         } finally {
-            functionalAsyncSupport.doFinally();
+            functionalAsyncSupport.doFinally(scope);
         }
     }
 }

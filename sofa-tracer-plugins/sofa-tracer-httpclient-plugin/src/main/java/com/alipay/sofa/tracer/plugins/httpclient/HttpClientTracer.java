@@ -16,6 +16,7 @@
  */
 package com.alipay.sofa.tracer.plugins.httpclient;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.constants.ComponentNameConstants;
@@ -45,6 +46,9 @@ public class HttpClientTracer extends AbstractClientTracer {
                 }
             }
         }
+        SofaTracer sofaTracer =  httpClientTracer.getSofaTracer();
+        sofaTracer.activeSpan();
+
         return httpClientTracer;
     }
 

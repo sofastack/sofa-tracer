@@ -27,8 +27,12 @@ import com.alipay.common.tracer.core.tags.SpanTags;
 import com.alipay.common.tracer.core.utils.AssertUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.sofa.common.code.LogCode2Description;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.ImplicitContextKeyed;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+import io.opentracing.tag.Tag;
 import io.opentracing.tag.Tags;
 
 import java.io.PrintWriter;
@@ -40,14 +44,16 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import io.opentelemetry.api.baggage.Baggage;
 /**
  * SofaTracerSpan
  *
  * @author yangguanchao
  * @since 2017/06/17
  */
-public class SofaTracerSpan implements Span {
+public class SofaTracerSpan  implements Span{
 
     public static final char                                ARRAY_SEPARATOR      = '|';
 
@@ -61,7 +67,8 @@ public class SofaTracerSpan implements Span {
     /** tags for Number  */
     private final Map<String, Number>                       tagsWithNumber       = new LinkedHashMap<>();
 
-    private final List<LogData>                             logs                 = new LinkedList<>();
+
+    private final List<LogData>                              logs                 = new LinkedList<>();
 
     private String                                          operationName        = StringUtils.EMPTY_STRING;
 
@@ -82,6 +89,8 @@ public class SofaTracerSpan implements Span {
      */
     private SofaTracerSpan                                  parentSofaTracerSpan = null;
 
+
+
     public SofaTracerSpan cloneInstance() {
         SofaTracerSpanContext spanContext = this.sofaTracerSpanContext.cloneInstance();
         Map<String, Object> tags = new HashMap<>();
@@ -89,7 +98,7 @@ public class SofaTracerSpan implements Span {
         tags.putAll(this.tagsWithStr);
         tags.putAll(this.tagsWithNumber);
         SofaTracerSpan cloneSpan = new SofaTracerSpan(this.sofaTracer, this.startTime,
-            this.spanReferences, this.operationName, spanContext, tags);
+            this.spanReferences, this.operationName, spanContext, tags );
         if (this.logs != null && this.logs.size() > 0) {
             for (LogData logData : this.logs) {
                 cloneSpan.log(logData);
@@ -113,10 +122,12 @@ public class SofaTracerSpan implements Span {
      * @param tags                  tags
      */
     public SofaTracerSpan(SofaTracer sofaTracer, long startTime, String operationName,
-                          SofaTracerSpanContext sofaTracerSpanContext, Map<String, ?> tags) {
+                          SofaTracerSpanContext sofaTracerSpanContext, Map<String, ?> tags
+                       ) {
         this(sofaTracer, startTime, null, operationName,
             sofaTracerSpanContext != null ? sofaTracerSpanContext : SofaTracerSpanContext
-                .rootStart(), tags);
+                .rootStart(), tags
+            );
     }
 
     /**
@@ -136,7 +147,9 @@ public class SofaTracerSpan implements Span {
     public SofaTracerSpan(SofaTracer sofaTracer, long startTime,
                           List<SofaTracerSpanReferenceRelationship> spanReferences,
                           String operationName, SofaTracerSpanContext sofaTracerSpanContext,
-                          Map<String, ?> tags) {
+                          Map<String, ?> tags
+                       ) {
+
         AssertUtils.notNull(sofaTracer);
         AssertUtils.notNull(sofaTracerSpanContext);
         this.sofaTracer = sofaTracer;
@@ -163,14 +176,16 @@ public class SofaTracerSpan implements Span {
     public void finish(long endTime) {
         this.setEndTime(endTime);
         //Key record:report span
+        this.sofaTracer.addFinishedSpan(this);
         this.sofaTracer.reportSpan(this);
         SpanExtensionFactory.logStoppedSpan(this);
     }
 
-    @Override
+    @Deprecated
     public void close() {
         this.finish();
     }
+
 
     @Override
     public Span setTag(String key, String value) {
@@ -209,6 +224,30 @@ public class SofaTracerSpan implements Span {
     }
 
     @Override
+    public <T> Span setTag(Tag<T> tag, T t) {
+        String key = tag.getKey();
+        if(t == null){
+            return this;
+        }
+        setTag(key, t);
+        return this;
+    }
+
+    private <T> void setTag(String key, T t) {
+        if (t instanceof String) {
+            this.setTag(key, (String) t);
+        } else if (t instanceof Boolean) {
+            this.setTag(key, (Boolean) t);
+        } else if (t instanceof Number) {
+            this.setTag(key, (Number) t);
+        } else {
+            SelfLog.error(String.format(
+                    LogCode2Description.convert(SofaTracerConstant.SPACE_ID, "01-00012"),
+                    t.getClass()));
+        }
+    }
+
+    @Override
     public Span log(String eventValue) {
         //log with current time
         return log(System.currentTimeMillis(), eventValue);
@@ -242,13 +281,13 @@ public class SofaTracerSpan implements Span {
         return this.log(System.currentTimeMillis(), map);
     }
 
-    @Override
+    @Deprecated
     public Span log(String eventName, /* @Nullable */Object payload) {
         //key:value
         return this.log(System.currentTimeMillis(), eventName, payload);
     }
 
-    @Override
+    @Deprecated
     public Span log(long currentTime, String eventName, /* @Nullable */Object payload) {
         //key:value
         AssertUtils.isTrue(currentTime >= startTime, "current time must greater than start time");
@@ -480,17 +519,7 @@ public class SofaTracerSpan implements Span {
             if (value == null) {
                 continue;
             }
-            if (value instanceof String) {
-                this.setTag(key, (String) value);
-            } else if (value instanceof Boolean) {
-                this.setTag(key, (Boolean) value);
-            } else if (value instanceof Number) {
-                this.setTag(key, (Number) value);
-            } else {
-                SelfLog.error(String.format(
-                    LogCode2Description.convert(SofaTracerConstant.SPACE_ID, "01-00012"),
-                    value.getClass()));
-            }
+            this.setTag(key, value);
         }
     }
 
@@ -499,5 +528,6 @@ public class SofaTracerSpan implements Span {
         return "SofaTracerSpan{" + "operationName='" + operationName + '\''
                + ", sofaTracerSpanContext=" + sofaTracerSpanContext + '}';
     }
+
 
 }

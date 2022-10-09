@@ -16,7 +16,9 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import io.opentracing.Scope;
 
 import java.util.function.BiFunction;
 
@@ -28,19 +30,19 @@ public class SofaTracerBiFunction<T, U, R> implements BiFunction<T, U, R> {
     private final BiFunction<T, U, R>    wrappedBiFunction;
     private final FunctionalAsyncSupport functionalAsyncSupport;
 
-    public SofaTracerBiFunction(BiFunction<T, U, R> wrappedBiFunction) {
+    public SofaTracerBiFunction(BiFunction<T, U, R> wrappedBiFunction, SofaTracer tracer) {
         this.wrappedBiFunction = wrappedBiFunction;
         this.functionalAsyncSupport = new FunctionalAsyncSupport(
-            SofaTraceContextHolder.getSofaTraceContext());
+                tracer);
     }
 
     @Override
     public R apply(T t, U u) {
-        functionalAsyncSupport.doBefore();
+        Scope scope = functionalAsyncSupport.doBefore();
         try {
             return wrappedBiFunction.apply(t, u);
         } finally {
-            functionalAsyncSupport.doFinally();
+            functionalAsyncSupport.doFinally(scope);
         }
     }
 }

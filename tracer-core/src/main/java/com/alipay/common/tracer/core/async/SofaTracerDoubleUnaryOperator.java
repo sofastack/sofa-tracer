@@ -16,7 +16,8 @@
  */
 package com.alipay.common.tracer.core.async;
 
-import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import com.alipay.common.tracer.core.SofaTracer;
+import io.opentracing.Scope;
 
 import java.util.function.DoubleUnaryOperator;
 
@@ -28,19 +29,19 @@ public class SofaTracerDoubleUnaryOperator implements DoubleUnaryOperator {
     private final FunctionalAsyncSupport functionalAsyncSupport;
     private final DoubleUnaryOperator    wrappedDoubleUnaryOperator;
 
-    public SofaTracerDoubleUnaryOperator(DoubleUnaryOperator wrappedDoubleUnaryOperator) {
+    public SofaTracerDoubleUnaryOperator(DoubleUnaryOperator wrappedDoubleUnaryOperator, SofaTracer tracer) {
         this.wrappedDoubleUnaryOperator = wrappedDoubleUnaryOperator;
         functionalAsyncSupport = new FunctionalAsyncSupport(
-            SofaTraceContextHolder.getSofaTraceContext());
+            tracer);
     }
 
     @Override
     public double applyAsDouble(double operand) {
-        functionalAsyncSupport.doBefore();
+       Scope scope=  functionalAsyncSupport.doBefore();
         try {
             return wrappedDoubleUnaryOperator.applyAsDouble(operand);
         } finally {
-            functionalAsyncSupport.doFinally();
+            functionalAsyncSupport.doFinally(scope);
         }
     }
 }

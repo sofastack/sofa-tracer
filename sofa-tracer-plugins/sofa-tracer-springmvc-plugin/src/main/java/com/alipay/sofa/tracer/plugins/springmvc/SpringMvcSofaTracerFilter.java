@@ -24,6 +24,7 @@ import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.StringUtils;
+import io.opentracing.Scope;
 import io.opentracing.tag.Tags;
 
 import javax.servlet.Filter;
@@ -68,13 +69,14 @@ public class SpringMvcSofaTracerFilter implements Filter {
         int httpStatus = -1;
         Throwable currThrowable = null;
         boolean errorFlag = false;
+        Scope scope = null;
         try {
             HttpServletRequest request = (HttpServletRequest) servletRequest;
             HttpServletResponse response = (HttpServletResponse) servletResponse;
             SofaTracerSpanContext spanContext = getSpanContextFromRequest(request);
             // sr
             springMvcSpan = springMvcTracer.serverReceive(spanContext);
-
+            scope = this.springMvcTracer.getSofaTracer().activateSpan(springMvcSpan);
             if (StringUtils.isBlank(this.appName)) {
                 this.appName = SofaTracerConfiguration
                     .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
@@ -108,6 +110,7 @@ public class SpringMvcSofaTracerFilter implements Filter {
                 springMvcSpan.setTag(CommonSpanTags.RESP_SIZE, responseSize);
                 //ss
                 springMvcTracer.serverSend(String.valueOf(httpStatus));
+                if(scope != null)scope.close();
             }
         }
     }

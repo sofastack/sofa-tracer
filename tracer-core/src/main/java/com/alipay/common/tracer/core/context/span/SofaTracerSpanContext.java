@@ -21,6 +21,7 @@ import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.generator.TraceIdGenerator;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.alipay.common.tracer.core.utils.TracerUtils;
+import io.opentelemetry.api.baggage.Baggage;
 import io.opentracing.SpanContext;
 
 import java.util.HashMap;
@@ -34,8 +35,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author yangguanchao
  * @since 2017/06/17
  */
-public class SofaTracerSpanContext implements SpanContext {
-
+public class SofaTracerSpanContext implements  SpanContext {
+//    private final io.opentelemetry.api.trace.SpanContext telemetrySpanContext;
+//    private final Baggage telemetryBaggage;
     //spanId separator
     public static final String        RPC_ID_SEPARATOR       = ".";
 
@@ -129,6 +131,16 @@ public class SofaTracerSpanContext implements SpanContext {
             this.sysBaggage.putAll(sysBaggage);
         }
         return this;
+    }
+
+    @Override
+    public String toTraceId() {
+        return this.traceId;
+    }
+
+    @Override
+    public String toSpanId() {
+        return this.spanId;
     }
 
     /**
@@ -299,7 +311,7 @@ public class SofaTracerSpanContext implements SpanContext {
      * As root start ,it will be return a new sofaTracerSpanContext
      *
      * Note:1.Leave this interface, do not dock the specific tracer implementation, mainly to remedy when an exception occurs in serialization or deserialization
-     *      2.This method cannot be called at will, the correct entry should be {@link SofaTracer.SofaTracerSpanBuilder#createRootSpanContext()}
+     *      2.This method cannot be called at will, the correct entry should be {@link SofaTracer.SofaTracerSpanBuilder# createRootSpanContext()}
      * @return root node
      */
     public static SofaTracerSpanContext rootStart() {

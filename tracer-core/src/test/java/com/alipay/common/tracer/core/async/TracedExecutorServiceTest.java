@@ -16,17 +16,19 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import io.opentracing.References;
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -36,122 +38,208 @@ import static org.mockito.Mockito.*;
  * @author luoguimu123
  * @version $Id: TracedExecutorServiceTest.java, v 0.1 June 22, 2017 3:59 PM luoguimu123 Exp $
  */
-public class TracedExecutorServiceTest {
-    private static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;
-    TracedExecutorService         tracedExecutorService;
-    ExecutorService               wrappedExecutorService;
-    SofaTracerSpan                span;
-    SofaTraceContext              traceContext;
-    List<Callable<Span>>          callableList;
+public class TracedExecutorServiceTest   extends AbstractAsyncTest{
+    private static final int NUMBER_OF_THREADS = 4;
+
+    protected ExecutorService toTraced(ExecutorService executorService) {
+        return new TracedExecutorService(executorService, tracer);
+    }
+
+    protected ExecutorService toTracedCreatingParent(ExecutorService executorService) {
+        return new TracedExecutorService(executorService, tracer, false);
+    }
 
     @Before
     public void setUp() {
-        wrappedExecutorService = mock(ExecutorService.class);
-        span = mock(SofaTracerSpan.class);
-        traceContext = mock(SofaTraceContext.class);
-        when(traceContext.pop()).thenReturn(span);
-        when(traceContext.getCurrentSpan()).thenReturn(span);
-        when(traceContext.isEmpty()).thenReturn(false);
-        tracedExecutorService = new TracedExecutorService(wrappedExecutorService, traceContext);
-
-        callableList = new ArrayList<Callable<Span>>();
-        callableList.add(mock(Callable.class));
-        callableList.add(mock(Callable.class));
+        countDownLatch = new CountDownLatch(1);
+        tracer =new SofaTracer.Builder("TestExecutorService").build();
+        span  = (SofaTracerSpan) this.tracer.buildSpan("parent")
+                .start();
     }
 
     @Test
-    public void testShutdown() {
-        tracedExecutorService.shutdown();
-        verify(wrappedExecutorService).shutdown();
-        verifyNoMoreInteractions(wrappedExecutorService);
+    public void testExecuteRunnable() throws InterruptedException {
+        ExecutorService executorService = toTraced(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+
+        SofaTracerSpan parentSpan = (SofaTracerSpan) tracer.buildSpan("foo")
+                .start();
+        Scope scope = tracer.scopeManager().activate(parentSpan);
+        executorService.execute(new TestRunnable());
+        scope.close();
+        countDownLatch.await();
+        assertEquals(1, this.tracer.getFinishedSpans().size());
+        SofaTracerSpan span  = this.tracer.getFinishedSpans().get(0);
+        assertEquals("childRunnable",span.getOperationName());
+        assertEquals(1,span.getSpanReferences().size());
+        assertEquals(References.CHILD_OF, span.getSpanReferences().get(0).getReferenceType());
     }
 
     @Test
-    public void testShutdownNow() {
-        List<Runnable> expectedRunnableList = new ArrayList<Runnable>();
-        when(wrappedExecutorService.shutdownNow()).thenReturn(expectedRunnableList);
-        assertSame(expectedRunnableList, tracedExecutorService.shutdownNow());
-        verify(wrappedExecutorService).shutdownNow();
-        verifyNoMoreInteractions(wrappedExecutorService);
+    public void testExecuteRunnableNoParent() throws InterruptedException {
+        ExecutorService executorService = toTracedCreatingParent(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+        executorService.execute(new TestRunnable());
+        countDownLatch.await();
+        assertEquals(2, this.tracer.getFinishedSpans().size());
     }
 
     @Test
-    public void testIsShutdown() {
-        when(wrappedExecutorService.isShutdown()).thenReturn(true);
-        assertTrue(tracedExecutorService.isShutdown());
-        verify(wrappedExecutorService).isShutdown();
-        verifyNoMoreInteractions(wrappedExecutorService);
+    public void testSubmitRunnable() throws InterruptedException {
+        ExecutorService executorService = toTraced(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+
+        SofaTracerSpan parentSpan = (SofaTracerSpan) tracer.buildSpan("foo").start();
+        Scope scope = tracer.scopeManager().activate(parentSpan);
+        executorService.submit(new TestRunnable());
+        scope.close();
+
+        countDownLatch.await();
+        assertEquals(1, this.tracer.getFinishedSpans().size());
+        SofaTracerSpan span  = this.tracer.getFinishedSpans().get(0);
+        System.out.println(span.getOperationName());
+//        assertEquals("childRunnable",span.getOperationName());
+//        assertEquals(1,span.getSpanReferences().size());
+//        assertEquals(References.CHILD_OF, span.getSpanReferences().get(0).getReferenceType());
+    }
+    //
+    @Test
+    public void testSubmitRunnableNoParent() throws InterruptedException {
+        ExecutorService executorService = toTracedCreatingParent(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+        executorService.submit(new TestRunnable());
+        countDownLatch.await();
+        assertEquals(2, this.tracer.getFinishedSpans().size());
+    }
+    //
+    @Test
+    public void testSubmitRunnableTyped() throws InterruptedException {
+        ExecutorService executorService = toTraced(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+
+        SofaTracerSpan parentSpan = (SofaTracerSpan) tracer.buildSpan("foo").start();
+        Scope scope = tracer.scopeManager().activate(parentSpan);
+        executorService.submit(new TestRunnable(), new Object());
+        scope.close();
+
+        countDownLatch.await();
+        //assertParentSpan(parentSpan);
+        assertEquals(1, this.tracer.getFinishedSpans().size());
+    }
+    //
+    @Test
+    public void testSubmitRunnableTypedNoParent() throws InterruptedException {
+        ExecutorService executorService = toTracedCreatingParent(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+        executorService.submit(new TestRunnable(), new Object());
+        countDownLatch.await();
+        assertEquals(2, tracer.getFinishedSpans().size());
+    }
+    //
+    @Test
+    public void testSubmitCallable() throws InterruptedException {
+        ExecutorService executorService = toTraced(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+
+        SofaTracerSpan parentSpan = (SofaTracerSpan) tracer.buildSpan("foo").start();
+        Scope scope = tracer.scopeManager().activate(parentSpan);
+        executorService.submit(new TestCallable());
+        scope.close();
+
+        countDownLatch.await();
+
+        assertEquals(1, tracer.getFinishedSpans().size());
+    }
+    //
+    @Test
+    public void testSubmitCallableNoParent() throws InterruptedException {
+        ExecutorService executorService = toTracedCreatingParent(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+        executorService.submit(new TestCallable());
+        countDownLatch.await();
+        assertEquals(2, tracer.getFinishedSpans().size());
     }
 
     @Test
-    public void testIsTerminated() {
-        when(wrappedExecutorService.isTerminated()).thenReturn(false);
-        assertFalse(tracedExecutorService.isTerminated());
-        verify(wrappedExecutorService).isTerminated();
-        verifyNoMoreInteractions(wrappedExecutorService);
+    public void testInvokeAll() throws InterruptedException {
+        ExecutorService executorService = toTraced(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+        SofaTracerSpan parentSpan = (SofaTracerSpan) tracer.buildSpan("foo").start();
+        Scope scope = tracer.scopeManager().activate(parentSpan);
+        countDownLatch = new CountDownLatch(2);
+        executorService.invokeAll(Arrays.asList(new TestCallable(), new TestCallable()));
+        scope.close();
+        countDownLatch.await();
+        // assertParentSpan(parentSpan);
+        assertEquals(2, tracer.getFinishedSpans().size());
+    }
+    //
+    @Test
+    public void testInvokeAllNoParent() throws InterruptedException {
+        ExecutorService executorService = toTracedCreatingParent(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+        countDownLatch = new CountDownLatch(2);
+        executorService.invokeAll(Arrays.asList(new TestCallable(), new TestCallable()));
+        countDownLatch.await();
+        assertEquals(3,tracer.getFinishedSpans().size());
+    }
+    //
+    @Test
+    public void testInvokeAllTimeUnit() throws InterruptedException {
+        ExecutorService executorService = toTraced(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+
+        SofaTracerSpan parentSpan = (SofaTracerSpan) tracer.buildSpan("foo").start();
+        Scope scope = tracer.scopeManager().activate(parentSpan);
+        countDownLatch = new CountDownLatch(2);
+        executorService.invokeAll(Arrays.asList(new TestCallable(), new TestCallable()), 1, TimeUnit.SECONDS);
+        scope.close();
+        countDownLatch.await();
+        // assertParentSpan(parentSpan);
+        assertEquals(2, tracer.getFinishedSpans().size());
+    }
+    //
+    @Test
+    public void testInvokeAllTimeUnitNoParent() throws InterruptedException {
+        ExecutorService executorService = toTracedCreatingParent(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+        countDownLatch = new CountDownLatch(2);
+        executorService.invokeAll(Arrays.asList(new TestCallable(), new TestCallable()), 1, TimeUnit.SECONDS);
+        countDownLatch.await();
+        assertEquals(3, tracer.getFinishedSpans().size());
     }
 
     @Test
-    public void testAwaitTermination() throws Exception {
-        when(wrappedExecutorService.awaitTermination(3, TIME_UNIT)).thenReturn(true);
-        assertTrue(tracedExecutorService.awaitTermination(3, TIME_UNIT));
-        verify(wrappedExecutorService).awaitTermination(3, TIME_UNIT);
-        verifyNoMoreInteractions(wrappedExecutorService);
+    public void testInvokeAnyTimeUnit() throws InterruptedException, ExecutionException, TimeoutException {
+        ExecutorService executorService = toTraced(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+
+        SofaTracerSpan parentSpan = (SofaTracerSpan) tracer.buildSpan("foo").start();
+        Scope scope = tracer.scopeManager().activate(parentSpan);
+        executorService.invokeAny(Arrays.asList(new TestCallable()), 1, TimeUnit.SECONDS);
+        scope.close();
+
+        countDownLatch.await();
+        //assertParentSpan(parentSpan);
+        assertEquals(1, tracer.getFinishedSpans().size());
     }
 
     @Test
-    public void testSubmitCallableOfT() {
-        Callable<Span> wrappedCallable = mock(Callable.class);
-
-        tracedExecutorService.submit(wrappedCallable);
-
-        verify(traceContext, times(1)).isEmpty();
-        verify(traceContext, times(1)).getCurrentSpan();
-        verify(wrappedExecutorService, times(1)).submit(any(Callable.class));
-        verifyNoMoreInteractions(wrappedExecutorService, wrappedCallable, traceContext);
+    public void testInvokeAnyTimeUnitNoParent() throws InterruptedException, ExecutionException, TimeoutException {
+        ExecutorService executorService = toTracedCreatingParent(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+        executorService.invokeAny(Arrays.asList(new TestCallable()), 1, TimeUnit.SECONDS);
+        countDownLatch.await();
+        assertEquals(2, tracer.getFinishedSpans().size());
     }
 
     @Test
-    public void testSubmitRunnable() {
-        Runnable wrappedRunnable = mock(Runnable.class);
+    public void testInvokeAny() throws InterruptedException, ExecutionException {
+        ExecutorService executorService = toTraced(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
 
-        tracedExecutorService.submit(wrappedRunnable);
+        SofaTracerSpan parentSpan = (SofaTracerSpan) tracer.buildSpan("foo").start();
+        Scope scope = tracer.scopeManager().activate(parentSpan);
+        executorService.invokeAny(Arrays.asList(new TestCallable()));
+        scope.close();
 
-        verify(traceContext, times(1)).isEmpty();
-        verify(traceContext, times(1)).getCurrentSpan();
-        verify(wrappedExecutorService).submit(any(Runnable.class));
-        verifyNoMoreInteractions(wrappedExecutorService, wrappedRunnable, traceContext);
+        countDownLatch.await();
+        //assertParentSpan(parentSpan);
+        assertEquals(1, tracer.getFinishedSpans().size());
     }
-
+    //
     @Test
-    public void testInvokeAll() throws Exception {
-        tracedExecutorService.invokeAll(callableList);
-
-        verify(wrappedExecutorService).invokeAll(any(List.class));
-        verify(traceContext, times(callableList.size())).isEmpty();
-        verify(traceContext, times(callableList.size())).getCurrentSpan();
-        verifyNoMoreInteractions(wrappedExecutorService, traceContext);
+    public void testInvokeAnyNoParent() throws InterruptedException, ExecutionException {
+        ExecutorService executorService = toTracedCreatingParent(Executors.newFixedThreadPool(NUMBER_OF_THREADS));
+        executorService.invokeAny(Arrays.asList(new TestCallable()));
+        countDownLatch.await();
+        assertEquals(2, tracer.getFinishedSpans().size());
     }
 
-    @Test
-    public void testInvokeAny() throws Exception {
-        tracedExecutorService.invokeAny(callableList);
 
-        verify(wrappedExecutorService).invokeAny(any(List.class));
-        verify(traceContext, times(callableList.size())).isEmpty();
-        verify(traceContext, times(callableList.size())).getCurrentSpan();
-        verifyNoMoreInteractions(wrappedExecutorService, traceContext);
-    }
-
-    @Test
-    public void testExecute() {
-        Runnable wrappedRunnable = mock(Runnable.class);
-
-        tracedExecutorService.execute(wrappedRunnable);
-
-        verify(traceContext, times(1)).isEmpty();
-        verify(traceContext, times(1)).getCurrentSpan();
-        verify(wrappedExecutorService).execute(any(Runnable.class));
-        verifyNoMoreInteractions(wrappedExecutorService, traceContext);
-    }
 }

@@ -16,7 +16,9 @@
  */
 package com.alipay.common.tracer.core.async;
 
+import com.alipay.common.tracer.core.SofaTracer;
 import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
+import io.opentracing.Scope;
 
 import java.util.function.Consumer;
 
@@ -28,19 +30,19 @@ public class SofaTracerConsumer<T> implements Consumer<T> {
     private final Consumer<T>            wrappedConsumer;
     private final FunctionalAsyncSupport functionalAsyncSupport;
 
-    public SofaTracerConsumer(Consumer<T> wrappedConsumer) {
+    public SofaTracerConsumer(Consumer<T> wrappedConsumer, SofaTracer sofaTracer) {
         this.wrappedConsumer = wrappedConsumer;
         this.functionalAsyncSupport = new FunctionalAsyncSupport(
-            SofaTraceContextHolder.getSofaTraceContext());
+                sofaTracer);
     }
 
     @Override
     public void accept(T t) {
-        functionalAsyncSupport.doBefore();
+        Scope scope = functionalAsyncSupport.doBefore();
         try {
             wrappedConsumer.accept(t);
         } finally {
-            functionalAsyncSupport.doFinally();
+            functionalAsyncSupport.doFinally(scope);
         }
     }
 }

@@ -17,6 +17,7 @@
 package com.alipay.sofa.tracer.plugins.httpclient.base.client;
 
 import com.alipay.common.tracer.core.utils.StringUtils;
+import com.alipay.sofa.tracer.plugins.httpclient.SofaTracerAsyncHttpClientBuilder;
 import com.alipay.sofa.tracer.plugins.httpclient.SofaTracerHttpClientBuilder;
 import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
@@ -74,7 +75,7 @@ public class HttpAsyncClientInstance {
             .setConnectTimeout(6000).setConnectionRequestTimeout(6000).build();
         HttpAsyncClientBuilder httpAsyncClientBuilder = HttpAsyncClientBuilder.create();
         //tracer
-        SofaTracerHttpClientBuilder.asyncClientBuilder(httpAsyncClientBuilder);
+        SofaTracerAsyncHttpClientBuilder.asyncClientBuilder(httpAsyncClientBuilder);
         CloseableHttpAsyncClient httpclient = httpAsyncClientBuilder.setDefaultRequestConfig(
             requestConfig).build();
         try {
