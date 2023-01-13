@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.alipay.sofa</groupId>
-        <artifactId>sofaboot-dependencies</artifactId>
-        <version>3.1.1</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.0.1</version>
     </parent>
 
     <artifactId>tracer-all-parent</artifactId>
@@ -44,8 +44,8 @@
 
     <properties>
         <opentracing.version>0.22.0</opentracing.version>
-        <java.compiler.target.version>1.8</java.compiler.target.version>
-        <java.compiler.source.version>1.8</java.compiler.source.version>
+        <java.compiler.target.version>17</java.compiler.target.version>
+        <java.compiler.source.version>17</java.compiler.source.version>
         <jmh.version>1.9.3</jmh.version>
         <project.encoding>UTF-8</project.encoding>
         <main.user.dir>${user.dir}</main.user.dir>
@@ -235,9 +235,9 @@
 
             <!-- 对外部框架的一些插件使用 -->
             <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>3.1.0</version>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>6.0.0</version>
                 <scope>provided</scope>
             </dependency>
             <!-- HttpClient Dependency -->
