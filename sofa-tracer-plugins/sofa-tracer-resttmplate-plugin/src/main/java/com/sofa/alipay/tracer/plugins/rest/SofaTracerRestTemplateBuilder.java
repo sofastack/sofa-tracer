@@ -17,11 +17,8 @@
 package com.sofa.alipay.tracer.plugins.rest;
 
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
-import com.sofa.alipay.tracer.plugins.rest.interceptor.AsyncRestTemplateRequestInterceptor;
 import com.sofa.alipay.tracer.plugins.rest.interceptor.RestTemplateInterceptor;
-import org.springframework.http.client.AsyncClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -44,17 +41,6 @@ public class SofaTracerRestTemplateBuilder {
         interceptors.add(restTemplateInterceptor);
         restTemplate.setInterceptors(interceptors);
         return restTemplate;
-    }
-
-    @Deprecated
-    public static AsyncRestTemplate buildAsyncRestTemplate() {
-        AsyncRestTemplate asyncRestTemplate = new AsyncRestTemplate();
-        List<AsyncClientHttpRequestInterceptor> interceptors = new ArrayList<AsyncClientHttpRequestInterceptor>();
-        AsyncRestTemplateRequestInterceptor asyncRestTemplateInterceptor = new AsyncRestTemplateRequestInterceptor(
-            getRestTemplateTracer());
-        interceptors.add(asyncRestTemplateInterceptor);
-        asyncRestTemplate.setInterceptors(interceptors);
-        return asyncRestTemplate;
     }
 
     public static AbstractTracer getRestTemplateTracer() {

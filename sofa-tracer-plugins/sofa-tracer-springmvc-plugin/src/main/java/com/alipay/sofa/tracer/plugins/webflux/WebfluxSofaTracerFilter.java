@@ -28,6 +28,7 @@ import com.alipay.sofa.tracer.plugins.springmvc.SpringMvcTracer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
@@ -67,26 +68,31 @@ public class WebfluxSofaTracerFilter implements WebFilter {
         springMvcSpan.setTag(CommonSpanTags.METHOD, request.getMethod());
         springMvcSpan.setTag(CommonSpanTags.REQ_SIZE, request.getHeaders().getContentLength());
 
-        return chain.filter(exchange).doAfterSuccessOrError(((aVoid, throwable) -> {
-            SofaTraceableResponse response = new ServerWebExchangeSofaTraceableResponse(
-                    throwable != null ? new SofaStatusResponseDecorator(throwable, exchange.getResponse()) : exchange.getResponse());
-            springMvcSpan.setTag(CommonSpanTags.RESP_SIZE, response.getHeaders().getContentLength());
-            springMvcTracer.serverSend(String.valueOf(response.getStatus()));
-        }));
+        return chain.filter(exchange)
+                .doOnSuccess((aVoid) -> {
+                    SofaTraceableResponse response = new ServerWebExchangeSofaTraceableResponse(exchange.getResponse());
+                    springMvcSpan.setTag(CommonSpanTags.RESP_SIZE, response.getHeaders().getContentLength());
+                    springMvcTracer.serverSend(String.valueOf(response.getStatus()));
+                })
+                .doOnError((throwable) -> {
+                    SofaStatusResponseDecorator response =  new SofaStatusResponseDecorator(throwable, exchange.getResponse());
+                    springMvcSpan.setTag(CommonSpanTags.RESP_SIZE, response.getHeaders().getContentLength());
+                    springMvcTracer.serverSend(String.valueOf(response.getStatusCode()));
+                });
     }
 
     static class SofaStatusResponseDecorator extends ServerHttpResponseDecorator {
-        private final HttpStatus status;
+        private final HttpStatusCode statusCode;
 
         SofaStatusResponseDecorator(Throwable throwable, ServerHttpResponse delegate) {
             super(delegate);
-            this.status = throwable instanceof ResponseStatusException ? ((ResponseStatusException) throwable)
-                .getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+            this.statusCode = throwable instanceof ResponseStatusException ? ((ResponseStatusException) throwable)
+                .getStatusCode() : HttpStatus.INTERNAL_SERVER_ERROR;
         }
 
         @Override
-        public HttpStatus getStatusCode() {
-            return status;
+        public HttpStatusCode getStatusCode() {
+            return statusCode;
         }
     }
 

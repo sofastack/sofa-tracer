@@ -4,7 +4,7 @@
     <parent>
         <artifactId>tracer-all-parent</artifactId>
         <groupId>com.alipay.sofa</groupId>
-        <version>3.1.3-SNAPSHOT</version>
+        <version>4.0.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -19,7 +19,16 @@
             <groupId>com.alipay.sofa</groupId>
             <artifactId>tracer-extensions</artifactId>
         </dependency>
-        <!-- use servlet api -->
+        <dependency>
+            <groupId>com.alipay.sofa</groupId>
+            <artifactId>sofa-boot-starter</artifactId>
+        </dependency>
+        <!-- use jakarta api -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>

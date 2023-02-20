@@ -29,6 +29,7 @@ import org.springframework.data.redis.connection.ReactiveRedisConnection;
 import org.springframework.data.redis.connection.ReactiveScriptingCommands;
 import org.springframework.data.redis.connection.ReactiveServerCommands;
 import org.springframework.data.redis.connection.ReactiveSetCommands;
+import org.springframework.data.redis.connection.ReactiveStreamCommands;
 import org.springframework.data.redis.connection.ReactiveStringCommands;
 import org.springframework.data.redis.connection.ReactiveZSetCommands;
 import reactor.core.publisher.Mono;
@@ -111,6 +112,11 @@ public class TracingReactiveRedisConnection implements ReactiveRedisConnection {
     @Override
     public ReactiveServerCommands serverCommands() {
         return reactiveRedisConnection.serverCommands();
+    }
+
+    @Override
+    public ReactiveStreamCommands streamCommands() {
+        return reactiveRedisConnection.streamCommands();
     }
 
     @Override

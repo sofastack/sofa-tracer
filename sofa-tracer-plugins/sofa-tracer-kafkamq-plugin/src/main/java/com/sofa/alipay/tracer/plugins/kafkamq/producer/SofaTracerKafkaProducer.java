@@ -27,6 +27,7 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractTracer;
 import com.sofa.alipay.tracer.plugins.kafkamq.carrier.KafkaMqInjectCarrier;
 import com.sofa.alipay.tracer.plugins.kafkamq.tracers.KafkaMQSendTracer;
+import org.apache.kafka.clients.consumer.ConsumerGroupMetadata;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
@@ -39,11 +40,11 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.ProducerFencedException;
 import org.apache.kafka.common.header.Headers;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 /**
  * SofaTracerKafkaProducer.
@@ -85,6 +86,13 @@ public class SofaTracerKafkaProducer<K, V> implements Producer<K, V> {
     public void sendOffsetsToTransaction(Map<TopicPartition, OffsetAndMetadata> offsets,
                                          String consumerGroupId) throws ProducerFencedException {
         producer.sendOffsetsToTransaction(offsets, consumerGroupId);
+    }
+
+    @Override
+    public void sendOffsetsToTransaction(Map<TopicPartition, OffsetAndMetadata> map,
+                                         ConsumerGroupMetadata consumerGroupMetadata)
+                                                                                     throws ProducerFencedException {
+        producer.sendOffsetsToTransaction(map, consumerGroupMetadata);
     }
 
     @Override
@@ -138,8 +146,8 @@ public class SofaTracerKafkaProducer<K, V> implements Producer<K, V> {
     }
 
     @Override
-    public void close(long timeout, TimeUnit timeUnit) {
-        producer.close(timeout, timeUnit);
+    public void close(Duration duration) {
+        producer.close(duration);
     }
 
     private void appendSpanTagsAndInject(ProducerRecord<K, V> producerRecord,

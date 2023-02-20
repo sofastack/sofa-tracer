@@ -40,7 +40,7 @@ public class MockRabbitMqExtractCarrier {
         Map<String, Object> headers = Collections.singletonMap(key, value);
         RabbitMqExtractCarrier carrier = new RabbitMqExtractCarrier(headers);
         final Iterator<Map.Entry<String, String>> iterator = carrier.iterator();
-        assertThat(iterator).containsAll(map.entrySet());
+        assertThat(iterator).asList().containsAll(map.entrySet());
     }
 
     @Test
@@ -48,7 +48,7 @@ public class MockRabbitMqExtractCarrier {
         Map<String, Object> headers = Collections.singletonMap("testSOFATracerId", null);
         RabbitMqExtractCarrier carrier = new RabbitMqExtractCarrier(headers);
         final Iterator<Map.Entry<String, String>> iterator = carrier.iterator();
-        assertThat(iterator).doesNotContainNull();
+        assertThat(iterator).asList().doesNotContainNull();
     }
 
     @Test(expected = UnsupportedOperationException.class)
