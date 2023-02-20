@@ -19,10 +19,6 @@
             <groupId>com.alipay.sofa</groupId>
             <artifactId>tracer-extensions</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.alipay.sofa</groupId>
-            <artifactId>sofa-boot-starter</artifactId>
-        </dependency>
         <!-- use jakarta api -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
