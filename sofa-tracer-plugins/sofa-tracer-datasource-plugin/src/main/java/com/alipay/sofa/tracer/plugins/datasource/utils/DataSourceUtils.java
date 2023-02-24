@@ -86,7 +86,6 @@ public class DataSourceUtils {
         return !StringUtils.isBlank(clazzType) && DS_DBCP2_CLASS.equals(clazzType);
     }
 
-
     public static boolean isC3p0DataSource(Object dataSource) {
         return isTargetDataSource(DS_C3P0_CLASS, dataSource);
     }
