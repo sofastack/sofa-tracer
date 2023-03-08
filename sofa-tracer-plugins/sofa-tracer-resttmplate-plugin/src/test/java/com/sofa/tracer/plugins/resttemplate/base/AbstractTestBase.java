@@ -18,13 +18,12 @@ package com.sofa.tracer.plugins.resttemplate.base;
 
 import com.alipay.common.tracer.core.reporter.digest.manager.SofaTracerDigestReporterAsyncManager;
 import com.alipay.common.tracer.core.reporter.stat.manager.SofaTracerStatisticReporterCycleTimesManager;
-import com.sofa.alipay.tracer.plugins.rest.SofaTracerRestTemplateBuilder;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -76,10 +75,6 @@ public abstract class AbstractTestBase {
     }
 
     private static void resetCondition() throws NoSuchFieldException, IllegalAccessException {
-        // set restTemplateTracer as null
-        Field field = SofaTracerRestTemplateBuilder.class.getDeclaredField("restTemplateTracer");
-        field.setAccessible(true);
-        field.set(null, null);
         //stat
         SofaTracerStatisticReporterCycleTimesManager.getCycleTimesManager().clear();
         //clear

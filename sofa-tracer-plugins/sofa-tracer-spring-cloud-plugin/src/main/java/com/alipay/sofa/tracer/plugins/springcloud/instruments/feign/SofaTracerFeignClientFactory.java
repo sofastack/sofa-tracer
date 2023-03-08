@@ -17,11 +17,7 @@
 package com.alipay.sofa.tracer.plugins.springcloud.instruments.feign;
 
 import feign.Client;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.openfeign.FeignContext;
-import org.springframework.cloud.openfeign.ribbon.CachingSpringLoadBalancerFactory;
-import org.springframework.cloud.openfeign.ribbon.LoadBalancerFeignClient;
+import org.springframework.cloud.openfeign.FeignClientFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,48 +26,36 @@ import java.util.Map;
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/3/13 10:42 AM
  * @since:
  **/
-public class SofaTracerFeignContext extends FeignContext {
+public class SofaTracerFeignClientFactory extends FeignClientFactory {
 
-    private FeignContext delegateContext;
-    private BeanFactory  beanFactory;
+    private final FeignClientFactory delegateClientFactory;
 
-    public SofaTracerFeignContext(FeignContext delegateContext, BeanFactory beanFactory) {
-        this.delegateContext = delegateContext;
-        this.beanFactory = beanFactory;
+    public SofaTracerFeignClientFactory(FeignClientFactory delegateClientFactory) {
+        this.delegateClientFactory = delegateClientFactory;
     }
 
     @Override
     public <T> T getInstance(String name, Class<T> type) {
-        T object = this.delegateContext.getInstance(name, type);
+        T object = this.delegateClientFactory.getInstance(name, type);
         return (T) this.wrapperFeignClient(object);
     }
 
     @Override
     public <T> Map<String, T> getInstances(String name, Class<T> type) {
-        Map<String, T> instances = this.delegateContext.getInstances(name, type);
+        Map<String, T> instances = this.delegateClientFactory.getInstances(name, type);
         Map<String, T> tracerInstances = new HashMap<>();
         if (instances != null) {
-            instances.entrySet().forEach( item ->
-                    tracerInstances.put(item.getKey(), (T) wrapperFeignClient(item.getValue())));
+            instances.forEach((key, value) -> tracerInstances.put(key, (T) wrapperFeignClient(value)));
         }
         return tracerInstances;
     }
 
     private Object wrapperFeignClient(Object bean) {
         // not need to wrapper
-        if (bean instanceof SofaTracerFeignClient
-            || bean instanceof SofaTracerLoadBalancedFeignClient) {
+        if (bean instanceof SofaTracerFeignClient) {
             return bean;
         }
         if (bean instanceof Client) {
-            // LoadBalancerFeignClient Type Wrapper to SofaTracerLoadBalancedFeignClient
-            if (bean instanceof LoadBalancerFeignClient
-                && !(bean instanceof SofaTracerLoadBalancedFeignClient)) {
-                return new SofaTracerLoadBalancedFeignClient(
-                    newSofaTracerFeignClient(((LoadBalancerFeignClient) bean).getDelegate()),
-                    beanFactory.getBean(CachingSpringLoadBalancerFactory.class),
-                    beanFactory.getBean(SpringClientFactory.class));
-            }
             return newSofaTracerFeignClient((Client) bean);
         }
         return bean;

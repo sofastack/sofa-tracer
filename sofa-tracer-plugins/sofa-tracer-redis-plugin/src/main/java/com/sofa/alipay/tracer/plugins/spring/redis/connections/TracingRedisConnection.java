@@ -24,27 +24,10 @@ import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.GeoResults;
 import org.springframework.data.geo.Metric;
 import org.springframework.data.geo.Point;
-import org.springframework.data.redis.connection.BitFieldSubCommands;
-import org.springframework.data.redis.connection.DataType;
-import org.springframework.data.redis.connection.MessageListener;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.RedisGeoCommands;
-import org.springframework.data.redis.connection.RedisHashCommands;
-import org.springframework.data.redis.connection.RedisHyperLogLogCommands;
-import org.springframework.data.redis.connection.RedisKeyCommands;
-import org.springframework.data.redis.connection.RedisListCommands;
-import org.springframework.data.redis.connection.RedisNode;
-import org.springframework.data.redis.connection.RedisPipelineException;
-import org.springframework.data.redis.connection.RedisScriptingCommands;
-import org.springframework.data.redis.connection.RedisSentinelConnection;
-import org.springframework.data.redis.connection.RedisServerCommands;
-import org.springframework.data.redis.connection.RedisSetCommands;
-import org.springframework.data.redis.connection.RedisStringCommands;
-import org.springframework.data.redis.connection.RedisZSetCommands;
-import org.springframework.data.redis.connection.ReturnType;
-import org.springframework.data.redis.connection.SortParameters;
-import org.springframework.data.redis.connection.Subscription;
-import org.springframework.data.redis.connection.ValueEncoding;
+import org.springframework.data.redis.connection.*;
+import org.springframework.data.redis.connection.zset.Aggregate;
+import org.springframework.data.redis.connection.zset.Tuple;
+import org.springframework.data.redis.connection.zset.Weights;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.types.Expiration;
@@ -70,6 +53,11 @@ public class TracingRedisConnection implements RedisConnection {
     public TracingRedisConnection(RedisConnection connection, RedisActionWrapperHelper actionWrapper) {
         this.connection = connection;
         this.actionWrapper = actionWrapper;
+    }
+
+    @Override
+    public RedisCommands commands() {
+        return connection.commands();
     }
 
     @Override
@@ -110,6 +98,11 @@ public class TracingRedisConnection implements RedisConnection {
     @Override
     public RedisServerCommands serverCommands() {
         return connection.serverCommands();
+    }
+
+    @Override
+    public RedisStreamCommands streamCommands() {
+        return connection.streamCommands();
     }
 
     @Override
@@ -711,7 +704,7 @@ public class TracingRedisConnection implements RedisConnection {
   }
 
     @Override
-  public Set<byte[]> zRangeByScore(byte[] key, Range range) {
+  public Set<byte[]> zRangeByScore(byte[] key, org.springframework.data.domain.Range<? extends Number> range) {
     return actionWrapper
         .doInScope(RedisCommand.ZRANGEBYSCORE, key, () -> connection.zRangeByScore(key, range));
   }
@@ -723,13 +716,14 @@ public class TracingRedisConnection implements RedisConnection {
   }
 
     @Override
-  public Set<byte[]> zRangeByScore(byte[] key, Range range, Limit limit) {
+  public Set<byte[]> zRangeByScore(byte[] key, org.springframework.data.domain.Range<? extends Number> range,
+                                   org.springframework.data.redis.connection.Limit limit) {
     return actionWrapper.doInScope(RedisCommand.ZRANGEBYSCORE, key,
         () -> connection.zRangeByScore(key, range, limit));
   }
 
     @Override
-  public Set<Tuple> zRangeByScoreWithScores(byte[] key, Range range) {
+  public Set<Tuple> zRangeByScoreWithScores(byte[] key, org.springframework.data.domain.Range<? extends Number> range) {
     return actionWrapper.doInScope(RedisCommand.ZRANGEBYSCORE_WITHSCORES,
         key, () -> connection.zRangeByScoreWithScores(key, range));
   }
@@ -748,7 +742,8 @@ public class TracingRedisConnection implements RedisConnection {
   }
 
     @Override
-  public Set<Tuple> zRangeByScoreWithScores(byte[] key, Range range, Limit limit) {
+  public Set<Tuple> zRangeByScoreWithScores(byte[] key, org.springframework.data.domain.Range<? extends Number> range,
+                                            org.springframework.data.redis.connection.Limit limit) {
     return actionWrapper.doInScope(RedisCommand.ZRANGEBYSCORE_WITHSCORES,
         key, () -> connection.zRangeByScoreWithScores(key, range, limit));
   }
@@ -760,7 +755,7 @@ public class TracingRedisConnection implements RedisConnection {
   }
 
     @Override
-  public Set<byte[]> zRevRangeByScore(byte[] key, Range range) {
+  public Set<byte[]> zRevRangeByScore(byte[] key, org.springframework.data.domain.Range<? extends Number> range) {
     return actionWrapper.doInScope(RedisCommand.ZREVRANGEBYSCORE, key,
         () -> connection.zRevRangeByScore(key, range));
   }
@@ -772,7 +767,8 @@ public class TracingRedisConnection implements RedisConnection {
   }
 
     @Override
-  public Set<byte[]> zRevRangeByScore(byte[] key, Range range, Limit limit) {
+  public Set<byte[]> zRevRangeByScore(byte[] key, org.springframework.data.domain.Range<? extends Number> range,
+                                      org.springframework.data.redis.connection.Limit limit) {
     return actionWrapper.doInScope(RedisCommand.ZREVRANGEBYSCORE,
         key, () -> connection.zRevRangeByScore(key, range, limit));
   }
@@ -791,13 +787,15 @@ public class TracingRedisConnection implements RedisConnection {
   }
 
     @Override
-  public Set<Tuple> zRevRangeByScoreWithScores(byte[] key, Range range) {
+  public Set<Tuple> zRevRangeByScoreWithScores(byte[] key,
+                                               org.springframework.data.domain.Range<? extends Number> range) {
     return actionWrapper.doInScope(RedisCommand.ZREVRANGEBYSCORE_WITHSCORES,
         key, () -> connection.zRevRangeByScoreWithScores(key, range));
   }
 
     @Override
-  public Set<Tuple> zRevRangeByScoreWithScores(byte[] key, Range range, Limit limit) {
+  public Set<Tuple> zRevRangeByScoreWithScores(byte[] key, org.springframework.data.domain.Range<? extends Number> range,
+                                               org.springframework.data.redis.connection.Limit limit) {
     return actionWrapper.doInScope(RedisCommand.ZREVRANGEBYSCORE_WITHSCORES,
         key, () -> connection.zRevRangeByScoreWithScores(key, range, limit));
   }
@@ -808,7 +806,7 @@ public class TracingRedisConnection implements RedisConnection {
   }
 
     @Override
-  public Long zCount(byte[] key, Range range) {
+  public Long zCount(byte[] key, org.springframework.data.domain.Range<? extends Number> range) {
     return actionWrapper.doInScope(RedisCommand.ZCOUNT, key, () -> connection.zCount(key, range));
   }
 
@@ -835,7 +833,7 @@ public class TracingRedisConnection implements RedisConnection {
   }
 
     @Override
-  public Long zRemRangeByScore(byte[] key, Range range) {
+  public Long zRemRangeByScore(byte[] key, org.springframework.data.domain.Range<? extends Number> range) {
     return actionWrapper.doInScope(RedisCommand.ZREMRANGEBYSCORE, key,
         () -> connection.zRemRangeByScore(key, range));
   }
@@ -886,13 +884,13 @@ public class TracingRedisConnection implements RedisConnection {
   }
 
     @Override
-  public Set<byte[]> zRangeByLex(byte[] key, Range range) {
+  public Set<byte[]> zRangeByLex(byte[] key, org.springframework.data.domain.Range range) {
     return actionWrapper
         .doInScope(RedisCommand.ZRANGEBYLEX, key, () -> connection.zRangeByLex(key, range));
   }
 
     @Override
-  public Set<byte[]> zRangeByLex(byte[] key, Range range, Limit limit) {
+  public Set<byte[]> zRangeByLex(byte[] key, org.springframework.data.domain.Range range, org.springframework.data.redis.connection.Limit limit) {
     return actionWrapper
         .doInScope(RedisCommand.ZRANGEBYLEX, key, () -> connection.zRangeByLex(key, range, limit));
   }
@@ -1028,11 +1026,6 @@ public class TracingRedisConnection implements RedisConnection {
   }
 
     @Override
-  public void bgWriteAof() {
-    actionWrapper.doInScope(RedisCommand.BGWRITEAOF, () -> connection.bgWriteAof());
-  }
-
-    @Override
   public void bgReWriteAof() {
     actionWrapper.doInScope(RedisCommand.BGREWRITEAOF, () -> connection.bgReWriteAof());
   }
@@ -1128,13 +1121,13 @@ public class TracingRedisConnection implements RedisConnection {
   }
 
     @Override
-  public void slaveOf(String host, int port) {
-    actionWrapper.doInScope(RedisCommand.SLAVEOF, () -> connection.slaveOf(host, port));
+  public void replicaOf(String host, int port) {
+    actionWrapper.doInScope(RedisCommand.SLAVEOF, () -> connection.replicaOf(host, port));
   }
 
     @Override
-  public void slaveOfNoOne() {
-    actionWrapper.doInScope(RedisCommand.SLAVEOFNOONE, () -> connection.slaveOfNoOne());
+  public void replicaOfNoOne() {
+    actionWrapper.doInScope(RedisCommand.SLAVEOFNOONE, () -> connection.replicaOfNoOne());
   }
 
     @Override

@@ -42,6 +42,8 @@ public class DataSourceUtils {
 
     public static final String DS_DBCP_CLASS       = "org.apache.commons.dbcp.BasicDataSource";
 
+    public static final String DS_DBCP2_CLASS      = "org.apache.commons.dbcp2.BasicDataSource";
+
     public static final String DS_C3P0_CLASS       = "com.mchange.v2.c3p0.ComboPooledDataSource";
 
     public static final String DS_TOMCAT_CLASS     = "org.apache.tomcat.jdbc.pool.DataSource";
@@ -76,6 +78,14 @@ public class DataSourceUtils {
         return !StringUtils.isBlank(clazzType) && DS_DBCP_CLASS.equals(clazzType);
     }
 
+    public static boolean isDbcp2DataSource(Object dataSource) {
+        return isTargetDataSource(DS_DBCP2_CLASS, dataSource);
+    }
+
+    public static boolean isDbcp2DataSource(String clazzType) {
+        return !StringUtils.isBlank(clazzType) && DS_DBCP2_CLASS.equals(clazzType);
+    }
+
     public static boolean isC3p0DataSource(Object dataSource) {
         return isTargetDataSource(DS_C3P0_CLASS, dataSource);
     }
@@ -107,7 +117,7 @@ public class DataSourceUtils {
         Method getUrlMethod;
         try {
             if (isDruidDataSource(dataSource) || isDbcpDataSource(dataSource)
-                || isTomcatDataSource(dataSource)) {
+                || isDbcp2DataSource(dataSource) || isTomcatDataSource(dataSource)) {
                 getUrlMethod = dataSource.getClass().getMethod(METHOD_GET_URL);
             } else if (isC3p0DataSource(dataSource) || isHikariDataSource(dataSource)) {
                 getUrlMethod = dataSource.getClass().getMethod(METHOD_GET_JDBC_URL);
@@ -130,7 +140,7 @@ public class DataSourceUtils {
         Method setUrlMethod;
         try {
             if (isDruidDataSource(dataSource) || isDbcpDataSource(dataSource)
-                || isTomcatDataSource(dataSource)) {
+                || isDbcp2DataSource(dataSource) || isTomcatDataSource(dataSource)) {
                 setUrlMethod = dataSource.getClass().getMethod(METHOD_SET_URL, String.class);
             } else if (isC3p0DataSource(dataSource) || isHikariDataSource(dataSource)) {
                 setUrlMethod = dataSource.getClass().getMethod(METHOD_SET_JDBC_URL, String.class);

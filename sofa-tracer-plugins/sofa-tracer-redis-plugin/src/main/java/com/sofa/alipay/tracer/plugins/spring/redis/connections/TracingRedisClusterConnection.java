@@ -18,6 +18,7 @@ package com.sofa.alipay.tracer.plugins.spring.redis.connections;
 
 import com.sofa.alipay.tracer.plugins.spring.redis.common.RedisActionWrapperHelper;
 import org.springframework.data.redis.connection.ClusterInfo;
+import org.springframework.data.redis.connection.RedisClusterCommands;
 import org.springframework.data.redis.connection.RedisClusterConnection;
 import org.springframework.data.redis.connection.RedisClusterNode;
 import org.springframework.data.redis.connection.RedisClusterNode.SlotRange;
@@ -53,6 +54,11 @@ public class TracingRedisClusterConnection extends TracingRedisConnection implem
     }
 
     @Override
+    public RedisClusterCommands clusterCommands() {
+        return connection.clusterCommands();
+    }
+
+    @Override
     public RedisClusterServerCommands serverCommands() {
         return connection.serverCommands();
     }
@@ -63,13 +69,13 @@ public class TracingRedisClusterConnection extends TracingRedisConnection implem
   }
 
     @Override
-  public Collection<RedisClusterNode> clusterGetSlaves(RedisClusterNode master) {
-    return actionWrapper.doInScope(CLUSTER_SLAVES, () -> connection.clusterGetSlaves(master));
+  public Collection<RedisClusterNode> clusterGetReplicas(RedisClusterNode master) {
+    return actionWrapper.doInScope(CLUSTER_SLAVES, () -> connection.clusterGetReplicas(master));
   }
 
     @Override
-  public Map<RedisClusterNode, Collection<RedisClusterNode>> clusterGetMasterSlaveMap() {
-    return actionWrapper.doInScope(CLUSTER_MASTER_SLAVE_MAP, () -> connection.clusterGetMasterSlaveMap());
+  public Map<RedisClusterNode, Collection<RedisClusterNode>> clusterGetMasterReplicaMap() {
+    return actionWrapper.doInScope(CLUSTER_MASTER_SLAVE_MAP, () -> connection.clusterGetMasterReplicaMap());
   }
 
     @Override
