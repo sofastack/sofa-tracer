@@ -134,9 +134,9 @@ public class TracingReactiveRedisClusterConnection implements ReactiveRedisClust
     }
 
     @Override
-  public Mono<String> ping() {
-    return actionWrapper.doInScope(RedisCommand.PING, () -> reactiveRedisClusterConnection.ping());
-  }
+    public Mono<String> ping() {
+        return actionWrapper.doInScope(RedisCommand.PING, () -> reactiveRedisClusterConnection.ping());
+    }
 
     @Override
     public Flux<RedisClusterNode> clusterGetNodes() {
