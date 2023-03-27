@@ -134,93 +134,93 @@ public class TracingReactiveRedisClusterConnection implements ReactiveRedisClust
     }
 
     @Override
-  public Mono<String> ping() {
-    return actionWrapper.doInScope(RedisCommand.PING, () -> reactiveRedisClusterConnection.ping());
-  }
+    public Mono<String> ping() {
+        return actionWrapper.doInScope(RedisCommand.PING, () -> reactiveRedisClusterConnection.ping());
+    }
 
     @Override
     public Flux<RedisClusterNode> clusterGetNodes() {
-        return null;
+        return reactiveRedisClusterConnection.clusterGetNodes();
     }
 
     @Override
     public Flux<RedisClusterNode> clusterGetReplicas(RedisClusterNode master) {
-        return null;
+        return reactiveRedisClusterConnection.clusterGetReplicas(master);
     }
 
     @Override
     public Mono<Map<RedisClusterNode, Collection<RedisClusterNode>>> clusterGetMasterReplicaMap() {
-        return null;
+        return reactiveRedisClusterConnection.clusterGetMasterReplicaMap();
     }
 
     @Override
     public Mono<Integer> clusterGetSlotForKey(ByteBuffer key) {
-        return null;
+        return reactiveRedisClusterConnection.clusterGetSlotForKey(key);
     }
 
     @Override
     public Mono<RedisClusterNode> clusterGetNodeForSlot(int slot) {
-        return null;
+        return reactiveRedisClusterConnection.clusterGetNodeForSlot(slot);
     }
 
     @Override
     public Mono<RedisClusterNode> clusterGetNodeForKey(ByteBuffer key) {
-        return null;
+        return reactiveRedisClusterConnection.clusterGetNodeForKey(key);
     }
 
     @Override
     public Mono<ClusterInfo> clusterGetClusterInfo() {
-        return null;
+        return reactiveRedisClusterConnection.clusterGetClusterInfo();
     }
 
     @Override
     public Mono<Void> clusterAddSlots(RedisClusterNode node, int... slots) {
-        return null;
+        return reactiveRedisClusterConnection.clusterAddSlots(node, slots);
     }
 
     @Override
     public Mono<Void> clusterAddSlots(RedisClusterNode node, RedisClusterNode.SlotRange range) {
-        return null;
+        return reactiveRedisClusterConnection.clusterAddSlots(node, range);
     }
 
     @Override
     public Mono<Long> clusterCountKeysInSlot(int slot) {
-        return null;
+        return reactiveRedisClusterConnection.clusterCountKeysInSlot(slot);
     }
 
     @Override
     public Mono<Void> clusterDeleteSlots(RedisClusterNode node, int... slots) {
-        return null;
+        return reactiveRedisClusterConnection.clusterDeleteSlots(node, slots);
     }
 
     @Override
     public Mono<Void> clusterDeleteSlotsInRange(RedisClusterNode node,
                                                 RedisClusterNode.SlotRange range) {
-        return null;
+        return reactiveRedisClusterConnection.clusterDeleteSlotsInRange(node, range);
     }
 
     @Override
     public Mono<Void> clusterForget(RedisClusterNode node) {
-        return null;
+        return reactiveRedisClusterConnection.clusterForget(node);
     }
 
     @Override
     public Mono<Void> clusterMeet(RedisClusterNode node) {
-        return null;
+        return reactiveRedisClusterConnection.clusterMeet(node);
     }
 
     @Override
     public Mono<Void> clusterSetSlot(RedisClusterNode node, int slot, AddSlots mode) {
-        return null;
+        return reactiveRedisClusterConnection.clusterSetSlot(node, slot, mode);
     }
 
     @Override
     public Flux<ByteBuffer> clusterGetKeysInSlot(int slot, int count) {
-        return null;
+        return reactiveRedisClusterConnection.clusterGetKeysInSlot(slot, count);
     }
 
     @Override
     public Mono<Void> clusterReplicate(RedisClusterNode master, RedisClusterNode replica) {
-        return null;
+        return reactiveRedisClusterConnection.clusterReplicate(master, replica);
     }
 }

@@ -55,7 +55,7 @@ import static com.alipay.common.tracer.core.constants.SofaTracerConstant.SPACE_I
  * @since: 2.3.4
  **/
 @Activate(group = { CommonConstants.PROVIDER, CommonConstants.CONSUMER }, order = 1)
-public class DubboSofaTracerFilter implements Filter {
+public class DubboSofaTracerFilter implements Filter, Filter.Listener {
 
     private String                             appName         = StringUtils.EMPTY_STRING;
 
@@ -94,13 +94,13 @@ public class DubboSofaTracerFilter implements Filter {
     }
 
     @Override
-    public Result onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
+    public void onResponse(Result result, Invoker<?> invoker, Invocation invocation) {
         String spanKey = getTracerSpanMapKey(invoker);
         try {
             // only the asynchronous callback to print
             boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
             if (!isAsync) {
-                return result;
+                return;
             }
             if (TracerSpanMap.containsKey(spanKey)) {
                 SofaTracerSpan sofaTracerSpan = TracerSpanMap.get(spanKey);
@@ -128,7 +128,40 @@ public class DubboSofaTracerFilter implements Filter {
                 TracerSpanMap.remove(spanKey);
             }
         }
-        return result;
+    }
+
+    @Override
+    public void onError(Throwable t, Invoker<?> invoker, Invocation invocation) {
+        String spanKey = getTracerSpanMapKey(invoker);
+        try {
+            // only the asynchronous callback to print
+            boolean isAsync = RpcUtils.isAsync(invoker.getUrl(), invocation);
+            if (!isAsync) {
+                return;
+            }
+            if (TracerSpanMap.containsKey(spanKey)) {
+                SofaTracerSpan sofaTracerSpan = TracerSpanMap.get(spanKey);
+                // to build tracer instance
+                if (dubboConsumerSofaTracer == null) {
+                    this.dubboConsumerSofaTracer = DubboConsumerSofaTracer
+                        .getDubboConsumerSofaTracerSingleton();
+                }
+                String resultCode;
+                if (t instanceof RpcException) {
+                    resultCode = Integer.toString(((RpcException) t).getCode());
+                    sofaTracerSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
+                } else {
+                    resultCode = SofaTracerConstant.RESULT_CODE_ERROR;
+                }
+                // add elapsed time
+                appendElapsedTimeTags(invocation, sofaTracerSpan, null, true);
+                dubboConsumerSofaTracer.clientReceiveTagFinish(sofaTracerSpan, resultCode);
+            }
+        } finally {
+            if (TracerSpanMap.containsKey(spanKey)) {
+                TracerSpanMap.remove(spanKey);
+            }
+        }
     }
 
     /**
@@ -324,8 +357,10 @@ public class DubboSofaTracerFilter implements Filter {
         if (isClient) {
             reqSize = invocation.getAttachment(AttachmentKeyConstants.CLIENT_SERIALIZE_SIZE);
             elapsed = invocation.getAttachment(AttachmentKeyConstants.CLIENT_SERIALIZE_TIME);
-            respSize = result.getAttachment(AttachmentKeyConstants.CLIENT_DESERIALIZE_SIZE);
-            deElapsed = result.getAttachment(AttachmentKeyConstants.CLIENT_DESERIALIZE_TIME);
+            respSize = result == null ? null : result
+                .getAttachment(AttachmentKeyConstants.CLIENT_DESERIALIZE_SIZE);
+            deElapsed = result == null ? null : result
+                .getAttachment(AttachmentKeyConstants.CLIENT_DESERIALIZE_TIME);
             sofaTracerSpan.setTag(AttachmentKeyConstants.CLIENT_SERIALIZE_TIME,
                 parseAttachment(elapsed, 0));
             sofaTracerSpan.setTag(AttachmentKeyConstants.CLIENT_DESERIALIZE_TIME,
@@ -337,8 +372,10 @@ public class DubboSofaTracerFilter implements Filter {
         } else {
             reqSize = invocation.getAttachment(AttachmentKeyConstants.SERVER_DESERIALIZE_SIZE);
             deElapsed = invocation.getAttachment(AttachmentKeyConstants.SERVER_DESERIALIZE_TIME);
-            respSize = result.getAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_SIZE);
-            elapsed = result.getAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_TIME);
+            respSize = result == null ? null : result
+                .getAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_SIZE);
+            elapsed = result == null ? null : result
+                .getAttachment(AttachmentKeyConstants.SERVER_SERIALIZE_TIME);
             sofaTracerSpan.setTag(AttachmentKeyConstants.SERVER_DESERIALIZE_SIZE,
                 parseAttachment(reqSize, 0));
             sofaTracerSpan.setTag(AttachmentKeyConstants.SERVER_DESERIALIZE_TIME,
