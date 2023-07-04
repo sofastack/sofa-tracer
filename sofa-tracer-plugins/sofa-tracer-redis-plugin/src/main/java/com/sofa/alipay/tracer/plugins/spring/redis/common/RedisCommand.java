@@ -72,6 +72,7 @@ public final class RedisCommand {
     public static final String CONFIG_REWRITE                = "CONFIG REWRITE";
     public static final String CONFIG_SET                    = "CONFIG SET";
     public static final String CONFIG_RESETSTAT              = "CONFIG RESETSTAT";
+    public static final String COPY                          = "COPY";
     public static final String DBSIZE                        = "DBSIZE";
     public static final String DEBUG_OBJECT                  = "DEBUG OBJECT";
     public static final String DEBUG_SEGFAULT                = "DEBUG SEGFAULT";
@@ -97,6 +98,7 @@ public final class RedisCommand {
     public static final String GEORADIUSBYMEMBER             = "GEORADIUSBYMEMBER";
     public static final String GEOREMOVE                     = "GEOREMOVE";
     public static final String GET                           = "GET";
+    public static final String GETDEL                        = "GETDEL";
     public static final String GETBIT                        = "GETBIT";
     public static final String GETRANGE                      = "GETRANGE";
     public static final String GETSET                        = "GETSET";

@@ -18,10 +18,7 @@ package com.alipay.sofa.tracer.plugins.springcloud.instruments.feign;
 
 import feign.Client;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.openfeign.FeignContext;
-import org.springframework.cloud.openfeign.ribbon.CachingSpringLoadBalancerFactory;
-import org.springframework.cloud.openfeign.ribbon.LoadBalancerFeignClient;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,19 +56,10 @@ public class SofaTracerFeignContext extends FeignContext {
 
     private Object wrapperFeignClient(Object bean) {
         // not need to wrapper
-        if (bean instanceof SofaTracerFeignClient
-            || bean instanceof SofaTracerLoadBalancedFeignClient) {
+        if (bean instanceof SofaTracerFeignClient) {
             return bean;
         }
         if (bean instanceof Client) {
-            // LoadBalancerFeignClient Type Wrapper to SofaTracerLoadBalancedFeignClient
-            if (bean instanceof LoadBalancerFeignClient
-                && !(bean instanceof SofaTracerLoadBalancedFeignClient)) {
-                return new SofaTracerLoadBalancedFeignClient(
-                    newSofaTracerFeignClient(((LoadBalancerFeignClient) bean).getDelegate()),
-                    beanFactory.getBean(CachingSpringLoadBalancerFactory.class),
-                    beanFactory.getBean(SpringClientFactory.class));
-            }
             return newSofaTracerFeignClient((Client) bean);
         }
         return bean;

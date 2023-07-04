@@ -25,6 +25,7 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.sofa.alipay.tracer.plugins.kafkamq.carrier.KafkaMqExtractCarrier;
 import com.sofa.alipay.tracer.plugins.kafkamq.tracers.KafkaMQConsumeTracer;
 import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerGroupMetadata;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -41,6 +42,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -177,6 +179,11 @@ public class SofaTracerKafkaConsumer<K, V> implements Consumer<K, V> {
     }
 
     @Override
+    public void seek(TopicPartition topicPartition, OffsetAndMetadata offsetAndMetadata) {
+        consumer.seek(topicPartition, offsetAndMetadata);
+    }
+
+    @Override
     public void seekToBeginning(Collection<TopicPartition> partitions) {
         consumer.seekToBeginning(partitions);
     }
@@ -204,6 +211,17 @@ public class SofaTracerKafkaConsumer<K, V> implements Consumer<K, V> {
     @Override
     public OffsetAndMetadata committed(TopicPartition partition, Duration timeout) {
         return consumer.committed(partition, timeout);
+    }
+
+    @Override
+    public Map<TopicPartition, OffsetAndMetadata> committed(Set<TopicPartition> set) {
+        return null;
+    }
+
+    @Override
+    public Map<TopicPartition, OffsetAndMetadata> committed(Set<TopicPartition> set,
+                                                            Duration duration) {
+        return null;
     }
 
     @Override
@@ -280,13 +298,23 @@ public class SofaTracerKafkaConsumer<K, V> implements Consumer<K, V> {
     }
 
     @Override
-    public void close() {
-        consumer.close();
+    public OptionalLong currentLag(TopicPartition topicPartition) {
+        return consumer.currentLag(topicPartition);
     }
 
     @Override
-    public void close(long timeout, TimeUnit unit) {
-        consumer.close(timeout, unit);
+    public ConsumerGroupMetadata groupMetadata() {
+        return consumer.groupMetadata();
+    }
+
+    @Override
+    public void enforceRebalance() {
+        consumer.enforceRebalance();
+    }
+
+    @Override
+    public void close() {
+        consumer.close();
     }
 
     @Override

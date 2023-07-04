@@ -50,9 +50,9 @@ public class TracingRedisSentinelConnection implements RedisSentinelConnection {
   }
 
     @Override
-  public Collection<RedisServer> slaves(NamedNode master) {
-    return actionWrapper.decorate(() -> redisSentinelConnection.slaves(master),"slaves");
-  }
+    public Collection<RedisServer> slaves(NamedNode master) {
+        return actionWrapper.decorate(() -> redisSentinelConnection.slaves(master), "slaves");
+    }
 
     @Override
   public void remove(NamedNode master) {
