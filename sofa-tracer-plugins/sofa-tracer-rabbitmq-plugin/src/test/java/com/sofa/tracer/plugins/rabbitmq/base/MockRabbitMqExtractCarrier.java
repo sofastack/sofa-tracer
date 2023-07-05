@@ -17,6 +17,7 @@
 package com.sofa.tracer.plugins.rabbitmq.base;
 
 import com.sofa.alipay.tracer.plugins.rabbitmq.carrier.RabbitMqExtractCarrier;
+import org.apache.commons.collections4.IteratorUtils;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -40,7 +41,7 @@ public class MockRabbitMqExtractCarrier {
         Map<String, Object> headers = Collections.singletonMap(key, value);
         RabbitMqExtractCarrier carrier = new RabbitMqExtractCarrier(headers);
         final Iterator<Map.Entry<String, String>> iterator = carrier.iterator();
-        assertThat(iterator).containsAll(map.entrySet());
+        assertThat(IteratorUtils.toList(iterator)).containsAll(map.entrySet());
     }
 
     @Test
@@ -48,7 +49,7 @@ public class MockRabbitMqExtractCarrier {
         Map<String, Object> headers = Collections.singletonMap("testSOFATracerId", null);
         RabbitMqExtractCarrier carrier = new RabbitMqExtractCarrier(headers);
         final Iterator<Map.Entry<String, String>> iterator = carrier.iterator();
-        assertThat(iterator).doesNotContainNull();
+        assertThat(IteratorUtils.toList(iterator)).doesNotContainNull();
     }
 
     @Test(expected = UnsupportedOperationException.class)
