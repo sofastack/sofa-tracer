@@ -5,11 +5,11 @@
     <parent>
         <groupId>com.alipay.sofa</groupId>
         <artifactId>sofaboot-dependencies</artifactId>
-        <version>3.1.1</version>
+        <version>3.19.1</version>
     </parent>
 
     <artifactId>tracer-all-parent</artifactId>
-    <version>3.1.3-SNAPSHOT</version>
+    <version>3.1.3</version>
     <packaging>pom</packaging>
     <name>tracer-all-parent</name>
     <description>Alipay SOFATracer Log Implemented by OpenTracing</description>
@@ -35,7 +35,6 @@
         <module>sofa-tracer-plugins/sofa-tracer-rabbitmq-plugin</module>
         <module>sofa-tracer-plugins/sofa-tracer-kafkamq-plugin</module>
         <module>tracer-all</module>
-        <module>tracer-sofa-boot-starter</module>
         <module>tracer-test/core-test</module>
         <module>tracer-test/logback-test</module>
         <module>tracer-test/log4j2-test</module>
@@ -51,6 +50,7 @@
         <main.user.dir>${user.dir}</main.user.dir>
         <maven.staging.plugin>1.6.7</maven.staging.plugin>
         <maven.gpg.pluign>1.5</maven.gpg.pluign>
+        <spring-cloud.version>2021.0.7</spring-cloud.version>
     </properties>
 
     <licenses>
@@ -209,16 +209,10 @@
 
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-openfeign</artifactId>
-                <version>2.1.0.RELEASE</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-stream</artifactId>
-                <version>2.1.0.RELEASE</version>
-                <scope>provided</scope>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>
@@ -230,7 +224,7 @@
             <dependency>
                 <groupId>com.alipay.sofa.common</groupId>
                 <artifactId>sofa-common-tools</artifactId>
-                <version>1.3.1</version>
+                <version>1.3.11</version>
             </dependency>
 
             <!-- 对外部框架的一些插件使用 -->
@@ -366,7 +360,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
                 <configuration>
                     <source>${java.compiler.source.version}</source>
                     <target>${java.compiler.target.version}</target>

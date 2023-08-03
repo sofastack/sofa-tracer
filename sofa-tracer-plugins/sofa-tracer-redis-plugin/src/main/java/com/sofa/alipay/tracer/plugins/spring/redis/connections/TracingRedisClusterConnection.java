@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static com.sofa.alipay.tracer.plugins.spring.redis.common.RedisCommand.*;
 
@@ -179,8 +180,18 @@ public class TracingRedisClusterConnection extends TracingRedisConnection implem
   }
 
     @Override
+  public void flushDb(RedisClusterNode node, FlushOption option) {
+    actionWrapper.doInScope(FLUSHDB, () -> connection.flushDb(node, option));
+  }
+
+    @Override
   public void flushAll(RedisClusterNode node) {
     actionWrapper.doInScope(FLUSHALL, () -> connection.flushAll(node));
+  }
+
+    @Override
+  public void flushAll(RedisClusterNode node, FlushOption option) {
+    actionWrapper.doInScope(FLUSHALL, () -> connection.flushAll(node, option));
   }
 
     @Override
@@ -234,12 +245,32 @@ public class TracingRedisClusterConnection extends TracingRedisConnection implem
   }
 
     @Override
+  public void rewriteConfig(RedisClusterNode node) {
+    actionWrapper.doInScope(CONFIG_REWRITE, () -> connection.rewriteConfig(node));
+  }
+
+    @Override
   public Long time(RedisClusterNode node) {
     return actionWrapper.doInScope(TIME, () -> connection.time(node));
   }
 
     @Override
+  public Long time(RedisClusterNode node, TimeUnit timeUnit) {
+    return actionWrapper.doInScope(TIME, () -> connection.time(node, timeUnit));
+  }
+
+    @Override
   public List<RedisClientInfo> getClientList(RedisClusterNode node) {
     return actionWrapper.doInScope(CLIENT_LIST, () -> connection.getClientList(node));
+  }
+
+    @Override
+  public void slaveOf(String host, int port) {
+      actionWrapper.doInScope(SLAVEOF, () -> connection.slaveOf(host, port));
+  }
+
+    @Override
+  public void slaveOfNoOne() {
+    actionWrapper.doInScope(SLAVEOFNOONE, connection::slaveOfNoOne);
   }
 }
