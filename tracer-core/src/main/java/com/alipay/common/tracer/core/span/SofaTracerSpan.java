@@ -36,10 +36,10 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * SofaTracerSpan
@@ -55,11 +55,11 @@ public class SofaTracerSpan implements Span {
 
     private final List<SofaTracerSpanReferenceRelationship> spanReferences;
     /** tags for String  */
-    private final Map<String, String>                       tagsWithStr          = new LinkedHashMap<>();
+    private final Map<String, String>                       tagsWithStr          = new ConcurrentHashMap<>();
     /** tags for Boolean */
-    private final Map<String, Boolean>                      tagsWithBool         = new LinkedHashMap<>();
+    private final Map<String, Boolean>                      tagsWithBool         = new ConcurrentHashMap<>();
     /** tags for Number  */
-    private final Map<String, Number>                       tagsWithNumber       = new LinkedHashMap<>();
+    private final Map<String, Number>                       tagsWithNumber       = new ConcurrentHashMap<>();
 
     private final List<LogData>                             logs                 = new LinkedList<>();
 
