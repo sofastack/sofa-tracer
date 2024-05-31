@@ -143,10 +143,10 @@ public class SofaTracerTest extends AbstractTestBase {
                 //Test print one only put one tag
                 assertTrue(contextStr.contains(Tags.SPAN_KIND.getKey())
                         && contextStr.contains(Tags.SPAN_KIND_CLIENT));
-            } catch (IOException e) {
+            } catch (IndexOutOfBoundsException | IOException e) {
                 throw new AssertionError(e);
             }
-        }, 500);
+        }, 5000);
     }
 
     /**

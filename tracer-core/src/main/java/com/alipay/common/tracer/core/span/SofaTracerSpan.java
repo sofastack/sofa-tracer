@@ -36,10 +36,10 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * SofaTracerSpan
@@ -61,7 +61,7 @@ public class SofaTracerSpan implements Span {
     /** tags for Number  */
     private final Map<String, Number>                       tagsWithNumber       = new ConcurrentHashMap<>();
 
-    private final List<LogData>                             logs                 = new LinkedList<>();
+    private final ConcurrentLinkedQueue<LogData>            logs                 = new ConcurrentLinkedQueue<>();
 
     private String                                          operationName        = StringUtils.EMPTY_STRING;
 
@@ -436,7 +436,7 @@ public class SofaTracerSpan implements Span {
         return sofaTracerSpanContext;
     }
 
-    public List<LogData> getLogs() {
+    public ConcurrentLinkedQueue<LogData> getLogs() {
         return logs;
     }
 
