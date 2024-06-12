@@ -39,7 +39,7 @@ public class SofaTracerSpanReferenceRelationship {
 
     public SofaTracerSpanReferenceRelationship(SofaTracerSpanContext sofaTracerSpanContext,
                                                String referenceType) {
-        AssertUtils.isTrue(sofaTracerSpanContext != null,
+        AssertUtils.notNull(sofaTracerSpanContext,
             "SofaTracerSpanContext can't be null in SofaTracerSpanReferenceRelationship");
         AssertUtils.isTrue(!StringUtils.isBlank(referenceType), "ReferenceType can't be null");
         this.sofaTracerSpanContext = sofaTracerSpanContext;
