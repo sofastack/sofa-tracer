@@ -48,8 +48,8 @@
         <jmh.version>1.9.3</jmh.version>
         <project.encoding>UTF-8</project.encoding>
         <main.user.dir>${user.dir}</main.user.dir>
-        <maven.staging.plugin>1.6.7</maven.staging.plugin>
-        <maven.gpg.pluign>1.5</maven.gpg.pluign>
+        <maven.staging.plugin>1.6.13</maven.staging.plugin>
+        <maven.gpg.pluign>1.6</maven.gpg.pluign>
         <spring-cloud.version>2021.0.7</spring-cloud.version>
     </properties>
 
