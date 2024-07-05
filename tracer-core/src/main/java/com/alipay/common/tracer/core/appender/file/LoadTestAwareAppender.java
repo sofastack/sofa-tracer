@@ -21,8 +21,17 @@ import com.alipay.common.tracer.core.appender.TraceAppender;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * LoadTestAwareAppender
+ *
+ * @author yangguanchao
+ * @since 2017/06/25
+ */
 public final class LoadTestAwareAppender implements TraceAppender {
+
+    /** TraceAppender for non-pressure */
     private TimedRollingFileAppender nonLoadTestTraceAppender;
+    /** TraceAppender for pressure*/
     private TimedRollingFileAppender loadTestTraceAppender;
 
     private LoadTestAwareAppender(TimedRollingFileAppender nonLoadTestTraceAppender,
@@ -34,9 +43,9 @@ public final class LoadTestAwareAppender implements TraceAppender {
     public static LoadTestAwareAppender createLoadTestAwareTimedRollingFileAppender(String logName,
                                                                                     boolean append) {
         TimedRollingFileAppender nonLoadTestTraceAppender = new TimedRollingFileAppender(logName,
-            append);
+                append);
         TimedRollingFileAppender loadTestTraceAppender = new TimedRollingFileAppender(
-            "shadow" + File.separator + logName, append);
+                "shadow" + File.separator + logName, append);
         return new LoadTestAwareAppender(nonLoadTestTraceAppender, loadTestTraceAppender);
     }
 
@@ -44,32 +53,35 @@ public final class LoadTestAwareAppender implements TraceAppender {
                                                                                     String rollingPolicy,
                                                                                     String logReserveConfig) {
         TimedRollingFileAppender nonLoadTestTraceAppender = new TimedRollingFileAppender(logName,
-            rollingPolicy, logReserveConfig);
+                rollingPolicy, logReserveConfig);
         TimedRollingFileAppender loadTestTraceAppender = new TimedRollingFileAppender(
-            "shadow" + File.separator + logName, rollingPolicy, logReserveConfig);
+                "shadow" + File.separator + logName, rollingPolicy, logReserveConfig);
         return new LoadTestAwareAppender(nonLoadTestTraceAppender, loadTestTraceAppender);
     }
 
     public void append(String log, boolean loadTest) throws IOException {
         if (loadTest) {
-            this.loadTestTraceAppender.append(log);
+            loadTestTraceAppender.append(log);
         } else {
-            this.nonLoadTestTraceAppender.append(log);
+            nonLoadTestTraceAppender.append(log);
         }
     }
 
+    @Override
     public void flush() throws IOException {
-        this.nonLoadTestTraceAppender.flush();
-        this.loadTestTraceAppender.flush();
+        nonLoadTestTraceAppender.flush();
+        loadTestTraceAppender.flush();
     }
 
+    @Override
     public void append(String log) throws IOException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void cleanup() {
-        this.nonLoadTestTraceAppender.cleanup();
-        this.loadTestTraceAppender.cleanup();
+        nonLoadTestTraceAppender.cleanup();
+        loadTestTraceAppender.cleanup();
     }
 
     public void reset(String datePattern) {
