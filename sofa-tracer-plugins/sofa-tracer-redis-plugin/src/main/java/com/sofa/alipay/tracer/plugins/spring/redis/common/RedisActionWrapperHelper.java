@@ -55,26 +55,31 @@ public class RedisActionWrapperHelper {
     }
 
     public <T> T doInScope(String command, byte[] key, Supplier<T> supplier) {
+        redisSofaTracer.clientSend(command);
         Span span = buildSpan(command, deserialize(key));
         return activateAndCloseSpan(span, supplier);
     }
 
     public <T> T doInScope(String command, Supplier<T> supplier) {
+        redisSofaTracer.clientSend(command);
         Span span = buildSpan(command);
         return activateAndCloseSpan(span, supplier);
     }
 
     public void doInScope(String command, byte[] key, Runnable runnable) {
+        redisSofaTracer.clientSend(command);
         Span span = buildSpan(command, deserialize(key));
         activateAndCloseSpan(span, runnable);
     }
 
     public void doInScope(String command, Runnable runnable) {
+        redisSofaTracer.clientSend(command);
         Span span = buildSpan(command);
         activateAndCloseSpan(span, runnable);
     }
 
     public <T> T doInScope(String command, byte[][] keys, Supplier<T> supplier) {
+        redisSofaTracer.clientSend(command);
         Span span = buildSpan(command);
         span.setTag("keys", toStringWithDeserialization(limitKeys(keys)));
         return activateAndCloseSpan(span, supplier);
@@ -88,6 +93,7 @@ public class RedisActionWrapperHelper {
     }
 
     public <T> T decorate(Supplier<T> supplier, String operateName) {
+        redisSofaTracer.clientSend(operateName);
         Span span = buildSpan(operateName);
         Throwable candidateThrowable = null;
         try {
@@ -106,6 +112,7 @@ public class RedisActionWrapperHelper {
     }
 
     public void decorate(Action action, String operateName) {
+        redisSofaTracer.clientSend(operateName);
         Span span = buildSpan(operateName);
         Throwable candidateThrowable = null;
         try {
@@ -123,8 +130,8 @@ public class RedisActionWrapperHelper {
         }
     }
 
-    public <T extends Exception> void decorateThrowing(ThrowingAction<T> action, String operateName)
-                                                                                                    throws T {
+    public <T extends Exception> void decorateThrowing(ThrowingAction<T> action, String operateName) throws T {
+        redisSofaTracer.clientSend(operateName);
         Span span = buildSpan(operateName);
         Throwable candidateThrowable = null;
         try {
@@ -144,7 +151,7 @@ public class RedisActionWrapperHelper {
 
     public <T extends Exception, V> V decorateThrowing(ThrowingSupplier<T, V> supplier,
                                                        String operateName) throws T {
-
+        redisSofaTracer.clientSend(operateName);
         Span span = buildSpan(operateName);
         Throwable candidateThrowable = null;
         try {
