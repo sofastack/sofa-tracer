@@ -23,8 +23,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.web.client.RestTemplate;
-import zipkin2.Call;
-import zipkin2.codec.Encoding;
+import zipkin2.reporter.Call;
+import zipkin2.reporter.Encoding;
 
 import java.util.ArrayList;
 import java.util.List;
