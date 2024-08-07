@@ -22,8 +22,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.web.client.RestTemplate;
-import zipkin2.Call;
-import zipkin2.codec.Encoding;
+import zipkin2.reporter.Call;
+import zipkin2.reporter.Encoding;
 import zipkin2.reporter.BytesMessageEncoder;
 import zipkin2.reporter.Sender;
 
