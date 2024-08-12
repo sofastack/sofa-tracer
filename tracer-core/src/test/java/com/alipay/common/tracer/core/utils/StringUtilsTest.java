@@ -16,7 +16,11 @@
  */
 package com.alipay.common.tracer.core.utils;
 
+import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -176,6 +180,40 @@ public class StringUtilsTest {
     @Test
     public void testCountMatches() throws Exception {
 
+    }
+
+    @Test
+    public void testEscapePercentEqualAnd() {
+        String replaceStr = "test%test2&test3=";
+        String replacedStr = StringUtils.escapePercentEqualAnd(replaceStr);
+        Assert.assertEquals("test%25test2%26test3%3D", replacedStr);
+        String replaceRevertStr = StringUtils.unescapeEqualAndPercent(replacedStr);
+        Assert.assertEquals(replaceStr, replaceRevertStr);
+    }
+
+    @Test
+    public void testIsEmpty() {
+        Assert.assertFalse(StringUtils.isEmpty(" "));
+        Assert.assertTrue(StringUtils.isNotEmpty(" "));
+        Assert.assertTrue(StringUtils.isEmpty(""));
+        Assert.assertFalse(StringUtils.isNotEmpty(""));
+    }
+
+    @Test
+    public void testMapToStringAndStringToMap() {
+        Map<String, String> map = new HashMap<>();
+        map.put("key1%", "value1%");
+        map.put("key2=", "value2=");
+        map.put(null, "value3&");
+        map.put("key3&", null);
+        String mapStr = StringUtils.mapToString(map);
+        Assert.assertEquals("key1%25=value1%25&=value3%26&key3%26=&key2%3D=value2%3D&", mapStr);
+        Map<String, String> map2 = new HashMap<>();
+        StringUtils.stringToMap(mapStr, map2);
+        Assert.assertEquals("value1%", map2.get("key1%"));
+        Assert.assertEquals("value2=", map2.get("key2="));
+        Assert.assertEquals("value3&", map2.get(""));
+        Assert.assertEquals("", map2.get("key3&"));
     }
 
 }
