@@ -57,6 +57,8 @@ public class StringUtils {
 
     private static final String  CURRENT_PATH             = ".";
 
+    public static final int      INDEX_NOT_FOUND          = -1;
+
     public static boolean isBlank(String str) {
         int strLen;
         if (str == null || (strLen = str.length()) == 0) {
@@ -72,6 +74,14 @@ public class StringUtils {
 
     public static boolean isNotBlank(String str) {
         return !isBlank(str);
+    }
+
+    public static boolean isEmpty(final CharSequence cs) {
+        return cs == null || cs.length() == 0;
+    }
+
+    public static boolean isNotEmpty(String str) {
+        return !isEmpty(str);
     }
 
     /**
@@ -221,10 +231,23 @@ public class StringUtils {
      * @param str origin data
      */
     public static String escapePercentEqualAnd(String str) {
-        //You must first escape the %
-        return escape(
-            escape(escape(str, PERCENT, PERCENT_ESCAPE), AND_SEPARATOR, AND_SEPARATOR_ESCAPE),
-            EQUAL_SEPARATOR, EQUAL_SEPARATOR_ESCAPE);
+        if (str == null) {
+            return StringUtils.EMPTY_STRING;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char ch = str.charAt(i);
+            if (ch == PERCENT_CHAR) {
+                sb.append(PERCENT_ESCAPE);
+            } else if (ch == AND_SEPARATOR_CHAR) {
+                sb.append(AND_SEPARATOR_ESCAPE);
+            } else if (ch == EQUAL_SEPARATOR_CHAR) {
+                sb.append(EQUAL_SEPARATOR_ESCAPE);
+            } else {
+                sb.append(ch);
+            }
+        }
+        return sb.toString();
     }
 
     /**
@@ -249,7 +272,7 @@ public class StringUtils {
         if (str == null) {
             return StringUtils.EMPTY_STRING;
         }
-        return str.replace(oldStr, newStr);
+        return replace(str, oldStr, newStr);
     }
 
     public static boolean hasText(CharSequence str) {
@@ -434,33 +457,264 @@ public class StringUtils {
      * @return a {@code String} with the replacements
      */
     public static String replace(String inString, String oldPattern, String newPattern) {
-        if (isBlank(inString) || isBlank(oldPattern) || newPattern == null) {
-            return inString;
+        return replace(inString, oldPattern, newPattern, -1);
+    }
+
+    /**
+     * Replaces a String with another String inside a larger String,
+     * for the first {@code max} values of the search String.
+     *
+     * <p>A {@code null} reference passed to this method is a no-op.</p>
+     *
+     * <pre>
+     * StringUtils.replace(null, *, *, *)         = null
+     * StringUtils.replace("", *, *, *)           = ""
+     * StringUtils.replace("any", null, *, *)     = "any"
+     * StringUtils.replace("any", *, null, *)     = "any"
+     * StringUtils.replace("any", "", *, *)       = "any"
+     * StringUtils.replace("any", *, *, 0)        = "any"
+     * StringUtils.replace("abaa", "a", null, -1) = "abaa"
+     * StringUtils.replace("abaa", "a", "", -1)   = "b"
+     * StringUtils.replace("abaa", "a", "z", 0)   = "abaa"
+     * StringUtils.replace("abaa", "a", "z", 1)   = "zbaa"
+     * StringUtils.replace("abaa", "a", "z", 2)   = "zbza"
+     * StringUtils.replace("abaa", "a", "z", -1)  = "zbzz"
+     * </pre>
+     *
+     * @param text         text to search and replace in, may be null
+     * @param searchString the String to search for, may be null
+     * @param replacement  the String to replace it with, may be null
+     * @param max          maximum number of values to replace, or {@code -1} if no maximum
+     * @return the text with any replacements processed,
+     * {@code null} if null String input
+     */
+    public static String replace(final String text, final String searchString,
+                                 final String replacement, final int max) {
+        return replace(text, searchString, replacement, max, false);
+    }
+
+    /**
+     * Replaces a String with another String inside a larger String,
+     * for the first {@code max} values of the search String,
+     * case-sensitively/insensitively based on {@code ignoreCase} value.
+     *
+     * <p>A {@code null} reference passed to this method is a no-op.</p>
+     *
+     * <pre>
+     * StringUtils.replace(null, *, *, *, false)         = null
+     * StringUtils.replace("", *, *, *, false)           = ""
+     * StringUtils.replace("any", null, *, *, false)     = "any"
+     * StringUtils.replace("any", *, null, *, false)     = "any"
+     * StringUtils.replace("any", "", *, *, false)       = "any"
+     * StringUtils.replace("any", *, *, 0, false)        = "any"
+     * StringUtils.replace("abaa", "a", null, -1, false) = "abaa"
+     * StringUtils.replace("abaa", "a", "", -1, false)   = "b"
+     * StringUtils.replace("abaa", "a", "z", 0, false)   = "abaa"
+     * StringUtils.replace("abaa", "A", "z", 1, false)   = "abaa"
+     * StringUtils.replace("abaa", "A", "z", 1, true)   = "zbaa"
+     * StringUtils.replace("abAa", "a", "z", 2, true)   = "zbza"
+     * StringUtils.replace("abAa", "a", "z", -1, true)  = "zbzz"
+     * </pre>
+     *
+     * @param text         text to search and replace in, may be null
+     * @param searchString the String to search for (case-insensitive), may be null
+     * @param replacement  the String to replace it with, may be null
+     * @param max          maximum number of values to replace, or {@code -1} if no maximum
+     * @param ignoreCase   if true replace is case-insensitive, otherwise case-sensitive
+     * @return the text with any replacements processed,
+     * {@code null} if null String input
+     */
+    private static String replace(final String text, String searchString, final String replacement,
+                                  int max, final boolean ignoreCase) {
+        if (isEmpty(text) || isEmpty(searchString) || replacement == null || max == 0) {
+            return text;
         }
-        int index = inString.indexOf(oldPattern);
-        if (index == -1) {
-            // no occurrence -> can return input as-is
-            return inString;
+        if (ignoreCase) {
+            searchString = searchString.toLowerCase();
+        }
+        int start = 0;
+        int end = ignoreCase ? indexOfIgnoreCase(text, searchString, start) : indexOf(text,
+            searchString, start);
+        if (end == INDEX_NOT_FOUND) {
+            return text;
+        }
+        final int replLength = searchString.length();
+        int increase = Math.max(replacement.length() - replLength, 0);
+        increase *= max < 0 ? 16 : Math.min(max, 64);
+        final StringBuilder buf = new StringBuilder(text.length() + increase);
+        while (end != INDEX_NOT_FOUND) {
+            buf.append(text, start, end).append(replacement);
+            start = end + replLength;
+            if (--max == 0) {
+                break;
+            }
+            end = ignoreCase ? indexOfIgnoreCase(text, searchString, start) : indexOf(text,
+                searchString, start);
+        }
+        buf.append(text, start, text.length());
+        return buf.toString();
+    }
+
+    /**
+     * Finds the first index within a CharSequence, handling {@code null}.
+     * This method uses {@link String#indexOf(String, int)} if possible.
+     *
+     * <p>A {@code null} CharSequence will return {@code -1}.
+     * A negative start position is treated as zero.
+     * An empty ("") search CharSequence always matches.
+     * A start position greater than the string length only matches
+     * an empty search CharSequence.</p>
+     *
+     * <pre>
+     * StringUtils.indexOf(null, *, *)          = -1
+     * StringUtils.indexOf(*, null, *)          = -1
+     * StringUtils.indexOf("", "", 0)           = 0
+     * StringUtils.indexOf("", *, 0)            = -1 (except when * = "")
+     * StringUtils.indexOf("aabaabaa", "a", 0)  = 0
+     * StringUtils.indexOf("aabaabaa", "b", 0)  = 2
+     * StringUtils.indexOf("aabaabaa", "ab", 0) = 1
+     * StringUtils.indexOf("aabaabaa", "b", 3)  = 5
+     * StringUtils.indexOf("aabaabaa", "b", 9)  = -1
+     * StringUtils.indexOf("aabaabaa", "b", -1) = 2
+     * StringUtils.indexOf("aabaabaa", "", 2)   = 2
+     * StringUtils.indexOf("abc", "", 9)        = 3
+     * </pre>
+     *
+     * @param seq       the CharSequence to check, may be null
+     * @param searchSeq the CharSequence to find, may be null
+     * @param startPos  the start position, negative treated as zero
+     * @return the first index of the search CharSequence (always &ge; startPos),
+     * -1 if no match or {@code null} string input
+     * @since 2.0
+     * @since 3.0 Changed signature from indexOf(String, String, int) to indexOf(CharSequence, CharSequence, int)
+     */
+    public static int indexOf(final CharSequence seq, final CharSequence searchSeq,
+                              final int startPos) {
+        if (seq == null || searchSeq == null) {
+            return INDEX_NOT_FOUND;
+        }
+        if (seq instanceof String) {
+            return ((String) seq).indexOf(searchSeq.toString(), startPos);
+        } else if (seq instanceof StringBuilder) {
+            return ((StringBuilder) seq).indexOf(searchSeq.toString(), startPos);
+        } else if (seq instanceof StringBuffer) {
+            return ((StringBuffer) seq).indexOf(searchSeq.toString(), startPos);
+        }
+        return seq.toString().indexOf(searchSeq.toString(), startPos);
+    }
+
+    /**
+     * Case in-sensitive find of the first index within a CharSequence
+     * from the specified position.
+     *
+     * <p>A {@code null} CharSequence will return {@code -1}.
+     * A negative start position is treated as zero.
+     * An empty ("") search CharSequence always matches.
+     * A start position greater than the string length only matches
+     * an empty search CharSequence.</p>
+     *
+     * <pre>
+     * StringUtils.indexOfIgnoreCase(null, *, *)          = -1
+     * StringUtils.indexOfIgnoreCase(*, null, *)          = -1
+     * StringUtils.indexOfIgnoreCase("", "", 0)           = 0
+     * StringUtils.indexOfIgnoreCase("aabaabaa", "A", 0)  = 0
+     * StringUtils.indexOfIgnoreCase("aabaabaa", "B", 0)  = 2
+     * StringUtils.indexOfIgnoreCase("aabaabaa", "AB", 0) = 1
+     * StringUtils.indexOfIgnoreCase("aabaabaa", "B", 3)  = 5
+     * StringUtils.indexOfIgnoreCase("aabaabaa", "B", 9)  = -1
+     * StringUtils.indexOfIgnoreCase("aabaabaa", "B", -1) = 2
+     * StringUtils.indexOfIgnoreCase("aabaabaa", "", 2)   = 2
+     * StringUtils.indexOfIgnoreCase("abc", "", 9)        = -1
+     * </pre>
+     *
+     * @param str       the CharSequence to check, may be null
+     * @param searchStr the CharSequence to find, may be null
+     * @param startPos  the start position, negative treated as zero
+     * @return the first index of the search CharSequence (always &ge; startPos),
+     * -1 if no match or {@code null} string input
+     * @since 2.5
+     * @since 3.0 Changed signature from indexOfIgnoreCase(String, String, int) to indexOfIgnoreCase(CharSequence, CharSequence, int)
+     */
+    public static int indexOfIgnoreCase(final CharSequence str, final CharSequence searchStr,
+                                        int startPos) {
+        if (str == null || searchStr == null) {
+            return INDEX_NOT_FOUND;
+        }
+        if (startPos < 0) {
+            startPos = 0;
+        }
+        final int endLimit = str.length() - searchStr.length() + 1;
+        if (startPos > endLimit) {
+            return INDEX_NOT_FOUND;
+        }
+        if (searchStr.length() == 0) {
+            return startPos;
+        }
+        for (int i = startPos; i < endLimit; i++) {
+            if (regionMatches(str, true, i, searchStr, 0, searchStr.length())) {
+                return i;
+            }
+        }
+        return INDEX_NOT_FOUND;
+    }
+
+    /**
+     * Green implementation of regionMatches.
+     *
+     * @param cs         the {@code CharSequence} to be processed
+     * @param ignoreCase whether or not to be case insensitive
+     * @param thisStart  the index to start on the {@code cs} CharSequence
+     * @param substring  the {@code CharSequence} to be looked for
+     * @param start      the index to start on the {@code substring} CharSequence
+     * @param length     character length of the region
+     * @return whether the region matched
+     */
+    public static boolean regionMatches(final CharSequence cs, final boolean ignoreCase,
+                                        final int thisStart, final CharSequence substring,
+                                        final int start, final int length) {
+        if (cs instanceof String && substring instanceof String) {
+            return ((String) cs).regionMatches(ignoreCase, thisStart, (String) substring, start,
+                length);
+        }
+        int index1 = thisStart;
+        int index2 = start;
+        int tmpLen = length;
+
+        // Extract these first so we detect NPEs the same as the java.lang.String version
+        final int srcLen = cs.length() - thisStart;
+        final int otherLen = substring.length() - start;
+
+        // Check for invalid parameters
+        if (thisStart < 0 || start < 0 || length < 0) {
+            return false;
         }
 
-        int capacity = inString.length();
-        if (newPattern.length() > oldPattern.length()) {
-            capacity += 16;
-        }
-        StringBuilder sb = new StringBuilder(capacity);
-
-        int pos = 0; // our position in the old string
-        int patLen = oldPattern.length();
-        while (index >= 0) {
-            sb.append(inString.substring(pos, index));
-            sb.append(newPattern);
-            pos = index + patLen;
-            index = inString.indexOf(oldPattern, pos);
+        // Check that the regions are long enough
+        if (srcLen < length || otherLen < length) {
+            return false;
         }
 
-        // append any characters to the right of a match
-        sb.append(inString.substring(pos));
-        return sb.toString();
+        while (tmpLen-- > 0) {
+            final char c1 = cs.charAt(index1++);
+            final char c2 = substring.charAt(index2++);
+
+            if (c1 == c2) {
+                continue;
+            }
+
+            if (!ignoreCase) {
+                return false;
+            }
+
+            // The real same check as in String.regionMatches():
+            final char u1 = Character.toUpperCase(c1);
+            final char u2 = Character.toUpperCase(c2);
+            if (u1 != u2 && Character.toLowerCase(u1) != Character.toLowerCase(u2)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
