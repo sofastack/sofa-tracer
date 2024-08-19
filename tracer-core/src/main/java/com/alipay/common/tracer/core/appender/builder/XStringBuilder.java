@@ -34,10 +34,13 @@ public class XStringBuilder {
     public static final char   DEFAULT_SEPARATOR        = ',';
     public static final String DEFAULT_SEPARATOR_ESCAPE = "%2C";
     public static final String AND_SEPARATOR            = "&";
+    public static final char   AND_SEPARATOR_CHAR       = '&';
     public static final String AND_SEPARATOR_ESCAPE     = "%26";
     public static final String EQUAL_SEPARATOR          = "=";
+    public static final char   EQUAL_SEPARATOR_CHAR     = '=';
     public static final String EQUAL_SEPARATOR_ESCAPE   = "%3D";
     public static final String PERCENT                  = "%";
+    public static final char   PERCENT_CHAR             = '%';
     public static final String PERCENT_ESCAPE           = "%25";
 
     private static char        separator                = DEFAULT_SEPARATOR;
