@@ -138,7 +138,7 @@ public class SofaTracerTest extends AbstractTestBase {
             try {
                 List<String> contents = FileUtils.readLines(customFileLog(TracerTestLogEnum.RPC_CLIENT
                         .getDefaultLogName()));
-                assertEquals(contents.get(0), 1, contents.size());
+                assertEquals(1, contents.size());
                 String contextStr = contents.get(0);
                 //Test print one only put one tag
                 assertTrue(contextStr.contains(Tags.SPAN_KIND.getKey())
