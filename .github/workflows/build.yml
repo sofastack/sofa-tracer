@@ -22,7 +22,7 @@ name: build
 
 on:
   push:
-    branches: [ master , 4.x]
+    branches: [ master , 4.x_fix_test]
   pull_request:
     branches: [ master , 4.x]
 
