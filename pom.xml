@@ -233,7 +233,7 @@
             <dependency>
                 <groupId>org.jmockit</groupId>
                 <artifactId>jmockit</artifactId>
-                <version>1.14</version>
+                <version>1.49</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -245,7 +245,7 @@
             <dependency>
                 <groupId>org.jmockit</groupId>
                 <artifactId>jmockit-coverage</artifactId>
-                <version>1.14</version>
+                <version>1.49</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
