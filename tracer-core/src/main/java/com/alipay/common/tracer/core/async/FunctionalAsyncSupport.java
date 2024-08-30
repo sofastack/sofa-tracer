@@ -50,7 +50,8 @@ public class FunctionalAsyncSupport {
     public void doFinally() {
         if (Thread.currentThread().getId() != tid) {
             if (currentSpan != null) {
-                traceContext.pop();
+                SofaTracerSpan popped = traceContext.pop();
+                SpanExtensionFactory.logStoppedSpan(popped);
             }
         }
     }
