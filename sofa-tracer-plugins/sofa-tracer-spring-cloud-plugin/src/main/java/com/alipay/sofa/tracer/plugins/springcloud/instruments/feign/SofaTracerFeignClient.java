@@ -65,7 +65,7 @@ public class SofaTracerFeignClient implements Client {
             appendRequestSpanTagsAndInject(request, sofaTracerSpan, headers);
             // renew request with the headers that have been injected into the carrier
             request = Request.create(request.httpMethod(), request.url(), headers, request.body(),
-                request.charset());
+                request.charset(), request.requestTemplate());
             Response response = delegate.execute(request, options);
             // set result tags
             appendResponseSpanTags(response, sofaTracerSpan);
