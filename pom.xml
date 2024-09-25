@@ -48,8 +48,8 @@
         <jmh.version>1.35</jmh.version>
         <project.encoding>UTF-8</project.encoding>
         <main.user.dir>${user.dir}</main.user.dir>
-        <maven.staging.plugin>1.6.7</maven.staging.plugin>
-        <maven.gpg.pluign>1.5</maven.gpg.pluign>
+        <maven.staging.plugin>1.6.13</maven.staging.plugin>
+        <maven.gpg.pluign>1.6</maven.gpg.pluign>
         <skipTests>false</skipTests>
     </properties>
 
@@ -440,7 +440,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
+                        <version>${maven.gpg.pluign}</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -489,7 +489,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
+                        <version>${maven.gpg.pluign}</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
