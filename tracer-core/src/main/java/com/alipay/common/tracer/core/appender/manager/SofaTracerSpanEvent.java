@@ -21,7 +21,7 @@ import com.alipay.common.tracer.core.span.SofaTracerSpan;
 /**
  * @author liangen 3/10/17
  */
-public class SofaTracerSpanEvent {
+public class SofaTracerSpanEvent implements ObjectEvent {
     private volatile SofaTracerSpan sofaTracerSpan;
 
     /**
@@ -40,5 +40,10 @@ public class SofaTracerSpanEvent {
      */
     public void setSofaTracerSpan(SofaTracerSpan sofaTracerSpan) {
         this.sofaTracerSpan = sofaTracerSpan;
+    }
+
+    @Override
+    public void clear() {
+        setSofaTracerSpan(null);
     }
 }

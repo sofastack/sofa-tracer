@@ -165,6 +165,7 @@ public class AsyncCommonAppenderManager {
                 try {
                     appender.append(string);
                     appender.flush();
+                    event.clear();
                 } catch (Exception e) {
                     //todo Globally keep a synchronized log for synchronizing print logs at some key points
                     if (string != null) {
