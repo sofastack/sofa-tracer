@@ -207,7 +207,7 @@ public class AsyncCommonDigestAppenderManager {
                             appender.append(encodedStr);
                         }
                         appender.flush();
-
+                        event.clear();
                     }
                 } catch (Exception e) {
                     SofaTracerSpanContext sofaTracerSpanContext = sofaTracerSpan

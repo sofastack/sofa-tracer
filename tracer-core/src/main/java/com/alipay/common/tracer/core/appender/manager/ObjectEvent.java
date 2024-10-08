@@ -18,23 +18,10 @@ package com.alipay.common.tracer.core.appender.manager;
 
 /**
  *
- * @author luoguimu123
- * @version $Id: StringEvent.java, v 0.1 November 21, 2017 7:01 PM luoguimu123 Exp $
+ * @author songzijie
+ * @version $Id: ObjectEvent.java, v 0.1 2024-10-08 16:10 songzijie Exp $$
  */
-public class StringEvent implements ObjectEvent {
+public interface ObjectEvent {
 
-    private volatile String string;
-
-    public String getString() {
-        return string;
-    }
-
-    public void setString(String string) {
-        this.string = string;
-    }
-
-    @Override
-    public void clear() {
-        setString(null);
-    }
+    void clear();
 }
