@@ -18,7 +18,7 @@ package com.alipay.sofa.tracer.boot.base;
 
 import com.alipay.common.tracer.core.appender.TracerLogRootDaemon;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
-import com.alipay.sofa.infra.listener.SofaBootstrapRunListener;
+import com.alipay.sofa.boot.listener.SofaBootstrapRunListener;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SpringBootWebApplication.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestPropertySource(locations = "classpath:application.properties")
-public class AbstractTestCloudBase {
+public abstract class AbstractTestCloudBase {
     protected static String logDirectoryPath = TracerLogRootDaemon.LOG_FILE_DIR;
 
     @BeforeClass

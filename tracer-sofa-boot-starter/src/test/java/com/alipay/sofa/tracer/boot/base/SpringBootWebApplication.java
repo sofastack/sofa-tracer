@@ -17,6 +17,7 @@
 package com.alipay.sofa.tracer.boot.base;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
@@ -28,7 +29,11 @@ import org.springframework.web.client.RestTemplate;
  * @author yangguanchao
  * @since 2018/04/30
  */
-@org.springframework.boot.autoconfigure.SpringBootApplication
+@org.springframework.boot.autoconfigure.SpringBootApplication(
+        exclude = {
+                EmbeddedMongoAutoConfiguration.class
+        }
+)
 @ImportResource({ "classpath:hikariDataSource.xml" })
 public class SpringBootWebApplication {
 
