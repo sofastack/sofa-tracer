@@ -51,6 +51,14 @@ public class DataSourceUrlTest {
         Assert.assertNotNull(method);
         Assert.assertEquals("test-url", method.invoke(basicDataSource));
 
+        // dbcp2
+        org.apache.commons.dbcp2.BasicDataSource basicDataSource2 = new org.apache.commons.dbcp2.BasicDataSource();
+        basicDataSource2.setUrl("test-url");
+        method = ReflectionUtils.findMethod(basicDataSource2.getClass(),
+                DataSourceUtils.METHOD_GET_URL);
+        Assert.assertNotNull(method);
+        Assert.assertEquals("test-url", method.invoke(basicDataSource2));
+
         // tomcat datasource
         DataSource dataSource = new DataSource();
         dataSource.setUrl("test-url");

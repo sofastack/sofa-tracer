@@ -41,6 +41,7 @@ public class DataSourceUtils {
     public static final String DS_DRUID_CLASS      = "com.alibaba.druid.pool.DruidDataSource";
 
     public static final String DS_DBCP_CLASS       = "org.apache.commons.dbcp.BasicDataSource";
+    public static final String DS_DBCP2_CLASS      = "org.apache.commons.dbcp2.BasicDataSource";
 
     public static final String DS_C3P0_CLASS       = "com.mchange.v2.c3p0.ComboPooledDataSource";
 
@@ -69,11 +70,13 @@ public class DataSourceUtils {
     }
 
     public static boolean isDbcpDataSource(Object dataSource) {
-        return isTargetDataSource(DS_DBCP_CLASS, dataSource);
+        return isTargetDataSource(DS_DBCP_CLASS, dataSource)
+               || isTargetDataSource(DS_DBCP2_CLASS, dataSource);
     }
 
     public static boolean isDbcpDataSource(String clazzType) {
-        return !StringUtils.isBlank(clazzType) && DS_DBCP_CLASS.equals(clazzType);
+        return !StringUtils.isBlank(clazzType)
+               && (DS_DBCP_CLASS.equals(clazzType) || DS_DBCP2_CLASS.equals(clazzType));
     }
 
     public static boolean isC3p0DataSource(Object dataSource) {
