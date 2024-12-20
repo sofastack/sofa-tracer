@@ -17,16 +17,23 @@
 package com.sofa.alipay.tracer.plugins.spring.redis.tracer;
 
 import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
+import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.constants.ComponentNameConstants;
+import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
+import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.reporter.stat.AbstractSofaTracerStatisticReporter;
+import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.tracer.AbstractClientTracer;
+import com.alipay.common.tracer.core.utils.StringUtils;
 import com.sofa.alipay.tracer.plugins.spring.redis.encoder.RedisDigestEncoder;
 import com.sofa.alipay.tracer.plugins.spring.redis.encoder.RedisDigestJsonEncoder;
 import com.sofa.alipay.tracer.plugins.spring.redis.enums.RedisLogEnum;
 import com.sofa.alipay.tracer.plugins.spring.redis.reporter.RedisStatJsonReporter;
 import com.sofa.alipay.tracer.plugins.spring.redis.reporter.RedisStatReporter;
+import io.opentracing.tag.Tags;
 
 /**
  * @author: guolei.sgl (guolei.sgl@antfin.com) 2019/11/18 9:03 PM
@@ -34,7 +41,13 @@ import com.sofa.alipay.tracer.plugins.spring.redis.reporter.RedisStatReporter;
  **/
 public class RedisSofaTracer extends AbstractClientTracer {
 
+    public static final String              COMMAND         = "command";
+    public static final String              COMPONENT_NAME  = "java-redis";
+    public static final String              DB_TYPE         = "redis";
+
     private volatile static RedisSofaTracer redisSofaTracer = null;
+
+    private String                          appName;
 
     public static RedisSofaTracer getRedisSofaTracerSingleton() {
         if (redisSofaTracer == null) {
@@ -97,6 +110,42 @@ public class RedisSofaTracer extends AbstractClientTracer {
                 statLogReserveConfig);
         } else {
             return new RedisStatReporter(statTracerName, statRollingPolicy, statLogReserveConfig);
+        }
+
+    }
+
+    public SofaTracerSpan startTrace(String operationName) {
+        SofaTracerSpan sofaTracerSpan = clientSend(operationName);
+        if (this.appName == null) {
+            this.appName = SofaTracerConfiguration
+                .getProperty(SofaTracerConfiguration.TRACER_APPNAME_KEY);
+        }
+        SofaTracerSpanContext sofaTracerSpanContext = sofaTracerSpan.getSofaTracerSpanContext();
+        if (sofaTracerSpanContext != null) {
+            sofaTracerSpan.setTag(CommonSpanTags.LOCAL_APP, appName);
+            sofaTracerSpan.setTag(COMMAND, operationName);
+            sofaTracerSpan.setTag(Tags.COMPONENT.getKey(), COMPONENT_NAME);
+            sofaTracerSpan.setTag(Tags.DB_TYPE.getKey(), DB_TYPE);
+        }
+        return sofaTracerSpan;
+    }
+
+    public void endTrace(String resultCode, String errorMsg) {
+        SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
+        if (sofaTraceContext != null) {
+            SofaTracerSpan sofaTracerSpan = sofaTraceContext.getCurrentSpan();
+            if (sofaTracerSpan != null) {
+                try {
+                    sofaTracerSpan.setTag(CommonSpanTags.RESULT_CODE, resultCode);
+                    if (StringUtils.isNotBlank(errorMsg)) {
+                        sofaTracerSpan.setTag(Tags.ERROR.getKey(), errorMsg);
+                    }
+                    sofaTracerSpan.setEndTime(System.currentTimeMillis());
+                    clientReceive(resultCode);
+                } catch (Throwable throwable) {
+                    SelfLog.errorWithTraceId("redis processed", throwable);
+                }
+            }
         }
 
     }
