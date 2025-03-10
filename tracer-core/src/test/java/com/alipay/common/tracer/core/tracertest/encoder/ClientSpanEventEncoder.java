@@ -1,0 +1,62 @@
+/**
+ * Ant Group
+ * Copyright (c) 2004-2025 All Rights Reserved.
+ */
+package com.alipay.common.tracer.core.tracertest.encoder;
+
+import com.alipay.common.tracer.core.appender.builder.XStringBuilder;
+import com.alipay.common.tracer.core.appender.encoder.SpanEncoder;
+import com.alipay.common.tracer.core.appender.self.Timestamp;
+import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
+import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.utils.StringUtils;
+
+import java.io.IOException;
+import java.util.Map;
+
+/**
+ * The type Client span event encoder.
+ *
+ * @author yuqian
+ * @version : ClientSpanEventEncoder.java, v 0.1 2025-03-10 17:02 yuqian Exp $$
+ */
+public class ClientSpanEventEncoder implements SpanEncoder<SofaTracerSpan> {
+
+    private XStringBuilder xsb = new XStringBuilder();
+
+    @Override
+    public String encode(SofaTracerSpan span) throws IOException {
+        SofaTracerSpanContext spanContext = span.getSofaTracerSpanContext();
+        xsb.reset();
+        //
+        xsb.append(Timestamp.format(span.getEndTime()));
+        //traceId
+        xsb.append(spanContext.getTraceId());
+        //spanId
+        xsb.append(spanContext.getSpanId());
+        //tags string
+        xsb.append(StringUtils.mapToString(span.getEventTagWithStr()));
+        //tags bool
+        Map<String, Boolean> tagsBool = span.getEventTagWithBool();
+        StringBuilder tagsBoolBuild = new StringBuilder();
+        for (Map.Entry<String, Boolean> entry : tagsBool.entrySet()) {
+            tagsBoolBuild.append(entry.getKey()).append(StringUtils.EQUAL)
+                    .append(entry.getValue().toString()).append(StringUtils.AND);
+        }
+        xsb.append(tagsBoolBuild.toString());
+
+        //tags number
+        Map<String, Number> tagsNum = span.getEventTagWithNumber();
+        StringBuilder tagsNumBuild = new StringBuilder();
+        for (Map.Entry<String, Number> entry : tagsNum.entrySet()) {
+            tagsNumBuild.append(entry.getKey()).append(StringUtils.EQUAL)
+                    .append(entry.getValue().toString()).append(StringUtils.AND);
+        }
+        xsb.append(tagsNumBuild.toString());
+
+        //baggage
+        Map<String, String> baggage = spanContext.getBizBaggage();
+        xsb.appendEnd(StringUtils.mapToString(baggage));
+        return xsb.toString();
+    }
+}
