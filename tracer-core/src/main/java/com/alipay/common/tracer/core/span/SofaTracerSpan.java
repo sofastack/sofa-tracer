@@ -36,52 +36,72 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * SofaTracerSpan
  *
  * @author yangguanchao
- * @since 2017/06/17
+ * @since 2017 /06/17
  */
 public class SofaTracerSpan implements Span {
 
-    public static final char                                ARRAY_SEPARATOR      = '|';
+    /**
+     * The constant ARRAY_SEPARATOR.
+     */
+    public static final char ARRAY_SEPARATOR = '|';
 
-    private final SofaTracer                                sofaTracer;
+    private final SofaTracer sofaTracer;
 
     private final List<SofaTracerSpanReferenceRelationship> spanReferences;
-    /** tags for String  */
-    private final Map<String, String>                       tagsWithStr          = new LinkedHashMap<>();
-    /** tags for Boolean */
-    private final Map<String, Boolean>                      tagsWithBool         = new LinkedHashMap<>();
-    /** tags for Number  */
-    private final Map<String, Number>                       tagsWithNumber       = new LinkedHashMap<>();
+    /**
+     * tags for String
+     */
+    private final Map<String, String> tagsWithStr = new ConcurrentHashMap<>();
+    /**
+     * tags for Boolean
+     */
+    private final Map<String, Boolean> tagsWithBool = new ConcurrentHashMap<>();
+    /**
+     * tags for Number
+     */
+    private final Map<String, Number> tagsWithNumber = new ConcurrentHashMap<>();
 
-    private final List<LogData>                             logs                 = new LinkedList<>();
+    private final Map<String, String> eventTagWithStr = new ConcurrentHashMap<>();
 
-    private String                                          operationName        = StringUtils.EMPTY_STRING;
+    private final Map<String, Number> eventTagWithNumber = new ConcurrentHashMap<>();
 
-    private final SofaTracerSpanContext                     sofaTracerSpanContext;
+    private final Map<String, Boolean> eventTagWithBool = new ConcurrentHashMap<>();
 
-    private long                                            startTime;
-    private long                                            endTime              = -1;
+    private final ConcurrentLinkedQueue<LogData> logs = new ConcurrentLinkedQueue<>();
+
+    private String operationName = StringUtils.EMPTY_STRING;
+
+    private final SofaTracerSpanContext sofaTracerSpanContext;
+
+    private long startTime;
+    private long endTime = -1;
 
     /**
      * Only meaningful when reporting
      * Digest log type,The logs correctly printed key information.
      * For example, the client is rpc-client-digest.log and the server is rpc-server-digest.log
      */
-    private String                                          logType              = StringUtils.EMPTY_STRING;
+    private String logType = StringUtils.EMPTY_STRING;
 
     /**
      * parent span. Describe the child-of relationship
      */
-    private SofaTracerSpan                                  parentSofaTracerSpan = null;
+    private SofaTracerSpan parentSofaTracerSpan = null;
 
+    /**
+     * Clone instance sofa tracer span.
+     *
+     * @return the sofa tracer span
+     */
     public SofaTracerSpan cloneInstance() {
         SofaTracerSpanContext spanContext = this.sofaTracerSpanContext.cloneInstance();
         Map<String, Object> tags = new HashMap<>();
@@ -89,7 +109,7 @@ public class SofaTracerSpan implements Span {
         tags.putAll(this.tagsWithStr);
         tags.putAll(this.tagsWithNumber);
         SofaTracerSpan cloneSpan = new SofaTracerSpan(this.sofaTracer, this.startTime,
-            this.spanReferences, this.operationName, spanContext, tags);
+                this.spanReferences, this.operationName, spanContext, tags);
         if (this.logs != null && this.logs.size() > 0) {
             for (LogData logData : this.logs) {
                 cloneSpan.log(logData);
@@ -115,15 +135,15 @@ public class SofaTracerSpan implements Span {
     public SofaTracerSpan(SofaTracer sofaTracer, long startTime, String operationName,
                           SofaTracerSpanContext sofaTracerSpanContext, Map<String, ?> tags) {
         this(sofaTracer, startTime, null, operationName,
-            sofaTracerSpanContext != null ? sofaTracerSpanContext : SofaTracerSpanContext
-                .rootStart(), tags);
+                sofaTracerSpanContext != null ? sofaTracerSpanContext : SofaTracerSpanContext
+                        .rootStart(), tags);
     }
 
     /**
      * Note:
-     *
+     * <p>
      * 1.As a server-side: After reverting back to {@link SofaTracerSpanContext}, you can directly construct Server Span (traceId, spanId unchanged)
-     *
+     * <p>
      * 2.As a client: need to be built by {@link SofaTracer.SofaTracerSpanBuilder#start()}
      *
      * @param sofaTracer            sofaTracer
@@ -167,6 +187,18 @@ public class SofaTracerSpan implements Span {
         SpanExtensionFactory.logStoppedSpan(this);
     }
 
+    /**
+     * Report event.
+     */
+    public void reportEvent() {
+        if (this.endTime > 0 && System.currentTimeMillis() > this.endTime) {
+            // span is closed, can not report event
+            SelfLog.error("span is closed, can not report event");
+            return;
+        }
+        this.sofaTracer.reportEvent(this);
+    }
+
     @Override
     public void close() {
         this.finish();
@@ -195,7 +227,7 @@ public class SofaTracerSpan implements Span {
 
     @Override
     public Span setTag(String key, boolean value) {
-        this.tagsWithBool.put(key, value);
+        this.tagsWithBool.put(key, Boolean.valueOf(value));
         return this;
     }
 
@@ -205,6 +237,48 @@ public class SofaTracerSpan implements Span {
             return this;
         }
         this.tagsWithNumber.put(key, number);
+        return this;
+    }
+
+    /**
+     * Sets event tag.
+     *
+     * @param key   the key
+     * @param value the value
+     * @return the event tag
+     */
+    public Span setEventTag(String key, String value) {
+        if (StringUtils.isBlank(key) || StringUtils.isBlank(value)) {
+            return this;
+        }
+        this.eventTagWithStr.put(key, value);
+        return this;
+    }
+
+    /**
+     * Sets event tag.
+     *
+     * @param key   the key
+     * @param value the value
+     * @return the event tag
+     */
+    public Span setEventTag(String key, boolean value) {
+        this.eventTagWithBool.put(key, Boolean.valueOf(value));
+        return this;
+    }
+
+    /**
+     * Sets event tag.
+     *
+     * @param key    the key
+     * @param number the number
+     * @return the event tag
+     */
+    public Span setEventTag(String key, Number number) {
+        if (number == null) {
+            return this;
+        }
+        this.eventTagWithNumber.put(key, number);
         return this;
     }
 
@@ -222,6 +296,12 @@ public class SofaTracerSpan implements Span {
         return this.log(currentTime, fields);
     }
 
+    /**
+     * Log span.
+     *
+     * @param logData the log data
+     * @return the span
+     */
     public Span log(LogData logData) {
         if (logData == null) {
             return this;
@@ -258,8 +338,8 @@ public class SofaTracerSpan implements Span {
     }
 
     /**
-     *
      * The default settings are business baggage
+     *
      * @param key
      * @param value
      * @return
@@ -272,6 +352,7 @@ public class SofaTracerSpan implements Span {
 
     /**
      * The default read are business baggage
+     *
      * @param key
      * @return
      */
@@ -289,16 +370,17 @@ public class SofaTracerSpan implements Span {
     //======================= Extended API interface starts
 
     /**
+     * Report error.
      *
-     * @param errorType         errorType error description:timeout_error/biz_error...
-     * @param context           context
-     * @param e                 e
-     * @param errorSourceApp    errorSourceApp trade|rpc
-     * @param errorSources      errorSources
+     * @param errorType      errorType error description:timeout_error/biz_error...
+     * @param context        context
+     * @param e              e
+     * @param errorSourceApp errorSourceApp trade|rpc
+     * @param errorSources   errorSources
      */
     public void reportError(String errorType, Map<String, String> context, Throwable e,
                             String errorSourceApp, String... errorSources) {
-        Tags.ERROR.set(this, true);
+        Tags.ERROR.set(this, Boolean.valueOf(true));
         //all tags set
         Map<String, Object> tags = new HashMap<>();
         tags.putAll(this.getTagsWithStr());
@@ -307,15 +389,15 @@ public class SofaTracerSpan implements Span {
         tags.put(SpanTags.CURR_APP_TAG.getKey(), errorSourceApp);
         //Construct new CommonLogSpan
         CommonLogSpan commonLogSpan = new CommonLogSpan(this.sofaTracer,
-            System.currentTimeMillis(), this.getOperationName(), this.getSofaTracerSpanContext(),
-            tags);
+                System.currentTimeMillis(), this.getOperationName(), this.getSofaTracerSpanContext(),
+                tags);
         commonLogSpan.addSlot(Thread.currentThread().getName());
         commonLogSpan.addSlot(errorType);
         // There may be a separator in the output of the business customization, now replace the separator with the corresponding escape character
         commonLogSpan.addSlot(StringUtils.arrayToString(errorSources, ARRAY_SEPARATOR, "", ""));
         commonLogSpan.addSlot(StringUtils.mapToString(context));
         commonLogSpan.addSlot(this.getSofaTracerSpanContext() == null ? StringUtils.EMPTY_STRING
-            : this.getSofaTracerSpanContext().getBizSerializedBaggage());
+                : this.getSofaTracerSpanContext().getBizSerializedBaggage());
 
         if (e == null) {
             commonLogSpan.addSlot(StringUtils.EMPTY_STRING);
@@ -342,8 +424,8 @@ public class SofaTracerSpan implements Span {
         tags.putAll(this.getTagsWithNumber());
         tags.put(SpanTags.CURR_APP_TAG.getKey(), profileApp);
         CommonLogSpan commonLogSpan = new CommonLogSpan(this.sofaTracer,
-            System.currentTimeMillis(), this.getOperationName(), this.getSofaTracerSpanContext(),
-            tags);
+                System.currentTimeMillis(), this.getOperationName(), this.getSofaTracerSpanContext(),
+                tags);
 
         commonLogSpan.addSlot(protocolType);
         commonLogSpan.addSlot(profileMessage);
@@ -355,11 +437,11 @@ public class SofaTracerSpan implements Span {
      * Return itself as the parent of the next context
      * <p>
      * Use countMatches to count . for higher performance, see performance test data for com.alipay.common.tracer.benchmark.CountBenchmark
-
      * Preventing SofaTracerSpan from nesting too deeply causes a memory leak.
      * This time recreates a context so that the above context can be released.
      * </p>
-     * @return
+     *
+     * @return this as parent when exceed layer
      */
     public SofaTracerSpan getThisAsParentWhenExceedLayer() {
         final SofaTracerSpan parent;
@@ -371,11 +453,11 @@ public class SofaTracerSpan implements Span {
             baggage.putAll(this.sofaTracerSpanContext.getBizBaggage());
             parentSpanContext.addBizBaggage(baggage);
             parent = new SofaTracerSpan(this.sofaTracer, System.currentTimeMillis(),
-                this.operationName, parentSpanContext, null);
+                    this.operationName, parentSpanContext, null);
             // Record in the log to prevent this from happening but not to know quickly
             SelfLog.errorWithTraceId("OpenTracing Span layer exceed max layer limit "
-                                     + SofaTracerConstant.MAX_LAYER,
-                this.sofaTracerSpanContext.getTraceId());
+                            + SofaTracerConstant.MAX_LAYER,
+                    this.sofaTracerSpanContext.getTraceId());
         } else {
             parent = this;
         }
@@ -385,6 +467,11 @@ public class SofaTracerSpan implements Span {
 
     //======================= Extended API interface end
 
+    /**
+     * Gets span references.
+     *
+     * @return the span references
+     */
     public List<SofaTracerSpanReferenceRelationship> getSpanReferences() {
         if (spanReferences == null) {
             return Collections.emptyList();
@@ -392,62 +479,164 @@ public class SofaTracerSpan implements Span {
         return Collections.unmodifiableList(spanReferences);
     }
 
+    /**
+     * Gets sofa tracer.
+     *
+     * @return the sofa tracer
+     */
     public SofaTracer getSofaTracer() {
         return sofaTracer;
     }
 
+    /**
+     * Gets start time.
+     *
+     * @return the start time
+     */
     public long getStartTime() {
         return startTime;
     }
 
+    /**
+     * Sets start time.
+     *
+     * @param startTime the start time
+     */
     public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
 
+    /**
+     * Gets end time.
+     *
+     * @return the end time
+     */
     public long getEndTime() {
         return endTime;
     }
 
+    /**
+     * Sets end time.
+     *
+     * @param endTime the end time
+     */
     public void setEndTime(long endTime) {
         this.endTime = endTime;
     }
 
+    /**
+     * Gets duration microseconds.
+     *
+     * @return the duration microseconds
+     */
     public long getDurationMicroseconds() {
         return this.endTime - this.startTime;
     }
 
+    /**
+     * Gets tags with str.
+     *
+     * @return the tags with str
+     */
     public Map<String, String> getTagsWithStr() {
         return tagsWithStr;
     }
 
+    /**
+     * Gets tags with bool.
+     *
+     * @return the tags with bool
+     */
     public Map<String, Boolean> getTagsWithBool() {
         return tagsWithBool;
     }
 
+    /**
+     * Gets tags with number.
+     *
+     * @return the tags with number
+     */
     public Map<String, Number> getTagsWithNumber() {
         return tagsWithNumber;
     }
 
+    /**
+     * Gets event tag with number.
+     *
+     * @return the event tag with number
+     */
+    public Map<String, Number> getEventTagWithNumber() {
+        return eventTagWithNumber;
+    }
+
+    /**
+     * Gets event tag with bool.
+     *
+     * @return the event tag with bool
+     */
+    public Map<String, Boolean> getEventTagWithBool() {
+        return eventTagWithBool;
+    }
+
+    /**
+     * Gets event tag with str.
+     *
+     * @return the event tag with str
+     */
+    public Map<String, String> getEventTagWithStr() {
+        return eventTagWithStr;
+    }
+
+    /**
+     * Gets operation name.
+     *
+     * @return the operation name
+     */
     public String getOperationName() {
         return operationName;
     }
 
+    /**
+     * Gets sofa tracer span context.
+     *
+     * @return the sofa tracer span context
+     */
     public SofaTracerSpanContext getSofaTracerSpanContext() {
         return sofaTracerSpanContext;
     }
 
-    public List<LogData> getLogs() {
+    /**
+     * Gets logs.
+     *
+     * @return the logs
+     */
+    public ConcurrentLinkedQueue<LogData> getLogs() {
         return logs;
     }
 
+    /**
+     * Gets log type.
+     *
+     * @return the log type
+     */
     public String getLogType() {
         return logType;
     }
 
+    /**
+     * Sets log type.
+     *
+     * @param logType the log type
+     */
     public void setLogType(String logType) {
         this.logType = logType;
     }
 
+    /**
+     * Gets parent sofa tracer span.
+     *
+     * @return the parent sofa tracer span
+     */
     public SofaTracerSpan getParentSofaTracerSpan() {
         if (this.parentSofaTracerSpan != null) {
             return this.parentSofaTracerSpan.getThisAsParentWhenExceedLayer();
@@ -455,14 +644,29 @@ public class SofaTracerSpan implements Span {
         return null;
     }
 
+    /**
+     * Sets parent sofa tracer span.
+     *
+     * @param parentSofaTracerSpan the parent sofa tracer span
+     */
     public void setParentSofaTracerSpan(SofaTracerSpan parentSofaTracerSpan) {
         this.parentSofaTracerSpan = parentSofaTracerSpan;
     }
 
+    /**
+     * Is server boolean.
+     *
+     * @return the boolean
+     */
     public boolean isServer() {
         return Tags.SPAN_KIND_SERVER.equals(tagsWithStr.get(Tags.SPAN_KIND.getKey()));
     }
 
+    /**
+     * Is client boolean.
+     *
+     * @return the boolean
+     */
     public boolean isClient() {
         return Tags.SPAN_KIND_CLIENT.equals(tagsWithStr.get(Tags.SPAN_KIND.getKey()));
     }
@@ -488,8 +692,8 @@ public class SofaTracerSpan implements Span {
                 this.setTag(key, (Number) value);
             } else {
                 SelfLog.error(String.format(
-                    LogCode2Description.convert(SofaTracerConstant.SPACE_ID, "01-00012"),
-                    value.getClass()));
+                        LogCode2Description.convert(SofaTracerConstant.SPACE_ID, "01-00012"),
+                        value.getClass()));
             }
         }
     }
@@ -497,7 +701,7 @@ public class SofaTracerSpan implements Span {
     @Override
     public String toString() {
         return "SofaTracerSpan{" + "operationName='" + operationName + '\''
-               + ", sofaTracerSpanContext=" + sofaTracerSpanContext + '}';
+                + ", sofaTracerSpanContext=" + sofaTracerSpanContext + '}';
     }
 
 }

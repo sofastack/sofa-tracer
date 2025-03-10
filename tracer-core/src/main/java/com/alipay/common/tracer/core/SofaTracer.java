@@ -76,6 +76,10 @@ public class SofaTracer implements Tracer {
      */
     private final Reporter            serverReporter;
 
+    private final Reporter            clientEventReporter;
+
+    private final Reporter            serverEventReporter;
+
     /**
      * Cache some information related to the tracer globally
      */
@@ -91,6 +95,8 @@ public class SofaTracer implements Tracer {
         this.tracerType = tracerType;
         this.clientReporter = clientReporter;
         this.serverReporter = serverReporter;
+        this.clientEventReporter = null;
+        this.serverEventReporter = null;
         this.sampler = sampler;
         if (tracerTags != null && tracerTags.size() > 0) {
             this.tracerTags.putAll(tracerTags);
@@ -101,7 +107,22 @@ public class SofaTracer implements Tracer {
         this.tracerType = tracerType;
         this.clientReporter = null;
         this.serverReporter = null;
+        this.clientEventReporter = null;
+        this.serverEventReporter = null;
         this.sampler = sampler;
+    }
+
+    protected SofaTracer(String tracerType, Reporter clientReporter, Reporter serverReporter,
+                         Reporter clientEventReporter, Reporter serverEventReporter, Sampler sampler, Map<String, Object> tracerTags) {
+        this.tracerType = tracerType;
+        this.clientReporter = clientReporter;
+        this.serverReporter = serverReporter;
+        this.clientEventReporter = clientEventReporter;
+        this.serverEventReporter = serverEventReporter;
+        this.sampler = sampler;
+        if (tracerTags != null && tracerTags.size() > 0) {
+            this.tracerTags.putAll(tracerTags);
+        }
     }
 
     @Override
@@ -153,6 +174,31 @@ public class SofaTracer implements Tracer {
         }
     }
 
+    public void reportEvent(SofaTracerSpan span) {
+        if (span == null) {
+            return;
+        }
+        // //sampler is support &  current span is root span
+        if (sampler != null && (span.isClient() && span.getParentSofaTracerSpan() == null)) {
+            span.getSofaTracerSpanContext().setSampled(sampler.sample(span).isSampled());
+        }
+        //invoke listener
+        this.invokeReportListeners(span);
+        if (span.isClient()
+                || this.getTracerType().equalsIgnoreCase(ComponentNameConstants.FLEXIBLE)) {
+            if (this.clientEventReporter != null) {
+                this.clientEventReporter.report(span);
+            }
+        } else if (span.isServer()) {
+            if (this.serverEventReporter != null) {
+                this.serverEventReporter.report(span);
+            }
+        } else {
+            //ignore ,do not statical
+            SelfLog.warn("Span reported neither client nor server.Ignore!");
+        }
+    }
+
     /**
      * Shuts down the {@link Reporter}  and {@link Sampler}
      */
@@ -162,6 +208,14 @@ public class SofaTracer implements Tracer {
         }
         if (this.serverReporter != null) {
             this.serverReporter.close();
+        }
+
+        if (this.clientEventReporter != null) {
+            this.clientEventReporter.close();
+        }
+
+        if (this.serverEventReporter != null) {
+            this.serverEventReporter.close();
         }
 
         if (sampler != null) {
@@ -179,6 +233,14 @@ public class SofaTracer implements Tracer {
 
     public Reporter getServerReporter() {
         return serverReporter;
+    }
+
+    public Reporter getClientEventReporter() {
+        return clientEventReporter;
+    }
+
+    public Reporter getServerEventReporter() {
+        return serverEventReporter;
     }
 
     public Sampler getSampler() {
@@ -400,6 +462,10 @@ public class SofaTracer implements Tracer {
 
         private Reporter            serverReporter;
 
+        private Reporter            clientEventReporter;
+
+        private Reporter            serverEventReporter;
+
         private Map<String, Object> tracerTags = new HashMap<String, Object>();
 
         private Sampler             sampler;
@@ -416,6 +482,16 @@ public class SofaTracer implements Tracer {
 
         public Builder withServerReporter(Reporter serverReporter) {
             this.serverReporter = serverReporter;
+            return this;
+        }
+
+        public Builder withClientEventReporter(Reporter clientEventReporter) {
+            this.clientEventReporter = clientEventReporter;
+            return this;
+        }
+
+        public Builder withServerEventReporter(Reporter serverEventReporter) {
+            this.serverEventReporter = serverEventReporter;
             return this;
         }
 
@@ -472,8 +548,8 @@ public class SofaTracer implements Tracer {
             } catch (Exception e) {
                 SelfLog.error(LogCode2Description.convert(SPACE_ID, "01-00002"));
             }
-            return new SofaTracer(this.tracerType, this.clientReporter, this.serverReporter,
-                this.sampler, this.tracerTags);
+            return new SofaTracer(this.tracerType, this.clientReporter, this.serverReporter, this.clientEventReporter,
+                this.serverEventReporter, this.sampler, this.tracerTags);
         }
     }
 }
