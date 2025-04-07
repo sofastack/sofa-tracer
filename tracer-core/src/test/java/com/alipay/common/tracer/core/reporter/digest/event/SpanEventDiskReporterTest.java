@@ -1,6 +1,18 @@
-/**
- * Ant Group
- * Copyright (c) 2004-2025 All Rights Reserved.
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.alipay.common.tracer.core.reporter.digest.event;
 
@@ -31,26 +43,27 @@ import static org.mockito.Mockito.mock;
  */
 public class SpanEventDiskReporterTest extends AbstractTestBase {
 
-    private final String eventLogType = TracerTestLogEnum.RPC_CLIENT_EVENT.getDefaultLogName();
+    private final String                 eventLogType           = TracerTestLogEnum.RPC_CLIENT_EVENT
+                                                                    .getDefaultLogName();
 
-    private final String expectRollingPolicy = SofaTracerConfiguration
-            .getRollingPolicy(TracerTestLogEnum.RPC_CLIENT_EVENT
-                    .getRollingKey());
+    private final String                 expectRollingPolicy    = SofaTracerConfiguration
+                                                                    .getRollingPolicy(TracerTestLogEnum.RPC_CLIENT_EVENT
+                                                                        .getRollingKey());
 
-    private final String expectLogReserveConfig = SofaTracerConfiguration
-            .getLogReserveConfig(TracerTestLogEnum.RPC_CLIENT_EVENT
-                    .getLogReverseKey());
+    private final String                 expectLogReserveConfig = SofaTracerConfiguration
+                                                                    .getLogReserveConfig(TracerTestLogEnum.RPC_CLIENT_EVENT
+                                                                        .getLogReverseKey());
 
     private final ClientSpanEventEncoder clientSpanEventEncoder = new ClientSpanEventEncoder();
 
-    private SpanEventDiskReporter spanEventDiskReporter;
+    private SpanEventDiskReporter        spanEventDiskReporter;
 
-    private SofaTracerSpan sofaTracerSpan;
+    private SofaTracerSpan               sofaTracerSpan;
 
     @Before
     public void before() {
         this.spanEventDiskReporter = new SpanEventDiskReporter(eventLogType, expectRollingPolicy,
-                expectLogReserveConfig, clientSpanEventEncoder, null);
+            expectLogReserveConfig, clientSpanEventEncoder, null);
         this.sofaTracerSpan = mock(SofaTracerSpan.class);
     }
 
@@ -95,10 +108,11 @@ public class SpanEventDiskReporterTest extends AbstractTestBase {
         SelfLog.warn("SelfLog init success!!!");
         int nThreads = 30;
         ExecutorService executor = new ThreadPoolExecutor(nThreads, nThreads, 0L,
-                TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+            TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
         CountDownLatch countDownLatch = new CountDownLatch(nThreads);
         for (int i = 0; i < nThreads; i++) {
-            Runnable worker = new WorkerInitThread(this.spanEventDiskReporter, "" + i, countDownLatch);
+            Runnable worker = new WorkerInitThread(this.spanEventDiskReporter, "" + i,
+                countDownLatch);
             executor.execute(worker);
         }
         //noinspection ResultOfMethodCallIgnored
@@ -111,10 +125,11 @@ public class SpanEventDiskReporterTest extends AbstractTestBase {
 
     static class WorkerInitThread implements Runnable {
         private final SpanEventDiskReporter reporter;
-        private final String command;
-        private final CountDownLatch countDownLatch;
+        private final String                command;
+        private final CountDownLatch        countDownLatch;
 
-        public WorkerInitThread(SpanEventDiskReporter reporter, String s, CountDownLatch countDownLatch) {
+        public WorkerInitThread(SpanEventDiskReporter reporter, String s,
+                                CountDownLatch countDownLatch) {
             this.command = s;
             this.reporter = reporter;
             this.countDownLatch = countDownLatch;
@@ -128,7 +143,7 @@ public class SpanEventDiskReporterTest extends AbstractTestBase {
 
         private void processCommand() {
             SofaTracerSpan span = new SofaTracerSpan(mock(SofaTracer.class),
-                    System.currentTimeMillis(), "open", SofaTracerSpanContext.rootStart(), null);
+                System.currentTimeMillis(), "open", SofaTracerSpanContext.rootStart(), null);
             span.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
             this.reporter.digestReport(span);
         }

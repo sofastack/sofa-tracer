@@ -76,19 +76,22 @@ public class SofaTracerTest extends AbstractTestBase {
         DiskReporterImpl clientReporter = new DiskReporterImpl(
             TracerTestLogEnum.RPC_CLIENT.getDefaultLogName(), new ClientSpanEncoder());
 
-        SpanEventDiskReporter clientEventReporter = new SpanEventDiskReporter(TracerTestLogEnum.RPC_CLIENT_EVENT.getDefaultLogName(), "", "", new ClientSpanEventEncoder(), null);
+        SpanEventDiskReporter clientEventReporter = new SpanEventDiskReporter(
+            TracerTestLogEnum.RPC_CLIENT_EVENT.getDefaultLogName(), "", "",
+            new ClientSpanEventEncoder(), null);
 
         //server
         DiskReporterImpl serverReporter = new DiskReporterImpl(
             TracerTestLogEnum.RPC_SERVER.getDefaultLogName(), new ServerSpanEncoder());
 
-        SpanEventDiskReporter serverEventReporter = new SpanEventDiskReporter(TracerTestLogEnum.RPC_SERVER.getDefaultLogName(), "", "", new ClientSpanEventEncoder(), null);
-
+        SpanEventDiskReporter serverEventReporter = new SpanEventDiskReporter(
+            TracerTestLogEnum.RPC_SERVER.getDefaultLogName(), "", "", new ClientSpanEventEncoder(),
+            null);
 
         sofaTracer = new SofaTracer.Builder(tracerType).withTag("tracer", "tracerTest")
             .withClientReporter(clientReporter).withServerReporter(serverReporter)
-                .withClientEventReporter(clientEventReporter)
-                .withServerEventReporter(serverEventReporter)
+            .withClientEventReporter(clientEventReporter)
+            .withServerEventReporter(serverEventReporter)
             .withTag(tracerGlobalTagKey, tracerGlobalTagValue).build();
     }
 

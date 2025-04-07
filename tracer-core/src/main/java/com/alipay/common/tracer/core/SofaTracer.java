@@ -113,7 +113,8 @@ public class SofaTracer implements Tracer {
     }
 
     protected SofaTracer(String tracerType, Reporter clientReporter, Reporter serverReporter,
-                         Reporter clientEventReporter, Reporter serverEventReporter, Sampler sampler, Map<String, Object> tracerTags) {
+                         Reporter clientEventReporter, Reporter serverEventReporter,
+                         Sampler sampler, Map<String, Object> tracerTags) {
         this.tracerType = tracerType;
         this.clientReporter = clientReporter;
         this.serverReporter = serverReporter;
@@ -185,7 +186,7 @@ public class SofaTracer implements Tracer {
         //invoke listener
         this.invokeReportListeners(span);
         if (span.isClient()
-                || this.getTracerType().equalsIgnoreCase(ComponentNameConstants.FLEXIBLE)) {
+            || this.getTracerType().equalsIgnoreCase(ComponentNameConstants.FLEXIBLE)) {
             if (this.clientEventReporter != null) {
                 this.clientEventReporter.report(span);
             }
@@ -548,8 +549,8 @@ public class SofaTracer implements Tracer {
             } catch (Exception e) {
                 SelfLog.error(LogCode2Description.convert(SPACE_ID, "01-00002"));
             }
-            return new SofaTracer(this.tracerType, this.clientReporter, this.serverReporter, this.clientEventReporter,
-                this.serverEventReporter, this.sampler, this.tracerTags);
+            return new SofaTracer(this.tracerType, this.clientReporter, this.serverReporter,
+                this.clientEventReporter, this.serverEventReporter, this.sampler, this.tracerTags);
         }
     }
 }

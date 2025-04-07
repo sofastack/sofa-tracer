@@ -1,6 +1,18 @@
-/**
- * Ant Group
- * Copyright (c) 2004-2025 All Rights Reserved.
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.alipay.common.tracer.core.reporter.digest.event;
 
@@ -29,16 +41,15 @@ public class SpanEventDiskReporter extends AbstractDiskReporter {
 
     private final AtomicBoolean isEventFileInited = new AtomicBoolean(false);
 
-    private final String eventLogType;
+    private final String        eventLogType;
 
-    private final String eventRollingPolicy;
+    private final String        eventRollingPolicy;
 
-    private String eventLogReserveConfig;
+    private String              eventLogReserveConfig;
 
-    private final SpanEncoder contextEncoder;
+    private final SpanEncoder   contextEncoder;
 
-    private String logNameKey;
-
+    private String              logNameKey;
 
     /**
      * Instantiates a new Span event disk reporter.
@@ -50,7 +61,8 @@ public class SpanEventDiskReporter extends AbstractDiskReporter {
      * @param logNameKey             the log name key
      */
     public SpanEventDiskReporter(String eventLogType, String eventRollingPolicy,
-                                 String eventLogReserveConfig, SpanEncoder contextEncoder,String logNameKey) {
+                                 String eventLogReserveConfig, SpanEncoder contextEncoder,
+                                 String logNameKey) {
         AssertUtils.hasText(eventLogType, "digestLogType can't be empty");
         this.eventLogType = eventLogType;
         this.eventRollingPolicy = eventRollingPolicy;
@@ -58,7 +70,6 @@ public class SpanEventDiskReporter extends AbstractDiskReporter {
         this.contextEncoder = contextEncoder;
         this.logNameKey = logNameKey;
     }
-
 
     /**
      * Get digest reporter instance type
@@ -92,7 +103,7 @@ public class SpanEventDiskReporter extends AbstractDiskReporter {
             this.initDigestFile();
         }
         AsyncCommonDigestAppenderManager asyncDigestManager = SofaTracerDigestReporterAsyncManager
-                .getSofaTracerDigestReporterAsyncManager();
+            .getSofaTracerDigestReporterAsyncManager();
         if (asyncDigestManager.isAppenderAndEncoderExist(this.eventLogType)) {
             //Print only when appender and encoder are present
             asyncDigestManager.append(span);
@@ -152,24 +163,24 @@ public class SpanEventDiskReporter extends AbstractDiskReporter {
         }
         if (StringUtils.isNotBlank(logNameKey)) {
             String currentDigestLogReserveConfig = SofaTracerConfiguration
-                    .getLogReserveConfig(logNameKey);
+                .getLogReserveConfig(logNameKey);
             if (!currentDigestLogReserveConfig.equals(eventLogReserveConfig)) {
                 SelfLog.info("the lognamekey : " + logNameKey
-                        + " take effect. the old logreserveconfig is "
-                        + eventLogReserveConfig + " and " + "the new logreverseconfig is "
-                        + currentDigestLogReserveConfig);
+                             + " take effect. the old logreserveconfig is " + eventLogReserveConfig
+                             + " and " + "the new logreverseconfig is "
+                             + currentDigestLogReserveConfig);
                 eventLogReserveConfig = currentDigestLogReserveConfig;
             }
         }
         TraceAppender digestTraceAppender = LoadTestAwareAppender
-                .createLoadTestAwareTimedRollingFileAppender(this.eventLogType,
-                        this.eventRollingPolicy, this.eventLogReserveConfig);
+            .createLoadTestAwareTimedRollingFileAppender(this.eventLogType,
+                this.eventRollingPolicy, this.eventLogReserveConfig);
         //registry digest
         AsyncCommonDigestAppenderManager asyncDigestManager = SofaTracerDigestReporterAsyncManager
-                .getSofaTracerDigestReporterAsyncManager();
+            .getSofaTracerDigestReporterAsyncManager();
         if (!asyncDigestManager.isAppenderAndEncoderExist(this.eventLogType)) {
             asyncDigestManager.addAppender(this.eventLogType, digestTraceAppender,
-                    this.contextEncoder);
+                this.contextEncoder);
         }
         //Already exists or created for the first time
         this.isEventFileInited.set(true);
