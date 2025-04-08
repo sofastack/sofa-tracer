@@ -122,4 +122,9 @@ public class SofaTracerConstant {
     public static final String  STAT_FLAG_FAILS           = DIGEST_FLAG_FAILS;
 
     public static final String  SPACE_ID                  = "sofa-tracer";
+
+    /**
+     * The constant MAX_SPAN_EVENT_NUM.
+     */
+    public static final int  MAX_SPAN_EVENT_NUM           = 100;
 }

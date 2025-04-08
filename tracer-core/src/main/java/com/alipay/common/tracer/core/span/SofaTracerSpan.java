@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
 
 /**
  * SofaTracerSpan
@@ -70,13 +72,13 @@ public class SofaTracerSpan implements Span {
      */
     private final Map<String, Number> tagsWithNumber = new ConcurrentHashMap<>();
 
-    private final Map<String, String> eventTagWithStr = new ConcurrentHashMap<>();
-
-    private final Map<String, Number> eventTagWithNumber = new ConcurrentHashMap<>();
-
-    private final Map<String, Boolean> eventTagWithBool = new ConcurrentHashMap<>();
-
     private final ConcurrentLinkedQueue<LogData> logs = new ConcurrentLinkedQueue<>();
+
+    private final ConcurrentLinkedQueue<SpanEventData> events = new ConcurrentLinkedQueue<>();
+
+    private SpanEventData eventData;
+
+    private final AtomicInteger eventNum = new AtomicInteger(0);
 
     private String operationName = StringUtils.EMPTY_STRING;
 
@@ -183,20 +185,46 @@ public class SofaTracerSpan implements Span {
     public void finish(long endTime) {
         this.setEndTime(endTime);
         //Key record:report span
+        reportEvent();
         this.sofaTracer.reportSpan(this);
         SpanExtensionFactory.logStoppedSpan(this);
     }
 
     /**
-     * Report event.
+     * Add event.
+     *
+     * @param eventData the event data
      */
-    public void reportEvent() {
-        if (this.endTime > 0 && System.currentTimeMillis() > this.endTime) {
-            // span is closed, can not report event
-            SelfLog.error("span is closed, can not report event");
+    public void addEvent(SpanEventData eventData) {
+        if (eventData == null) {
+            SelfLog.error("event is null");
             return;
         }
-        this.sofaTracer.reportEvent(this);
+
+        if (this.endTime > 0 && System.currentTimeMillis() > this.endTime) {
+            // span is closed, can not report event
+            SelfLog.error("span is closed, can not add event");
+            return;
+        }
+
+        if (eventNum.incrementAndGet() > SofaTracerConstant.MAX_SPAN_EVENT_NUM) {
+            SelfLog.error("span events exceed max num");
+            return;
+        }
+
+        boolean result = this.events.offer(eventData);
+        if (!result) {
+            SelfLog.error("add event failed");
+        }
+    }
+
+    private void reportEvent() {
+        SpanEventData spanEventData = events.poll();
+        while (spanEventData != null) {
+            this.eventData = spanEventData;
+            this.sofaTracer.reportEvent(this);
+            spanEventData = events.poll();
+        }
     }
 
     @Override
@@ -237,48 +265,6 @@ public class SofaTracerSpan implements Span {
             return this;
         }
         this.tagsWithNumber.put(key, number);
-        return this;
-    }
-
-    /**
-     * Sets event tag.
-     *
-     * @param key   the key
-     * @param value the value
-     * @return the event tag
-     */
-    public Span setEventTag(String key, String value) {
-        if (StringUtils.isBlank(key) || StringUtils.isBlank(value)) {
-            return this;
-        }
-        this.eventTagWithStr.put(key, value);
-        return this;
-    }
-
-    /**
-     * Sets event tag.
-     *
-     * @param key   the key
-     * @param value the value
-     * @return the event tag
-     */
-    public Span setEventTag(String key, boolean value) {
-        this.eventTagWithBool.put(key, value);
-        return this;
-    }
-
-    /**
-     * Sets event tag.
-     *
-     * @param key    the key
-     * @param number the number
-     * @return the event tag
-     */
-    public Span setEventTag(String key, Number number) {
-        if (number == null) {
-            return this;
-        }
-        this.eventTagWithNumber.put(key, number);
         return this;
     }
 
@@ -561,33 +547,6 @@ public class SofaTracerSpan implements Span {
     }
 
     /**
-     * Gets event tag with number.
-     *
-     * @return the event tag with number
-     */
-    public Map<String, Number> getEventTagWithNumber() {
-        return eventTagWithNumber;
-    }
-
-    /**
-     * Gets event tag with bool.
-     *
-     * @return the event tag with bool
-     */
-    public Map<String, Boolean> getEventTagWithBool() {
-        return eventTagWithBool;
-    }
-
-    /**
-     * Gets event tag with str.
-     *
-     * @return the event tag with str
-     */
-    public Map<String, String> getEventTagWithStr() {
-        return eventTagWithStr;
-    }
-
-    /**
      * Gets operation name.
      *
      * @return the operation name
@@ -630,6 +589,24 @@ public class SofaTracerSpan implements Span {
      */
     public void setLogType(String logType) {
         this.logType = logType;
+    }
+
+    /**
+     * Gets event data.
+     *
+     * @return the event data
+     */
+    public SpanEventData getEventData() {
+        return eventData;
+    }
+
+    /**
+     * Sets event data.
+     *
+     * @param eventData the event data
+     */
+    public void setEventData(SpanEventData eventData) {
+        this.eventData = eventData;
     }
 
     /**

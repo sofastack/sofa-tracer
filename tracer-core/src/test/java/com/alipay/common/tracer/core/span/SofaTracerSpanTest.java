@@ -37,12 +37,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.junit.Assert.*;
@@ -205,30 +200,6 @@ public class SofaTracerSpanTest extends AbstractTestBase {
     }
 
     @Test
-    public void testSetEventStrTag() {
-        String expected = "expected";
-        String key = "tag.key";
-        sofaTracerSpan.setEventTag("tag.key", "expected");
-        assertEquals(expected, sofaTracerSpan.getEventTagWithStr().get(key));
-    }
-
-    @Test
-    public void testSetEventNumberTag() {
-        Integer expected = 5;
-        String key = "tag.key";
-        sofaTracerSpan.setEventTag("tag.key", expected);
-        assertEquals(expected, sofaTracerSpan.getEventTagWithNumber().get(key));
-    }
-
-    @Test
-    public void testSetEventBooleanTag() {
-        Boolean expected = Boolean.TRUE;
-        String key = "tag.key";
-        sofaTracerSpan.setEventTag("tag.key", expected);
-        assertEquals(expected, sofaTracerSpan.getEventTagWithBool().get(key));
-    }
-
-    @Test
     public void testWithTimestampDurationEndTimeMinusStartTime() {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testWithTimestamp")
                 .withStartTimestamp(111).start();
@@ -254,9 +225,8 @@ public class SofaTracerSpanTest extends AbstractTestBase {
     public void testEvent() {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testWithTimestamp")
                 .withStartTimestamp(111).start();
-        span.setEventTag("tag.key", "value");
+        span.addEvent(SpanEventData.builder().setEventTag("tag.key", "value").build());
         span.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
-        span.reportEvent();
     }
 
     /**
