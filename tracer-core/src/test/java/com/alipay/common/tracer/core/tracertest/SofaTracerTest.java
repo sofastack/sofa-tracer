@@ -27,6 +27,7 @@ import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.samplers.Sampler;
 import com.alipay.common.tracer.core.samplers.SofaTracerPercentageBasedSampler;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
+import com.alipay.common.tracer.core.span.SpanEventData;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEventEncoder;
 import com.alipay.common.tracer.core.tracertest.encoder.ServerSpanEncoder;
@@ -145,7 +146,7 @@ public class SofaTracerTest extends AbstractTestBase {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testInjectSpan")
                 .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         //Report Do not prohibit writing
-        span.reportEvent();
+        span.addEvent(SpanEventData.builder().setEventTag("kkk11", "vvv22").build());
         span.finish();
 
         TestUtil.periodicallyAssert(() -> {
@@ -173,7 +174,9 @@ public class SofaTracerTest extends AbstractTestBase {
             SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY, "true");
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testInjectSpan")
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
-        span.reportEvent();
+        span.addEvent(SpanEventData.builder()
+                .setEventTag("tag.key", true)
+                .setEventTag("tag.num", "999").build());
         //report
         span.finish();
         assertFalse(customFileLog(TracerTestLogEnum.RPC_CLIENT.getDefaultLogName()).exists());
@@ -193,7 +196,7 @@ public class SofaTracerTest extends AbstractTestBase {
         //create
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testInjectSpan")
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
-        span.reportEvent();
+        span.addEvent(SpanEventData.builder().setEventTag("kkk", "vvv").build());
         //report
         span.finish();
         assertFalse(customFileLog(clientLogTypeName).exists());
@@ -211,7 +214,7 @@ public class SofaTracerTest extends AbstractTestBase {
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         this.sofaTracer.close();
         //report
-        span.reportEvent();
+        span.addEvent(SpanEventData.builder().setEventTag("kkk2", "vvv2").build());
         span.finish();
         String clientLogTypeName = TracerTestLogEnum.RPC_CLIENT.getDefaultLogName();
         assertFalse(customFileLog(clientLogTypeName).exists());

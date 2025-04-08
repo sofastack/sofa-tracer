@@ -41,15 +41,15 @@ public class ClientSpanEventEncoder implements SpanEncoder<SofaTracerSpan> {
         SofaTracerSpanContext spanContext = span.getSofaTracerSpanContext();
         xsb.reset();
         //
-        xsb.append(Timestamp.format(span.getEndTime()));
+        xsb.append(Timestamp.format(span.getEventData().getTimestamp()));
         //traceId
         xsb.append(spanContext.getTraceId());
         //spanId
         xsb.append(spanContext.getSpanId());
         //tags string
-        xsb.append(StringUtils.mapToString(span.getEventTagWithStr()));
+        xsb.append(StringUtils.mapToString(span.getEventData().getEventTagWithStr()));
         //tags bool
-        Map<String, Boolean> tagsBool = span.getEventTagWithBool();
+        Map<String, Boolean> tagsBool = span.getEventData().getEventTagWithBool();
         StringBuilder tagsBoolBuild = new StringBuilder();
         for (Map.Entry<String, Boolean> entry : tagsBool.entrySet()) {
             tagsBoolBuild.append(entry.getKey()).append(StringUtils.EQUAL)
@@ -58,7 +58,7 @@ public class ClientSpanEventEncoder implements SpanEncoder<SofaTracerSpan> {
         xsb.append(tagsBoolBuild.toString());
 
         //tags number
-        Map<String, Number> tagsNum = span.getEventTagWithNumber();
+        Map<String, Number> tagsNum = span.getEventData().getEventTagWithNumber();
         StringBuilder tagsNumBuild = new StringBuilder();
         for (Map.Entry<String, Number> entry : tagsNum.entrySet()) {
             tagsNumBuild.append(entry.getKey()).append(StringUtils.EQUAL)
