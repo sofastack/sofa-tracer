@@ -147,6 +147,8 @@ public class SofaTracerTest extends AbstractTestBase {
                 .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         //Report Do not prohibit writing
         span.addEvent(SpanEventData.builder().setEventTag("kkk11", "vvv22").build());
+        span.addEvent(SpanEventData.builder().setEventTag("kkk222", "vvv33").build());
+
         span.finish();
 
         TestUtil.periodicallyAssert(() -> {
