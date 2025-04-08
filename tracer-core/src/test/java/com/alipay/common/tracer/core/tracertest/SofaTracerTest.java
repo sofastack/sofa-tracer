@@ -174,9 +174,8 @@ public class SofaTracerTest extends AbstractTestBase {
             SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY, "true");
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testInjectSpan")
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
-        span.addEvent(SpanEventData.builder()
-                .setEventTag("tag.key", true)
-                .setEventTag("tag.num", "999").build());
+        span.addEvent(SpanEventData.builder().setEventTag("tag.key", true)
+            .setEventTag("tag.num", "999").build());
         //report
         span.finish();
         assertFalse(customFileLog(TracerTestLogEnum.RPC_CLIENT.getDefaultLogName()).exists());

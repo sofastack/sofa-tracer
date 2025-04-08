@@ -54,50 +54,51 @@ public class SofaTracerSpan implements Span {
     /**
      * The constant ARRAY_SEPARATOR.
      */
-    public static final char ARRAY_SEPARATOR = '|';
+    public static final char                                ARRAY_SEPARATOR      = '|';
 
-    private final SofaTracer sofaTracer;
+    private final SofaTracer                                sofaTracer;
 
     private final List<SofaTracerSpanReferenceRelationship> spanReferences;
     /**
      * tags for String
      */
-    private final Map<String, String> tagsWithStr = new ConcurrentHashMap<>();
+    private final Map<String, String>                       tagsWithStr          = new ConcurrentHashMap<>();
     /**
      * tags for Boolean
      */
-    private final Map<String, Boolean> tagsWithBool = new ConcurrentHashMap<>();
+    private final Map<String, Boolean>                      tagsWithBool         = new ConcurrentHashMap<>();
     /**
      * tags for Number
      */
-    private final Map<String, Number> tagsWithNumber = new ConcurrentHashMap<>();
+    private final Map<String, Number>                       tagsWithNumber       = new ConcurrentHashMap<>();
 
-    private final ConcurrentLinkedQueue<LogData> logs = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<LogData>            logs                 = new ConcurrentLinkedQueue<>();
 
-    private final ConcurrentLinkedQueue<SpanEventData> events = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<SpanEventData>      events               = new ConcurrentLinkedQueue<>();
 
-    private SpanEventData eventData;
+    private SpanEventData                                   eventData;
 
-    private final AtomicInteger eventNum = new AtomicInteger(0);
+    private final AtomicInteger                             eventNum             = new AtomicInteger(
+                                                                                     0);
 
-    private String operationName = StringUtils.EMPTY_STRING;
+    private String                                          operationName        = StringUtils.EMPTY_STRING;
 
-    private final SofaTracerSpanContext sofaTracerSpanContext;
+    private final SofaTracerSpanContext                     sofaTracerSpanContext;
 
-    private long startTime;
-    private long endTime = -1;
+    private long                                            startTime;
+    private long                                            endTime              = -1;
 
     /**
      * Only meaningful when reporting
      * Digest log type,The logs correctly printed key information.
      * For example, the client is rpc-client-digest.log and the server is rpc-server-digest.log
      */
-    private String logType = StringUtils.EMPTY_STRING;
+    private String                                          logType              = StringUtils.EMPTY_STRING;
 
     /**
      * parent span. Describe the child-of relationship
      */
-    private SofaTracerSpan parentSofaTracerSpan = null;
+    private SofaTracerSpan                                  parentSofaTracerSpan = null;
 
     /**
      * Clone instance sofa tracer span.
@@ -111,7 +112,7 @@ public class SofaTracerSpan implements Span {
         tags.putAll(this.tagsWithStr);
         tags.putAll(this.tagsWithNumber);
         SofaTracerSpan cloneSpan = new SofaTracerSpan(this.sofaTracer, this.startTime,
-                this.spanReferences, this.operationName, spanContext, tags);
+            this.spanReferences, this.operationName, spanContext, tags);
         if (this.logs != null && this.logs.size() > 0) {
             for (LogData logData : this.logs) {
                 cloneSpan.log(logData);
@@ -137,8 +138,8 @@ public class SofaTracerSpan implements Span {
     public SofaTracerSpan(SofaTracer sofaTracer, long startTime, String operationName,
                           SofaTracerSpanContext sofaTracerSpanContext, Map<String, ?> tags) {
         this(sofaTracer, startTime, null, operationName,
-                sofaTracerSpanContext != null ? sofaTracerSpanContext : SofaTracerSpanContext
-                        .rootStart(), tags);
+            sofaTracerSpanContext != null ? sofaTracerSpanContext : SofaTracerSpanContext
+                .rootStart(), tags);
     }
 
     /**
@@ -255,7 +256,7 @@ public class SofaTracerSpan implements Span {
 
     @Override
     public Span setTag(String key, boolean value) {
-        this.tagsWithBool.put(key, value);
+        this.tagsWithBool.put(key, Boolean.valueOf(value));
         return this;
     }
 
@@ -366,7 +367,7 @@ public class SofaTracerSpan implements Span {
      */
     public void reportError(String errorType, Map<String, String> context, Throwable e,
                             String errorSourceApp, String... errorSources) {
-        Tags.ERROR.set(this, true);
+        Tags.ERROR.set(this, Boolean.valueOf(true));
         //all tags set
         Map<String, Object> tags = new HashMap<>();
         tags.putAll(this.getTagsWithStr());
@@ -375,15 +376,15 @@ public class SofaTracerSpan implements Span {
         tags.put(SpanTags.CURR_APP_TAG.getKey(), errorSourceApp);
         //Construct new CommonLogSpan
         CommonLogSpan commonLogSpan = new CommonLogSpan(this.sofaTracer,
-                System.currentTimeMillis(), this.getOperationName(), this.getSofaTracerSpanContext(),
-                tags);
+            System.currentTimeMillis(), this.getOperationName(), this.getSofaTracerSpanContext(),
+            tags);
         commonLogSpan.addSlot(Thread.currentThread().getName());
         commonLogSpan.addSlot(errorType);
         // There may be a separator in the output of the business customization, now replace the separator with the corresponding escape character
         commonLogSpan.addSlot(StringUtils.arrayToString(errorSources, ARRAY_SEPARATOR, "", ""));
         commonLogSpan.addSlot(StringUtils.mapToString(context));
         commonLogSpan.addSlot(this.getSofaTracerSpanContext() == null ? StringUtils.EMPTY_STRING
-                : this.getSofaTracerSpanContext().getBizSerializedBaggage());
+            : this.getSofaTracerSpanContext().getBizSerializedBaggage());
 
         if (e == null) {
             commonLogSpan.addSlot(StringUtils.EMPTY_STRING);
@@ -410,8 +411,8 @@ public class SofaTracerSpan implements Span {
         tags.putAll(this.getTagsWithNumber());
         tags.put(SpanTags.CURR_APP_TAG.getKey(), profileApp);
         CommonLogSpan commonLogSpan = new CommonLogSpan(this.sofaTracer,
-                System.currentTimeMillis(), this.getOperationName(), this.getSofaTracerSpanContext(),
-                tags);
+            System.currentTimeMillis(), this.getOperationName(), this.getSofaTracerSpanContext(),
+            tags);
 
         commonLogSpan.addSlot(protocolType);
         commonLogSpan.addSlot(profileMessage);
@@ -439,11 +440,11 @@ public class SofaTracerSpan implements Span {
             baggage.putAll(this.sofaTracerSpanContext.getBizBaggage());
             parentSpanContext.addBizBaggage(baggage);
             parent = new SofaTracerSpan(this.sofaTracer, System.currentTimeMillis(),
-                    this.operationName, parentSpanContext, null);
+                this.operationName, parentSpanContext, null);
             // Record in the log to prevent this from happening but not to know quickly
             SelfLog.errorWithTraceId("OpenTracing Span layer exceed max layer limit "
-                            + SofaTracerConstant.MAX_LAYER,
-                    this.sofaTracerSpanContext.getTraceId());
+                                     + SofaTracerConstant.MAX_LAYER,
+                this.sofaTracerSpanContext.getTraceId());
         } else {
             parent = this;
         }
@@ -669,8 +670,8 @@ public class SofaTracerSpan implements Span {
                 this.setTag(key, (Number) value);
             } else {
                 SelfLog.error(String.format(
-                        LogCode2Description.convert(SofaTracerConstant.SPACE_ID, "01-00012"),
-                        value.getClass()));
+                    LogCode2Description.convert(SofaTracerConstant.SPACE_ID, "01-00012"),
+                    value.getClass()));
             }
         }
     }
@@ -678,7 +679,7 @@ public class SofaTracerSpan implements Span {
     @Override
     public String toString() {
         return "SofaTracerSpan{" + "operationName='" + operationName + '\''
-                + ", sofaTracerSpanContext=" + sofaTracerSpanContext + '}';
+               + ", sofaTracerSpanContext=" + sofaTracerSpanContext + '}';
     }
 
 }
