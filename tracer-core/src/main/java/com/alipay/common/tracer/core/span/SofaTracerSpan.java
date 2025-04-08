@@ -221,7 +221,7 @@ public class SofaTracerSpan implements Span {
 
     private void reportEvent() {
         SpanEventData spanEventData = events.poll();
-        while (spanEventData != null) {
+        while (spanEventData != null && eventNum.decrementAndGet() >= 0) {
             this.eventData = spanEventData;
             this.sofaTracer.reportEvent(this);
             spanEventData = events.poll();
