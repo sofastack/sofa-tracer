@@ -40,15 +40,6 @@ public class SpanEventData implements Serializable {
     private final Map<String, Boolean> eventTagWithBool   = new ConcurrentHashMap<>();
 
     /**
-     * Builder span event data builder.
-     *
-     * @return the span event data builder
-     */
-    public static SpanEventDataBuilder builder() {
-        return new SpanEventDataBuilder();
-    }
-
-    /**
      * Gets timestamp.
      *
      * @return the timestamp
@@ -84,75 +75,7 @@ public class SpanEventData implements Serializable {
         return eventTagWithStr;
     }
 
-    /**
-     * The type Span event data builder.
-     */
-    public static class SpanEventDataBuilder {
-        private final Map<String, String>  eventTagWithStr    = new ConcurrentHashMap<>();
-        private final Map<String, Number>  eventTagWithNumber = new ConcurrentHashMap<>();
-        private final Map<String, Boolean> eventTagWithBool   = new ConcurrentHashMap<>();
-
-        private SpanEventDataBuilder() {
-
-        }
-
-        /**
-         * Build span event data.
-         *
-         * @return the span event data
-         */
-        public SpanEventData build() {
-            SpanEventData spanEventData = new SpanEventData();
-            spanEventData.eventTagWithStr.putAll(eventTagWithStr);
-            spanEventData.eventTagWithNumber.putAll(eventTagWithNumber);
-            spanEventData.eventTagWithBool.putAll(eventTagWithBool);
-            spanEventData.timestamp = System.currentTimeMillis();
-            return spanEventData;
-        }
-
-        /**
-         * Sets event tag.
-         *
-         * @param key   the key
-         * @param value the value
-         * @return the event tag
-         */
-        public SpanEventDataBuilder setEventTag(String key, String value) {
-            if (StringUtils.isBlank(key) || StringUtils.isBlank(value)) {
-                return this;
-            }
-            this.eventTagWithStr.put(key, value);
-            return this;
-        }
-
-        /**
-         * Sets event tag.
-         *
-         * @param key   the key
-         * @param value the value
-         * @return the event tag
-         */
-        public SpanEventDataBuilder setEventTag(String key, boolean value) {
-            if (StringUtils.isBlank(key)) {
-                return this;
-            }
-            this.eventTagWithBool.put(key, value);
-            return this;
-        }
-
-        /**
-         * Sets event tag.
-         *
-         * @param key    the key
-         * @param number the number
-         * @return the event tag
-         */
-        public SpanEventDataBuilder setEventTag(String key, Number number) {
-            if (StringUtils.isBlank(key) || number == null) {
-                return this;
-            }
-            this.eventTagWithNumber.put(key, number);
-            return this;
-        }
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }

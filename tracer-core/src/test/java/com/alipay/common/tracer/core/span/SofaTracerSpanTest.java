@@ -227,7 +227,10 @@ public class SofaTracerSpanTest extends AbstractTestBase {
     public void testEvent() {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testWithTimestamp")
             .withStartTimestamp(111).start();
-        span.addEvent(SpanEventData.builder().setEventTag("tag.key", "value").build());
+        SpanEventData spanEventData = new SpanEventData();
+        spanEventData.setTimestamp(System.currentTimeMillis());
+        spanEventData.getEventTagWithStr().put("tag.key", "value");
+        span.addEvent(spanEventData);
         span.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
     }
 

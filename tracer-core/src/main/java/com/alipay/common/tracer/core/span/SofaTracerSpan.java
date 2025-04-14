@@ -74,12 +74,7 @@ public class SofaTracerSpan implements Span {
 
     private final ConcurrentLinkedQueue<LogData>            logs                 = new ConcurrentLinkedQueue<>();
 
-    private final ConcurrentLinkedQueue<SpanEventData>      events               = new ConcurrentLinkedQueue<>();
-
     private SpanEventData                                   eventData;
-
-    private final AtomicInteger                             eventNum             = new AtomicInteger(
-                                                                                     0);
 
     private String                                          operationName        = StringUtils.EMPTY_STRING;
 
@@ -186,7 +181,7 @@ public class SofaTracerSpan implements Span {
     public void finish(long endTime) {
         this.setEndTime(endTime);
         //Key record:report span
-        reportEvent();
+        //        reportEvent();
         this.sofaTracer.reportSpan(this);
         SpanExtensionFactory.logStoppedSpan(this);
     }
@@ -208,25 +203,9 @@ public class SofaTracerSpan implements Span {
             return;
         }
 
-        if (eventNum.incrementAndGet() > SofaTracerConstant.MAX_SPAN_EVENT_NUM) {
-            SelfLog.error("span events exceed max num");
-            return;
-        }
-
-        boolean result = this.events.offer(eventData);
-        if (!result) {
-            SelfLog.error("add event failed");
-        }
-    }
-
-    private void reportEvent() {
-        SpanEventData spanEventData = events.poll();
-        while (spanEventData != null && eventNum.decrementAndGet() >= 0) {
-            SofaTracerSpan span = this.cloneInstance();
-            span.setEventData(spanEventData);
-            this.sofaTracer.reportEvent(span);
-            spanEventData = events.poll();
-        }
+        SofaTracerSpan clonedSpan = this.cloneInstance();
+        clonedSpan.setEventData(eventData);
+        this.sofaTracer.reportEvent(clonedSpan);
     }
 
     @Override
@@ -257,7 +236,7 @@ public class SofaTracerSpan implements Span {
 
     @Override
     public Span setTag(String key, boolean value) {
-        this.tagsWithBool.put(key, Boolean.valueOf(value));
+        this.tagsWithBool.put(key, value);
         return this;
     }
 
@@ -368,7 +347,7 @@ public class SofaTracerSpan implements Span {
      */
     public void reportError(String errorType, Map<String, String> context, Throwable e,
                             String errorSourceApp, String... errorSources) {
-        Tags.ERROR.set(this, Boolean.valueOf(true));
+        Tags.ERROR.set(this, true);
         //all tags set
         Map<String, Object> tags = new HashMap<>();
         tags.putAll(this.getTagsWithStr());

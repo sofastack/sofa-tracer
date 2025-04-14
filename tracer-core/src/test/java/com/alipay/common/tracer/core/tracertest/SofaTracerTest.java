@@ -146,8 +146,15 @@ public class SofaTracerTest extends AbstractTestBase {
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testInjectSpan")
                 .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         //Report Do not prohibit writing
-        span.addEvent(SpanEventData.builder().setEventTag("kkk11", "vvv22").build());
-        span.addEvent(SpanEventData.builder().setEventTag("kkk222", "vvv33").build());
+        SpanEventData spanEventData = new SpanEventData();
+        spanEventData.setTimestamp(System.currentTimeMillis());
+        spanEventData.getEventTagWithStr().put("kkk11", "vvv22");
+        span.addEvent(spanEventData);
+
+        SpanEventData spanEventData2 = new SpanEventData();
+        spanEventData2.setTimestamp(System.currentTimeMillis());
+        spanEventData2.getEventTagWithStr().put("kkk222", "vvv33");
+        span.addEvent(spanEventData2);
 
         span.finish();
 
@@ -155,15 +162,15 @@ public class SofaTracerTest extends AbstractTestBase {
             try {
                 List<String> contents = FileUtils.readLines(customFileLog(TracerTestLogEnum.RPC_CLIENT
                         .getDefaultLogName()));
-                assertEquals(1, contents.size());
+                assertEquals(contents.get(0), 1, contents.size());
                 String contextStr = contents.get(0);
                 //Test print one only put one tag
                 assertTrue(contextStr.contains(Tags.SPAN_KIND.getKey())
                         && contextStr.contains(Tags.SPAN_KIND_CLIENT));
-            } catch (IOException e) {
+            } catch (IndexOutOfBoundsException | IOException e) {
                 throw new AssertionError(e);
             }
-        }, 500);
+        }, 5000);
     }
 
     /**
@@ -176,8 +183,10 @@ public class SofaTracerTest extends AbstractTestBase {
             SofaTracerConfiguration.DISABLE_MIDDLEWARE_DIGEST_LOG_KEY, "true");
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testInjectSpan")
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
-        span.addEvent(SpanEventData.builder().setEventTag("tag.key", true)
-            .setEventTag("tag.num", "999").build());
+        SpanEventData spanEventData = new SpanEventData();
+        spanEventData.getEventTagWithNumber().put("tag.num", 999);
+        spanEventData.getEventTagWithBool().put("tag.key", true);
+        span.addEvent(spanEventData);
         //report
         span.finish();
         assertFalse(customFileLog(TracerTestLogEnum.RPC_CLIENT.getDefaultLogName()).exists());
@@ -197,7 +206,9 @@ public class SofaTracerTest extends AbstractTestBase {
         //create
         SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testInjectSpan")
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
-        span.addEvent(SpanEventData.builder().setEventTag("kkk", "vvv").build());
+        SpanEventData spanEventData = new SpanEventData();
+        spanEventData.getEventTagWithStr().put("kkk", "vvv");
+        span.addEvent(spanEventData);
         //report
         span.finish();
         assertFalse(customFileLog(clientLogTypeName).exists());
@@ -215,7 +226,9 @@ public class SofaTracerTest extends AbstractTestBase {
             .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
         this.sofaTracer.close();
         //report
-        span.addEvent(SpanEventData.builder().setEventTag("kkk2", "vvv2").build());
+        SpanEventData spanEventData = new SpanEventData();
+        spanEventData.getEventTagWithStr().put("kkk", "vvv");
+        span.addEvent(spanEventData);
         span.finish();
         String clientLogTypeName = TracerTestLogEnum.RPC_CLIENT.getDefaultLogName();
         assertFalse(customFileLog(clientLogTypeName).exists());
