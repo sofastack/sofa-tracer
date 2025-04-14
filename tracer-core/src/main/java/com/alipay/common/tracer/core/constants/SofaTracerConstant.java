@@ -126,5 +126,5 @@ public class SofaTracerConstant {
     /**
      * The constant MAX_SPAN_EVENT_NUM.
      */
-    public static final int  MAX_SPAN_EVENT_NUM           = 100;
+    public static final int     MAX_SPAN_EVENT_NUM        = 100;
 }

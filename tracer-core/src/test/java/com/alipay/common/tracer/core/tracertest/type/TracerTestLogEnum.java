@@ -24,13 +24,13 @@ package com.alipay.common.tracer.core.tracertest.type;
  */
 public enum TracerTestLogEnum {
 
-    RPC_CLIENT("rpc_client_log_name", "rpc_client.log", "rpc_client_rolling"),
-    RPC_SERVER(
-            "rpc_server_log_name",
-            "rpc_server.log",
-            "rpc_server_rolling"),
-    RPC_CLIENT_EVENT("rpc_client_event_log_name", "rpc_client_event.log", "rpc_client_event_rolling"),;
-
+    RPC_CLIENT("rpc_client_log_name", "rpc_client.log", "rpc_client_rolling"), RPC_SERVER(
+                                                                                          "rpc_server_log_name",
+                                                                                          "rpc_server.log",
+                                                                                          "rpc_server_rolling"), RPC_CLIENT_EVENT(
+                                                                                                                                  "rpc_client_event_log_name",
+                                                                                                                                  "rpc_client_event.log",
+                                                                                                                                  "rpc_client_event_rolling"), ;
 
     private String logReverseKey;
 
