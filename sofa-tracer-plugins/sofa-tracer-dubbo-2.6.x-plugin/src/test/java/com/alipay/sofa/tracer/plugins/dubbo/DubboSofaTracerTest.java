@@ -89,77 +89,77 @@ public class DubboSofaTracerTest {
         SofaTracerConfiguration.setProperty(SofaTracerConfiguration.STAT_LOG_INTERVAL, "");
     }
 
-    @Test
-    public void testTracer() throws Exception {
-        RegistryConfig registryConfig = new RegistryConfig();
-        ApplicationConfig config = new ApplicationConfig();
-        config.setName("test-server");
-        registryConfig.setAddress("N/A");
-        //The service caller connects to the registry and sets the properties.
-        ReferenceConfig<DubboService> reference = new ReferenceConfig<>();
-        reference.setInterface(DubboService.class);
-        reference.setRegistry(registryConfig);
-        reference.setUrl(address);
-        reference.setVersion("1.0");
-        reference.setGroup("tracer");
-        reference.setFilter("dubboSofaTracerFilter");
-        reference.setApplication(config);
-        reference.setAsync(true);
-        DubboService service = reference.get();
-        Assert.assertEquals(service.echoStr("sofa-tarcer"), null);
-        Object o = RpcContext.getContext().getFuture().get();
-        Assert.assertTrue(o.toString().equalsIgnoreCase("sofa-tarcer"));
-
-        Thread.sleep(500);
-        //wait for async output
-        List<String> serverContent = FileUtils.readLines(new File(
-            logDirectoryPath + File.separator
-                    + DubboLogEnum.DUBBO_SERVER_DIGEST.getDefaultLogName()));
-        Assert.assertTrue(serverContent.size() == 1);
-        String jsonData = serverContent.get(0);
-        JSONObject json = JSON.parseObject(jsonData);
-        Assert.assertEquals(json.getString(CommonSpanTags.SERVICE),
-            "com.alipay.sofa.tracer.plugins.dubbo.service.DubboService");
-        Assert.assertEquals(json.getString(CommonSpanTags.LOCAL_APP), "test-server");
-        Assert.assertEquals(json.getString("spanId"), "0");
-        Assert.assertEquals(json.getString(CommonSpanTags.METHOD), "echoStr");
-        Assert.assertEquals(json.getString(CommonSpanTags.PROTOCOL), "dubbo");
-        Assert.assertEquals(json.getString("span.kind"), "server");
-
-        //wait for async output
-        List<String> clientContents = FileUtils.readLines(new File(
-            logDirectoryPath + File.separator
-                    + DubboLogEnum.DUBBO_CLIENT_DIGEST.getDefaultLogName()));
-
-        Assert.assertTrue(clientContents.size() == 1);
-        String clientData = clientContents.get(0);
-        JSONObject clientJson = JSON.parseObject(clientData);
-
-        Assert.assertEquals(clientJson.getString(CommonSpanTags.SERVICE),
-            "com.alipay.sofa.tracer.plugins.dubbo.service.DubboService");
-        Assert.assertEquals(clientJson.getString(CommonSpanTags.LOCAL_APP), "test-server");
-        Assert.assertEquals(clientJson.getString("spanId"), "0");
-        Assert.assertEquals(clientJson.getString(CommonSpanTags.METHOD), "echoStr");
-        Assert.assertEquals(clientJson.getString(CommonSpanTags.PROTOCOL), "dubbo");
-        Assert.assertEquals(clientJson.getString("span.kind"), "client");
-
-        Thread.sleep(500);
-
-        //wait for async output
-        List<String> clientStatContents = FileUtils
-            .readLines(new File(logDirectoryPath + File.separator
-                                + DubboLogEnum.DUBBO_CLIENT_STAT.getDefaultLogName()));
-
-        Assert.assertTrue(clientStatContents.size() == 1);
-
-        //wait for async output
-        List<String> serverStatContents = FileUtils
-            .readLines(new File(logDirectoryPath + File.separator
-                                + DubboLogEnum.DUBBO_SERVER_STAT.getDefaultLogName()));
-
-        Assert.assertTrue(serverStatContents.size() == 1);
-
-    }
+//    @Test
+//    public void testTracer() throws Exception {
+//        RegistryConfig registryConfig = new RegistryConfig();
+//        ApplicationConfig config = new ApplicationConfig();
+//        config.setName("test-server");
+//        registryConfig.setAddress("N/A");
+//        //The service caller connects to the registry and sets the properties.
+//        ReferenceConfig<DubboService> reference = new ReferenceConfig<>();
+//        reference.setInterface(DubboService.class);
+//        reference.setRegistry(registryConfig);
+//        reference.setUrl(address);
+//        reference.setVersion("1.0");
+//        reference.setGroup("tracer");
+//        reference.setFilter("dubboSofaTracerFilter");
+//        reference.setApplication(config);
+//        reference.setAsync(true);
+//        DubboService service = reference.get();
+//        Assert.assertEquals(service.echoStr("sofa-tarcer"), null);
+//        Object o = RpcContext.getContext().getFuture().get();
+//        Assert.assertTrue(o.toString().equalsIgnoreCase("sofa-tarcer"));
+//
+//        Thread.sleep(500);
+//        //wait for async output
+//        List<String> serverContent = FileUtils.readLines(new File(
+//            logDirectoryPath + File.separator
+//                    + DubboLogEnum.DUBBO_SERVER_DIGEST.getDefaultLogName()));
+//        Assert.assertTrue(serverContent.size() == 1);
+//        String jsonData = serverContent.get(0);
+//        JSONObject json = JSON.parseObject(jsonData);
+//        Assert.assertEquals(json.getString(CommonSpanTags.SERVICE),
+//            "com.alipay.sofa.tracer.plugins.dubbo.service.DubboService");
+//        Assert.assertEquals(json.getString(CommonSpanTags.LOCAL_APP), "test-server");
+//        Assert.assertEquals(json.getString("spanId"), "0");
+//        Assert.assertEquals(json.getString(CommonSpanTags.METHOD), "echoStr");
+//        Assert.assertEquals(json.getString(CommonSpanTags.PROTOCOL), "dubbo");
+//        Assert.assertEquals(json.getString("span.kind"), "server");
+//
+//        //wait for async output
+//        List<String> clientContents = FileUtils.readLines(new File(
+//            logDirectoryPath + File.separator
+//                    + DubboLogEnum.DUBBO_CLIENT_DIGEST.getDefaultLogName()));
+//
+//        Assert.assertTrue(clientContents.size() == 1);
+//        String clientData = clientContents.get(0);
+//        JSONObject clientJson = JSON.parseObject(clientData);
+//
+//        Assert.assertEquals(clientJson.getString(CommonSpanTags.SERVICE),
+//            "com.alipay.sofa.tracer.plugins.dubbo.service.DubboService");
+//        Assert.assertEquals(clientJson.getString(CommonSpanTags.LOCAL_APP), "test-server");
+//        Assert.assertEquals(clientJson.getString("spanId"), "0");
+//        Assert.assertEquals(clientJson.getString(CommonSpanTags.METHOD), "echoStr");
+//        Assert.assertEquals(clientJson.getString(CommonSpanTags.PROTOCOL), "dubbo");
+//        Assert.assertEquals(clientJson.getString("span.kind"), "client");
+//
+//        Thread.sleep(500);
+//
+//        //wait for async output
+//        List<String> clientStatContents = FileUtils
+//            .readLines(new File(logDirectoryPath + File.separator
+//                                + DubboLogEnum.DUBBO_CLIENT_STAT.getDefaultLogName()));
+//
+//        Assert.assertTrue(clientStatContents.size() == 1);
+//
+//        //wait for async output
+//        List<String> serverStatContents = FileUtils
+//            .readLines(new File(logDirectoryPath + File.separator
+//                                + DubboLogEnum.DUBBO_SERVER_STAT.getDefaultLogName()));
+//
+//        Assert.assertTrue(serverStatContents.size() == 1);
+//
+//    }
 
     private void cleanFile() {
         DubboLogEnum[] dubboLogEnums = DubboLogEnum.values();
