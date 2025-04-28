@@ -52,7 +52,7 @@ import static com.alipay.common.tracer.core.constants.SofaTracerConstant.SPACE_I
  * SofaTracer
  *
  * @author yangguanchao
- * @since 2017/06/17
+ * @since 2017 /06/17
  */
 public class SofaTracer implements Tracer {
 
@@ -90,6 +90,15 @@ public class SofaTracer implements Tracer {
      */
     private final Sampler             sampler;
 
+    /**
+     * Instantiates a new Sofa tracer.
+     *
+     * @param tracerType     the tracer type
+     * @param clientReporter the client reporter
+     * @param serverReporter the server reporter
+     * @param sampler        the sampler
+     * @param tracerTags     the tracer tags
+     */
     protected SofaTracer(String tracerType, Reporter clientReporter, Reporter serverReporter,
                          Sampler sampler, Map<String, Object> tracerTags) {
         this.tracerType = tracerType;
@@ -103,6 +112,12 @@ public class SofaTracer implements Tracer {
         }
     }
 
+    /**
+     * Instantiates a new Sofa tracer.
+     *
+     * @param tracerType the tracer type
+     * @param sampler    the sampler
+     */
     protected SofaTracer(String tracerType, Sampler sampler) {
         this.tracerType = tracerType;
         this.clientReporter = null;
@@ -112,6 +127,17 @@ public class SofaTracer implements Tracer {
         this.sampler = sampler;
     }
 
+    /**
+     * Instantiates a new Sofa tracer.
+     *
+     * @param tracerType          the tracer type
+     * @param clientReporter      the client reporter
+     * @param serverReporter      the server reporter
+     * @param clientEventReporter the client event reporter
+     * @param serverEventReporter the server event reporter
+     * @param sampler             the sampler
+     * @param tracerTags          the tracer tags
+     */
     protected SofaTracer(String tracerType, Reporter clientReporter, Reporter serverReporter,
                          Reporter clientEventReporter, Reporter serverEventReporter,
                          Sampler sampler, Map<String, Object> tracerTags) {
@@ -150,6 +176,11 @@ public class SofaTracer implements Tracer {
         return registryExtractor.extract(carrier);
     }
 
+    /**
+     * Report span.
+     *
+     * @param span the span
+     */
     public void reportSpan(SofaTracerSpan span) {
         if (span == null) {
             return;
@@ -175,15 +206,20 @@ public class SofaTracer implements Tracer {
         }
     }
 
+    /**
+     * Report event.
+     *
+     * @param span the span
+     */
     public void reportEvent(SofaTracerSpan span) {
         if (span == null) {
             return;
         }
-        // //sampler is support &  current span is root span
+        // sampler is support &  current span is root span
         if (sampler != null && (span.isClient() && span.getParentSofaTracerSpan() == null)) {
             span.getSofaTracerSpanContext().setSampled(sampler.sample(span).isSampled());
         }
-        //invoke listener
+        // invoke listener
         this.invokeReportListeners(span);
         if (span.isClient()
             || this.getTracerType().equalsIgnoreCase(ComponentNameConstants.FLEXIBLE)) {
@@ -195,7 +231,7 @@ public class SofaTracer implements Tracer {
                 this.serverEventReporter.report(span);
             }
         } else {
-            //ignore ,do not statical
+            // ignore ,do not statical
             SelfLog.warn("Span reported neither client nor server.Ignore!");
         }
     }
@@ -224,30 +260,65 @@ public class SofaTracer implements Tracer {
         }
     }
 
+    /**
+     * Gets tracer type.
+     *
+     * @return the tracer type
+     */
     public String getTracerType() {
         return tracerType;
     }
 
+    /**
+     * Gets client reporter.
+     *
+     * @return the client reporter
+     */
     public Reporter getClientReporter() {
         return clientReporter;
     }
 
+    /**
+     * Gets server reporter.
+     *
+     * @return the server reporter
+     */
     public Reporter getServerReporter() {
         return serverReporter;
     }
 
+    /**
+     * Gets client event reporter.
+     *
+     * @return the client event reporter
+     */
     public Reporter getClientEventReporter() {
         return clientEventReporter;
     }
 
+    /**
+     * Gets server event reporter.
+     *
+     * @return the server event reporter
+     */
     public Reporter getServerEventReporter() {
         return serverEventReporter;
     }
 
+    /**
+     * Gets sampler.
+     *
+     * @return the sampler
+     */
     public Sampler getSampler() {
         return sampler;
     }
 
+    /**
+     * Gets tracer tags.
+     *
+     * @return the tracer tags
+     */
     public Map<String, Object> getTracerTags() {
         return tracerTags;
     }
@@ -257,6 +328,11 @@ public class SofaTracer implements Tracer {
         return "SofaTracer{" + "tracerType='" + tracerType + '}';
     }
 
+    /**
+     * Invoke report listeners.
+     *
+     * @param sofaTracerSpan the sofa tracer span
+     */
     protected void invokeReportListeners(SofaTracerSpan sofaTracerSpan) {
         List<SpanReportListener> listeners = SpanReportListenerHolder
             .getSpanReportListenersHolder();
@@ -287,6 +363,11 @@ public class SofaTracer implements Tracer {
 
         private final Map<String, Object>                 tags       = new HashMap<>();
 
+        /**
+         * Instantiates a new Sofa tracer span builder.
+         *
+         * @param operationName the operation name
+         */
         public SofaTracerSpanBuilder(String operationName) {
             this.operationName = operationName;
         }
@@ -455,6 +536,9 @@ public class SofaTracer implements Tracer {
         }
     }
 
+    /**
+     * The type Builder.
+     */
     public static final class Builder {
 
         private final String        tracerType;
@@ -471,51 +555,113 @@ public class SofaTracer implements Tracer {
 
         private Sampler             sampler;
 
+        /**
+         * Instantiates a new Builder.
+         *
+         * @param tracerType the tracer type
+         */
         public Builder(String tracerType) {
             AssertUtils.isTrue(StringUtils.isNotBlank(tracerType), "tracerType must be not empty");
             this.tracerType = tracerType;
         }
 
+        /**
+         * With client reporter builder.
+         *
+         * @param clientReporter the client reporter
+         * @return the builder
+         */
         public Builder withClientReporter(Reporter clientReporter) {
             this.clientReporter = clientReporter;
             return this;
         }
 
+        /**
+         * With server reporter builder.
+         *
+         * @param serverReporter the server reporter
+         * @return the builder
+         */
         public Builder withServerReporter(Reporter serverReporter) {
             this.serverReporter = serverReporter;
             return this;
         }
 
+        /**
+         * With client event reporter builder.
+         *
+         * @param clientEventReporter the client event reporter
+         * @return the builder
+         */
         public Builder withClientEventReporter(Reporter clientEventReporter) {
             this.clientEventReporter = clientEventReporter;
             return this;
         }
 
+        /**
+         * With server event reporter builder.
+         *
+         * @param serverEventReporter the server event reporter
+         * @return the builder
+         */
         public Builder withServerEventReporter(Reporter serverEventReporter) {
             this.serverEventReporter = serverEventReporter;
             return this;
         }
 
+        /**
+         * With sampler builder.
+         *
+         * @param sampler the sampler
+         * @return the builder
+         */
         public Builder withSampler(Sampler sampler) {
             this.sampler = sampler;
             return this;
         }
 
+        /**
+         * With tag builder.
+         *
+         * @param key   the key
+         * @param value the value
+         * @return the builder
+         */
         public Builder withTag(String key, String value) {
             tracerTags.put(key, value);
             return this;
         }
 
+        /**
+         * With tag builder.
+         *
+         * @param key   the key
+         * @param value the value
+         * @return the builder
+         */
         public Builder withTag(String key, Boolean value) {
             tracerTags.put(key, value);
             return this;
         }
 
+        /**
+         * With tag builder.
+         *
+         * @param key   the key
+         * @param value the value
+         * @return the builder
+         */
         public Builder withTag(String key, Number value) {
             tracerTags.put(key, value);
             return this;
         }
 
+        /**
+         * With tags builder.
+         *
+         * @param tags the tags
+         * @return the builder
+         */
         public Builder withTags(Map<String, ?> tags) {
             if (tags == null || tags.size() <= 0) {
                 return this;
@@ -543,6 +689,11 @@ public class SofaTracer implements Tracer {
             return this;
         }
 
+        /**
+         * Build sofa tracer.
+         *
+         * @return the sofa tracer
+         */
         public SofaTracer build() {
             try {
                 sampler = SamplerFactory.getSampler();
