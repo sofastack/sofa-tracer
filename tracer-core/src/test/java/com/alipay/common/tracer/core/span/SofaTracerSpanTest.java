@@ -22,8 +22,10 @@ import com.alipay.common.tracer.core.base.AbstractTestBase;
 import com.alipay.common.tracer.core.context.span.SofaTracerSpanContext;
 import com.alipay.common.tracer.core.generator.TraceIdGenerator;
 import com.alipay.common.tracer.core.reporter.digest.DiskReporterImpl;
+import com.alipay.common.tracer.core.reporter.digest.event.SpanEventDiskReporter;
 import com.alipay.common.tracer.core.reporter.facade.Reporter;
 import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEncoder;
+import com.alipay.common.tracer.core.tracertest.encoder.ClientSpanEventEncoder;
 import com.alipay.common.tracer.core.tracertest.encoder.ServerSpanEncoder;
 import com.alipay.common.tracer.core.utils.StringUtils;
 import com.google.common.collect.Lists;
@@ -38,12 +40,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * SofaTracerSpan Tester.
@@ -54,9 +59,13 @@ import static org.junit.Assert.*;
  */
 public class SofaTracerSpanTest extends AbstractTestBase {
 
-    private final String   clientLogType = "client-log-test.log";
+    private final String   clientLogType   = "client-log-test.log";
 
-    private final String   serverLogType = "server-log-test.log";
+    private final String   clientEventType = "client-event-log-test.log";
+
+    private final String   serverLogType   = "server-log-test.log";
+
+    private final String   serverEventType = "server-event-log-test.log";
 
     private SofaTracer     sofaTracer;
 
@@ -68,10 +77,16 @@ public class SofaTracerSpanTest extends AbstractTestBase {
 
         Reporter serverReporter = new DiskReporterImpl(serverLogType, new ServerSpanEncoder());
 
+        Reporter clientEventReporter = new SpanEventDiskReporter(clientEventType, "", "",
+            new ClientSpanEventEncoder(), null);
+
+        Reporter serverEventReporter = new SpanEventDiskReporter(serverEventType, "", "",
+            new ClientSpanEventEncoder(), null);
         String tracerType = "SofaTracerSpanTest";
         sofaTracer = new SofaTracer.Builder(tracerType)
             .withTag("tracer", "SofaTraceContextHolderTest").withClientReporter(clientReporter)
-            .withServerReporter(serverReporter).build();
+            .withServerReporter(serverReporter).withClientEventReporter(clientEventReporter)
+            .withServerEventReporter(serverEventReporter).build();
 
         sofaTracerSpan = (SofaTracerSpan) this.sofaTracer.buildSpan("SofaTracerSpanTest").start();
     }
@@ -214,6 +229,17 @@ public class SofaTracerSpanTest extends AbstractTestBase {
         span.finish();
         assertTrue("Endtime : " + endTime + ", Duration :" + span.getDurationMicroseconds(),
             111 < span.getDurationMicroseconds() && span.getDurationMicroseconds() < endTime);
+    }
+
+    @Test
+    public void testEvent() {
+        SofaTracerSpan span = (SofaTracerSpan) this.sofaTracer.buildSpan("testWithTimestamp")
+            .withStartTimestamp(111).start();
+        SpanEventData spanEventData = new SpanEventData();
+        spanEventData.setTimestamp(System.currentTimeMillis());
+        spanEventData.getEventTagWithStr().put("tag.key", "value");
+        span.addEvent(spanEventData);
+        span.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
     }
 
     /**
