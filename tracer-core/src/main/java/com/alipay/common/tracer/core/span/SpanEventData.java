@@ -30,13 +30,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SpanEventData implements Serializable {
 
-    private long timestamp;
+    private long                       timestamp;
 
-    private final Map<String, String> eventTagWithStr = new ConcurrentHashMap<>();
+    private final Map<String, String>  eventTagWithStr    = new ConcurrentHashMap<>();
 
-    private final Map<String, Number> eventTagWithNumber = new ConcurrentHashMap<>();
+    private final Map<String, Number>  eventTagWithNumber = new ConcurrentHashMap<>();
 
-    private final Map<String, Boolean> eventTagWithBool = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> eventTagWithBool   = new ConcurrentHashMap<>();
 
     /**
      * Gets timestamp.
