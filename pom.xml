@@ -409,6 +409,7 @@
                         <include>**/*Test.java</include>
                         <skipTests>${skipTests}</skipTests>
                     </includes>
+                    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                 </configuration>
                 <dependencies>
                     <dependency>
