@@ -16,7 +16,6 @@
  */
 package com.alipay.common.tracer.core.span;
 
-import com.alipay.common.tracer.core.appender.self.Timestamp;
 import com.alipay.common.tracer.core.utils.StringUtils;
 
 import java.io.Serializable;
@@ -31,13 +30,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SpanEventData implements Serializable {
 
-    private long                       timestamp;
+    private long timestamp;
 
-    private final Map<String, String>  eventTagWithStr    = new ConcurrentHashMap<>();
+    private final Map<String, String> eventTagWithStr = new ConcurrentHashMap<>();
 
-    private final Map<String, Number>  eventTagWithNumber = new ConcurrentHashMap<>();
+    private final Map<String, Number> eventTagWithNumber = new ConcurrentHashMap<>();
 
-    private final Map<String, Boolean> eventTagWithBool   = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> eventTagWithBool = new ConcurrentHashMap<>();
 
     /**
      * Gets timestamp.
@@ -46,6 +45,15 @@ public class SpanEventData implements Serializable {
      */
     public long getTimestamp() {
         return timestamp;
+    }
+
+    /**
+     * Sets timestamp.
+     *
+     * @param timestamp the timestamp
+     */
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     /**
@@ -75,7 +83,45 @@ public class SpanEventData implements Serializable {
         return eventTagWithStr;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    /**
+     * Adds a string tag to this event.
+     *
+     * @param key   the tag key
+     * @param value the tag value
+     * @return this SpanEventData for chaining
+     */
+    public SpanEventData addTag(String key, String value) {
+        if (StringUtils.isNotBlank(key) && value != null) {
+            eventTagWithStr.put(key, value);
+        }
+        return this;
+    }
+
+    /**
+     * Adds a numeric tag to this event.
+     *
+     * @param key   the tag key
+     * @param value the tag value
+     * @return this SpanEventData for chaining
+     */
+    public SpanEventData addTag(String key, Number value) {
+        if (StringUtils.isNotBlank(key) && value != null) {
+            eventTagWithNumber.put(key, value);
+        }
+        return this;
+    }
+
+    /**
+     * Adds a boolean tag to this event.
+     *
+     * @param key   the tag key
+     * @param value the tag value
+     * @return this SpanEventData for chaining
+     */
+    public SpanEventData addTag(String key, Boolean value) {
+        if (StringUtils.isNotBlank(key) && value != null) {
+            eventTagWithBool.put(key, value);
+        }
+        return this;
     }
 }

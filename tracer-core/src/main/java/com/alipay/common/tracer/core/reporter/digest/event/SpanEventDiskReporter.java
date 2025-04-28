@@ -24,7 +24,6 @@ import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.reporter.digest.AbstractDiskReporter;
 import com.alipay.common.tracer.core.reporter.digest.manager.SofaTracerDigestReporterAsyncManager;
-import com.alipay.common.tracer.core.reporter.stat.SofaTracerStatisticReporter;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
 import com.alipay.common.tracer.core.utils.AssertUtils;
 import com.alipay.common.tracer.core.utils.StringUtils;
@@ -41,29 +40,29 @@ public class SpanEventDiskReporter extends AbstractDiskReporter {
 
     private final AtomicBoolean isEventFileInited = new AtomicBoolean(false);
 
-    private final String        eventLogType;
+    private final String eventLogType;
 
-    private final String        eventRollingPolicy;
+    private final String eventRollingPolicy;
 
-    private String              eventLogReserveConfig;
+    private String eventLogReserveConfig;
 
-    private final SpanEncoder   contextEncoder;
+    private final SpanEncoder contextEncoder;
 
-    private String              logNameKey;
+    private String logNameKey;
 
     /**
      * Instantiates a new Span event disk reporter.
-     *
-     * @param eventLogType           the event log type
-     * @param eventRollingPolicy     the event rolling policy
-     * @param eventLogReserveConfig the digest log reserve config
-     * @param contextEncoder         the context encoder
-     * @param logNameKey             the log name key
+     * @param eventLogType          the event log type
+     * @param eventRollingPolicy    the event rolling policy
+     * @param eventLogReserveConfig the event log reserve config
+     * @param contextEncoder        the context encoder
+     * @param logNameKey            the log name key
      */
     public SpanEventDiskReporter(String eventLogType, String eventRollingPolicy,
                                  String eventLogReserveConfig, SpanEncoder contextEncoder,
                                  String logNameKey) {
-        AssertUtils.hasText(eventLogType, "digestLogType can't be empty");
+        AssertUtils.hasText(eventLogType, "eventLogType can't be empty");
+        AssertUtils.notNull(contextEncoder, "contextEncoder can't be null");
         this.eventLogType = eventLogType;
         this.eventRollingPolicy = eventRollingPolicy;
         this.eventLogReserveConfig = eventLogReserveConfig;
@@ -103,7 +102,7 @@ public class SpanEventDiskReporter extends AbstractDiskReporter {
             this.initDigestFile();
         }
         AsyncCommonDigestAppenderManager asyncDigestManager = SofaTracerDigestReporterAsyncManager
-            .getSofaTracerDigestReporterAsyncManager();
+                .getSofaTracerDigestReporterAsyncManager();
         if (asyncDigestManager.isAppenderAndEncoderExist(this.eventLogType)) {
             //Print only when appender and encoder are present
             asyncDigestManager.append(span);
@@ -163,24 +162,24 @@ public class SpanEventDiskReporter extends AbstractDiskReporter {
         }
         if (StringUtils.isNotBlank(logNameKey)) {
             String currentDigestLogReserveConfig = SofaTracerConfiguration
-                .getLogReserveConfig(logNameKey);
+                    .getLogReserveConfig(logNameKey);
             if (!currentDigestLogReserveConfig.equals(eventLogReserveConfig)) {
                 SelfLog.info("the lognamekey : " + logNameKey
-                             + " take effect. the old logreserveconfig is " + eventLogReserveConfig
-                             + " and " + "the new logreverseconfig is "
-                             + currentDigestLogReserveConfig);
+                        + " take effect. the old logreserveconfig is " + eventLogReserveConfig
+                        + " and " + "the new logreverseconfig is "
+                        + currentDigestLogReserveConfig);
                 eventLogReserveConfig = currentDigestLogReserveConfig;
             }
         }
         TraceAppender digestTraceAppender = LoadTestAwareAppender
-            .createLoadTestAwareTimedRollingFileAppender(this.eventLogType,
-                this.eventRollingPolicy, this.eventLogReserveConfig);
+                .createLoadTestAwareTimedRollingFileAppender(this.eventLogType,
+                        this.eventRollingPolicy, this.eventLogReserveConfig);
         //registry digest
         AsyncCommonDigestAppenderManager asyncDigestManager = SofaTracerDigestReporterAsyncManager
-            .getSofaTracerDigestReporterAsyncManager();
+                .getSofaTracerDigestReporterAsyncManager();
         if (!asyncDigestManager.isAppenderAndEncoderExist(this.eventLogType)) {
             asyncDigestManager.addAppender(this.eventLogType, digestTraceAppender,
-                this.contextEncoder);
+                    this.contextEncoder);
         }
         //Already exists or created for the first time
         this.isEventFileInited.set(true);

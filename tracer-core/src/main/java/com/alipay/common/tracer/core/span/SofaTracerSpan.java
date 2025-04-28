@@ -40,8 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
 
 /**
  * SofaTracerSpan
@@ -181,7 +179,6 @@ public class SofaTracerSpan implements Span {
     public void finish(long endTime) {
         this.setEndTime(endTime);
         //Key record:report span
-        //        reportEvent();
         this.sofaTracer.reportSpan(this);
         SpanExtensionFactory.logStoppedSpan(this);
     }
