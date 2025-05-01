@@ -131,6 +131,17 @@ public class TimedRollingFileAppender extends AbstractRollingFileAppender {
         TracerDaemon.watch(this);
     }
 
+    public void resetTimedRollingFilleConfig(String datePattern) {
+        this.datePattern = datePattern;
+        sdf = new SimpleDateFormat(this.datePattern);
+        rc.setType(computeCheckPeriod());
+        scheduledFilename = fileName + sdf.format(new Date(logFile.lastModified()));
+        TracerDaemon.watch(this);
+        //重置 nextCheck
+        now.setTime(System.currentTimeMillis());
+        this.nextCheck = rc.getNextCheckMillis(now);
+    }
+
     /**
      * Determine if RollOver should be done now
      * @return true:Now RollOver
