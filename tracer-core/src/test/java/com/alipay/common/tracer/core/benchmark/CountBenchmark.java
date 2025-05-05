@@ -17,7 +17,6 @@
 package com.alipay.common.tracer.core.benchmark;
 
 import com.alipay.common.tracer.core.utils.StringUtils;
-import org.junit.Test;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
@@ -77,7 +76,6 @@ public class CountBenchmark {
         blackhole.consume(StringUtils.countMatches(RPC_ID, '.'));
     }
 
-    @Test
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder().include(CountBenchmark.class.getSimpleName()).forks(1)
             .build();
