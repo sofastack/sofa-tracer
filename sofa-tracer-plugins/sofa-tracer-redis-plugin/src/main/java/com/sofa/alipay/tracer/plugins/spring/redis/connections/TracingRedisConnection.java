@@ -202,7 +202,7 @@ public class TracingRedisConnection implements RedisConnection {
 
     @Override
   public Long exists(byte[]... keys) {
-    return actionWrapper.doInScope(RedisCommand.EXISTS, keys, connection::exists);
+    return actionWrapper.doInScope(RedisCommand.EXISTS, keys, () -> connection.exists(keys));
   }
 
     @Override
@@ -212,7 +212,7 @@ public class TracingRedisConnection implements RedisConnection {
 
     @Override
   public Long unlink(byte[]... keys) {
-    return actionWrapper.doInScope(RedisCommand.UNLINK, keys, connection::unlink);
+    return actionWrapper.doInScope(RedisCommand.UNLINK, keys, () -> connection.unlink(keys));
   }
 
     @Override
@@ -222,7 +222,7 @@ public class TracingRedisConnection implements RedisConnection {
 
     @Override
   public Long touch(byte[]... keys) {
-    return actionWrapper.doInScope(RedisCommand.TOUCH, keys, connection::touch);
+    return actionWrapper.doInScope(RedisCommand.TOUCH, keys, () -> connection.touch(keys));
   }
 
     @Override
