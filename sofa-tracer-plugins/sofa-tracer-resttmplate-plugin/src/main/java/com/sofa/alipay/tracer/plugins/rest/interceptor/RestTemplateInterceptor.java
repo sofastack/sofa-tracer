@@ -17,10 +17,9 @@
 package com.sofa.alipay.tracer.plugins.rest.interceptor;
 
 import com.alipay.common.tracer.core.SofaTracer;
+import com.alipay.common.tracer.core.appender.self.SelfLog;
 import com.alipay.common.tracer.core.configuration.SofaTracerConfiguration;
 import com.alipay.common.tracer.core.constants.SofaTracerConstant;
-import com.alipay.common.tracer.core.context.trace.SofaTraceContext;
-import com.alipay.common.tracer.core.holder.SofaTraceContextHolder;
 import com.alipay.common.tracer.core.registry.ExtendFormat;
 import com.alipay.common.tracer.core.span.CommonSpanTags;
 import com.alipay.common.tracer.core.span.SofaTracerSpan;
@@ -54,32 +53,40 @@ public class RestTemplateInterceptor implements ClientHttpRequestInterceptor {
     public ClientHttpResponse intercept(HttpRequest request, byte[] body,
                                         ClientHttpRequestExecution execution) throws IOException {
         SofaTracerSpan sofaTracerSpan = restTemplateTracer.clientSend(request.getMethod().name());
-        appendRestTemplateRequestSpanTags(request, sofaTracerSpan);
         ClientHttpResponse response = null;
         Throwable t = null;
         try {
+            appendRestTemplateRequestSpanTags(request, sofaTracerSpan);
             return response = execution.execute(request, body);
         } catch (IOException e) {
             t = e;
             throw e;
         } finally {
-            SofaTraceContext sofaTraceContext = SofaTraceContextHolder.getSofaTraceContext();
-            SofaTracerSpan currentSpan = sofaTraceContext.getCurrentSpan();
             String resultCode = SofaTracerConstant.RESULT_CODE_ERROR;
-            // is get error
-            if (t != null) {
-                currentSpan.setTag(Tags.ERROR.getKey(), t.getMessage());
-                // current thread name
-                sofaTracerSpan.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread.currentThread()
-                    .getName());
+            try {
+                // is get error
+                if (t != null && sofaTracerSpan != null) {
+                    sofaTracerSpan.setTag(Tags.ERROR.getKey(), t.getMessage());
+                    // current thread name
+                    sofaTracerSpan.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread
+                        .currentThread().getName());
+                }
+                if (response != null) {
+                    //finish
+                    resultCode = String.valueOf(response.getStatusCode().value());
+                    //tag append
+                    appendRestTemplateResponseSpanTags(response, sofaTracerSpan);
+                }
+            } catch (Exception e) {
+                if (sofaTracerSpan != null) {
+                    sofaTracerSpan.setTag(Tags.ERROR.getKey(), e.getMessage());
+                    sofaTracerSpan.setTag(CommonSpanTags.CURRENT_THREAD_NAME, Thread
+                        .currentThread().getName());
+                }
+                SelfLog.error("Failed to finish RestTemplate client span.", e);
+            } finally {
+                restTemplateTracer.clientReceive(resultCode);
             }
-            if (response != null) {
-                //tag append
-                appendRestTemplateResponseSpanTags(response, currentSpan);
-                //finish
-                resultCode = String.valueOf(response.getStatusCode().value());
-            }
-            restTemplateTracer.clientReceive(resultCode);
         }
     }
 
