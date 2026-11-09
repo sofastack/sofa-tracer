@@ -1,0 +1,16 @@
+sofa-tracer-plugins/sofa-tracer-resttmplate-plugin/src/main/java/com/sofa/alipay/tracer/plugins/rest/interceptor/RestTemplateInterceptor.java
+  h_49b6c58cd7e839 20,59,66-88
+sofa-tracer-plugins/sofa-tracer-resttmplate-plugin/src/test/java/com/sofa/alipay/tracer/plugins/rest/interceptor/RestTemplateInterceptorTest.java
+  h_49b6c58cd7e839 1-90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "302bf1473c991139f84fca0be5fe8339af68e1f2",
+  "prompts": {},
+  "humans": {
+    "h_49b6c58cd7e839": {
+      "author": "liujianjun.ljj <liujianjun.ljj@antgroup.com>"
+    }
+  }
+}
